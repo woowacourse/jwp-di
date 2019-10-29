@@ -13,12 +13,12 @@ import java.util.*;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
+    private Set<Class<?>> preInstantiateBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
+        this.preInstantiateBeans = preInstantiateBeans;
         initialize();
     }
 
@@ -28,16 +28,16 @@ public class BeanFactory {
     }
 
     private void initialize() {
-        preInstanticateBeans.forEach(aClass -> {
+        preInstantiateBeans.forEach(aClass -> {
             try {
-                instanticate(aClass);
+                instantiate(aClass);
             } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
                 throw new RuntimeException("빈 초기화 실패");
             }
         });
     }
 
-    private Object instanticate(Class<?> aClass) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    private Object instantiate(Class<?> aClass) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         if (beans.containsKey(aClass)) {
             return beans.get(aClass);
         }
@@ -52,8 +52,8 @@ public class BeanFactory {
         List<Object> arguments = new ArrayList<>();
         Class[] parameterTypes = constructor.getParameterTypes();
         for (Class clazz : parameterTypes) {
-            Class cls = BeanFactoryUtils.findConcreteClass(clazz, preInstanticateBeans);
-            arguments.add(instanticate(cls));
+            Class cls = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
+            arguments.add(instantiate(cls));
         }
 
         beans.put(aClass, constructor.newInstance(arguments.toArray()));
@@ -62,7 +62,7 @@ public class BeanFactory {
 
     public Map<Class<?>, Object> getControllers() {
         Map<Class<?>, Object> controllers = Maps.newHashMap();
-        for (Class<?> clazz : preInstanticateBeans) {
+        for (Class<?> clazz : preInstantiateBeans) {
             if (clazz.isAnnotationPresent(Controller.class)) {
                 controllers.put(clazz, beans.get(clazz));
             }
