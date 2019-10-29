@@ -27,7 +27,7 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() {
+    private void initialize() {
         preInstanticateBeans.forEach(aClass -> {
             try {
                 instanticate(aClass);
