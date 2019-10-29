@@ -25,26 +25,26 @@ public class BeanFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private Object instantiate(final Class<?> aClass) {
-        if (beans.containsKey(aClass)) {
-            return beans.get(aClass);
+    private Object instantiate(final Class<?> clazz) {
+        if (beans.containsKey(clazz)) {
+            return beans.get(clazz);
         }
-        final Constructor constructor = BeanFactoryUtils.getInjectedConstructor(aClass);
+        final Constructor constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
         final Object bean = Objects.isNull(constructor)
-                ? BeanUtils.instantiateClass(aClass)
-                : BeanUtils.instantiateClass(constructor, getArguments(constructor).toArray());
-        beans.put(aClass, bean);
+                ? BeanUtils.instantiateClass(clazz)
+                : BeanUtils.instantiateClass(constructor, getParameters(constructor));
+        beans.put(clazz, bean);
         return bean;
     }
 
-    private List<Object> getArguments(final Constructor constructor) {
-        final List<Object> arguments = new ArrayList<>();
+    private Object[] getParameters(final Constructor constructor) {
+        final List<Object> parameters = new ArrayList<>();
         final Class[] parameterTypes = constructor.getParameterTypes();
         for (final Class clazz : parameterTypes) {
             final Class cls = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
-            arguments.add(instantiate(cls));
+            parameters.add(instantiate(cls));
         }
-        return arguments;
+        return parameters.toArray();
     }
 
     public Map<Class<?>, Object> getControllers() {
