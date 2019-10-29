@@ -18,11 +18,13 @@ public class BeanScanner {
     private final Reflections reflections;
     private final Set<Class<?>> preInstantiateBeans;
 
+    @SuppressWarnings("unchecked")
     public BeanScanner(final Object... basePackage) {
         reflections = new Reflections(basePackage);
         preInstantiateBeans = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
     }
 
+    @SuppressWarnings("unchecked")
     private Set<Class<?>> getTypesAnnotatedWith(final Class<? extends Annotation>... annotations) {
         final Set<Class<?>> beans = new HashSet<>();
         for (final Class<? extends Annotation> annotation : annotations) {

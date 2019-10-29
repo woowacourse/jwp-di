@@ -8,11 +8,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class BeanFactory {
-    private final Set<Class<?>> preInstanticateBeans;
+    private final Set<Class<?>> preInstantiateBeans;
     private final Map<Class<?>, Object> beans = new HashMap<>();
 
-    public BeanFactory(final Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    public BeanFactory(final Set<Class<?>> preInstantiateBeans) {
+        this.preInstantiateBeans = preInstantiateBeans;
         initialize();
     }
 
@@ -22,16 +22,16 @@ public class BeanFactory {
     }
 
     private void initialize() {
-        preInstanticateBeans.forEach(aClass -> {
+        preInstantiateBeans.forEach(aClass -> {
             try {
-                instanticate(aClass);
+                instantiate(aClass);
             } catch (final IllegalAccessException | InvocationTargetException | InstantiationException e) {
                 throw new RuntimeException("Bean 초기화 실패");
             }
         });
     }
 
-    private Object instanticate(final Class<?> aClass) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    private Object instantiate(final Class<?> aClass) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         // Bean 저장소에 aClass에 해당하는 인스턴스가 이미 존재하면 해당 인스턴스 반환
         if (beans.containsKey(aClass)) {
             return beans.get(aClass);
@@ -50,8 +50,8 @@ public class BeanFactory {
         final List<Object> arguments = new ArrayList<>();
         final Class[] parameterTypes = constructor.getParameterTypes();
         for (final Class clazz : parameterTypes) {
-            final Class cls = BeanFactoryUtils.findConcreteClass(clazz, preInstanticateBeans);
-            arguments.add(instanticate(cls));
+            final Class cls = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
+            arguments.add(instantiate(cls));
         }
         beans.put(aClass, constructor.newInstance(arguments.toArray()));
         return beans.get(aClass);
@@ -59,7 +59,7 @@ public class BeanFactory {
 
     public Map<Class<?>, Object> getControllers() {
         final Map<Class<?>, Object> controllers = new HashMap<>();
-        for (final Class<?> clazz : preInstanticateBeans) {
+        for (final Class<?> clazz : preInstantiateBeans) {
             if (clazz.isAnnotationPresent(Controller.class)) {
                 controllers.put(clazz, beans.get(clazz));
             }
