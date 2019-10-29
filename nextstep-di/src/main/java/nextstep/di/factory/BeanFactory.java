@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -18,6 +19,7 @@ public class BeanFactory {
 
     public BeanFactory(Set<Class<?>> preInstanticateBeans) {
         this.preInstanticateBeans = preInstanticateBeans;
+        initialize();
     }
 
     @SuppressWarnings("unchecked")
@@ -28,7 +30,7 @@ public class BeanFactory {
     public void initialize() {
         preInstanticateBeans.forEach(aClass -> {
             try {
-                beans.put(aClass, instanticate(aClass));
+                instanticate(aClass);
             } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
                 throw new RuntimeException("빈 초기화 실패");
             }
@@ -60,5 +62,15 @@ public class BeanFactory {
 
         beans.put(aClass, constructor.newInstance(arguments.toArray()));
         return beans.get(aClass);
+    }
+
+    public Map<Class<?>, Object> getControllers() {
+        Map<Class<?>, Object> controllers = Maps.newHashMap();
+        for (Class<?> clazz : preInstanticateBeans) {
+            if (clazz.isAnnotationPresent(Controller.class)) {
+                controllers.put(clazz, beans.get(clazz));
+            }
+        }
+        return controllers;
     }
 }
