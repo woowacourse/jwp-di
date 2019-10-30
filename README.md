@@ -9,5 +9,10 @@
 ## 요구사항
 
 - @Service, @Repository 클래스 스캔
+    
+    1. 빈 주입시 Service가 다른 Service를 주입하는 경우 고려
+        @Inject가 없는 경우 기본생성자를 이용하여 빈으로 등록
+        그 외 경우는 initializeInjectedBeans로 빈 등록
+
 - @Inject에 필요한 객체를 찾아서 주입 / 생성
 - 기존의 @Controller를 스캔하는 ControllerScanner 클래스를 확장된 BeanScanner와 통합
