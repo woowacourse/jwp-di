@@ -21,11 +21,11 @@ public class BeanScanner {
 
     public BeanScanner(Object... basePackage) {
         reflections = new Reflections(basePackage);
-        initate();
+        initiate();
     }
 
     @SuppressWarnings("unchecked")
-    private void initate() {
+    private void initiate() {
         Set<Class<?>> preInstantiateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
         beanFactory = new BeanFactory(preInstantiateClazz);
         beanFactory.initialize();
