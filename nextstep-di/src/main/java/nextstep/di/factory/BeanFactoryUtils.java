@@ -40,12 +40,14 @@ public class BeanFactoryUtils {
      */
     public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
         if (!injectedClazz.isInterface()) {
+            logger.debug("{} isn't interface", injectedClazz);
             return injectedClazz;
         }
 
         for (Class<?> clazz : preInstanticateBeans) {
             Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
             if (interfaces.contains(injectedClazz)) {
+                logger.debug("{} is interface", injectedClazz);
                 return clazz;
             }
         }
