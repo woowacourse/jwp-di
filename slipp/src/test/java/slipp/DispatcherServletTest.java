@@ -1,5 +1,6 @@
 package slipp;
 
+import nextstep.di.scanner.BeanScanner;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
@@ -28,8 +29,10 @@ class DispatcherServletTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
+        BeanScanner beanScanner = new BeanScanner("slipp");
+
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcher.addHandlerMapping(new AnnotationHandlerMapping(beanScanner));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());
@@ -52,7 +55,7 @@ class DispatcherServletTest {
 
     @Test
     void annotation_user_create() throws Exception {
-        User user = new User("pobi", "password", "포비", "pobi@nextstep.camp");
+        User user = new User("pobi1", "password", "포비", "pobi@nextstep.camp");
         createUser(user);
         assertThat(response.getRedirectedUrl()).isEqualTo("/");
     }
