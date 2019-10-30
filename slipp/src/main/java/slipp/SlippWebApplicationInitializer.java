@@ -20,7 +20,6 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
     public void onStartup(ServletContext servletContext) throws ServletException {
         BeanScanner beanScanner = new BeanScanner("slipp");
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-//        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
         dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(beanScanner));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
