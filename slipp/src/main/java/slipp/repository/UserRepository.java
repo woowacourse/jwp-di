@@ -1,30 +1,17 @@
 package slipp.repository;
 
-import nextstep.stereotype.Repository;
-import slipp.dao.UserDao;
 import slipp.domain.User;
 
 import java.sql.SQLException;
 import java.util.List;
 
-@Repository
-public class UserRepository {
+public interface UserRepository {
 
-    private UserDao userDao = UserDao.getInstance();
+    void insert(User user);
 
-    public void insert(User user) {
-        userDao.insert(user);
-    }
+    User findById(String userId);
 
-    public User findById(String userId) {
-        return userDao.findByUserId(userId);
-    }
+    void update(User user);
 
-    public void update(User user) {
-        userDao.update(user);
-    }
-
-    public List<User> findAll() throws SQLException {
-        return userDao.findAll();
-    }
+    List<User> findAll() throws SQLException;
 }
