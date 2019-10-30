@@ -26,8 +26,8 @@ public class BeanScanner {
 
     @SuppressWarnings("unchecked")
     private void initiate() {
-        Set<Class<?>> preInstantiateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstantiateClazz);
+        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        beanFactory = new BeanFactory(preInstanticateClazz);
         beanFactory.initialize();
     }
 

@@ -14,12 +14,12 @@ import java.util.Set;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiateBeans;
+    private Set<Class<?>> preInstanticateBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
+        this.preInstanticateBeans = preInstanticateBeans;
     }
 
     @SuppressWarnings("unchecked")
@@ -28,33 +28,33 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> preInstantiateBean : preInstantiateBeans) {
-            scanBean(preInstantiateBean);
+        for (Class<?> preInstanticateBean : preInstanticateBeans) {
+            scanBean(preInstanticateBean);
         }
     }
 
-    private Object scanBean(Class<?> preInstantiateBean) {
-        if (beans.containsKey(preInstantiateBean)) {
-            return beans.get(preInstantiateBean);
+    private Object scanBean(Class<?> preInstanticateBean) {
+        if (beans.containsKey(preInstanticateBean)) {
+            return beans.get(preInstanticateBean);
         }
 
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstantiateBean);
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
 
         if (Objects.isNull(injectedConstructor)) {
-            Object instance = BeanUtils.instantiateClass(preInstantiateBean);
-            beans.put(preInstantiateBean, instance);
-            logger.debug("bean name : {}, instance : {}", preInstantiateBean, instance);
+            Object instance = BeanUtils.instantiateClass(preInstanticateBean);
+            beans.put(preInstanticateBean, instance);
+            logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
             return instance;
         }
 
-        return putParameterizedObject(preInstantiateBean, injectedConstructor);
+        return putParameterizedObject(preInstanticateBean, injectedConstructor);
     }
 
-    private Object putParameterizedObject(Class<?> preInstantiateBean, Constructor<?> constructor) {
+    private Object putParameterizedObject(Class<?> preInstanticateBean, Constructor<?> constructor) {
         Object[] params = getConstructorParams(constructor);
         Object instance = BeanUtils.instantiateClass(constructor, params);
-        beans.put(preInstantiateBean, instance);
-        logger.debug("bean name : {}, instance : {}", preInstantiateBean, instance);
+        beans.put(preInstanticateBean, instance);
+        logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
         return instance;
     }
 
@@ -62,7 +62,7 @@ public class BeanFactory {
         Object[] params = new Object[constructor.getParameterCount()];
         for (int i = 0; i < params.length; i++) {
             Class<?> parameterType = constructor.getParameterTypes()[i];
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateBeans);
             params[i] = scanBean(concreteClass);
         }
         return params;
