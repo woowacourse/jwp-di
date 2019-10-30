@@ -1,5 +1,6 @@
 package slipp;
 
+import nextstep.di.scanner.BeanScanner;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
@@ -17,8 +18,10 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
+        BeanScanner beanScanner = new BeanScanner("slipp");
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
+//        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(beanScanner));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
