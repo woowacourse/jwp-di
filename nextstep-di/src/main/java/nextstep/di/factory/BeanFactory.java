@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Objects;
@@ -65,6 +66,16 @@ public class BeanFactory {
             params[i] = scanBean(concreteClass);
         }
         return params;
+    }
+
+    public Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
+        Map<Class<?>, Object> annotatedClass = Maps.newHashMap();
+        for (Class<?> clazz : beans.keySet()) {
+            if (clazz.isAnnotationPresent(annotation)) {
+                annotatedClass.put(clazz, beans.get(clazz));
+            }
+        }
+        return annotatedClass;
     }
 }
 
