@@ -13,8 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
@@ -52,5 +54,12 @@ public class BeanFactoryTest {
         }
         log.debug("Scan Beans Type : {}", beans);
         return beans;
+    }
+
+    @Test
+    void getControllers() {
+        Map<Class<?>, Object> controllers = beanFactory.getControllers();
+        assertThat(controllers.containsKey(QnaController.class)).isTrue();
+        assertThat(controllers.size()).isEqualTo(1);
     }
 }

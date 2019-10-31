@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -71,5 +73,11 @@ public class BeanFactory {
             parameters.add(getBean(parameterType));
         }
         return injectedConstructor.newInstance(parameters.toArray());
+    }
+
+    public Map<Class<?>, Object> getControllers() {
+        return beans.values().stream()
+                .filter(bean -> bean.getClass().isAnnotationPresent(Controller.class))
+                .collect(Collectors.toMap(Object::getClass, bean -> bean));
     }
 }
