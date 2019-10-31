@@ -48,7 +48,9 @@ public class BeanFactoryTest {
     private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
+            Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(annotation);
+            log.debug("annotation: {}, beans : {}", annotation, typesAnnotatedWith);
+            beans.addAll(typesAnnotatedWith);
         }
         log.debug("Scan Beans Type : {}", beans);
         return beans;
