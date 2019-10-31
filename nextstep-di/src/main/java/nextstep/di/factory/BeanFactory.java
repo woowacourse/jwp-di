@@ -20,17 +20,6 @@ public class BeanFactory {
         this.preInstantiateBeans = preInstantiateBeans;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(Class<T> requiredType) {
-        return (T) beans.get(requiredType);
-    }
-
-    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
-        return beans.entrySet().stream()
-                .filter(entry -> entry.getKey().isAnnotationPresent(annotation))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
     public void initialize() {
         for (Class<?> preInstantiateBean : preInstantiateBeans) {
             registerBean(preInstantiateBean);
@@ -78,5 +67,16 @@ public class BeanFactory {
 
     private boolean isUnregisteredBean(final Class<?> concreteParameter) {
         return !beans.containsKey(concreteParameter);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getBean(Class<T> requiredType) {
+        return (T) beans.get(requiredType);
+    }
+
+    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
+        return beans.entrySet().stream()
+                .filter(entry -> entry.getKey().isAnnotationPresent(annotation))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

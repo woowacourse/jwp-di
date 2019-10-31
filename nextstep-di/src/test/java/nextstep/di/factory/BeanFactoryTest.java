@@ -1,11 +1,13 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.example.JdbcQuestionRepository;
+import nextstep.di.factory.example.JdbcUserRepository;
+import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
-import nextstep.di.factory.example.MyQnaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
@@ -13,12 +15,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     private Reflections reflections;
     private BeanFactory beanFactory;
@@ -27,13 +30,13 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
+        Set<Class<?>> preInstantiateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        beanFactory = new BeanFactory(preInstantiateClazz);
         beanFactory.initialize();
     }
 
     @Test
-    public void di() throws Exception {
+    public void getBean() {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -42,6 +45,13 @@ public class BeanFactoryTest {
         MyQnaService qnaService = qnaController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
+    }
+
+    @Test
+    void getBeansAnnotatedWith() {
+        Map<Class<?>, Object> repositoryBeans = beanFactory.getBeansAnnotatedWith(Repository.class);
+        assertNotNull(repositoryBeans.get(JdbcQuestionRepository.class));
+        assertNotNull(repositoryBeans.get(JdbcUserRepository.class));
     }
 
     @SuppressWarnings("unchecked")
