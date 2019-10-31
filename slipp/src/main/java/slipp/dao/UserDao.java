@@ -2,18 +2,17 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
+import nextstep.stereotype.Repository;
 import slipp.domain.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@Repository
 public class UserDao {
     private static final UserDao userDao = new UserDao();
     private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
-
-    private UserDao() {
-    }
 
     public static UserDao getInstance() {
         return userDao;
