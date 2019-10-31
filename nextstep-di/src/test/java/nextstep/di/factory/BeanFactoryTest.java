@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.example.TestController;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -39,6 +40,18 @@ public class BeanFactoryTest {
         assertNotNull(qnaController.getQnaService());
 
         MyQnaService qnaService = qnaController.getQnaService();
+        assertNotNull(qnaService.getUserRepository());
+        assertNotNull(qnaService.getQuestionRepository());
+    }
+
+    @Test
+    public void di_without_inject_annotation() {
+        TestController testController = beanFactory.getBean(TestController.class);
+
+        assertNotNull(testController);
+        assertNotNull(testController.getQnaService());
+
+        MyQnaService qnaService = testController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
     }

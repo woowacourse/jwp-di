@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.exception.AccessibleConstructorException;
 import nextstep.di.factory.exception.CreateBeanException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,37 @@ public class BeanFactory {
 
         //@inject 없을때
         if(constructor == null) {
-            Constructor<?> defaultConstructor = beanClass.getDeclaredConstructor();
-            Object newInstance = defaultConstructor.newInstance();
+//            Constructor<?> defaultConstructor = beanClass.getDeclaredConstructor();
+//            Object newInstance = defaultConstructor.newInstance();
+//            beans.put(beanClass, newInstance);
+//            return newInstance;
+            Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+            Constructor<?> beansConstructor = BeanFactoryUtils.findBeansConstructor(constructors);
+
+
+            if (beansConstructor == null) {
+                Constructor<?> defaultConstructor = BeanFactoryUtils.findDefaultConstructor(constructors);
+
+                if (defaultConstructor == null) {
+                    throw new AccessibleConstructorException();
+                }
+                Object newInstance = defaultConstructor.newInstance();
+                beans.put(beanClass, newInstance);
+                return newInstance;
+            }
+
+            Class<?>[] parameters = beansConstructor.getParameterTypes();
+            List<Object> objects = Arrays.
+                    stream(parameters)
+                    .map(this::createBeanWithTryCatch).collect(Collectors.toList());
+
+            Object newInstance = beansConstructor.newInstance(objects.toArray());
+
             beans.put(beanClass, newInstance);
             return newInstance;
+
+
+
         }
         //inject 있을때
         Class<?>[] parameters = constructor.getParameterTypes();
