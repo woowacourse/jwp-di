@@ -2,7 +2,12 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.di.BeanScanner;
+import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
+import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.reflections.ReflectionUtils;
@@ -21,6 +26,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
     private Object[] basePackage;
+    private BeanFactory beanFactory;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
@@ -28,9 +34,19 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         this.basePackage = basePackage;
     }
 
+    @SuppressWarnings("unchecked")
     public void initialize() {
-        ControllerScanner controllerScanner = new ControllerScanner(basePackage);
-        Map<Class<?>, Object> controllers = controllerScanner.getControllers();
+        BeanScanner beanScanner = new BeanScanner(basePackage);
+        Set<Class<?>> beanClasses = beanScanner.scanBeansAnnotatedWith(Controller.class, Service.class, Repository.class);
+        beanFactory = new BeanFactory(beanClasses);
+        beanFactory.initialize();
+
+        registerHandlerMethods();
+        logger.info("Initialized AnnotationHandlerMapping!");
+    }
+
+    private void registerHandlerMethods() {
+        Map<Class<?>, Object> controllers = beanFactory.getBeansAnnotatedWith(Controller.class);
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
@@ -38,8 +54,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
                     rm.value(), rm.method(), method);
             addHandlerExecutions(controllers, method, rm);
         }
-
-        logger.info("Initialized AnnotationHandlerMapping!");
     }
 
     private void addHandlerExecutions(Map<Class<?>, Object> controllers, Method method, RequestMapping rm) {
