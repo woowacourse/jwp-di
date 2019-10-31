@@ -70,11 +70,11 @@ public class BeanFactory {
 
     public Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
         Map<Class<?>, Object> annotatedClass = Maps.newHashMap();
-        for (Class<?> clazz : beans.keySet()) {
-            if (clazz.isAnnotationPresent(annotation)) {
-                annotatedClass.put(clazz, beans.get(clazz));
-            }
-        }
+
+        beans.keySet().stream()
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
+                .forEach(clazz -> annotatedClass.put(clazz, beans.get(clazz)));
+
         return annotatedClass;
     }
 }
