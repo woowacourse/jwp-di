@@ -16,3 +16,14 @@
 
 - @Inject에 필요한 객체를 찾아서 주입 / 생성
 - 기존의 @Controller를 스캔하는 ControllerScanner 클래스를 확장된 BeanScanner와 통합
+
+
+## 의문사항
+### 재귀 함수 리펙토링
+`initializeInjectedBean2` 메서드가 리펙토링 전의 재귀함수인데, 현재 저희는 `initializeInjectedBean()` 메서드와 같이 메서드로 분리해서 리펙토링했습니다. 
+그런데 이와 같이 하면 재귀 함수를 따라가기가 힘들다고 느껴졌습니다.
+혹시 `initializeInjectedBean()`와 같이 분리하는 것이 좋은지, `initializeInjectedBean2()` 처럼 그대로 두는 것이 좋은지 리뷰어님의 생각이 궁금합니다.
+
+### assert 구문
+`inject()` 메서드에서 `injectedConstructor` 변수에 대한 NULL체크를 `assert`를 통해 하고 있습니다. 그런데 이전에 호출되는 함수인 `initializeNotInjectedBeans()` 메서드에서 
+이미 NULL체크를 하고 있습니다. 그러면 NULL체크를 두 번 해야 하는 상황인데, 이렇게 중복해서 체크하더라도 명시적으로 `assert`를 통해 체크하는 것이 좋은지 리뷰어님의 생각이 궁금합니다.
