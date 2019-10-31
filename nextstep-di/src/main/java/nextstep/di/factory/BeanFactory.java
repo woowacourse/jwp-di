@@ -29,12 +29,17 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            beans.put(preInstanticateBean, createBean(preInstanticateBean));
+            if (!beans.containsKey(preInstanticateBean)) {
+                beans.put(preInstanticateBean, createBean(preInstanticateBean));
+            }
         }
     }
 
     private Object createBean(Class<?> preInstanticateBean) {
         try {
+            if (preInstanticateBean.isInterface()) {
+                return BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans).newInstance();
+            }
             Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
             if (injectedConstructor == null) {
                 return createDefaultConstructorInstance(preInstanticateBean);
@@ -54,6 +59,10 @@ public class BeanFactory {
         Class<?>[] parameterTypes = injectedConstructor.getParameterTypes();
         List<Object> parameters = new ArrayList<>();
         for (Class<?> parameterType : parameterTypes) {
+            Object bean = getBean(parameterType);
+            if (bean == null) {
+                beans.put(parameterType, createBean(parameterType));
+            }
             parameters.add(getBean(parameterType));
         }
         return injectedConstructor.newInstance(parameters.toArray());
