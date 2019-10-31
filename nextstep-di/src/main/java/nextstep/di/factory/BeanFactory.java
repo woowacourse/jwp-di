@@ -1,7 +1,6 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,35 +27,39 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class clazz : preInstantiateBeans) {
-            if (clazz.isAnnotationPresent(Service.class)) {
-                Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-
-                Class<?>[] parameterTypes = injectedConstructor.getParameterTypes();
-
-                Object[] constructors = getParameterInstances(parameterTypes);
-
-                try {
-                    beans.put(clazz, injectedConstructor.newInstance(constructors));
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
+            Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+            if (injectedConstructor == null) {
+                continue;
             }
+            Class<?>[] parameterTypes = injectedConstructor.getParameterTypes();
 
+            try {
+                Object[] constructors = instantiateParameters(parameterTypes);
+                beans.put(clazz, injectedConstructor.newInstance(constructors));
+            } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 
-    private Object[] getParameterInstances(Class<?>[] clazzs) {
-        Object[] constructors = new Object[clazzs.length];
-        for (int i = 0; i < clazzs.length; i++) {
-            Class parameterType = clazzs[i];
+    private Object[] instantiateParameters(Class<?>[] parameterTypes)
+            throws IllegalAccessException, InvocationTargetException, InstantiationException {
 
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
-            try {
-                constructors[i] = concreteClass.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+        Object[] instances = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            instances[i] = instantiateInjectedConstructor(parameterTypes[i]);
         }
-        return constructors;
+        return instances;
+    }
+
+    private Object instantiateInjectedConstructor(Class parameterType)
+            throws IllegalAccessException, InstantiationException, InvocationTargetException {
+
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(parameterType);
+        if (injectedConstructor == null) {
+            return concreteClass.newInstance();
+        }
+        return injectedConstructor.newInstance(instantiateParameters(injectedConstructor.getParameterTypes()));
     }
 }
