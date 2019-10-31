@@ -6,7 +6,11 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -24,39 +28,30 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public void initialize() {
         for (Class<?> preInstanticateBean : preInstanticateBeans) {
             beans.put(preInstanticateBean, createBean(preInstanticateBean));
         }
     }
 
-    private Object createBean(Class<?> preInstanticateBean) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+    private Object createBean(Class<?> preInstanticateBean) {
         if (beans.get(preInstanticateBean) != null) {
             return beans.get(preInstanticateBean);
         }
-
         Class<?> concrete = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans);
-
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(concrete);
-
-        if (constructor == null) {
-            Constructor<?> constructor1 = Arrays.stream(concrete.getDeclaredConstructors())
-                    .filter(cons -> cons.getParameterCount() == 0)
-                    .findAny()
-                    .orElseThrow(IllegalAccessError::new);
-            return constructor1.newInstance();
+        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(concrete).orElseThrow(BeanCreateException::new);
+        List<Object> params = getParams(constructor);
+        try {
+            return constructor.newInstance(params.toArray());
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            logger.error(e.getMessage());
+            throw new BeanCreateException(e);
         }
+    }
 
-        Class[] parameterTypes = constructor.getParameterTypes();
-        List<Object> objects = new ArrayList<>();
-        for (Class parameterType : parameterTypes) {
-            Object o = beans.get(parameterType);
-            if (o == null) {
-                objects.add(createBean(parameterType));
-            } else {
-                objects.add(o);
-            }
-        }
-        return constructor.newInstance(objects.toArray());
+    private List<Object> getParams(Constructor<?> constructor) {
+        return Arrays.stream(constructor.getParameterTypes())
+                .map(this::createBean)
+                .collect(Collectors.toList());
     }
 }

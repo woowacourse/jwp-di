@@ -1,11 +1,12 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.example.DefaultConstructorClass;
+import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
-import nextstep.di.factory.example.MyQnaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
@@ -53,5 +54,10 @@ public class BeanFactoryTest {
         }
         log.debug("Scan Beans Type : {}", beans);
         return beans;
+    }
+
+    @Test
+    void 기본_생성자만_있는_클래스_빈_생성_확인() {
+        assertNotNull(beanFactory.getBean(DefaultConstructorClass.class));
     }
 }
