@@ -2,6 +2,7 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -29,23 +30,23 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        ControllerScanner controllerScanner = new ControllerScanner(basePackage);
-        Map<Class<?>, Object> controllers = controllerScanner.getControllers();
-        Set<Method> methods = getRequestMappingMethods(controllers.keySet());
+        BeanFactory beanFactory = new BeanFactory(basePackage);
+        beanFactory.initialize();
+        Set<Method> methods = getRequestMappingMethods(beanFactory.getControllers());
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
-                    rm.value(), rm.method(), method);
-            addHandlerExecutions(controllers, method, rm);
+                rm.value(), rm.method(), method);
+            addHandlerExecutions(beanFactory, method, rm);
         }
 
         logger.info("Initialized AnnotationHandlerMapping!");
     }
 
-    private void addHandlerExecutions(Map<Class<?>, Object> controllers, Method method, RequestMapping rm) {
+    private void addHandlerExecutions(BeanFactory beanFactory, Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(controllers.get(method.getDeclaringClass()), method));
+            handlerExecutions.put(handlerKey, new HandlerExecution(beanFactory.getBean(method.getDeclaringClass()), method));
         });
     }
 
@@ -55,16 +56,16 @@ public class AnnotationHandlerMapping implements HandlerMapping {
             targetMethods = RequestMethod.values();
         }
         return Arrays.stream(targetMethods)
-                .map(method -> new HandlerKey(value, method))
-                .collect(Collectors.toList());
+            .map(method -> new HandlerKey(value, method))
+            .collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")
-    private Set<Method> getRequestMappingMethods(Set<Class<?>> controlleers) {
+    private Set<Method> getRequestMappingMethods(Set<Class<?>> controllers) {
         Set<Method> requestMappingMethods = Sets.newHashSet();
-        for (Class<?> clazz : controlleers) {
+        for (Class<?> clazz : controllers) {
             requestMappingMethods
-                    .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
+                .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
         }
         return requestMappingMethods;
     }
