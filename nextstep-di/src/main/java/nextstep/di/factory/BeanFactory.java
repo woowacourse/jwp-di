@@ -32,10 +32,7 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstanticateBeans.forEach(preInstanticateBean -> {
-            Object bean = createBean(preInstanticateBean);
-            beans.put(preInstanticateBean, bean);
-        });
+        preInstanticateBeans.forEach(this::createBean);
     }
 
     public Map<Class<?>, Object> getControllers() {
@@ -45,11 +42,18 @@ public class BeanFactory {
     }
 
     private Object createBean(final Class<?> preInstanticateBean) {
+        if (beans.containsKey(preInstanticateBean)) {
+            return beans.get(preInstanticateBean);
+        }
+
         Optional<Constructor<?>> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
 
-        return injectedConstructor.map(this::createInjectedBean)
+        Object bean = injectedConstructor.map(this::createInjectedBean)
                 .orElseGet(() -> createConcreteClassBean(preInstanticateBean));
 
+        beans.put(preInstanticateBean, bean);
+
+        return bean;
     }
 
     private Object createInjectedBean(final Constructor<?> injectedConstructor) {

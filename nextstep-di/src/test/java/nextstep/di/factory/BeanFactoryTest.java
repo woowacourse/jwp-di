@@ -53,6 +53,17 @@ public class BeanFactoryTest {
         assertThat(controllers).containsKey(QnaController.class);
     }
 
+    @Test
+    void 싱글인스턴스_확인() {
+        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        MyQnaService actual = beanFactory.getBean(MyQnaService.class);
+        MyQnaService expected = qnaController.getQnaService();
+
+        System.out.println(actual);
+        System.out.println(expected);
+        assertThat(expected == actual).isTrue();
+    }
+
     @SuppressWarnings("unchecked")
     private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
