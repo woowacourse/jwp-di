@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.exception.BeanFactoryException;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,12 @@ public class BeanFactory {
             Object bean = createBean(preInstanticateBean);
             beans.put(preInstanticateBean, bean);
         });
+    }
+
+    public Map<Class<?>, Object> getControllers() {
+        return beans.entrySet().stream()
+                .filter(entry -> entry.getKey().isAnnotationPresent(Controller.class))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private Object createBean(final Class<?> preInstanticateBean) {

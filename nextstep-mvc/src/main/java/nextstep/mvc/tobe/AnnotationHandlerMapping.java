@@ -2,6 +2,8 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.BeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -29,9 +31,12 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        ControllerScanner controllerScanner = new ControllerScanner(basePackage);
-        Map<Class<?>, Object> controllers = controllerScanner.getControllers();
-        Set<Method> methods = getRequestMappingMethods(controllers.keySet());
+        BeanScanner beanScanner = new BeanScanner(basePackage);
+        BeanFactory beanFactory = new BeanFactory(beanScanner.getBeans());
+        beanFactory.initialize();
+
+        Map<Class<?>, Object> controllers = beanFactory.getControllers();
+        Set<Method> methods = getRequestMappingMethods(controllers);
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
@@ -60,9 +65,9 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     @SuppressWarnings("unchecked")
-    private Set<Method> getRequestMappingMethods(Set<Class<?>> controlleers) {
+    private Set<Method> getRequestMappingMethods(Map<Class<?>, Object> controllers) {
         Set<Method> requestMappingMethods = Sets.newHashSet();
-        for (Class<?> clazz : controlleers) {
+        for (Class<?> clazz : controllers.keySet()) {
             requestMappingMethods
                     .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
         }
