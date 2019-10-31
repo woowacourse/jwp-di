@@ -3,6 +3,7 @@ package nextstep.di.factory;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.example.QnaController2;
+import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -40,8 +41,11 @@ public class BeanFactoryTest {
     @Test
     void getController() {
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
+        Set<Class<?>> expected = Sets.newHashSet();
+        expected.add(QnaController.class);
+        expected.add(QnaController2.class);
         assertThat(controllers.size()).isEqualTo(2);
-        assertThat(controllers.keySet()).isEqualTo(Set.of(QnaController.class, QnaController2.class));
+        assertThat(controllers.keySet()).isEqualTo(expected);
         assertThat(controllers.get(QnaController.class)).isInstanceOf(QnaController.class);
         assertThat(controllers.get(QnaController2.class)).isInstanceOf(QnaController2.class);
     }

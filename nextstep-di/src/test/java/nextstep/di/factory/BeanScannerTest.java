@@ -6,14 +6,13 @@ import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.example.QnaController2;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
+import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class BeanScannerTest {
     private BeanScanner beanScanner;
@@ -27,9 +26,15 @@ class BeanScannerTest {
     @SuppressWarnings("unchecked")
     void getBeans() {
         Set<Class<?>> beans = beanScanner.getBeans(Controller.class);
-        assertThat(beans).isEqualTo(Set.of(QnaController.class, QnaController2.class));
+        Set<Class<?>> expected = Sets.newHashSet();
+        expected.add(QnaController.class);
+        expected.add(QnaController2.class);
+        assertThat(beans).isEqualTo(expected);
 
+        expected.clear();
+        expected.add(JdbcQuestionRepository.class);
+        expected.add(JdbcUserRepository.class);
         beans = beanScanner.getBeans(Repository.class);
-        assertThat(beans).isEqualTo(Set.of(JdbcQuestionRepository.class, JdbcUserRepository.class));
+        assertThat(beans).isEqualTo(expected);
     }
 }
