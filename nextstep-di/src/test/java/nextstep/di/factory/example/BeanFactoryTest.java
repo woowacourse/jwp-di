@@ -6,11 +6,13 @@ import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
@@ -43,5 +45,14 @@ public class BeanFactoryTest {
         Map<Class<?>, Object> repositoryBeans = beanFactory.getBeansAnnotatedWith(Repository.class);
         assertNotNull(repositoryBeans.get(JdbcQuestionRepository.class));
         assertNotNull(repositoryBeans.get(JdbcUserRepository.class));
+    }
+
+    @Test
+    @DisplayName("하나의 Bean에 대해 하나의 인스턴스만 생성되는지 테스트")
+    void singleton() {
+        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        TestQnaController testQnaController = beanFactory.getBean(TestQnaController.class);
+
+        assertEquals(qnaController.getQnaService(), testQnaController.getQnaService());
     }
 }
