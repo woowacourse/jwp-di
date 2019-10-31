@@ -29,7 +29,7 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            getInstantiateInjectedBean(preInstanticateBean);
+            injectInstantiateBean(preInstanticateBean);
         }
     }
 
@@ -43,7 +43,7 @@ public class BeanFactory {
         return annotatedClass;
     }
 
-    private Object getInstantiateInjectedBean(Class<?> preInstanticateBean) {
+    private Object injectInstantiateBean(Class<?> preInstanticateBean) {
         if (beans.containsKey(preInstanticateBean)) {
             return beans.get(preInstanticateBean);
         }
@@ -73,7 +73,7 @@ public class BeanFactory {
         for (int i = 0; i < params.length; i++) {
             Class<?> parameterType = constructor.getParameterTypes()[i];
             Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateBeans);
-            params[i] = getInstantiateInjectedBean(concreteClass);
+            params[i] = injectInstantiateBean(concreteClass);
         }
         return params;
     }
