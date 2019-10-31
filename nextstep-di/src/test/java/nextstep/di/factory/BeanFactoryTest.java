@@ -24,7 +24,7 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        beanScanner = new BeanScanner("nextstpe.di.factory.example");
+        beanScanner = new BeanScanner("nextstep.di.factory.example");
         Set<Class<?>> preInstantiatedClazz = beanScanner.getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
 
         beanFactory = new BeanFactory(preInstantiatedClazz);
