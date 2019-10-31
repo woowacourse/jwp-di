@@ -45,16 +45,16 @@ public class BeanFactory {
         }
         Class[] constructorParameterTypes = injectedConstructor.getParameterTypes();
         Object[] constructorParameterInstance = Arrays.stream(constructorParameterTypes)
-            .map(injected -> BeanFactoryUtils.findConcreteClass(injected, preInstantiateBeans))
-            .map(this::createBean)
-            .toArray();
+                .map(injected -> BeanFactoryUtils.findConcreteClass(injected, preInstantiateBeans))
+                .map(this::createBean)
+                .toArray();
 
         return BeanUtils.instantiateClass(injectedConstructor, constructorParameterInstance);
     }
 
-    public Map<Class<?>, Object> getControllers() {
-        return beans.entrySet().stream()
-            .filter(entry -> entry.getKey().isAnnotationPresent(Controller.class))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public Set<Class<?>> getControllers() {
+        return beans.keySet().stream()
+                .filter(key -> key.isAnnotationPresent(Controller.class))
+                .collect(Collectors.toSet());
     }
 }

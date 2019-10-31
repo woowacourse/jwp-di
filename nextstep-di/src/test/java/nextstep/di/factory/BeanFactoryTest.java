@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,13 +39,11 @@ public class BeanFactoryTest {
 
     @Test
     void getController() {
-        Map<Class<?>, Object> controllers = beanFactory.getControllers();
+        Set<Class<?>> controllers = beanFactory.getControllers();
         Set<Class<?>> expected = Sets.newHashSet();
         expected.add(QnaController.class);
         expected.add(QnaController2.class);
         assertThat(controllers.size()).isEqualTo(2);
-        assertThat(controllers.keySet()).isEqualTo(expected);
-        assertThat(controllers.get(QnaController.class)).isInstanceOf(QnaController.class);
-        assertThat(controllers.get(QnaController2.class)).isInstanceOf(QnaController2.class);
+        assertThat(controllers).isEqualTo(expected);
     }
 }
