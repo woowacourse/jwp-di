@@ -17,6 +17,7 @@ public class BeanFactoryUtils {
      * @return
      * @Inject 애노테이션이 설정되어 있는 생성자는 클래스당 하나로 가정한다.
      */
+    // TODO: 19. 10. 31. @Inject가 여러개인 경우 처리 방법 고민
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static Constructor<?> getInjectedConstructor(Class<?> clazz) {
         Set<Constructor> injectedConstructors = getAllConstructors(clazz, withAnnotation(Inject.class));

@@ -17,6 +17,8 @@
 - @Inject에 필요한 객체를 찾아서 주입 / 생성
 - 기존의 @Controller를 스캔하는 ControllerScanner 클래스를 확장된 BeanScanner와 통합
 
+## TO DO
+`BeanFactoryUtils.getInjectedConstructor` 메서드에서 `@Inject`가 붙은 생성자가 여러개일 때 처리 방법 고민 
 
 ## 의문사항
 ### 재귀 함수 리펙토링
