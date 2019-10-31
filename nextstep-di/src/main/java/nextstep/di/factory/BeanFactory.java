@@ -33,6 +33,16 @@ public class BeanFactory {
         }
     }
 
+    public Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
+        Map<Class<?>, Object> annotatedClass = Maps.newHashMap();
+
+        beans.keySet().stream()
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
+                .forEach(clazz -> annotatedClass.put(clazz, beans.get(clazz)));
+
+        return annotatedClass;
+    }
+
     private Object getInstantiateInjectedBean(Class<?> preInstanticateBean) {
         if (beans.containsKey(preInstanticateBean)) {
             return beans.get(preInstanticateBean);
@@ -66,16 +76,6 @@ public class BeanFactory {
             params[i] = getInstantiateInjectedBean(concreteClass);
         }
         return params;
-    }
-
-    public Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
-        Map<Class<?>, Object> annotatedClass = Maps.newHashMap();
-
-        beans.keySet().stream()
-                .filter(clazz -> clazz.isAnnotationPresent(annotation))
-                .forEach(clazz -> annotatedClass.put(clazz, beans.get(clazz)));
-
-        return annotatedClass;
     }
 }
 
