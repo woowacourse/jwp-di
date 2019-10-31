@@ -2,7 +2,12 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.BeanScanner;
 import nextstep.mvc.HandlerMapping;
+import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.reflections.ReflectionUtils;
@@ -29,14 +34,19 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        ControllerScanner controllerScanner = new ControllerScanner(basePackage);
-        Map<Class<?>, Object> controllers = controllerScanner.getControllers();
-        Set<Method> methods = getRequestMappingMethods(controllers.keySet());
+        BeanScanner beanScanner = new BeanScanner(basePackage);
+        Set<Class<?>> preInstantiatedClazz = beanScanner.getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+
+        BeanFactory beanFactory = new BeanFactory(preInstantiatedClazz);
+        beanFactory.initialize();
+
+        Map<Class<?>, Object> beans = beanFactory.getBeans();
+        Set<Method> methods = getRequestMappingMethods(beans.keySet());
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                     rm.value(), rm.method(), method);
-            addHandlerExecutions(controllers, method, rm);
+            addHandlerExecutions(beans, method, rm);
         }
 
         logger.info("Initialized AnnotationHandlerMapping!");

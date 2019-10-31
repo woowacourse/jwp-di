@@ -56,5 +56,4 @@ public class BeanFactoryTest {
         assertNotNull(testService.getUserRepository());
         assertNotNull(testService.getQuestionRepository());
     }
-
 }

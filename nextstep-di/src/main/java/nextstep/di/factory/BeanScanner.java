@@ -12,8 +12,8 @@ public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
     private Reflections reflections;
 
-    public BeanScanner(String... path) {
-        reflections = new Reflections(path);
+    public BeanScanner(Object... basePackages) {
+        reflections = new Reflections(basePackages);
     }
 
 
