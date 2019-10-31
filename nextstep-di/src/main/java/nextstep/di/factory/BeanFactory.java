@@ -34,8 +34,14 @@ public class BeanFactory {
     }
 
     private Object instantiate(Class<?> clazz) {
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+        if (beans.containsKey(clazz)) {
+            return beans.get(clazz);
+        }
 
+        return createInstance(clazz, BeanFactoryUtils.getInjectedConstructor(clazz));
+    }
+
+    private Object createInstance(Class<?> clazz, Constructor<?> constructor) {
         if (Objects.isNull(constructor)) {
             return BeanUtils.instantiateClass(clazz);
         }
