@@ -4,11 +4,19 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
+import static nextstep.di.factory.BeanFactoryUtils.findConcreteClass;
+import static nextstep.di.factory.BeanFactoryUtils.getInjectedConstructor;
+
+// TODO 순환참조 좀..
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
+    private static final String TAG = "BeanFactory";
+
+    private static final int DEFAULT_CONSTRUCTOR_PARAMETER_NUMBER = 0;
 
     private Set<Class<?>> preInstanticateBeans;
 
@@ -24,6 +32,63 @@ public class BeanFactory {
     }
 
     public void initialize() {
-
+        this.preInstanticateBeans.forEach(clazz -> beans.put(clazz, initBean(clazz)));
     }
+
+    private Object initBean(Class<?> clazz) {
+        Class<?> concreteClass = findConcreteClass(clazz, preInstanticateBeans);
+        logger.info("{}.initBean() >> {}", TAG, concreteClass);
+
+        Constructor<?> constructor = getConstructor(concreteClass);
+        List<Object> parameters = getParameterBeans(constructor);
+
+        return createInstance(constructor, parameters);
+    }
+
+    private Constructor<?> getConstructor(Class<?> concreteClass) {
+        Constructor<?> constructor = getInjectedConstructor(concreteClass);
+
+        if (Objects.isNull(constructor)) {
+            constructor = getDefaultConstructor(concreteClass);
+        }
+
+        return constructor;
+    }
+
+    private Constructor<?> getDefaultConstructor(Class<?> concreteClass) {
+        //TODO 커스텀 에러 만들기
+        return Arrays.stream(concreteClass.getConstructors())
+                .filter(this::isDefaultConstructor)
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    private boolean isDefaultConstructor(Constructor<?> beanConstructor) {
+        return beanConstructor.getParameterCount() == DEFAULT_CONSTRUCTOR_PARAMETER_NUMBER;
+    }
+
+    private List<Object> getParameterBeans(Constructor<?> constructor) {
+        List<Object> parameters = new ArrayList<>();
+        Class<?>[] types = Objects.requireNonNull(constructor).getParameterTypes();
+
+        for (Class<?> type : types) {
+            parameters.add(getParameterBean(type));
+        }
+
+        return parameters;
+    }
+
+    private Object getParameterBean(Class<?> type) {
+        return beans.containsKey(type) ? beans.get(type) : initBean(type);
+    }
+
+    private Object createInstance(Constructor<?> constructor, List<Object> parameters) {
+        try {
+            return constructor.newInstance(parameters.toArray());
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+
 }
