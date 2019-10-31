@@ -23,8 +23,11 @@ public class ApiUserController {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private UserDao userDao = UserDao.getInstance();
+    private UserDao userDao;
 
+    public ApiUserController(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {

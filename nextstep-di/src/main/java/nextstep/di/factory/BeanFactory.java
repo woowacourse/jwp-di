@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -53,5 +54,11 @@ public class BeanFactory {
         return Arrays.stream(constructor.getParameterTypes())
                 .map(this::createBean)
                 .collect(Collectors.toList());
+    }
+
+    public Map<Class<?>, Object> getBeansWithAnnotation(Class<? extends Annotation> annotation) {
+        return beans.keySet().stream()
+                .filter(key -> key.isAnnotationPresent(annotation))
+                .collect(Collectors.toMap(key -> key, key -> beans.get(key)));
     }
 }
