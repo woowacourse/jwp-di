@@ -6,14 +6,12 @@ import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.example.QnaController2;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class BeanScannerTest {
     private BeanScanner beanScanner;
