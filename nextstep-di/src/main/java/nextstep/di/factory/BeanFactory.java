@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.exception.IllegalAnnotationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ public class BeanFactory {
 
     private Set<Class<?>> preInstantiateBeans;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Deque<Class<?>> deque = new ArrayDeque<>();
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
@@ -31,11 +33,25 @@ public class BeanFactory {
             return;
         }
 
+        checkBeanType(preInstantiateBean);
+
+        if (deque.contains(preInstantiateBean)) {
+            throw new RuntimeException();
+        }
+        deque.push(preInstantiateBean);
         Constructor<?> constructor = getConstructorOf(preInstantiateBean);
         Object bean = instantiateBeanOf(constructor);
         log.info("created bean: {}", bean);
 
         beans.put(preInstantiateBean, bean);
+        deque.pop();
+    }
+
+    private void checkBeanType(final Class<?> preInstantiateBean) {
+        if (preInstantiateBean.isInterface()) {
+            log.error("invalid annotation on {}", preInstantiateBean);
+            throw new IllegalAnnotationException("invalid annotation");
+        }
     }
 
     private Constructor<?> getConstructorOf(final Class<?> preInstantiateBean) {
