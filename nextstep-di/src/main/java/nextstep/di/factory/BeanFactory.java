@@ -34,61 +34,47 @@ public class BeanFactory {
         preInstantiateBeans.forEach(this::createBeanWithTryCatch);
     }
 
-    private Object createBean(Class<?> beanClass) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
-        beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preInstantiateBeans);
-        Constructor<?> constructor =  BeanFactoryUtils.getInjectedConstructor(beanClass);
-
-        //@inject 없을때
-        if(constructor == null) {
-//            Constructor<?> defaultConstructor = beanClass.getDeclaredConstructor();
-//            Object newInstance = defaultConstructor.newInstance();
-//            beans.put(beanClass, newInstance);
-//            return newInstance;
-            Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-            Constructor<?> beansConstructor = BeanFactoryUtils.findBeansConstructor(constructors, preInstantiateBeans);
-
-
-            if (beansConstructor == null) {
-                Constructor<?> defaultConstructor = BeanFactoryUtils.findDefaultConstructor(constructors);
-
-                if (defaultConstructor == null) {
-                    throw new AccessibleConstructorException();
-                }
-                Object newInstance = defaultConstructor.newInstance();
-                beans.put(beanClass, newInstance);
-                return newInstance;
-            }
-
-            Class<?>[] parameters = beansConstructor.getParameterTypes();
-            List<Object> objects = Arrays.
-                    stream(parameters)
-                    .map(this::createBeanWithTryCatch).collect(Collectors.toList());
-
-            Object newInstance = beansConstructor.newInstance(objects.toArray());
-
-            beans.put(beanClass, newInstance);
-            return newInstance;
-
-
-
-        }
-        //inject 있을때
-        Class<?>[] parameters = constructor.getParameterTypes();
-        List<Object> objects = Arrays.
-                stream(parameters)
-                .map(this::createBeanWithTryCatch).collect(Collectors.toList());
-
-        Object newInstance =  constructor.newInstance(objects.toArray());
-
-        beans.put(beanClass, newInstance);
-        return newInstance;
-    }
-
     private Object createBeanWithTryCatch(Class<?> parameter) {
         try {
             return createBean(parameter);
         } catch (Exception e) {
             throw new CreateBeanException(e);
         }
+    }
+
+    private Object createBean(Class<?> beanClass) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
+        beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preInstantiateBeans);
+        Constructor<?> injectConstructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
+
+        if (injectConstructor != null) {
+            return instantiate(beanClass, injectConstructor);
+        }
+
+        Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+        Constructor<?> beansConstructor = BeanFactoryUtils.findBeansConstructor(constructors, preInstantiateBeans);
+
+        if (beansConstructor != null) {
+            return instantiate(beanClass, beansConstructor);
+        }
+
+        Constructor<?> defaultConstructor = BeanFactoryUtils.findDefaultConstructor(constructors);
+        if (defaultConstructor == null) {
+            throw new AccessibleConstructorException();
+        }
+        Object newInstance = defaultConstructor.newInstance();
+        beans.put(beanClass, newInstance);
+        return newInstance;
+    }
+
+    private Object instantiate(Class<?> beanClass, Constructor<?> beansConstructor) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        Class<?>[] parameters = beansConstructor.getParameterTypes();
+        List<Object> objects = Arrays.
+                stream(parameters)
+                .map(this::createBeanWithTryCatch).collect(Collectors.toList());
+
+        Object newInstance = beansConstructor.newInstance(objects.toArray());
+
+        beans.put(beanClass, newInstance);
+        return newInstance;
     }
 }
