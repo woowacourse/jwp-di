@@ -5,16 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BeanFactory {
+
     private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
 
     private Set<Class<?>> preInstantiateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
@@ -28,37 +25,50 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> preInstantiateBean : preInstantiateBeans) {
-            put(preInstantiateBean);
+            registerBean(preInstantiateBean);
         }
     }
 
-    private void put(Class<?> preInstantiateBean) {
+    private void registerBean(Class<?> preInstantiateBean) {
         if (beans.containsKey(preInstantiateBean)) {
             return;
         }
 
+        Constructor<?> constructor = getConstructorOf(preInstantiateBean);
+        Object bean = instantiateBeanOf(constructor);
+        log.info("created bean: {}", bean);
+
+        beans.put(preInstantiateBean, bean);
+    }
+
+    private Constructor<?> getConstructorOf(final Class<?> preInstantiateBean) {
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(preInstantiateBean);
 
-        if (constructor == null) {
-            constructor = BeanFactoryUtils.getDefaultConstructor(preInstantiateBean);
-            Object bean = BeanFactoryUtils.instantiate(constructor);
-            log.info("created bean: {}", bean);
-            beans.put(preInstantiateBean, bean);
-            return;
+        if (Objects.isNull(constructor)) {
+            return BeanFactoryUtils.getDefaultConstructor(preInstantiateBean);
         }
+        return constructor;
+    }
 
+    private Object instantiateBeanOf(final Constructor<?> constructor) {
+        List<Object> arguments = extractArgumentsOf(constructor);
+        return BeanFactoryUtils.instantiate(constructor, arguments.toArray());
+    }
+
+    private List<Object> extractArgumentsOf(final Constructor<?> constructor) {
         List<Object> arguments = new ArrayList<>();
         for (Class<?> parameter : constructor.getParameterTypes()) {
             Class<?> concreteParameter = BeanFactoryUtils.findConcreteClass(parameter, preInstantiateBeans);
-            if (!beans.containsKey(concreteParameter)) {
-                put(concreteParameter);
-            }
 
+            if (isUnregisteredBean(concreteParameter)) {
+                registerBean(concreteParameter);
+            }
             arguments.add(beans.get(concreteParameter));
         }
+        return arguments;
+    }
 
-        Object bean = BeanFactoryUtils.instantiate(constructor, arguments.toArray());
-        log.info("created bean: {}", bean);
-        beans.put(preInstantiateBean, bean);
+    private boolean isUnregisteredBean(final Class<?> concreteParameter) {
+        return !beans.containsKey(concreteParameter);
     }
 }
