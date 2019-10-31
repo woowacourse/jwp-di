@@ -29,26 +29,34 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            if (!beans.containsKey(preInstanticateBean)) {
-                beans.put(preInstanticateBean, createBean(preInstanticateBean));
-            }
+            putBean(preInstanticateBean);
+        }
+    }
+
+    private void putBean(Class<?> preInstanticateBean) {
+        if (!beans.containsKey(preInstanticateBean)) {
+            beans.put(preInstanticateBean, createBean(preInstanticateBean));
         }
     }
 
     private Object createBean(Class<?> preInstanticateBean) {
         try {
             if (preInstanticateBean.isInterface()) {
-                return BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans).newInstance();
+                return createBean(BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans));
             }
-            Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
-            if (injectedConstructor == null) {
-                return createDefaultConstructorInstance(preInstanticateBean);
-            }
-            return createInstance(injectedConstructor);
+            return getInstance(preInstanticateBean);
         } catch (Exception e) {
             logger.error("### Bean create fail : {}", e.getMessage());
             throw new IllegalArgumentException("Bean create fail!");
         }
+    }
+
+    private Object getInstance(Class<?> preInstanticateBean) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
+        if (injectedConstructor == null) {
+            return createDefaultConstructorInstance(preInstanticateBean);
+        }
+        return createInstance(injectedConstructor);
     }
 
     private Object createDefaultConstructorInstance(Class<?> preInstanticateBean) throws IllegalAccessException, InstantiationException {
@@ -59,10 +67,7 @@ public class BeanFactory {
         Class<?>[] parameterTypes = injectedConstructor.getParameterTypes();
         List<Object> parameters = new ArrayList<>();
         for (Class<?> parameterType : parameterTypes) {
-            Object bean = getBean(parameterType);
-            if (bean == null) {
-                beans.put(parameterType, createBean(parameterType));
-            }
+            putBean(parameterType);
             parameters.add(getBean(parameterType));
         }
         return injectedConstructor.newInstance(parameters.toArray());
