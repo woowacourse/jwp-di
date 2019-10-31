@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -10,6 +11,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -54,5 +56,11 @@ public class BeanFactory {
                 .map(clazz -> BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans))
                 .map(this::instantiate)
                 .toArray();
+    }
+
+    public Set<Class<?>> getController() {
+        return beans.keySet().stream()
+                .filter(key -> key.isAnnotationPresent(Controller.class))
+                .collect(Collectors.toSet());
     }
 }
