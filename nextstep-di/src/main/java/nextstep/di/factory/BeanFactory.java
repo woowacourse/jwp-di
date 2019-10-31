@@ -45,7 +45,7 @@ public class BeanFactory {
 //            beans.put(beanClass, newInstance);
 //            return newInstance;
             Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-            Constructor<?> beansConstructor = BeanFactoryUtils.findBeansConstructor(constructors);
+            Constructor<?> beansConstructor = BeanFactoryUtils.findBeansConstructor(constructors, preInstantiateBeans);
 
 
             if (beansConstructor == null) {

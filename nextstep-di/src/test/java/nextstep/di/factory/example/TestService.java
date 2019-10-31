@@ -1,15 +1,13 @@
 package nextstep.di.factory.example;
 
-import nextstep.annotation.Inject;
 import nextstep.stereotype.Service;
 
 @Service
-public class MyQnaService {
+public class TestService {
     private UserRepository userRepository;
     private QuestionRepository questionRepository;
 
-    @Inject
-    public MyQnaService(UserRepository userRepository, QuestionRepository questionRepository) {
+    public TestService(UserRepository userRepository, QuestionRepository questionRepository) {
         this.userRepository = userRepository;
         this.questionRepository = questionRepository;
     }

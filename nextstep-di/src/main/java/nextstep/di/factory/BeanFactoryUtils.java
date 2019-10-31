@@ -1,7 +1,6 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.annotation.Bean;
 import nextstep.annotation.Inject;
 
 import java.lang.reflect.Constructor;
@@ -51,13 +50,13 @@ public class BeanFactoryUtils {
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
     }
 
-    public static Constructor<?> findBeansConstructor(Constructor<?>[] constructors) {
-        return Arrays.stream(constructors).filter(constructor -> isEligibleBeansConstructor(constructor)).findAny().orElse(null);
+    public static Constructor<?> findBeansConstructor(Constructor<?>[] constructors, Set<Class<?>> preInstantiateBeans) {
+        return Arrays.stream(constructors).filter(constructor -> isEligibleBeansConstructor(constructor, preInstantiateBeans)).findAny().orElse(null);
 
     }
 
-    private static boolean isEligibleBeansConstructor(Constructor<?> constructor) {
-        return Arrays.stream(constructor.getParameterTypes()).allMatch(parameter -> parameter.isAnnotationPresent(Bean.class));
+    private static boolean isEligibleBeansConstructor(Constructor<?> constructor, Set<Class<?>> preInstantiateBeans) {
+        return Arrays.stream(constructor.getParameterTypes()).allMatch(parameter -> preInstantiateBeans.contains(parameter));
     }
 
 

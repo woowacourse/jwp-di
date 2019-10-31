@@ -4,14 +4,14 @@ import nextstep.stereotype.Controller;
 
 @Controller
 public class TestController {
-    private MyQnaService qnaService;
+    private TestService testService;
 
-    public TestController(MyQnaService qnaService) {
-        this.qnaService = qnaService;
+    public TestController(TestService testService) {
+        this.testService = testService;
     }
 
-    public MyQnaService getQnaService() {
-        return qnaService;
+    public TestService getTestService() {
+        return testService;
     }
 
 }
