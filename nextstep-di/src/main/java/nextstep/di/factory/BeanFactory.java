@@ -41,26 +41,28 @@ public class BeanFactory {
 
     private Object createBean(Class<?> beanClass) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
         beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preInstantiateBeans);
-        Constructor<?> injectConstructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
+        Constructor<?> constructor = getConstructor(beanClass);
 
-        if (injectConstructor != null) {
-            return instantiate(beanClass, injectConstructor);
+        return instantiate(beanClass, constructor);
+    }
+
+    private Constructor<?> getConstructor(Class<?> beanClass) {
+        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
+        if (constructor != null) {
+            return constructor;
         }
 
         Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-        Constructor<?> beansConstructor = BeanFactoryUtils.findBeansConstructor(constructors, preInstantiateBeans);
-
-        if (beansConstructor != null) {
-            return instantiate(beanClass, beansConstructor);
+        constructor = BeanFactoryUtils.findBeansConstructor(constructors, preInstantiateBeans);
+        if (constructor != null) {
+            return constructor;
         }
 
-        Constructor<?> defaultConstructor = BeanFactoryUtils.findDefaultConstructor(constructors);
-        if (defaultConstructor == null) {
-            throw new AccessibleConstructorException();
+        constructor = BeanFactoryUtils.findDefaultConstructor(constructors);
+        if (constructor != null) {
+            return constructor;
         }
-        Object newInstance = defaultConstructor.newInstance();
-        beans.put(beanClass, newInstance);
-        return newInstance;
+        throw new AccessibleConstructorException();
     }
 
     private Object instantiate(Class<?> beanClass, Constructor<?> beansConstructor) throws InstantiationException, IllegalAccessException, InvocationTargetException {
