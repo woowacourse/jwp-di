@@ -15,7 +15,7 @@ public class UserSessionUtils {
         return (User) user;
     }
 
-    public static boolean isLogined(HttpSession session) {
+    public static boolean isLoggedIn(HttpSession session) {
         if (getUserFromSession(session) == null) {
             return false;
         }
@@ -23,7 +23,7 @@ public class UserSessionUtils {
     }
 
     public static boolean isSameUser(HttpSession session, User user) {
-        if (!isLogined(session)) {
+        if (!isLoggedIn(session)) {
             return false;
         }
 
