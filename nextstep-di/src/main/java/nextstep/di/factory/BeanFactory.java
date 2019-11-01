@@ -27,7 +27,7 @@ public class BeanFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getBean(Class<T> requiredType) {
+    public <T> T getBean(final Class<T> requiredType) {
         return (T) beans.get(requiredType);
     }
 
@@ -35,37 +35,39 @@ public class BeanFactory {
         preInstantiatedBeans.forEach(this::createBean);
     }
 
-    public Map<Class<?>, Object> getControllers() {
-        return beans.entrySet().stream()
-                .filter(entry -> entry.getKey().isAnnotationPresent(Controller.class))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
     private Object createBean(final Class<?> preInstantiatedBean) {
         if (beans.containsKey(preInstantiatedBean)) {
             return beans.get(preInstantiatedBean);
         }
-
-        Optional<Constructor<?>> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstantiatedBean);
-
-        Object bean = injectedConstructor.map(this::createInjectedBean)
-                .orElseGet(() -> createConcreteClassBean(preInstantiatedBean));
-
+        Object bean = createInstance(preInstantiatedBean);
         beans.put(preInstantiatedBean, bean);
-
         return bean;
     }
 
-    private Object createInjectedBean(final Constructor<?> injectedConstructor) {
+    private Object createInstance(final Class<?> preInstantiatedBean) {
         try {
-            Class<?>[] parameterTypes = injectedConstructor.getParameterTypes();
-            List<Object> parameters = createParameters(parameterTypes);
+            Constructor<?> constructor = getConstructor(preInstantiatedBean);
+            List<Object> parameters = createParameters(constructor.getParameterTypes());
 
-            return injectedConstructor.newInstance(parameters.toArray());
+            return constructor.newInstance(parameters.toArray());
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             logger.error(e.getMessage());
             throw new BeanFactoryException(e);
         }
+    }
+
+    private Constructor<?> getConstructor(final Class<?> preInstantiatedBean) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstantiatedBean, preInstantiatedBeans);
+        Optional<Constructor<?>> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
+        return injectedConstructor
+                .orElseGet(() -> {
+                    try {
+                        return concreteClass.getConstructor();
+                    } catch (NoSuchMethodException e) {
+                        logger.error(e.getMessage());
+                        throw new BeanFactoryException(e);
+                    }
+                });
     }
 
     private List<Object> createParameters(final Class<?>[] parameterTypes) {
@@ -74,17 +76,9 @@ public class BeanFactory {
                 .collect(Collectors.toList());
     }
 
-    private Object createConcreteClassBean(final Class<?> preInstantiatedBean) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstantiatedBean, preInstantiatedBeans);
-        return BeanFactoryUtils.getInjectedConstructor(concreteClass)
-                .map(this::createInjectedBean)
-                .orElseGet(() -> {
-                    try {
-                        return concreteClass.getConstructor().newInstance();
-                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                        logger.error(e.getMessage());
-                        throw new BeanFactoryException(e);
-                    }
-                });
+    public Map<Class<?>, Object> getControllers() {
+        return beans.entrySet().stream()
+                .filter(entry -> entry.getKey().isAnnotationPresent(Controller.class))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
