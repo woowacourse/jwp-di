@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class BeanFactory {
@@ -59,7 +60,11 @@ public class BeanFactory {
 
     private Constructor<?> getConstructor(Class<?> clazz) throws NoSuchMethodException {
         Constructor<?> ctor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        return ctor == null ? clazz.getConstructor() : ctor;
+        if (Objects.isNull(ctor)) {
+            return clazz.getConstructor();
+        }
+        return ctor;
+//        return ctor == null ? clazz.getConstructor() : ctor;
     }
 
     private Object[] resolveConstructorParameters(Constructor<?> ctor) {
