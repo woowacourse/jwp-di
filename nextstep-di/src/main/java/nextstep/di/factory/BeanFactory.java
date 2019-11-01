@@ -75,12 +75,16 @@ public class BeanFactory {
     }
 
     private Object createConcreteClassBean(final Class<?> preInstantiatedBean) {
-        try {
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstantiatedBean, preInstantiatedBeans);
-            return concreteClass.getConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            logger.error(e.getMessage());
-            throw new BeanFactoryException(e);
-        }
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstantiatedBean, preInstantiatedBeans);
+        return BeanFactoryUtils.getInjectedConstructor(concreteClass)
+                .map(this::createInjectedBean)
+                .orElseGet(() -> {
+                    try {
+                        return concreteClass.getConstructor().newInstance();
+                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                        logger.error(e.getMessage());
+                        throw new BeanFactoryException(e);
+                    }
+                });
     }
 }
