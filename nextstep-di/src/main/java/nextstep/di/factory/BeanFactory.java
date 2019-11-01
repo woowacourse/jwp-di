@@ -18,12 +18,12 @@ import java.util.stream.Stream;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
+    private Set<Class<?>> preInstantiatedBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    public BeanFactory(Set<Class<?>> preInstantiatedBeans) {
+        this.preInstantiatedBeans = preInstantiatedBeans;
     }
 
     @SuppressWarnings("unchecked")
@@ -32,7 +32,7 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstanticateBeans.forEach(this::createBean);
+        preInstantiatedBeans.forEach(this::createBean);
     }
 
     public Map<Class<?>, Object> getControllers() {
@@ -41,17 +41,17 @@ public class BeanFactory {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private Object createBean(final Class<?> preInstanticateBean) {
-        if (beans.containsKey(preInstanticateBean)) {
-            return beans.get(preInstanticateBean);
+    private Object createBean(final Class<?> preInstantiatedBean) {
+        if (beans.containsKey(preInstantiatedBean)) {
+            return beans.get(preInstantiatedBean);
         }
 
-        Optional<Constructor<?>> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
+        Optional<Constructor<?>> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstantiatedBean);
 
         Object bean = injectedConstructor.map(this::createInjectedBean)
-                .orElseGet(() -> createConcreteClassBean(preInstanticateBean));
+                .orElseGet(() -> createConcreteClassBean(preInstantiatedBean));
 
-        beans.put(preInstanticateBean, bean);
+        beans.put(preInstantiatedBean, bean);
 
         return bean;
     }
@@ -74,11 +74,11 @@ public class BeanFactory {
                 .collect(Collectors.toList());
     }
 
-    private Object createConcreteClassBean(final Class<?> preInstanticateBean) {
+    private Object createConcreteClassBean(final Class<?> preInstantiatedBean) {
         try {
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans);
-            return concreteClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstantiatedBean, preInstantiatedBeans);
+            return concreteClass.getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             logger.error(e.getMessage());
             throw new BeanFactoryException(e);
         }
