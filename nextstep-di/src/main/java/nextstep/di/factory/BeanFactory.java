@@ -46,6 +46,7 @@ public class BeanFactory {
         try {
             return instantiateBean(clazz);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            logger.error("Error while instantiate bean", e);
             throw new BeanFactoryInitializeException(e);
         }
     }
