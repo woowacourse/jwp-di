@@ -46,7 +46,6 @@ public class BeanFactory {
         try {
             return instantiateBean(clazz);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
             throw new BeanFactoryInitializeException(e);
         }
     }
@@ -64,7 +63,6 @@ public class BeanFactory {
             return clazz.getConstructor();
         }
         return ctor;
-//        return ctor == null ? clazz.getConstructor() : ctor;
     }
 
     private Object[] resolveConstructorParameters(Constructor<?> ctor) {
