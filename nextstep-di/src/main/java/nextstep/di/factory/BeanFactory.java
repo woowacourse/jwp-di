@@ -66,7 +66,7 @@ public class BeanFactory {
     }
 
     private Constructor<?> getConstructor(Class<?> beanClass) {
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
+        Constructor<?> constructor = BeanFactoryUtils.findInjectedConstructor(beanClass);
         if (constructor != null) {
             return constructor;
         }
