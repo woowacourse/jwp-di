@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -39,13 +40,9 @@ public class BeanFactory {
     }
 
     private Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
-        Map<Class<?>, Object> annotatedClass = Maps.newHashMap();
-
-        beans.keySet().stream()
+        return beans.keySet().stream()
                 .filter(clazz -> clazz.isAnnotationPresent(annotation))
-                .forEach(clazz -> annotatedClass.put(clazz, beans.get(clazz)));
-
-        return annotatedClass;
+                .collect(Collectors.toMap(clazz -> clazz, beans::get));
     }
 
     private Object injectInstantiateBean(Class<?> preInstanticateBean) {
