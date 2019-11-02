@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.scanner.BeanScanner;
 import nextstep.mvc.HandlerMapping;
-import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.reflections.ReflectionUtils;
@@ -32,7 +31,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        Map<Class<?>, Object> controllers = beanFactory.getAnnotatedWith(Controller.class);
+        Map<Class<?>, Object> controllers = beanFactory.getController();
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
 
         for (Method method : methods) {

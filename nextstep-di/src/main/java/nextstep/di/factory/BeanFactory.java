@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -33,7 +34,11 @@ public class BeanFactory {
         }
     }
 
-    public Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
+    public Map<Class<?>, Object> getController() {
+        return getAnnotatedWith(Controller.class);
+    }
+
+    private Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
         Map<Class<?>, Object> annotatedClass = Maps.newHashMap();
 
         beans.keySet().stream()
