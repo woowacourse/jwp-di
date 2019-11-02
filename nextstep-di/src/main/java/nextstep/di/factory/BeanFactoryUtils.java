@@ -5,6 +5,7 @@ import nextstep.annotation.Inject;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
@@ -50,8 +51,8 @@ public class BeanFactoryUtils {
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
     }
 
-    public static Constructor<?> findBeansConstructor(Constructor<?>[] constructors, Set<Class<?>> preInstantiateBeans) {
-        return Arrays.stream(constructors).filter(constructor -> isEligibleBeansConstructor(constructor, preInstantiateBeans)).findAny().orElse(null);
+    public static Optional<Constructor<?>> findBeansConstructor(Constructor<?>[] constructors, Set<Class<?>> preInstantiateBeans) {
+        return Arrays.stream(constructors).filter(constructor -> isEligibleBeansConstructor(constructor, preInstantiateBeans)).findAny();
 
     }
 
@@ -59,8 +60,7 @@ public class BeanFactoryUtils {
         return Arrays.stream(constructor.getParameterTypes()).allMatch(parameter -> preInstantiateBeans.contains(parameter));
     }
 
-
-    public static Constructor<?> findDefaultConstructor(Constructor<?>[] constructors) {
-        return Arrays.stream(constructors).filter(constructor -> constructor.getParameterCount() == 0).findAny().orElse(null);
+    public static Optional<Constructor<?>> findDefaultConstructor(Constructor<?>[] constructors) {
+        return Arrays.stream(constructors).filter(constructor -> constructor.getParameterCount() == 0).findAny();
     }
 }

@@ -1,8 +1,8 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.factory.exception.InaccessibleConstructorException;
 import nextstep.di.factory.exception.CreateBeanException;
+import nextstep.di.factory.exception.InaccessibleConstructorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +53,13 @@ public class BeanFactory {
         }
 
         Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-        constructor = BeanFactoryUtils.findBeansConstructor(constructors, preInstantiateBeans);
-        if (constructor != null) {
-            return constructor;
-        }
 
-        constructor = BeanFactoryUtils.findDefaultConstructor(constructors);
-        if (constructor != null) {
-            return constructor;
-        }
-        throw new InaccessibleConstructorException();
+        constructor = BeanFactoryUtils
+                .findBeansConstructor(constructors, preInstantiateBeans)
+                .or(() -> BeanFactoryUtils.findDefaultConstructor(constructors))
+                .orElseThrow(InaccessibleConstructorException::new);
+
+        return constructor;
     }
 
     private Object instantiate(Class<?> beanClass, Constructor<?> beansConstructor) throws InstantiationException, IllegalAccessException, InvocationTargetException {
