@@ -1,7 +1,6 @@
 package nextstep.di.cyclereference.example.simple;
 
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanFactoryTest;
 import nextstep.di.factory.BeanScanner;
 import nextstep.di.factory.exception.CycleReferenceException;
 import nextstep.stereotype.Controller;
@@ -17,7 +16,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactorySimpleCycleReferenceTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactorySimpleCycleReferenceTest.class );
+    private static final Logger log = LoggerFactory.getLogger(BeanFactorySimpleCycleReferenceTest.class);
 
     //    private Reflections reflections;
     private BeanScanner beanScanner;

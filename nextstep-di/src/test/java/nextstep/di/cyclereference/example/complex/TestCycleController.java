@@ -1,6 +1,5 @@
 package nextstep.di.cyclereference.example.complex;
 
-import nextstep.di.cyclereference.example.simple.TestCycleController2;
 import nextstep.stereotype.Controller;
 
 @Controller

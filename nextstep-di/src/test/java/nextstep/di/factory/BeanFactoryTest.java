@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     //    private Reflections reflections;
     private BeanScanner beanScanner;
