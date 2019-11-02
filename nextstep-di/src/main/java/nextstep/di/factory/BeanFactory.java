@@ -40,6 +40,9 @@ public class BeanFactory {
     }
 
     private Object createBean(Class<?> beanClass) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
+        if (beans.keySet().contains(beanClass)) {
+            return null;
+        }
         beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preInstantiateBeans);
         Constructor<?> constructor = getConstructor(beanClass);
 
