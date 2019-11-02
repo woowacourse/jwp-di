@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
