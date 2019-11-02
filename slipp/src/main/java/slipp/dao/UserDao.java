@@ -2,23 +2,15 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
+import nextstep.stereotype.Repository;
 import slipp.domain.User;
-import slipp.support.db.ConnectionManager;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class UserDao {
-    private final JdbcTemplate jdbcTemplate;
-
-    public UserDao(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
+    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
@@ -28,13 +20,11 @@ public class UserDao {
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        RowMapper<User> rm = new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs) throws SQLException {
-                return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-        };
+        RowMapper<User> rm = rs -> new User(
+                rs.getString("userId"),
+                rs.getString("password"),
+                rs.getString("name"),
+                rs.getString("email"));
 
         return jdbcTemplate.queryForObject(sql, rm, userId);
     }
@@ -42,13 +32,11 @@ public class UserDao {
     public List<User> findAll() throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        RowMapper<User> rm = new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs) throws SQLException {
-                return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-        };
+        RowMapper<User> rm = rs -> new User(
+                rs.getString("userId"),
+                rs.getString("password"),
+                rs.getString("name"),
+                rs.getString("email"));
 
         return jdbcTemplate.query(sql, rm);
     }
