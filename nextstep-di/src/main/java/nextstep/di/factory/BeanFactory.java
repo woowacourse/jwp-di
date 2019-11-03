@@ -29,16 +29,19 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        checkCycleReference(preInstantiateBeans);
+        Set<Class<?>> concretePreInstantiateBeans = preInstantiateBeans.stream()
+                .map(preinstantiateBean -> BeanFactoryUtils.findConcreteClass(preinstantiateBean, preInstantiateBeans))
+                .collect(Collectors.toSet());
+        checkCycleReference(concretePreInstantiateBeans);
         preInstantiateBeans.forEach(this::createBeanWithTryCatch);
     }
 
     private void checkCycleReference(Set<Class<?>> preInstantiateBeans) {
-        List<String> beanNames = new ArrayList<>();
-        preInstantiateBeans.forEach(beanClass -> checkCycleReference(beanClass, beanNames));
+        preInstantiateBeans.forEach(beanClass -> checkCycleReference(beanClass, new ArrayList<>()));
     }
 
     private void checkCycleReference(Class<?> beanClass, List<String> beanNames) {
+        beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preInstantiateBeans);
         Constructor<?> constructor = getConstructor(beanClass);
         if (beanNames.contains(constructor.getName())) {
             throw new CycleReferenceException();
@@ -57,7 +60,7 @@ public class BeanFactory {
 
     private Object createBean(Class<?> beanClass) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
         if (beans.keySet().contains(beanClass)) {
-            return null;
+            return beans.get(beanClass);
         }
         beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preInstantiateBeans);
         Constructor<?> constructor = getConstructor(beanClass);
