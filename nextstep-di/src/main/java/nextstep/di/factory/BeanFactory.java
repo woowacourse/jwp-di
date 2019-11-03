@@ -29,10 +29,7 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        Set<Class<?>> concretePreInstantiateBeans = preInstantiateBeans.stream()
-                .map(preinstantiateBean -> BeanFactoryUtils.findConcreteClass(preinstantiateBean, preInstantiateBeans))
-                .collect(Collectors.toSet());
-        checkCycleReference(concretePreInstantiateBeans);
+        checkCycleReference(preInstantiateBeans);
         preInstantiateBeans.forEach(this::createBeanWithTryCatch);
     }
 
