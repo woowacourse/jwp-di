@@ -1,12 +1,13 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.exception.BeanInstantiationException;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -40,15 +41,19 @@ public class BeanFactory {
             return beans.get(clazz);
         }
 
-        return createInstance(clazz, BeanFactoryUtils.getInjectedConstructor(clazz));
+        try {
+            return createInstance(clazz, BeanFactoryUtils.getInjectedConstructor(clazz));
+        } catch (Exception e) {
+            logger.debug("Fail to instantiate bean {}", e.getMessage());
+            throw new BeanInstantiationException();
+        }
     }
 
-    private Object createInstance(Class<?> clazz, Constructor<?> constructor) {
+    private Object createInstance(Class<?> clazz, Constructor<?> constructor) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         if (Objects.isNull(constructor)) {
-            return BeanUtils.instantiateClass(clazz);
+            return clazz.newInstance();
         }
-
-        return BeanUtils.instantiateClass(constructor, getParameters(constructor));
+        return constructor.newInstance(getParameters(constructor));
     }
 
     private Object[] getParameters(Constructor<?> constructor) {
