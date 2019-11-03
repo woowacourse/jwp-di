@@ -1,10 +1,10 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.exception.CannotCreateInstance;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -17,7 +17,6 @@ public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Set<Class<?>> preInstantiateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
@@ -31,7 +30,7 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> clazz : preInstantiateBeans) {
-            beans.put(clazz, instantiate(clazz));
+            instantiate(clazz);
         }
     }
 
@@ -40,15 +39,39 @@ public class BeanFactory {
             return beans.get(clazz);
         }
 
-        return createInstance(clazz, BeanFactoryUtils.getInjectedConstructor(clazz));
+        return createSingleInstance(clazz);
     }
 
-    private Object createInstance(Class<?> clazz, Constructor<?> constructor) {
+    private Object createSingleInstance(Class<?> clazz) {
+        Object instance = createInstance(clazz);
+        addBean(clazz, instance);
+
+        return instance;
+    }
+
+    private void addBean(Class<?> clazz, Object instance) {
+        beans.put(clazz, instance);
+    }
+
+    private Object createInstance(Class<?> clazz) {
+        try {
+            Constructor<?> constructor = getConstructor(clazz);
+
+            return constructor.newInstance(getParameters(constructor));
+        } catch (Exception e) {
+            logger.error("createInstance >> ", e);
+            throw new CannotCreateInstance(e);
+        }
+    }
+
+    private Constructor<?> getConstructor(Class<?> clazz) throws NoSuchMethodException {
+        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+
         if (Objects.isNull(constructor)) {
-            return BeanUtils.instantiateClass(clazz);
+            return BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans).getConstructor();
         }
 
-        return BeanUtils.instantiateClass(constructor, getParameters(constructor));
+        return constructor;
     }
 
     private Object[] getParameters(Constructor<?> constructor) {
