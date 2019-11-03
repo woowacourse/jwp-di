@@ -28,36 +28,36 @@ public class BeanFactory {
     }
 
     private void initialize() {
-        preInstantiateBeans.forEach(aClass -> {
+        preInstantiateBeans.forEach(clazz -> {
             try {
-                instantiate(aClass);
+                instantiate(clazz);
             } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
                 throw new RuntimeException("빈 초기화 실패");
             }
         });
     }
 
-    private Object instantiate(Class<?> aClass) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        if (beans.containsKey(aClass)) {
-            return beans.get(aClass);
+    private Object instantiate(Class<?> clazz) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        if (beans.containsKey(clazz)) {
+            return beans.get(clazz);
         }
 
-        Constructor constructor = BeanFactoryUtils.getInjectedConstructor(aClass);
+        Constructor constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
 
         if (Objects.isNull(constructor)) {
-            beans.put(aClass, BeanUtils.instantiateClass(aClass));
-            return beans.get(aClass);
+            beans.put(clazz, BeanUtils.instantiateClass(clazz));
+            return beans.get(clazz);
         }
 
         List<Object> arguments = new ArrayList<>();
         Class[] parameterTypes = constructor.getParameterTypes();
-        for (Class clazz : parameterTypes) {
-            Class cls = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
+        for (Class aClass : parameterTypes) {
+            Class cls = BeanFactoryUtils.findConcreteClass(aClass, preInstantiateBeans);
             arguments.add(instantiate(cls));
         }
 
-        beans.put(aClass, constructor.newInstance(arguments.toArray()));
-        return beans.get(aClass);
+        beans.put(clazz, constructor.newInstance(arguments.toArray()));
+        return beans.get(clazz);
     }
 
     public Map<Class<?>, Object> getControllers() {
