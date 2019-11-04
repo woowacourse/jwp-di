@@ -1,7 +1,6 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.di.factory.example.DefaultConstructorClass;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.stereotype.Controller;
@@ -18,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
@@ -57,15 +55,5 @@ public class BeanFactoryTest {
         return beans;
     }
 
-    @Test
-    void 기본_생성자만_있는_클래스_빈_생성_확인() {
-        assertNotNull(beanFactory.getBean(DefaultConstructorClass.class));
-    }
 
-    @Test
-    void 순환참조_에러_확인() {
-        Reflections reflections = new Reflections("nextstep.di.factory.circularreference");
-        BeanFactory beanFactory = new BeanFactory(reflections.getTypesAnnotatedWith(Controller.class));
-        assertThrows(BeanCreateException.class, beanFactory::initialize);
-    }
 }
