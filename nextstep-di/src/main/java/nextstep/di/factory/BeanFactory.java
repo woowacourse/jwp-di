@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.exception.BeanCreateFailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,14 @@ public class BeanFactory {
     }
 
     public void initialize() {
+    }
+
+    private void createInstance(Constructor<?> constructor) {
+        try {
+            addBean(constructor);
+        } catch (Exception e) {
+            throw new BeanCreateFailException();
+        }
     }
 
     private void addBean(Constructor<?> constructor) throws InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
