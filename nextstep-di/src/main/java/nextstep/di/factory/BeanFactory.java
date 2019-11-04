@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.annotation.Inject;
+import nextstep.exception.BeanFactoryInitializeException;
 import nextstep.exception.NotFoundConstructorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,8 @@ import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
+    private static final int ONE = 1;
+    private static final int ZERO = 0;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
@@ -38,7 +41,6 @@ public class BeanFactory {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
-
     protected void initialize(Set<Class<?>> preInstantiateBeans) {
         logger.debug("Initialize BeanFactory!");
         preInstantiateBeans.forEach(bean -> {
@@ -49,6 +51,7 @@ public class BeanFactory {
                 }
             } catch (Exception e) {
                 logger.error("BeanFactory Initialize Error :  {}", e);
+                throw new BeanFactoryInitializeException(e);
             }
         });
     }
@@ -57,36 +60,35 @@ public class BeanFactory {
         Constructor constructor = findConstructor(bean);
 
         Class[] parameterTypes = constructor.getParameterTypes();
-        Object[] params = new Object[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            Class parameterType = parameterTypes[i];
-            logger.debug("param type : {}", parameterType.getName());
+        List<Object> params = new ArrayList<>();
+        for (Class parameterType : parameterTypes) {
+            logger.debug("ParameterType : {}", parameterType.getName());
 
             Class concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
             if (!beans.containsKey(concreteClass)) {
                 createInstance(concreteClass, preInstantiateBeans);
             }
-            params[i] = beans.get(concreteClass);
+            params.add(beans.get(concreteClass));
         }
 
-        beans.put(bean, constructor.newInstance(params));
-        logger.debug("create : {}", bean.getName());
+        logger.debug("Create : {}", bean.getName());
+        beans.put(bean, constructor.newInstance(params.toArray()));
     }
 
     private Constructor findConstructor(Class<?> bean) {
         logger.debug("Find Constructor : {}", bean.getName());
 
-        Constructor<?>[] constructors = bean.getConstructors();
-        if (constructors.length == 1) {
-            return constructors[0];
+        List<Constructor<?>> constructors = Arrays.asList(bean.getConstructors());
+        if (constructors.size() == ONE) {
+            return constructors.get(ZERO);
         }
 
-        List<Constructor> list = Arrays.stream(bean.getConstructors())
+        List<Constructor> injectedConstructors = constructors.stream()
                 .filter(constructor -> constructor.isAnnotationPresent(Inject.class))
                 .collect(Collectors.toList());
 
-        if (list.size() == 1) {
-            return list.get(0);
+        if (injectedConstructors.size() == ONE) {
+            return injectedConstructors.get(ZERO);
         }
 
         throw new NotFoundConstructorException("올바른 생성자를 찾을 수 없습니다.");
