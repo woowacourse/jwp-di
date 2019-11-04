@@ -22,7 +22,7 @@ public class UserController extends AbstractNewController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
-    private UserDao userDao;
+    private final UserDao userDao;
 
     @Inject
     public UserController(UserService userService, UserDao userDao) {
