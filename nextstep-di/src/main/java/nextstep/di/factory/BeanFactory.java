@@ -33,8 +33,34 @@ public class BeanFactory {
         logger.debug("Initialize BeanFactory!");
         preInstanticateBeans.forEach(bean -> {
             logger.debug(bean.getName());
-            logger.debug(findConstructor(bean).getName());
+            try {
+                if (!beans.containsKey(bean)) {
+                    createInstance(bean);
+                }
+            } catch (Exception e) {
+                logger.error("BeanFactory Initialize Error :  {}", e);
+            }
         });
+    }
+
+    private void createInstance(Class<?> bean) throws Exception {
+        Constructor constructor = findConstructor(bean);
+
+        Class[] parameterTypes = constructor.getParameterTypes();
+        Object[] params = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            Class parameterType = parameterTypes[i];
+            logger.debug("param type : {}", parameterType.getName());
+
+            Class concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateBeans);
+            if (!beans.containsKey(concreteClass)) {
+                createInstance(concreteClass);
+            }
+            params[i] = beans.get(concreteClass);
+        }
+
+        beans.put(bean, constructor.newInstance(params));
+        logger.debug("create : {}", bean.getName());
     }
 
     private Constructor findConstructor(Class<?> bean) {
