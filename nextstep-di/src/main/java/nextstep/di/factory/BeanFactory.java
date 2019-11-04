@@ -9,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -38,13 +39,13 @@ public class BeanFactory {
 
         Constructor constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
 
-        Object bean = Objects.isNull(constructor) ? BeanUtils.instantiateClass(clazz) : constructor.newInstance(getParameters(constructor));
+        Object bean = Objects.isNull(constructor) ? BeanUtils.instantiateClass(clazz) : constructor.newInstance(getArguments(constructor));
         beans.put(clazz, bean);
 
         return beans.get(clazz);
     }
 
-    private Object[] getParameters(Constructor constructor) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    private Object[] getArguments(Constructor constructor) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         List<Object> arguments = new ArrayList<>();
         Class[] parameterTypes = constructor.getParameterTypes();
 
@@ -62,12 +63,8 @@ public class BeanFactory {
     }
 
     public Map<Class<?>, Object> getControllers() {
-        Map<Class<?>, Object> controllers = Maps.newHashMap();
-        for (Class<?> clazz : preInstantiateBeans) {
-            if (clazz.isAnnotationPresent(Controller.class)) {
-                controllers.put(clazz, beans.get(clazz));
-            }
-        }
-        return controllers;
+        return preInstantiateBeans.stream()
+                .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
+                .collect(Collectors.toMap(clazz -> clazz, clazz -> beans.get(clazz)));
     }
 }
