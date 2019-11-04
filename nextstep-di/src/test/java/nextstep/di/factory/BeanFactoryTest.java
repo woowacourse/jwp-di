@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -33,5 +34,12 @@ public class BeanFactoryTest {
         MyQnaService qnaService = qnaController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
+    }
+
+    @Test
+    void getAnnotatedBeans() {
+        Map<Class<?>, Object> annotatedBeans = beanFactory.getAnnotatedBeans(Controller.class);
+
+        assertNotNull(annotatedBeans.get(QnaController.class));
     }
 }

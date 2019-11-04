@@ -6,11 +6,9 @@ import nextstep.exception.NotFoundConstructorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
@@ -33,6 +31,13 @@ public class BeanFactory {
     public <T> T getBean(Class<T> requiredType) {
         return (T) beans.get(requiredType);
     }
+
+    public Map<Class<?>, Object> getAnnotatedBeans(Class<? extends Annotation> annotation) {
+        return Collections.unmodifiableMap(beans.entrySet().stream()
+                .filter(entry -> entry.getKey().isAnnotationPresent(annotation))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
+
 
     protected void initialize(Set<Class<?>> preInstantiateBeans) {
         logger.debug("Initialize BeanFactory!");
