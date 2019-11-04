@@ -62,7 +62,7 @@ public class BeanFactoryUtils {
             return clazz.getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
             log.error("NoSuchDefaultConstructorException : ", e);
-            throw new NoSuchDefaultConstructorException("기본 생성자가 없습니다.");
+            throw new NoSuchDefaultConstructorException("기본 생성자가 없습니다.", e);
         }
     }
 
@@ -71,7 +71,7 @@ public class BeanFactoryUtils {
             return constructor.newInstance(args);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             log.error("Instantiation Failed : {}", constructor, e);
-            throw new InstantiationFailedException("Instantiation Failed");
+            throw new InstantiationFailedException("Instantiation Failed", e);
         }
     }
 }
