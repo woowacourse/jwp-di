@@ -12,12 +12,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BeanScanner {
+    private static final Class[] COMPONENT_ANNOTATIONS = {Controller.class, Repository.class, Service.class};
     private final Set<Class<?>> clazz;
     private final Object[] basePackage;
 
     public BeanScanner(Object... basePackage) {
         this.basePackage = basePackage;
-        this.clazz = getTypesAnnotatedWith(Controller.class, Repository.class, Service.class);
+        this.clazz = getTypesAnnotatedWith(COMPONENT_ANNOTATIONS);
     }
 
     public Set<Class<?>> getBeans() {
