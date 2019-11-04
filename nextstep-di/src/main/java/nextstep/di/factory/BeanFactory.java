@@ -16,12 +16,17 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    private static class BeanFactoryHolder {
+        static final BeanFactory instance = new BeanFactory();
+    }
+
+    private BeanFactory() {
+    }
+
+    public static BeanFactory getInstance() {
+        return BeanFactoryHolder.instance;
     }
 
     @SuppressWarnings("unchecked")
@@ -29,13 +34,13 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() {
+    protected void initialize(Set<Class<?>> preInstantiateBeans) {
         logger.debug("Initialize BeanFactory!");
-        preInstanticateBeans.forEach(bean -> {
+        preInstantiateBeans.forEach(bean -> {
             logger.debug(bean.getName());
             try {
                 if (!beans.containsKey(bean)) {
-                    createInstance(bean);
+                    createInstance(bean, preInstantiateBeans);
                 }
             } catch (Exception e) {
                 logger.error("BeanFactory Initialize Error :  {}", e);
@@ -43,7 +48,7 @@ public class BeanFactory {
         });
     }
 
-    private void createInstance(Class<?> bean) throws Exception {
+    private void createInstance(Class<?> bean, Set<Class<?>> preInstantiateBeans) throws Exception {
         Constructor constructor = findConstructor(bean);
 
         Class[] parameterTypes = constructor.getParameterTypes();
@@ -52,9 +57,9 @@ public class BeanFactory {
             Class parameterType = parameterTypes[i];
             logger.debug("param type : {}", parameterType.getName());
 
-            Class concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateBeans);
+            Class concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
             if (!beans.containsKey(concreteClass)) {
-                createInstance(concreteClass);
+                createInstance(concreteClass, preInstantiateBeans);
             }
             params[i] = beans.get(concreteClass);
         }
