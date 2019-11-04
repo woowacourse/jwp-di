@@ -27,16 +27,19 @@ public class BeanFactory {
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
+        if (!beans.containsKey(requiredType)) {
+            registerBean(requiredType);
+        }
         return (T) beans.get(requiredType);
     }
 
     public void initialize() {
         for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            putBean(preInstanticateBean);
+            registerBean(preInstanticateBean);
         }
     }
 
-    private void putBean(Class<?> preInstanticateBean) {
+    private void registerBean(Class<?> preInstanticateBean) {
         if (!beans.containsKey(preInstanticateBean)) {
             beans.put(preInstanticateBean, createBean(preInstanticateBean));
         }
@@ -70,7 +73,6 @@ public class BeanFactory {
         Class<?>[] parameterTypes = injectedConstructor.getParameterTypes();
         List<Object> parameters = new ArrayList<>();
         for (Class<?> parameterType : parameterTypes) {
-            putBean(parameterType);
             parameters.add(getBean(parameterType));
         }
         return injectedConstructor.newInstance(parameters.toArray());
