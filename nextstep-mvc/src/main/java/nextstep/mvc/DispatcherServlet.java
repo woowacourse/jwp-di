@@ -20,7 +20,7 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerExecutor handlerExecutor;
 
-    public void addHandlerMpping(HandlerMapping handlerMapping) {
+    public void addHandlerMapping(HandlerMapping handlerMapping) {
         handlerMappingRegistry.addHandlerMpping(handlerMapping);
     }
 
@@ -44,7 +44,6 @@ public class DispatcherServlet extends HttpServlet {
                 resp.setStatus(404);
                 return;
             }
-
 
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
             render(mav, req, resp);

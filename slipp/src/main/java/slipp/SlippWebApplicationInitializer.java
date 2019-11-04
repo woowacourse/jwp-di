@@ -24,7 +24,7 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
         beanFactory.initialize();
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(beanFactory.getControllers()));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(beanFactory.getControllers()));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
