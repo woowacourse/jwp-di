@@ -1,9 +1,6 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.example.TestController;
-import nextstep.di.factory.example.TestService;
+import nextstep.di.factory.example.*;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -48,8 +45,18 @@ public class BeanFactoryTest {
     }
 
     @Test
+    void single_instance_test() {
+        final MyQnaService myQnaService = beanFactory.getBean(MyQnaService.class);
+
+        final QuestionRepository actual = myQnaService.getQuestionRepository();
+        final QuestionRepository expected = beanFactory.getBean(JdbcQuestionRepository.class);
+
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
     @DisplayName("싱글인스턴 확인 테스트")
-    public void checkSigleInstance() throws Exception {
+    public void single_instance_test2() throws Exception {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
         MyQnaService qnaService = beanFactory.getBean(MyQnaService.class);
         TestController testController = beanFactory.getBean(TestController.class);
