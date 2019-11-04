@@ -4,8 +4,13 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -24,6 +29,15 @@ public class BeanFactory {
     }
 
     public void initialize() {
+    }
 
+    private List<Object> getParameterInstance(Constructor<?> constructor) {
+        Parameter[] parameters = constructor.getParameters();
+
+        return Arrays.stream(parameters)
+            .map(parameter -> BeanFactoryUtils.findConcreteClass(parameter.getType(), preInstanticateBeans))
+            .filter(implement -> beans.containsKey(implement))
+            .map(implement -> beans.get(implement))
+            .collect(Collectors.toList());
     }
 }
