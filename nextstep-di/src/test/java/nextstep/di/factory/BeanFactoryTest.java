@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.stereotype.Controller;
@@ -43,6 +44,12 @@ public class BeanFactoryTest {
         assertNotNull(qnaService);
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
+    }
+
+    @Test
+    public void di2() throws Exception {
+        JdbcUserRepository repository = beanFactory.getBean(JdbcUserRepository.class);
+        assertNotNull(repository);
     }
 
     @SuppressWarnings("unchecked")

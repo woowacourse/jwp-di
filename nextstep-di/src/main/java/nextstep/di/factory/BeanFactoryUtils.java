@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
 
 import java.lang.reflect.Constructor;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
@@ -25,6 +26,14 @@ public class BeanFactoryUtils {
             return null;
         }
         return injectedConstructors.iterator().next();
+    }
+
+    public static Optional<Constructor<?>> getInjectedConstructorOpt(Class<?> clazz) {
+        Set<Constructor> injectedConstructors = getAllConstructors(clazz, withAnnotation(Inject.class));
+        if (injectedConstructors.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(injectedConstructors.iterator().next());
     }
 
     /**
