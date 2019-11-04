@@ -29,7 +29,7 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         beanScanner = new BeanScanner("nextstep.di.factory.example");
-        Set<Class<?>> preInstantiatedClazz = beanScanner.getTypesAnnotatedWith(Service.class, Controller.class, Repository.class);
+        Set<Class<?>> preInstantiatedClazz = beanScanner.getTypesAnnotatedWith(Repository.class, Service.class, Controller.class );
 
         beanFactory = new BeanFactory(preInstantiatedClazz);
         beanFactory.initialize();
@@ -52,8 +52,16 @@ public class BeanFactoryTest {
     public void checkSigleInstance() throws Exception {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
         MyQnaService qnaService = beanFactory.getBean(MyQnaService.class);
+        TestController testController = beanFactory.getBean(TestController.class);
+        TestService testService = beanFactory.getBean(TestService.class);
 
-        assertThat(qnaService).isEqualTo(qnaController.getQnaService());
+        assertNotNull(testController);
+        assertNotNull(testService);
+        assertNotNull(qnaController.getQnaService());
+        assertNotNull(qnaService);
+
+        assertThat(qnaService == qnaController.getQnaService()).isTrue();
+        assertThat(testService == testController.getTestService()).isTrue();
     }
 
     @Test
