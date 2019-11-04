@@ -22,11 +22,11 @@ public class JdbcTemplate {
         return jdbcTemplate;
     }
 
-    public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {
-        try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pss.setParameters(pstmt);
-            pstmt.executeUpdate();
+    public void update(String sql, PreparedStatementSetter preparedStatementSetter) throws DataAccessException {
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatementSetter.setParameters(preparedStatement);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
@@ -41,45 +41,45 @@ public class JdbcTemplate {
              PreparedStatement ps = psc.createPreparedStatement(conn)) {
             ps.executeUpdate();
 
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                long generatedKey = rs.getLong(1);
+            ResultSet resultSet = ps.getGeneratedKeys();
+            if (resultSet.next()) {
+                long generatedKey = resultSet.getLong(1);
                 logger.debug("Generated Key : {}", generatedKey);
                 holder.setId(generatedKey);
             }
-            rs.close();
+            resultSet.close();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    public <T> T queryForObject(String sql, RowMapper<T> rm, PreparedStatementSetter pss) {
-        List<T> list = query(sql, rm, pss);
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
+        List<T> list = query(sql, rowMapper, preparedStatementSetter);
         if (list.isEmpty()) {
             return null;
         }
         return list.get(0);
     }
 
-    public <T> T queryForObject(String sql, RowMapper<T> rm, Object... parameters) {
-        return queryForObject(sql, rm, createPreparedStatementSetter(parameters));
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... parameters) {
+        return queryForObject(sql, rowMapper, createPreparedStatementSetter(parameters));
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rm, PreparedStatementSetter pss) throws DataAccessException {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws DataAccessException {
         try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pss.setParameters(pstmt);
-            return mapResultSetToObject(rm, pstmt);
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatementSetter.setParameters(preparedStatement);
+            return mapResultSetToObject(rowMapper, preparedStatement);
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    private <T> List<T> mapResultSetToObject(RowMapper<T> rm, PreparedStatement pstmt) {
-        try(ResultSet rs = pstmt.executeQuery()) {
+    private <T> List<T> mapResultSetToObject(RowMapper<T> rowMapper, PreparedStatement preparedStatement) {
+        try(ResultSet resultSet = preparedStatement.executeQuery()) {
             List<T> list = new ArrayList<T>();
-            while (rs.next()) {
-                list.add(rm.mapRow(rs));
+            while (resultSet.next()) {
+                list.add(rowMapper.mapRow(resultSet));
             }
             return list;
         } catch (SQLException e) {
@@ -87,17 +87,14 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rm, Object... parameters) {
-        return query(sql, rm, createPreparedStatementSetter(parameters));
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... parameters) {
+        return query(sql, rowMapper, createPreparedStatementSetter(parameters));
     }
 
     private PreparedStatementSetter createPreparedStatementSetter(Object... parameters) {
-        return new PreparedStatementSetter() {
-            @Override
-            public void setParameters(PreparedStatement pstmt) throws SQLException {
-                for (int i = 0; i < parameters.length; i++) {
-                    pstmt.setObject(i + 1, parameters[i]);
-                }
+        return preparedStatement -> {
+            for (int i = 0; i < parameters.length; i++) {
+                preparedStatement.setObject(i + 1, parameters[i]);
             }
         };
     }
