@@ -18,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
@@ -59,5 +60,12 @@ public class BeanFactoryTest {
     @Test
     void 기본_생성자만_있는_클래스_빈_생성_확인() {
         assertNotNull(beanFactory.getBean(DefaultConstructorClass.class));
+    }
+
+    @Test
+    void 순환참조_에러_확인() {
+        Reflections reflections = new Reflections("nextstep.di.factory.circularreference");
+        BeanFactory beanFactory = new BeanFactory(reflections.getTypesAnnotatedWith(Controller.class));
+        assertThrows(BeanCreateException.class, beanFactory::initialize);
     }
 }

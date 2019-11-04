@@ -20,6 +20,8 @@ public class BeanFactory {
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
+    private CircularReferenceDetector circularReferenceDetector = new CircularReferenceDetector();
+
     public BeanFactory(Set<Class<?>> preInstanticateBeans) {
         this.preInstanticateBeans = preInstanticateBeans;
     }
@@ -39,11 +41,14 @@ public class BeanFactory {
         if (beans.get(preInstanticateBean) != null) {
             return beans.get(preInstanticateBean);
         }
+        circularReferenceDetector.add(preInstanticateBean);
         Class<?> concrete = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans);
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(concrete).orElseThrow(BeanCreateException::new);
         List<Object> params = getParams(constructor);
         try {
-            return constructor.newInstance(params.toArray());
+            Object result = constructor.newInstance(params.toArray());
+            circularReferenceDetector.remove();
+            return result;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             logger.error(e.getMessage());
             throw new BeanCreateException(e);
