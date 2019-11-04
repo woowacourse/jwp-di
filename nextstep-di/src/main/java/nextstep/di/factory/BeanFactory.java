@@ -63,8 +63,8 @@ public class BeanFactory {
     }
 
     public Map<Class<?>, Object> getControllers() {
-        return preInstantiateBeans.stream()
-                .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
-                .collect(Collectors.toMap(clazz -> clazz, clazz -> beans.get(clazz)));
+        return beans.entrySet().stream()
+                .filter(bean -> bean.getKey().isAnnotationPresent(Controller.class))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
