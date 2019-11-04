@@ -32,6 +32,16 @@ public class BeanFactory {
     }
 
     public void initialize() {
+        preInstanticateBeans.forEach(clazz -> createBean(clazz));
+    }
+
+    private void createBean(Class<?> clazz) {
+        Constructor<?>[] constructors;
+
+        constructors = getBeanConstructors(clazz);
+        for (Constructor<?> constructor : constructors) {
+            instantiateConstructor(constructor);
+        }
     }
 
     private void createInstance(Constructor<?> constructor) {
@@ -73,9 +83,6 @@ public class BeanFactory {
         for (Parameter parameter : parameters) {
             createBean(parameter.getType());
         }
-    }
-
-    private void createBean(Class<?> type) {
     }
 
     private void addBean(Constructor<?> constructor) throws InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
