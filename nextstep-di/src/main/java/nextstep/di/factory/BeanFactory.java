@@ -2,11 +2,11 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
@@ -56,13 +56,13 @@ public class BeanFactory {
         return BeanUtils.instantiateClass(constructor, args.toArray());
     }
 
-    public Map<Class<?>, Object> getControllers() {
-        Map<Class<?>, Object> controllers = Maps.newHashMap();
+    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
+        Map<Class<?>, Object> annotatedBeans = Maps.newHashMap();
         for (Class<?> clazz : preInstantiateBeans) {
-            if (clazz.isAnnotationPresent(Controller.class)) {
-                controllers.put(clazz, beans.get(clazz));
+            if (clazz.isAnnotationPresent(annotation)) {
+                annotatedBeans.put(clazz, beans.get(clazz));
             }
         }
-        return controllers;
+        return annotatedBeans;
     }
 }
