@@ -11,12 +11,7 @@ import java.util.List;
 
 @Repository
 public class UserDao {
-    private static final UserDao userDao = new UserDao();
     private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
-
-    public static UserDao getInstance() {
-        return userDao;
-    }
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
