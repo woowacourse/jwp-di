@@ -40,8 +40,21 @@ public class BeanFactory {
     }
 
     private void registerBean(Class<?> preInstanticateBean) {
+        validateClassType(preInstanticateBean);
+
         if (!beans.containsKey(preInstanticateBean)) {
             beans.put(preInstanticateBean, createBean(preInstanticateBean));
+        }
+    }
+
+    private void validateClassType(Class<?> preInstanticateBean) {
+        Class<?> requiredType = preInstanticateBean;
+        if (requiredType.isInterface()) {
+            requiredType = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans);
+        }
+
+        if (!preInstanticateBeans.contains(requiredType)) {
+            throw new IllegalArgumentException("해당 클래스를 찾을 수 없습니다.");
         }
     }
 
