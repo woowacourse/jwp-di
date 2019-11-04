@@ -46,7 +46,7 @@ public class BeanFactory {
 
     private Object createInstance(final Class<?> preInstantiatedBean) {
         try {
-            Constructor<?> constructor = getConstructor(preInstantiatedBean);
+            Constructor<?> constructor = getBeanConstructor(preInstantiatedBean);
             List<Object> parameters = createParameters(constructor.getParameterTypes());
 
             return constructor.newInstance(parameters.toArray());
@@ -56,18 +56,19 @@ public class BeanFactory {
         }
     }
 
-    private Constructor<?> getConstructor(final Class<?> preInstantiatedBean) {
+    private Constructor<?> getBeanConstructor(final Class<?> preInstantiatedBean) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstantiatedBean, preInstantiatedBeans);
         Optional<Constructor<?>> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
-        return injectedConstructor
-                .orElseGet(() -> {
-                    try {
-                        return concreteClass.getConstructor();
-                    } catch (NoSuchMethodException e) {
-                        logger.error(e.getMessage());
-                        throw new BeanFactoryException(e);
-                    }
-                });
+        return injectedConstructor.orElseGet(() -> getConstructor(concreteClass));
+    }
+
+    private Constructor<?> getConstructor(Class<?> clazz) {
+        try {
+            return clazz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            logger.error(e.getMessage());
+            throw new BeanFactoryException(e);
+        }
     }
 
     private List<Object> createParameters(final Class<?>[] parameterTypes) {
