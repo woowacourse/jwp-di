@@ -69,17 +69,21 @@ public class BeanFactory {
         logger.debug("Find Constructor : {}", bean.getName());
 
         List<Constructor> constructors = Arrays.asList(bean.getConstructors());
+
         if (hasOneConstructor(constructors)) {
             return constructors.get(FIRST_CONSTRUCTOR);
         }
+        return findInjectedConstructor(constructors);
+    }
 
+    private Constructor findInjectedConstructor(List<Constructor> constructors) {
         List<Constructor> injectedConstructors = constructors.stream()
                 .filter(constructor -> constructor.isAnnotationPresent(Inject.class))
                 .collect(Collectors.toList());
+
         if (hasOneConstructor(injectedConstructors)) {
             return injectedConstructors.get(FIRST_CONSTRUCTOR);
         }
-
         throw new NotFoundConstructorException("올바른 생성자를 찾을 수 없습니다.");
     }
 
@@ -95,6 +99,7 @@ public class BeanFactory {
 
     private List<Object> getParameterInstances(List<Class<?>> parameterTypes, Set<Class<?>> preInstantiateBeans) throws Exception {
         List<Object> params = new ArrayList<>();
+
         for (Class parameterType : parameterTypes) {
             logger.debug("ParameterType : {}", parameterType.getName());
 
