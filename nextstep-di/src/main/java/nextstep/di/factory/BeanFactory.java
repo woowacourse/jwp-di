@@ -46,14 +46,18 @@ public class BeanFactory {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         List<Object> args = Lists.newArrayList();
         for (Class<?> clazz : parameterTypes) {
-            Object bean = beans.get(clazz);
-            if (bean != null) {
-                args.add(bean);
-            } else {
-                args.add(instantiateClass(clazz));
-            }
+            args.add(getOrInstantiate(clazz));
         }
         return BeanUtils.instantiateClass(constructor, args.toArray());
+    }
+
+    private Object getOrInstantiate(Class<?> clazz) {
+        if (beans.containsKey(clazz)) {
+            return beans.get(clazz);
+        }
+        Object instance = instantiateClass(clazz);
+        beans.put(clazz, instance);
+        return instance;
     }
 
     public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
