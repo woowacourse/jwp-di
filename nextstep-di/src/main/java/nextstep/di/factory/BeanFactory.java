@@ -14,17 +14,11 @@ public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Set<Class<?>> preInstantiateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
         initialize();
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(Class<T> requiredType) {
-        return (T) beans.get(requiredType);
     }
 
     private void initialize() {
@@ -44,20 +38,27 @@ public class BeanFactory {
 
         Constructor constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
 
-        if (Objects.isNull(constructor)) {
-            beans.put(clazz, BeanUtils.instantiateClass(clazz));
-            return beans.get(clazz);
-        }
+        Object bean = Objects.isNull(constructor) ? BeanUtils.instantiateClass(clazz) : getParameters(constructor);
+        beans.put(clazz, bean);
 
+        return beans.get(clazz);
+    }
+
+    private Object[] getParameters(Constructor constructor) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         List<Object> arguments = new ArrayList<>();
         Class[] parameterTypes = constructor.getParameterTypes();
-        for (Class aClass : parameterTypes) {
-            Class cls = BeanFactoryUtils.findConcreteClass(aClass, preInstantiateBeans);
+
+        for (Class clazz : parameterTypes) {
+            Class cls = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
             arguments.add(instantiate(cls));
         }
 
-        beans.put(clazz, constructor.newInstance(arguments.toArray()));
-        return beans.get(clazz);
+        return arguments.toArray();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getBean(Class<T> requiredType) {
+        return (T) beans.get(requiredType);
     }
 
     public Map<Class<?>, Object> getControllers() {
