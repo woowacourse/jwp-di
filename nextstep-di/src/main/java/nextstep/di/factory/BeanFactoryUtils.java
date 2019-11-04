@@ -4,7 +4,10 @@ import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
 import static org.reflections.ReflectionUtils.withAnnotation;
@@ -31,15 +34,15 @@ public class BeanFactoryUtils {
      * 인터페이스인 경우 BeanFactory가 관리하는 모든 클래스 중에 인터페이스를 구현하는 클래스를 찾아 반환
      *
      * @param injectedClazz
-     * @param preInstanticateBeans
+     * @param preInstantiatedBeans
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
+    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstantiatedBeans) {
         if (!injectedClazz.isInterface()) {
             return injectedClazz;
         }
 
-        for (Class<?> clazz : preInstanticateBeans) {
+        for (Class<?> clazz : preInstantiatedBeans) {
             Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
             if (interfaces.contains(injectedClazz)) {
                 return clazz;
@@ -47,5 +50,16 @@ public class BeanFactoryUtils {
         }
 
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+    }
+
+    public static List<Class<?>> findConcreteClasses(List<Class<?>> classes, Set<Class<?>> preInstantiatedBeans) {
+        return classes.stream()
+                .map(parameter -> BeanFactoryUtils.findConcreteClass(parameter, preInstantiatedBeans))
+                .collect(Collectors.toList());
+    }
+
+    public static Constructor<?> getBeanConstructor(Class<?> type) {
+        return Optional.ofNullable(BeanFactoryUtils.getInjectedConstructor(type))
+                .orElse((Constructor) type.getConstructors()[0]);
     }
 }

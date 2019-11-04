@@ -29,21 +29,18 @@ public class TopologySort<T> {
         List<T> orders = Lists.newArrayList();
 
         for (T root : inputNodes) {
-            if (visited.contains(root)) {
-                continue;
-            }
             recursive(orders, root);
         }
         return orders;
     }
 
     private void recursive(List<T> orders, T node) {
+        handleIfCycleExist(node);
+
         if (visited.contains(node)) {
-            if (!finished.contains(node)) {
-                cycleErrorHandler.errorHandle();
-            }
             return;
         }
+
         visited.add(node);
 
         for (T toNode : toNodeGenerator.getToNodes(node)) {
@@ -52,5 +49,11 @@ public class TopologySort<T> {
 
         finished.add(node);
         orders.add(node);
+    }
+
+    private void handleIfCycleExist(T node) {
+        if (visited.contains(node) && !finished.contains(node)) {
+            cycleErrorHandler.errorHandle();
+        }
     }
 }
