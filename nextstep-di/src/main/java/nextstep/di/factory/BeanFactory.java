@@ -31,6 +31,13 @@ public class BeanFactory {
     public void initialize() {
     }
 
+    private void addBean(Constructor<?> constructor) throws InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
+        Class<?> clazz = constructor.getDeclaringClass();
+        if (!beans.containsKey(clazz)) {
+            beans.put(clazz, constructor.newInstance(getParameterInstance(constructor).toArray()));
+        }
+    }
+
     private List<Object> getParameterInstance(Constructor<?> constructor) {
         Parameter[] parameters = constructor.getParameters();
 
