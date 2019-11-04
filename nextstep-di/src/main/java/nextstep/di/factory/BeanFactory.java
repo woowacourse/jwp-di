@@ -1,10 +1,12 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.annotation.Inject;
 import nextstep.exception.BeanCreateFailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
@@ -38,6 +40,16 @@ public class BeanFactory {
         } catch (Exception e) {
             throw new BeanCreateFailException();
         }
+    }
+
+    private void instantiateInAnnotation(Constructor<?> constructor, Annotation annotation) {
+        if (annotation.annotationType().equals(Inject.class)) {
+            instantiateParameter(constructor);
+        }
+        createInstance(constructor);
+    }
+
+    private void instantiateParameter(Constructor<?> constructor) {
     }
 
     private void addBean(Constructor<?> constructor) throws InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
