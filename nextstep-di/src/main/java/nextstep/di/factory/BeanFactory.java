@@ -27,7 +27,8 @@ public class BeanFactory {
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(final Class<T> requiredType) {
-        return (T) beans.get(requiredType);
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(requiredType, preInstantiatedBeans);
+        return (T) beans.get(concreteClass);
     }
 
     public void initialize() {
@@ -35,11 +36,12 @@ public class BeanFactory {
     }
 
     private Object createBean(final Class<?> preInstantiatedBean) {
-        if (beans.containsKey(preInstantiatedBean)) {
-            return beans.get(preInstantiatedBean);
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstantiatedBean, preInstantiatedBeans);
+        if (beans.containsKey(concreteClass)) {
+            return beans.get(concreteClass);
         }
-        Object bean = createInstance(preInstantiatedBean);
-        beans.put(preInstantiatedBean, bean);
+        Object bean = createInstance(concreteClass);
+        beans.put(concreteClass, bean);
         return bean;
     }
 
@@ -56,9 +58,8 @@ public class BeanFactory {
     }
 
     private Constructor<?> getBeanConstructor(final Class<?> preInstantiatedBean) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstantiatedBean, preInstantiatedBeans);
-        Optional<Constructor<?>> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
-        return injectedConstructor.orElseGet(() -> getConstructor(concreteClass));
+        Optional<Constructor<?>> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstantiatedBean);
+        return injectedConstructor.orElseGet(() -> getConstructor(preInstantiatedBean));
     }
 
     private Constructor<?> getConstructor(Class<?> clazz) {
