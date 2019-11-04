@@ -74,6 +74,8 @@ public class BeanFactory {
     }
 
     private Constructor findConstructor(Class<?> bean) {
+        logger.debug("Find Constructor : {}", bean.getName());
+
         Constructor<?>[] constructors = bean.getConstructors();
         if (constructors.length == 1) {
             return constructors[0];
