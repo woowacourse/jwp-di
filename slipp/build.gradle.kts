@@ -9,6 +9,8 @@ idea {
     }
 }
 
+repositories { jcenter() }
+
 dependencies {
     api(project(":nextstep-mvc"))
     api(project(":nextstep-jdbc"))
@@ -19,6 +21,8 @@ dependencies {
 
     implementation("org.springframework:spring-jdbc:$springVersion")
     implementation("org.springframework:spring-web:$springVersion")
+
+    testCompile ("org.mockito:mockito-core:2.+")
 
     implementation("org.apache.commons:commons-dbcp2:2.6.0")
 
