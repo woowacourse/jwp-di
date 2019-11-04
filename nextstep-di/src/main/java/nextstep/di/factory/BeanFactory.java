@@ -42,6 +42,12 @@ public class BeanFactory {
         }
     }
 
+    private Constructor<?>[] getBeanConstructors(Class<?> clazz) {
+        Class<?> result = BeanFactoryUtils.findConcreteClass(clazz, preInstanticateBeans);
+        logger.debug(">>>{}", result.getName());
+        return result.getConstructors();
+    }
+
     private void instantiateConstructor(Constructor<?> constructor) {
         Annotation[] annotations = constructor.getDeclaredAnnotations();
 
