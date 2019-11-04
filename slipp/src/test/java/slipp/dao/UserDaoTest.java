@@ -8,6 +8,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
+import support.test.NsWebTestServer;
 
 import java.util.List;
 

@@ -12,18 +12,23 @@ public class ConnectionManager {
     private static final String DB_USERNAME = "sa";
     private static final String DB_PW = "";
 
-    public static DataSource getDataSource() {
-        BasicDataSource ds = new BasicDataSource();
+    private static final BasicDataSource ds;
+
+    static {
+        ds = new BasicDataSource();
         ds.setDriverClassName(DB_DRIVER);
         ds.setUrl(DB_URL);
         ds.setUsername(DB_USERNAME);
         ds.setPassword(DB_PW);
+    }
+
+    public static DataSource getDataSource() {
         return ds;
     }
 
     public static Connection getConnection() {
         try {
-            return getDataSource().getConnection();
+            return ds.getConnection();
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
