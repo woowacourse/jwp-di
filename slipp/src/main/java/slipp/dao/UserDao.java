@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Repository
-public class UserDao {
+public class UserDao implements UserRepository {
     private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
 
     public void insert(User user) {

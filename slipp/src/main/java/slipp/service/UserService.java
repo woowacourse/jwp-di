@@ -2,7 +2,7 @@ package slipp.service;
 
 import nextstep.annotation.Inject;
 import nextstep.stereotype.Service;
-import slipp.dao.UserDao;
+import slipp.dao.UserRepository;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
@@ -12,11 +12,11 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @Inject
-    public UserService(UserDao userDao) {
-        this.userDao = userDao;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public User create(UserCreatedDto userCreatedDto) {
@@ -25,22 +25,22 @@ public class UserService {
                 userCreatedDto.getName(),
                 userCreatedDto.getEmail());
 
-        userDao.insert(user);
+        userRepository.insert(user);
         return user;
     }
 
     public User update(String userId, UserUpdatedDto userUpdatedDto) {
-        User user = userDao.findByUserId(userId);
+        User user = userRepository.findByUserId(userId);
         user.update(userUpdatedDto);
 
         return user;
     }
 
     public User findById(String userId) {
-        return userDao.findByUserId(userId);
+        return userRepository.findByUserId(userId);
     }
 
     public List<User> findAll() throws SQLException {
-        return userDao.findAll();
+        return userRepository.findAll();
     }
 }
