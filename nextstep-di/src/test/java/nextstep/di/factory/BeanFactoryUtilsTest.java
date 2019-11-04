@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.error.ExampleBean;
 import nextstep.di.factory.error.NoAnnotatedMultiConstructorsBean;
 import nextstep.di.factory.error.OneConstructorBean;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,8 @@ class BeanFactoryUtilsTest {
 
     @Test
     void 기본생성자_생성후_인스턴스_타입확인() throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        Object instance = BeanFactoryUtils.getInjectedConstructor(OneConstructorBean.class).orElseThrow().newInstance();
-        assertThat(instance instanceof OneConstructorBean).isTrue();
+        Object instance = BeanFactoryUtils.getInjectedConstructor(ExampleBean.class).orElseThrow().newInstance();
+        assertThat(instance instanceof ExampleBean).isTrue();
     }
 
     @Test

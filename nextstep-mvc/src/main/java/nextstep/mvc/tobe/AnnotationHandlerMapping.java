@@ -5,6 +5,8 @@ import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.reflections.ReflectionUtils;
@@ -31,7 +33,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        BeanScanner beanScanner = new BeanScanner(basePackage);
+        BeanScanner beanScanner = new BeanScanner(basePackage, Controller.class, Service.class, Repository.class);
         BeanFactory beanFactory = beanScanner.getBeanFactory();
         beanFactory.initialize();
 

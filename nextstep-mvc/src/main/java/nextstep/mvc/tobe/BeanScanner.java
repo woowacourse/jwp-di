@@ -1,25 +1,25 @@
 package nextstep.mvc.tobe;
 
 import nextstep.di.factory.BeanFactory;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanScanner {
-    public static final Class<Controller> CONTROLLER = Controller.class;
-    public static final Class<Service> SERVICE = Service.class;
-    public static final Class<Repository> REPOSITORY = Repository.class;
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     private Reflections reflections;
+    private Class<? extends Annotation>[] types;
 
-    public BeanScanner(Object... basePackage) {
+
+    public BeanScanner(Object[] basePackage, Class<? extends Annotation>... types) {
         reflections = new Reflections(basePackage);
+        this.types = types;
     }
 
     public BeanFactory getBeanFactory() {
@@ -27,9 +27,9 @@ public class BeanScanner {
     }
 
     private Set<Class<?>> scanBeans() {
-        Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(CONTROLLER);
-        typesAnnotatedWith.addAll(reflections.getTypesAnnotatedWith(SERVICE));
-        typesAnnotatedWith.addAll(reflections.getTypesAnnotatedWith(REPOSITORY));
-        return typesAnnotatedWith;
+        return Arrays.stream(types)
+                .map(type -> reflections.getTypesAnnotatedWith(type))
+                .flatMap(sets -> sets.stream())
+                .collect(Collectors.toSet());
     }
 }
