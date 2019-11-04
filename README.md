@@ -12,6 +12,8 @@
 - 없으면 그 클래스로 2.객체 생성하기를 재귀 호출한다.
 - 생성자로 객체를 생성한다.
 
-
-
-
+3. 추가 요구사항
+- MVC 프레임워크에 있는 ControllerScanner를 DI 프레임워크로 이동
+- @Controller, @Service, @Repository에 대한 지원이 가능하도록 개선
+- BeanScanner로 이름을 리팩토링
+- MVC 프레임워크의 AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩토링
