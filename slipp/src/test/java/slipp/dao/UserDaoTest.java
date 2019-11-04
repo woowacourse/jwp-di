@@ -14,6 +14,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+    private UserDao userDao = new UserDao();
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -24,7 +26,7 @@ public class UserDaoTest {
     @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = UserDao.getInstance();
+
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -37,7 +39,6 @@ public class UserDaoTest {
 
     @Test
     public void findAll() throws Exception {
-        UserDao userDao = UserDao.getInstance();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }

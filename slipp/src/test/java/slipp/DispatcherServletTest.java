@@ -1,10 +1,14 @@
 package slipp;
 
+import nextstep.di.factory.BeanFactoryInitializer;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
+import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -14,6 +18,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,8 +34,10 @@ class DispatcherServletTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
+        BeanFactoryInitializer.init(Arrays.asList(Controller.class, Service.class, Repository.class), "slipp.controller");
+
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcher.addHandlerMpping(new AnnotationHandlerMapping());
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());
