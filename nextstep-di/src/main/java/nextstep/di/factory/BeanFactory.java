@@ -20,8 +20,9 @@ public class BeanFactory {
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    public BeanFactory(Object... basePackage) {
+        BeanScanner beanScanner = new BeanScanner(basePackage);
+        this.preInstanticateBeans = beanScanner.getTypesAnnotated();
     }
 
     @SuppressWarnings("unchecked")
