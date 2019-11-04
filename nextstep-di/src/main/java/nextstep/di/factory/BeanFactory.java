@@ -42,6 +42,19 @@ public class BeanFactory {
         }
     }
 
+    private void instantiateConstructor(Constructor<?> constructor) {
+        Annotation[] annotations = constructor.getDeclaredAnnotations();
+
+        if (annotations.length == 0) {
+            createInstance(constructor);
+            return;
+        }
+
+        for (Annotation annotation : annotations) {
+            instantiateInAnnotation(constructor, annotation);
+        }
+    }
+
     private void instantiateInAnnotation(Constructor<?> constructor, Annotation annotation) {
         if (annotation.annotationType().equals(Inject.class)) {
             instantiateParameter(constructor);
