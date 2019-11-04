@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -24,6 +25,18 @@ public class BeanFactory {
 
     public BeanFactory(Set<Class<?>> preInstanticateBeans) {
         this.preInstanticateBeans = preInstanticateBeans;
+    }
+
+    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
+        Map<Class<?>, Object> newBeans = Maps.newHashMap();
+        for (Object value : beans.values()) {
+            boolean annotationPresent = value.getClass().isAnnotationPresent(annotation);
+            if (annotationPresent) {
+                newBeans.put(value.getClass(), value);
+            }
+
+        }
+        return newBeans;
     }
 
     @SuppressWarnings("unchecked")
