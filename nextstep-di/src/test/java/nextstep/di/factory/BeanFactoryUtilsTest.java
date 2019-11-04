@@ -20,7 +20,7 @@ public class BeanFactoryUtilsTest {
     @DisplayName("생성자가 없어도 정상 동작")
     void notExistConstructor() {
         assertDoesNotThrow(() ->
-                BeanFactoryUtils.findConstructor(NotExistConstroller.class));
+                BeanFactoryUtils.findConstructor(NotExistController.class));
     }
 
     @Test
