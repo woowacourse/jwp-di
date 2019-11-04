@@ -2,16 +2,15 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.exception.BeanFactoryException;
-import nextstep.stereotype.Controller;
+import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,9 +76,12 @@ public class BeanFactory {
                 .collect(Collectors.toList());
     }
 
-    public List<Class<?>> getControllers() {
+    @SuppressWarnings("unchecked")
+    public Set<Method> findMethodsByAnnotation(Class<? extends Annotation> methodAnnotation, Class<? extends Annotation> classAnnotation) {
         return beans.keySet().stream()
-                .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
-                .collect(Collectors.toList());
+                .filter(clazz -> clazz.isAnnotationPresent(classAnnotation))
+                .map(clazz -> ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(methodAnnotation)))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
     }
 }

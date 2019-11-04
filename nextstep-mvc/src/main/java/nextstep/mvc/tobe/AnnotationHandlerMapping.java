@@ -4,15 +4,18 @@ import com.google.common.collect.Maps;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.BeanScanner;
 import nextstep.mvc.HandlerMapping;
+import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
-import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AnnotationHandlerMapping implements HandlerMapping {
@@ -31,19 +34,10 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         BeanFactory beanFactory = new BeanFactory(beanScanner.getBeans());
         beanFactory.initialize();
 
-        List<Class<?>> controllers = beanFactory.getControllers();
-        Set<Method> methods = getRequestMappingMethods(controllers);
+        Set<Method> methods = beanFactory.findMethodsByAnnotation(RequestMapping.class, Controller.class);
         createHandlerExecution(beanFactory, methods);
 
         logger.info("Initialized AnnotationHandlerMapping!");
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Method> getRequestMappingMethods(List<Class<?>> controllers) {
-        return controllers.stream()
-                .map(controller -> ReflectionUtils.getAllMethods(controller, ReflectionUtils.withAnnotation(RequestMapping.class)))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
     }
 
     private void createHandlerExecution(BeanFactory beanFactory, Set<Method> methods) {

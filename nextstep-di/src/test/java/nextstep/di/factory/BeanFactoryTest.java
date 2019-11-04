@@ -1,8 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.example.*;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -13,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.Map;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,10 +46,12 @@ public class BeanFactoryTest {
     }
 
     @Test
-    void getControllerTest() {
-        Map<Class<?>, Object> controllers = beanFactory.getControllers();
+    void findMethodsByAnnotationTest() throws NoSuchMethodException {
+        Method expected = QnaController.class.getMethod("test");
+        Set<Method> methods = beanFactory.findMethodsByAnnotation(TestMethodAnnotation.class, Controller.class);
 
-        assertThat(controllers).containsKey(QnaController.class);
+        assertThat(methods).hasSize(1);
+        assertThat(methods).contains(expected);
     }
 
     @Test
@@ -59,9 +60,17 @@ public class BeanFactoryTest {
         MyQnaService actual = beanFactory.getBean(MyQnaService.class);
         MyQnaService expected = qnaController.getQnaService();
 
-        System.out.println(actual);
-        System.out.println(expected);
         assertThat(expected == actual).isTrue();
+    }
+
+    @Test
+    void QuestionRepository가_싱글_인스턴스가_맞는지_테스트() {
+        final MyQnaService myQnaService = beanFactory.getBean(MyQnaService.class);
+
+        final QuestionRepository actual = myQnaService.getQuestionRepository();
+        final QuestionRepository expected = beanFactory.getBean(JdbcQuestionRepository.class);
+
+        assertThat(actual).isEqualTo(expected);
     }
 
     @SuppressWarnings("unchecked")
