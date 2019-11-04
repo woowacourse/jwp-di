@@ -48,7 +48,7 @@ public class BeanFactory {
             }
             return getInstance(preInstanticateBean);
         } catch (Exception e) {
-            logger.error("### Bean create fail : {}", e.getMessage());
+            logger.error("### Bean create fail : ", e);
             throw new IllegalArgumentException("Bean create fail!");
         }
     }
