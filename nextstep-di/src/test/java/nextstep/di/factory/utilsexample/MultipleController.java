@@ -1,4 +1,4 @@
-package nextstep.di.factory.exception.multiple;
+package nextstep.di.factory.utilsexample;
 
 import nextstep.stereotype.Controller;
 

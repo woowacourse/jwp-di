@@ -1,4 +1,4 @@
-package nextstep.di.factory.exception.multipleinject;
+package nextstep.di.factory.utilsexample;
 
 import nextstep.annotation.Inject;
 import nextstep.stereotype.Controller;

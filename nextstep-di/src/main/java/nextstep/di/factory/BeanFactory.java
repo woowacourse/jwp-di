@@ -1,9 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.annotation.Inject;
 import nextstep.exception.BeanFactoryInitializeException;
-import nextstep.exception.NotFoundConstructorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +12,6 @@ import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-    private static final int ONE_CONSTRUCTOR = 1;
-    private static final int FIRST_CONSTRUCTOR = 0;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
@@ -57,38 +53,12 @@ public class BeanFactory {
     }
 
     private void instantiateBean(Class<?> bean, Set<Class<?>> preInstantiateBeans) throws Exception {
-        Constructor constructor = findConstructor(bean);
+        Constructor constructor = BeanFactoryUtils.findConstructor(bean);
         List<Class<?>> parameterTypes = getConcreteParameterTypes(constructor, preInstantiateBeans);
         List<Object> parameterInstances = getParameterInstances(parameterTypes, preInstantiateBeans);
 
         logger.debug("Create : {}", bean.getName());
         beans.put(bean, constructor.newInstance(parameterInstances.toArray()));
-    }
-
-    private Constructor findConstructor(Class<?> bean) {
-        logger.debug("Find Constructor : {}", bean.getName());
-
-        List<Constructor> constructors = Arrays.asList(bean.getConstructors());
-
-        if (hasOneConstructor(constructors)) {
-            return constructors.get(FIRST_CONSTRUCTOR);
-        }
-        return findInjectedConstructor(constructors);
-    }
-
-    private Constructor findInjectedConstructor(List<Constructor> constructors) {
-        List<Constructor> injectedConstructors = constructors.stream()
-                .filter(constructor -> constructor.isAnnotationPresent(Inject.class))
-                .collect(Collectors.toList());
-
-        if (hasOneConstructor(injectedConstructors)) {
-            return injectedConstructors.get(FIRST_CONSTRUCTOR);
-        }
-        throw new NotFoundConstructorException("올바른 생성자를 찾을 수 없습니다.");
-    }
-
-    private boolean hasOneConstructor(List<Constructor> constructors) {
-        return constructors.size() == ONE_CONSTRUCTOR;
     }
 
     private List<Class<?>> getConcreteParameterTypes(Constructor constructor, Set<Class<?>> preInstantiateBeans) {
