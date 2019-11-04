@@ -39,6 +39,8 @@ public class BeanFactory {
 
         beanRegisterHistory.push(preInstantiateBean);
         Constructor<?> constructor = getConstructorOf(preInstantiateBean);
+        constructor.setAccessible(true);
+
         Object bean = instantiateBeanOf(constructor);
         log.info("created bean: {}", bean);
 
