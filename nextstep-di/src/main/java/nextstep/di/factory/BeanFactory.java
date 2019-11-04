@@ -50,6 +50,13 @@ public class BeanFactory {
     }
 
     private void instantiateParameter(Constructor<?> constructor) {
+        Parameter[] parameters = constructor.getParameters();
+        for (Parameter parameter : parameters) {
+            createBean(parameter.getType());
+        }
+    }
+
+    private void createBean(Class<?> type) {
     }
 
     private void addBean(Constructor<?> constructor) throws InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
