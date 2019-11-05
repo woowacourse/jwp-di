@@ -1,11 +1,11 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.example.controller.QnaController;
+import nextstep.di.factory.example.service.MyQnaService;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
-import nextstep.di.factory.example.MyQnaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
