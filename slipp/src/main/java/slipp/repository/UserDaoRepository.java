@@ -1,6 +1,5 @@
 package slipp.repository;
 
-import nextstep.stereotype.Repository;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 
@@ -8,8 +7,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
-public class UserDaoRepository implements UserRepository {
+@nextstep.stereotype.Repository
+public class UserDaoRepository implements Repository {
 
     private UserDao userDao = UserDao.getInstance();
 
