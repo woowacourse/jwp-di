@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public class BeanFactory {
@@ -29,23 +27,17 @@ public class BeanFactory {
     public void initialize() {
         for (Class clazz : preInstantiateBeans) {
             Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-            if (injectedConstructor != null) {
-                initiateBeans(clazz, injectedConstructor);
-                continue;
-            }
-            beans.put(clazz, ReflectionUtils.newInstance(clazz));
+            beans.put(clazz, instantiateBean(clazz, injectedConstructor));
         }
     }
 
-    private void initiateBeans(Class clazz, Constructor<?> constructor) {
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-
-        try {
-            Object[] constructors = instantiateParameters(parameterTypes);
-            beans.put(clazz, constructor.newInstance(constructors));
-        } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            logger.error(e.getMessage(), e);
+    private Object instantiateBean(Class clazz, Constructor<?> constructor) {
+        if (constructor == null) {
+            return ReflectionUtils.newInstance(clazz);
         }
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
+        Object[] parameters = instantiateParameters(parameterTypes);
+        return ReflectionUtils.newInstance(constructor, parameters);
     }
 
     private Object[] instantiateParameters(Class<?>[] parameterTypes) {
@@ -59,12 +51,6 @@ public class BeanFactory {
     private Object instantiateInjectedConstructor(Class parameterType) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
         Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(parameterType);
-
-        if (injectedConstructor == null) {
-            return ReflectionUtils.newInstance(concreteClass);
-        }
-        return ReflectionUtils.newInstance(
-                injectedConstructor,
-                instantiateParameters(injectedConstructor.getParameterTypes()));
+        return instantiateBean(concreteClass, injectedConstructor);
     }
 }
