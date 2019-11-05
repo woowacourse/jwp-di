@@ -21,10 +21,15 @@ public class BeanFactoryUtils {
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static Constructor<?> getInjectedConstructor(Class<?> clazz) {
         Set<Constructor> injectedConstructors = getAllConstructors(clazz, withAnnotation(Inject.class));
-        if (injectedConstructors.isEmpty()) {
-            return null;
+        validateMultipleInjectedConstructor(injectedConstructors);
+
+        return injectedConstructors.isEmpty() ? null : injectedConstructors.iterator().next();
+    }
+
+    private static void validateMultipleInjectedConstructor(Set<Constructor> injectedConstructors) {
+        if (injectedConstructors.size() > 1) {
+            throw new DoesNotAllowMultipleInjectedConstructorException();
         }
-        return injectedConstructors.iterator().next();
     }
 
     /**
