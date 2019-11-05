@@ -60,6 +60,10 @@ public class BeanFactory {
         beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preInstantiateBeans);
         Constructor<?> constructor = getConstructor(beanClass);
 
+        if (beans.keySet().contains(beanClass)) {
+            return beans.get(beanClass);
+        }
+
         return instantiate(beanClass, constructor);
     }
 
