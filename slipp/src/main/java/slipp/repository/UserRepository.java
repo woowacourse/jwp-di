@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @nextstep.stereotype.Repository
-public class UserDaoRepository implements Repository {
+public class UserRepository implements Repository {
 
     private UserDao userDao = UserDao.getInstance();
 
