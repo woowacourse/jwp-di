@@ -48,11 +48,11 @@ public class BeanFactory {
     }
 
     private Object instantiateConstructor(Constructor<?> constructor) {
-        Class<?>[] parameterType = constructor.getParameterTypes();
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
         List<Object> parameterObject = Lists.newArrayList();
 
-        for (Class<?> aClass : parameterType) {
-            instantiateParameter(parameterObject, aClass);
+        for (Class<?> parameterType : parameterTypes) {
+            instantiateParameter(parameterObject, parameterType);
         }
 
         Class<?> clazz = constructor.getDeclaringClass();
