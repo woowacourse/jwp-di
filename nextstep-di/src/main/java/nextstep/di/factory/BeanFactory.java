@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.CreateBeanException;
+import nextstep.di.factory.exception.CycleReferenceException;
 import nextstep.di.factory.exception.InaccessibleConstructorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,23 @@ public class BeanFactory {
     }
 
     public void initialize() {
+        checkCycleReference(preInstantiateBeans);
+
         preInstantiateBeans.forEach(this::createBeanWithTryCatch);
+    }
+
+    private void checkCycleReference(Set<Class<?>> preInstantiateBeans) {
+        preInstantiateBeans.forEach(beanClass -> checkCycleReference(beanClass, new ArrayList<>()));
+    }
+
+    private void checkCycleReference(Class<?> beanClass, List<String> beanNames) {
+        beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preInstantiateBeans);
+        Constructor<?> constructor = getConstructor(beanClass);
+        if (beanNames.contains(constructor.getName())) {
+            throw new CycleReferenceException();
+        }
+        beanNames.add(constructor.getName());
+        Arrays.stream(constructor.getParameterTypes()).forEach(paramterBeanClass -> checkCycleReference(paramterBeanClass, beanNames));
     }
 
     private Object createBeanWithTryCatch(Class<?> parameter) {
