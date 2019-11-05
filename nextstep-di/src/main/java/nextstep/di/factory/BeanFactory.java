@@ -4,12 +4,14 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -28,18 +30,17 @@ public class BeanFactory {
     }
 
     public void initialize() throws InstantiationException, IllegalAccessException {
-        for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            inject(preInstanticateBean);
+        for (Class<?> preInstantiateBean : preInstanticateBeans) {
+            inject(preInstantiateBean);
         }
-
     }
 
-    private Object inject(Class<?> preInstanticateBean) throws IllegalAccessException, InstantiationException {
-        Constructor constructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
+    private Object inject(Class<?> preInstantiateBean) throws IllegalAccessException, InstantiationException {
+        Constructor constructor = BeanFactoryUtils.getInjectedConstructor(preInstantiateBean);
         if (constructor == null) {
-            Object bean = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans).newInstance();
+            Object bean = BeanFactoryUtils.findConcreteClass(preInstantiateBean, preInstanticateBeans).newInstance();
 
-            beans.put(preInstanticateBean, bean);
+            beans.put(preInstantiateBean, bean);
             return bean;
         }
 
@@ -57,12 +58,19 @@ public class BeanFactory {
         }
         try {
             Object bean = constructor.newInstance(args.toArray());
-            beans.put(preInstanticateBean, bean);
+            beans.put(preInstantiateBean, bean);
             return bean;
         } catch (
                 InstantiationException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Map<Class<?>, Object> getBeanByAnnotation(Class<? extends Annotation> clazz) {
+        return beans.keySet()
+                .stream()
+                .filter(type -> type.isAnnotationPresent(clazz))
+                .collect(Collectors.toMap(type -> type, type -> beans.get(type)));
     }
 }
