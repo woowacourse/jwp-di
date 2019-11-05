@@ -3,7 +3,6 @@ package nextstep.di.factory.error.references;
 import nextstep.di.BeanScanner;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.exception.CircularReferenceException;
-import nextstep.stereotype.Controller;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +19,7 @@ public class BeanFactoryReferenceErrorTest {
     @DisplayName("순환 참조 예외 발생")
     void initialize() {
         BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.error.references");
-        Set<Class<?>> preInstantiateClazz = beanScanner.scanBeansAnnotatedWith(Controller.class);
+        Set<Class<?>> preInstantiateClazz = beanScanner.scan();
         beanFactory = new BeanFactory(preInstantiateClazz);
         assertThrows(CircularReferenceException.class, () -> beanFactory.initialize());
     }

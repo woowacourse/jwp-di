@@ -2,9 +2,6 @@ package nextstep.di.factory.example;
 
 import nextstep.di.BeanScanner;
 import nextstep.di.factory.BeanFactory;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +20,7 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.example");
-        Set<Class<?>> preInstantiateClazz = beanScanner.scanBeansAnnotatedWith(Controller.class, Service.class, Repository.class);
+        Set<Class<?>> preInstantiateClazz = beanScanner.scan();
         beanFactory = new BeanFactory(preInstantiateClazz);
         beanFactory.initialize();
     }

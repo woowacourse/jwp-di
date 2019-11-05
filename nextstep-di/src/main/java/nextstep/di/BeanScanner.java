@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Set;
 
 public class BeanScanner {
@@ -18,7 +19,15 @@ public class BeanScanner {
     }
 
     @SuppressWarnings("unchecked")
-    public Set<Class<?>> scanBeansAnnotatedWith(Class<? extends Annotation>... annotations) {
+    public Set<Class<?>> scan() {
+        Class[] beanTypes = Arrays.stream(BeanType.values())
+                .map(BeanType::getType)
+                .toArray(Class[]::new);
+        return scanBeansAnnotatedWith(beanTypes);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Class<?>> scanBeansAnnotatedWith(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : annotations) {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
