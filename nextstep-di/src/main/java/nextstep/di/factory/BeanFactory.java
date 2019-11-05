@@ -39,7 +39,8 @@ public class BeanFactory {
 
         Constructor constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
 
-        Object bean = Objects.isNull(constructor) ? BeanUtils.instantiateClass(clazz) : constructor.newInstance(getArguments(constructor));
+        Object bean = Objects.isNull(constructor) ?
+                BeanUtils.instantiateClass(clazz) : BeanUtils.instantiateClass(constructor, getArguments(constructor));
         beans.put(clazz, bean);
 
         return beans.get(clazz);
