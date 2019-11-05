@@ -17,7 +17,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class BeanFactoryTest {
+class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
 
     private Reflections reflections;
@@ -25,14 +25,14 @@ public class BeanFactoryTest {
 
     @BeforeEach
     @SuppressWarnings("unchecked")
-    public void setup() {
+    void setup() {
         reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
+        Set<Class<?>> preInstantiateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        beanFactory = new BeanFactory(preInstantiateClazz);
     }
 
     @Test
-    public void di() throws Exception {
+    void di() throws Exception {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
