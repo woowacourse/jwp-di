@@ -86,13 +86,14 @@ public class BeanFactory {
         }
     }
 
-    private List<Object> getParameterInstance(Constructor<?> constructor) {
-        Parameter[] parameters = constructor.getParameters();
-
-        return Arrays.stream(parameters)
-            .map(parameter -> BeanFactoryUtils.findConcreteClass(parameter.getType(), preInstanticateBeans))
-            .filter(implement -> beans.containsKey(implement))
-            .map(implement -> beans.get(implement))
-            .collect(Collectors.toList());
+    private Object createBeanDefaultConstructor(Class<?> clazz) {
+        try {
+            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            Object bean = BeanUtils.instantiateClass(constructor);
+            beans.put(clazz, bean);
+            return bean;
+        } catch (NoSuchMethodException e) {
+            throw new DefaultConstructorFindFailException();
+        }
     }
 }
