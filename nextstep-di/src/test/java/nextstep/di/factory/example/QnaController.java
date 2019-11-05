@@ -12,6 +12,10 @@ public class QnaController {
         this.qnaService = qnaService;
     }
 
+    @TestMethodAnnotation
+    public void test() {
+    }
+
     public MyQnaService getQnaService() {
         return qnaService;
     }
