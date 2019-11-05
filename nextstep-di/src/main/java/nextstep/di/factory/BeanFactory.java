@@ -3,14 +3,18 @@ package nextstep.di.factory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import nextstep.exception.DefaultConstructorFindFailException;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -75,5 +79,15 @@ public class BeanFactory {
         } catch (NoSuchMethodException e) {
             throw new DefaultConstructorFindFailException();
         }
+    }
+
+    public Map<Class<?>, Object> getControllers() {
+        Map<Class<?>, Object> controllers = new HashMap<>();
+
+        beans.keySet()
+            .stream()
+            .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
+            .forEach(clazz -> controllers.put(clazz, beans.get(clazz)));
+        return controllers;
     }
 }
