@@ -31,11 +31,14 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> preInstantiateBean : preInstanticateBeans) {
-            createBeans(preInstantiateBean);
+            createBean(preInstantiateBean);
         }
     }
 
-    private Object createBeans(Class<?> preInstantiateBean) {
+    private Object createBean(Class<?> preInstantiateBean) {
+        if(beans.containsKey(preInstantiateBean)) {
+            return beans.get(preInstantiateBean);
+        }
         Constructor constructor = BeanFactoryUtils.getInjectedConstructor(preInstantiateBean);
         Object bean;
         try {
@@ -64,7 +67,7 @@ public class BeanFactory {
 
         for (Class<?> parameterType : parameterTypes) {
             if (beans.get(parameterType) == null) {
-                Object bean = createBeans(parameterType);
+                Object bean = createBean(parameterType);
                 beans.put(parameterType, bean);
                 parameters.add(bean);
             } else {
