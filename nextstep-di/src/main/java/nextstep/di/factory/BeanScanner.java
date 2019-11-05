@@ -1,38 +1,36 @@
-package nextstep.mvc.tobe;
+package nextstep.di.factory;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.lang.annotation.Annotation;
 import java.util.Set;
 
-public class ControllerScanner {
-    private static final Logger log = LoggerFactory.getLogger(ControllerScanner.class);
+public class BeanScanner {
+    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     private Reflections reflections;
 
-    public ControllerScanner(Object... basePackage) {
+    public BeanScanner(Object... basePackage) {
         reflections = new Reflections(basePackage);
     }
 
-    public Map<Class<?>, Object> getControllers() {
-        Set<Class<?>> preInitiatedControllers = reflections.getTypesAnnotatedWith(Controller.class);
-        return instantiateControllers(preInitiatedControllers);
+    public Set<Class<?>> getPreInstanticateClass() {
+        return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
     }
 
-    Map<Class<?>, Object> instantiateControllers(Set<Class<?>> preInitiatedControllers) {
-        Map<Class<?>, Object> controllers = Maps.newHashMap();
-        try {
-            for (Class<?> clazz : preInitiatedControllers) {
-                controllers.put(clazz, clazz.newInstance());
-            }
-        } catch (InstantiationException | IllegalAccessException e) {
-            log.error(e.getMessage());
+    @SuppressWarnings("unchecked")
+    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
+        Set<Class<?>> beans = Sets.newHashSet();
+        for (Class<? extends Annotation> annotation : annotations) {
+            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
-
-        return controllers;
+        log.debug("Scan Beans Type : {}", beans);
+        return beans;
     }
 }
