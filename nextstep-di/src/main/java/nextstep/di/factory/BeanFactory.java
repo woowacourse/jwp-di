@@ -1,19 +1,16 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import nextstep.annotation.Inject;
-import nextstep.exception.BeanCreateFailException;
+import nextstep.exception.DefaultConstructorFindFailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -32,17 +29,14 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstanticateBeans.forEach(clazz -> createBean(clazz));
+        preInstanticateBeans.forEach(this::instantiateClass);
     }
 
-    private void createBean(Class<?> clazz) {
-        Constructor<?>[] constructors;
-
-        constructors = getBeanConstructors(clazz);
-        for (Constructor<?> constructor : constructors) {
-            instantiateConstructor(constructor);
+    private Object instantiateClass(Class<?> clazz) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstanticateBeans);
+        if (beans.containsKey(concreteClass)) {
+            return beans.get(concreteClass);
         }
-    }
 
     private void createInstance(Constructor<?> constructor) {
         try {
