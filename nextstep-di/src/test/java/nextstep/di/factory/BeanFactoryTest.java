@@ -9,6 +9,7 @@ import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -46,6 +47,15 @@ public class BeanFactoryTest {
         MyQnaService qnaService = qnaController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
+    }
+
+    @Test
+    @DisplayName("di된 객체와 BeanFactory가 가진 객체가 실제로 같은지 확인")
+    public void beanTest() {
+        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        MyQnaService qnaService = beanFactory.getBean(MyQnaService.class);
+
+        assertThat(qnaController.getQnaService()).isEqualTo(qnaService);
     }
 
     @Test
