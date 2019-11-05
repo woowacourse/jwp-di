@@ -36,11 +36,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     public void initialize() {
         BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), basePackage);
         BeanFactory beanFactory = new BeanFactory(beanScanner.scanBeans());
-        try {
-            beanFactory.initialize();
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        beanFactory.initialize();
 
         Map<Class<?>, Object> controllers = beanFactory.getBeanByAnnotation(Controller.class);
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());

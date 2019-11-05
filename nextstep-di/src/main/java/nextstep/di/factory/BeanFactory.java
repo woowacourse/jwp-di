@@ -29,42 +29,49 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() throws InstantiationException, IllegalAccessException {
+    public void initialize() {
         for (Class<?> preInstantiateBean : preInstanticateBeans) {
-            inject(preInstantiateBean);
+            createBeans(preInstantiateBean);
         }
     }
 
-    private Object inject(Class<?> preInstantiateBean) throws IllegalAccessException, InstantiationException {
+    private Object createBeans(Class<?> preInstantiateBean) {
         Constructor constructor = BeanFactoryUtils.getInjectedConstructor(preInstantiateBean);
-        if (constructor == null) {
-            Object bean = BeanFactoryUtils.findConcreteClass(preInstantiateBean, preInstanticateBeans).newInstance();
-
-            beans.put(preInstantiateBean, bean);
-            return bean;
-        }
-
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        List<Object> args = new ArrayList<>();
-
-        for (Class<?> parameterType : parameterTypes) {
-            if (beans.get(parameterType) == null) {
-                Object bean = inject(parameterType);
-                beans.put(parameterType, bean);
-                args.add(bean);
-            } else {
-                args.add(beans.get(parameterType));
-            }
-        }
+        Object bean;
         try {
-            Object bean = constructor.newInstance(args.toArray());
+            bean = constructor == null ? createNonConstructorBean(preInstantiateBean) : createConstructorBean(constructor);
             beans.put(preInstantiateBean, bean);
             return bean;
         } catch (
                 InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         return null;
+    }
+
+    private Object createConstructorBean(Constructor constructor) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        List<Object> parameters = createParameters(constructor);
+        return constructor.newInstance(parameters.toArray());
+    }
+
+    private Object createNonConstructorBean(Class<?> preInstantiateBean) throws InstantiationException, IllegalAccessException {
+        return BeanFactoryUtils.findConcreteClass(preInstantiateBean, preInstanticateBeans).newInstance();
+    }
+
+    private List<Object> createParameters(Constructor constructor) {
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
+        List<Object> parameters = new ArrayList<>();
+
+        for (Class<?> parameterType : parameterTypes) {
+            if (beans.get(parameterType) == null) {
+                Object bean = createBeans(parameterType);
+                beans.put(parameterType, bean);
+                parameters.add(bean);
+            } else {
+                parameters.add(beans.get(parameterType));
+            }
+        }
+        return parameters;
     }
 
     public Map<Class<?>, Object> getBeanByAnnotation(Class<? extends Annotation> clazz) {

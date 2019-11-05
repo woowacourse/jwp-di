@@ -25,11 +25,7 @@ public class BeanFactoryTest {
         String path = "nextstep.di.factory.example";
         BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), path);
         beanFactory = new BeanFactory(beanScanner.scanBeans());
-        try {
-            beanFactory.initialize();
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        beanFactory.initialize();
     }
 
     @Test

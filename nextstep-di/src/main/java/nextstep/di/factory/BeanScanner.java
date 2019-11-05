@@ -1,13 +1,11 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Maps;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class BeanScanner {
@@ -27,18 +25,5 @@ public class BeanScanner {
             preInitiatedBeans.addAll(reflections.getTypesAnnotatedWith(clazz));
         }
         return preInitiatedBeans;
-    }
-
-    static Map<Class<?>, Object> instantiate(Set<Class<?>> preInitiatedBeans) {
-        Map<Class<?>, Object> beans = Maps.newHashMap();
-        try {
-            for (Class<?> clazz : preInitiatedBeans) {
-                beans.put(clazz, clazz.newInstance());
-            }
-        } catch (InstantiationException | IllegalAccessException e) {
-            log.error(e.getMessage());
-        }
-
-        return beans;
     }
 }
