@@ -38,18 +38,9 @@ public class BeanFactory {
             return beans.get(concreteClass);
         }
 
-    private void createInstance(Constructor<?> constructor) {
-        try {
-            addBean(constructor);
-        } catch (Exception e) {
-            throw new BeanCreateFailException();
-        }
-    }
-
-    private Constructor<?>[] getBeanConstructors(Class<?> clazz) {
-        Class<?> result = BeanFactoryUtils.findConcreteClass(clazz, preInstanticateBeans);
-        logger.debug(">>>{}", result.getName());
-        return result.getConstructors();
+        return BeanFactoryUtils.getInjectedConstructor(concreteClass)
+            .map(this::instantiateConstructor)
+            .orElseGet(() -> createBeanDefaultConstructor(concreteClass));
     }
 
     private Object instantiateConstructor(Constructor<?> constructor) {
