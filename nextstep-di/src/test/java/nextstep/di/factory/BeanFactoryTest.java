@@ -34,7 +34,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void di() throws Exception {
+    public void di() {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -47,7 +47,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void di2() throws Exception {
+    public void di2() {
         JdbcUserRepository repository = beanFactory.getBean(JdbcUserRepository.class);
         assertNotNull(repository);
     }

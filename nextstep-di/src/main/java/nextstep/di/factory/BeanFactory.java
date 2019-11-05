@@ -4,9 +4,13 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Set;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -23,6 +27,7 @@ public class BeanFactory {
     public <T> T getBean(Class<T> requiredType) {
         return (T) beans.get(requiredType);
     }
+
 
     public void initialize() {
         for (Class clazz : preInstantiateBeans) {
@@ -62,5 +67,12 @@ public class BeanFactory {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
         Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(parameterType);
         return instantiateBean(concreteClass, injectedConstructor);
+    }
+
+    public Map<Class<?>, Object> getBeans(Class<? extends Annotation> annotation) {
+        return beans.keySet()
+                .stream()
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
+                .collect(toMap(identity(), key -> beans.get(key)));
     }
 }
