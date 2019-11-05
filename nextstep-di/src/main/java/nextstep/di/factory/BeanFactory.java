@@ -1,8 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.factory.exception.CircularReferenceException;
-import nextstep.di.factory.exception.IllegalAnnotationException;
+import nextstep.di.validation.BeanValidationExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +17,7 @@ public class BeanFactory {
     private Set<Class<?>> preInstantiateBeans;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
     private Deque<Class<?>> beanRegisterHistory = new ArrayDeque<>();
+    private BeanValidationExecutor beanValidationExecutor = new BeanValidationExecutor();
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
@@ -34,8 +34,7 @@ public class BeanFactory {
             return;
         }
 
-        checkBeanType(preInstantiateBean);
-        checkCircularReference(preInstantiateBean);
+        beanValidationExecutor.execute(preInstantiateBean, beanRegisterHistory);
 
         beanRegisterHistory.push(preInstantiateBean);
         Constructor<?> constructor = getConstructorOf(preInstantiateBean);
@@ -46,20 +45,6 @@ public class BeanFactory {
 
         beans.put(preInstantiateBean, bean);
         beanRegisterHistory.pop();
-    }
-
-    private void checkBeanType(final Class<?> preInstantiateBean) {
-        if (preInstantiateBean.isInterface()) {
-            log.error("invalid annotation on {}", preInstantiateBean);
-            throw new IllegalAnnotationException("invalid annotation");
-        }
-    }
-
-    private void checkCircularReference(final Class<?> preInstantiateBean) {
-        if (beanRegisterHistory.contains(preInstantiateBean)) {
-            log.error("circular reference on {}", preInstantiateBean);
-            throw new CircularReferenceException("circular reference");
-        }
     }
 
     private Constructor<?> getConstructorOf(final Class<?> preInstantiateBean) {
