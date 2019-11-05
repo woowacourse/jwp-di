@@ -14,7 +14,7 @@
         - 좀 더 좋은 예외(사이클에 포함된 클래스들 표시)
 
 todo
-- 리팩토링
-    - 테스트? 
 - 추가요구사항
     - slipp 코드에 di 프레임워크 적용
+        - ControllerScanner 를 di 프레임워크로 이동
+        - 이후 BeanScanner 로 리팩토링(@Service, @Repository 등도 적용하기 위함)

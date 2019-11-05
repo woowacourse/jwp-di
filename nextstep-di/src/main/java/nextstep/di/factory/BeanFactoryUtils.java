@@ -54,12 +54,12 @@ public class BeanFactoryUtils {
 
     public static List<Class<?>> findConcreteClasses(List<Class<?>> classes, Set<Class<?>> preInstantiatedBeans) {
         return classes.stream()
-                .map(parameter -> BeanFactoryUtils.findConcreteClass(parameter, preInstantiatedBeans))
+                .map(parameter -> findConcreteClass(parameter, preInstantiatedBeans))
                 .collect(Collectors.toList());
     }
 
     public static Constructor<?> getBeanConstructor(Class<?> type) {
-        return Optional.ofNullable(BeanFactoryUtils.getInjectedConstructor(type))
+        return Optional.ofNullable(getInjectedConstructor(type))
                 .orElse((Constructor) type.getConstructors()[0]);
     }
 }
