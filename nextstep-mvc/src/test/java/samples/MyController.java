@@ -1,6 +1,6 @@
 package samples;
 
-import nextstep.db.DataBase;
+import nextstep.annotation.Inject;
 import nextstep.mvc.ModelAndView;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
@@ -15,11 +15,18 @@ import javax.servlet.http.HttpServletResponse;
 public class MyController {
     private static final Logger logger = LoggerFactory.getLogger(MyController.class);
 
+    private final MyService myService;
+
+    @Inject
+    public MyController(MyService myService) {
+        this.myService = myService;
+    }
+
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public ModelAndView findUserId(HttpServletRequest request, HttpServletResponse response) {
         String userId = request.getParameter("userId");
         logger.debug("Find UserId : {}", userId);
-        User user = DataBase.findUserById(userId);
+        User user = myService.findUserById(userId);
         request.setAttribute("user", user);
         return null;
     }
@@ -32,7 +39,7 @@ public class MyController {
                 request.getParameter("name"),
                 request.getParameter("email"));
         logger.debug("User : {}", user);
-        DataBase.addUser(user);
+        myService.addUser(user);
         return null;
     }
 }
