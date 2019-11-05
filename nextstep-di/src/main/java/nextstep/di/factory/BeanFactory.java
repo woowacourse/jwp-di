@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import nextstep.annotation.Inject;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class BeanFactory {
             }
         }
         Constructor ctor = injectCtor.get();
-        List<Object> realParams = new ArrayList<>();
+        List<Object> realParams = Lists.newArrayList();
         for (Class<?> param : ctor.getParameterTypes()) {
             if (history.contains(param)) {
                 throw new RecursiveFieldException();
@@ -66,7 +67,7 @@ public class BeanFactory {
                 param = findImplClass(param);
             }
 
-            List<Class<?>> newHistory = new ArrayList<>(history);
+            List<Class<?>> newHistory = Lists.newArrayList(history);
             newHistory.add(param);
             realParams.add(instantiate(param, newHistory));
         }
