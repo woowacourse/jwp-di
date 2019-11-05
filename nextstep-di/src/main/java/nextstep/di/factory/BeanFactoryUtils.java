@@ -19,7 +19,7 @@ public class BeanFactoryUtils {
     private static final int FIRST_CONSTRUCTOR = 0;
 
     /**
-     * 생성자가 하나이면 그 생성자 반환, 여러개이면 그중 @Inject가 붙은 생성자가 하나이면 그 생성자 반환
+     * 생성자가 하나이면 그 생성자 반환, 여러개이면 그 중 @Inject가 붙은 생성자가 하나이면 그 생성자 반환
      * 이외의 경우에는 예외 발생
      *
      * @param clazz

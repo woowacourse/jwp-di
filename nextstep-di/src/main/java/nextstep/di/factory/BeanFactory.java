@@ -37,7 +37,7 @@ public class BeanFactory {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
-    protected void initialize(Set<Class<?>> preInstantiateBeans) {
+    protected void addBeans(Set<Class<?>> preInstantiateBeans) {
         logger.debug("Initialize BeanFactory!");
         preInstantiateBeans.forEach(bean -> {
             logger.debug(bean.getName());
