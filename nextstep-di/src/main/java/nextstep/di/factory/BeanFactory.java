@@ -31,6 +31,10 @@ public class BeanFactory {
     }
 
     private Object instantiate(Class<?> clazz, List<Class<?>> history) {
+        if (clazz.isInterface()) {
+            throw new InterfaceCannotInstantiatedException();
+        }
+
         Constructor[] ctors = clazz.getDeclaredConstructors();
         Optional<Constructor> injectCtor = Arrays.stream(ctors)
                 .filter(ctor -> ctor.isAnnotationPresent(Inject.class))
@@ -74,8 +78,8 @@ public class BeanFactory {
     }
 
     private Class<?> findImplClass(Class<?> interfaze) {
-        // TODO: 인터페이스를 extends 한 인터페이스의 구현체도?
         return preInstantiatedBeans.parallelStream()
+                .filter(bean -> !interfaze.equals(bean))
                 .filter(interfaze::isAssignableFrom)
                 .findFirst()
                 .orElseThrow(ImplClassNotFoundException::new);
