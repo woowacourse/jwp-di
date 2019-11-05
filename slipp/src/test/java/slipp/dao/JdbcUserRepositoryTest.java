@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserRepositoryTest {
+public class JdbcUserRepositoryTest {
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -24,21 +24,21 @@ public class UserRepositoryTest {
     @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserRepository userRepository = new UserRepository();
-        userRepository.insert(expected);
-        User actual = userRepository.findByUserId(expected.getUserId());
+        JdbcUserRepository jdbcUserRepository = new JdbcUserRepository();
+        jdbcUserRepository.insert(expected);
+        User actual = jdbcUserRepository.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
-        userRepository.update(expected);
-        actual = userRepository.findByUserId(expected.getUserId());
+        jdbcUserRepository.update(expected);
+        actual = jdbcUserRepository.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     public void findAll() throws Exception {
-        UserRepository userRepository = new UserRepository();
-        List<User> users = userRepository.findAll();
+        JdbcUserRepository jdbcUserRepository = new JdbcUserRepository();
+        List<User> users = jdbcUserRepository.findAll();
         assertThat(users).hasSize(1);
     }
 }

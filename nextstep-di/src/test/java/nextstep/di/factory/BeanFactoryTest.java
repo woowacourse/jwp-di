@@ -1,6 +1,5 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;

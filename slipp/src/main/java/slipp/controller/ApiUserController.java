@@ -10,7 +10,7 @@ import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import slipp.dao.UserRepository;
+import slipp.dao.JdbcUserRepository;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
@@ -23,11 +23,11 @@ public class ApiUserController {
     private static final Logger logger = LoggerFactory.getLogger( ApiUserController.class );
 
     private ObjectMapper objectMapper = new ObjectMapper();
-    private UserRepository userRepository;
+    private JdbcUserRepository jdbcUserRepository;
 
     @Inject
-    public ApiUserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public ApiUserController(JdbcUserRepository jdbcUserRepository) {
+        this.jdbcUserRepository = jdbcUserRepository;
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
@@ -35,7 +35,7 @@ public class ApiUserController {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
 
-        userRepository.insert(new User(
+        jdbcUserRepository.insert(new User(
                 createdDto.getUserId(),
                 createdDto.getPassword(),
                 createdDto.getName(),
@@ -53,7 +53,7 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("user", userRepository.findByUserId(userId));
+        mav.addObject("user", jdbcUserRepository.findByUserId(userId));
         return mav;
     }
 
@@ -64,9 +64,9 @@ public class ApiUserController {
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
 
-        User user = userRepository.findByUserId(userId);
+        User user = jdbcUserRepository.findByUserId(userId);
         user.update(updateDto);
-        userRepository.update(user);
+        jdbcUserRepository.update(user);
 
         return new ModelAndView(new JsonView());
     }

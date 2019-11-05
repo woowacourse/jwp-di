@@ -8,7 +8,7 @@ import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import slipp.dao.UserRepository;
+import slipp.dao.JdbcUserRepository;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 
@@ -20,11 +20,11 @@ import javax.servlet.http.HttpSession;
 public class UserController extends AbstractNewController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    private UserRepository userRepository;
+    private JdbcUserRepository jdbcUserRepository;
 
     @Inject
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(JdbcUserRepository jdbcUserRepository) {
+        this.jdbcUserRepository = jdbcUserRepository;
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
@@ -34,7 +34,7 @@ public class UserController extends AbstractNewController {
         }
 
         ModelAndView mav = jspView("/user/list.jsp");
-        mav.addObject("users", userRepository.findAll());
+        mav.addObject("users", jdbcUserRepository.findAll());
         return mav;
     }
 
@@ -42,7 +42,7 @@ public class UserController extends AbstractNewController {
     public ModelAndView profile(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userId = request.getParameter("userId");
         ModelAndView mav = jspView("/user/profile.jsp");
-        mav.addObject("user", userRepository.findByUserId(userId));
+        mav.addObject("user", jdbcUserRepository.findByUserId(userId));
         return mav;
     }
 
@@ -56,13 +56,13 @@ public class UserController extends AbstractNewController {
         User user = new User(request.getParameter("userId"), request.getParameter("password"),
                 request.getParameter("name"), request.getParameter("email"));
         log.debug("User : {}", user);
-        userRepository.insert(user);
+        jdbcUserRepository.insert(user);
         return jspView("redirect:/");
     }
 
     @RequestMapping(value = "/users/updateForm", method = RequestMethod.GET)
     public ModelAndView updateForm(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        User user = userRepository.findByUserId(request.getParameter("userId"));
+        User user = jdbcUserRepository.findByUserId(request.getParameter("userId"));
 
         if (!UserSessionUtils.isSameUser(request.getSession(), user)) {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
@@ -74,7 +74,7 @@ public class UserController extends AbstractNewController {
 
     @RequestMapping(value = "/users/update", method = RequestMethod.POST)
     public ModelAndView update(HttpServletRequest req, HttpServletResponse response) throws Exception {
-        User user = userRepository.findByUserId(req.getParameter("userId"));
+        User user = jdbcUserRepository.findByUserId(req.getParameter("userId"));
 
         if (!UserSessionUtils.isSameUser(req.getSession(), user)) {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
@@ -98,7 +98,7 @@ public class UserController extends AbstractNewController {
     public ModelAndView login(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userId = request.getParameter("userId");
         String password = request.getParameter("password");
-        User user = userRepository.findByUserId(userId);
+        User user = jdbcUserRepository.findByUserId(userId);
 
         if (user == null) {
             throw new NullPointerException("사용자를 찾을 수 없습니다.");
