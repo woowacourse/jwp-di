@@ -26,7 +26,7 @@ public class BeanScanner {
 
     private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
         return Arrays.stream(annotations)
-                .map(annotation -> reflections.getTypesAnnotatedWith(annotation))
+                .map(reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
