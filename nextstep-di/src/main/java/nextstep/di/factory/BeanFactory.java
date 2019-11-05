@@ -52,38 +52,27 @@ public class BeanFactory {
         return result.getConstructors();
     }
 
-    private void instantiateConstructor(Constructor<?> constructor) {
-        Annotation[] annotations = constructor.getDeclaredAnnotations();
+    private Object instantiateConstructor(Constructor<?> constructor) {
+        Class<?>[] parameterType = constructor.getParameterTypes();
+        List<Object> parameterObject = Lists.newArrayList();
 
-        if (annotations.length == 0) {
-            createInstance(constructor);
+        for (Class<?> aClass : parameterType) {
+            instantiateParameter(parameterObject, aClass);
+        }
+
+        Class<?> clazz = constructor.getDeclaringClass();
+        Object bean = BeanUtils.instantiateClass(constructor, parameterObject.toArray());
+        beans.put(clazz, bean);
+        return bean;
+    }
+
+    private void instantiateParameter(List<Object> parameterObject, Class<?> aClass) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(aClass, preInstanticateBeans);
+        if (beans.containsKey(concreteClass)) {
+            parameterObject.add(beans.get(concreteClass));
             return;
         }
-
-        for (Annotation annotation : annotations) {
-            instantiateInAnnotation(constructor, annotation);
-        }
-    }
-
-    private void instantiateInAnnotation(Constructor<?> constructor, Annotation annotation) {
-        if (annotation.annotationType().equals(Inject.class)) {
-            instantiateParameter(constructor);
-        }
-        createInstance(constructor);
-    }
-
-    private void instantiateParameter(Constructor<?> constructor) {
-        Parameter[] parameters = constructor.getParameters();
-        for (Parameter parameter : parameters) {
-            createBean(parameter.getType());
-        }
-    }
-
-    private void addBean(Constructor<?> constructor) throws InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
-        Class<?> clazz = constructor.getDeclaringClass();
-        if (!beans.containsKey(clazz)) {
-            beans.put(clazz, constructor.newInstance(getParameterInstance(constructor).toArray()));
-        }
+        parameterObject.add(instantiateClass(aClass));
     }
 
     private Object createBeanDefaultConstructor(Class<?> clazz) {
