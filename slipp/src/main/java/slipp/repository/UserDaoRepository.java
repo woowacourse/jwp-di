@@ -6,6 +6,7 @@ import slipp.domain.User;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserDaoRepository implements UserRepository {
@@ -16,8 +17,8 @@ public class UserDaoRepository implements UserRepository {
         userDao.insert(user);
     }
 
-    public User findById(String userId) {
-        return userDao.findByUserId(userId);
+    public Optional<User> findById(String userId) {
+        return Optional.of(userDao.findByUserId(userId));
     }
 
     public void update(User user) {
