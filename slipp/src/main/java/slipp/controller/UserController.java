@@ -42,7 +42,7 @@ public class UserController extends AbstractNewController {
     public ModelAndView profile(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userId = request.getParameter("userId");
         ModelAndView mav = jspView("/user/profile.jsp");
-        mav.addObject("user", userService.findUser(userId));
+        mav.addObject("user", userService.findByUserId(userId));
         return mav;
     }
 
@@ -62,7 +62,7 @@ public class UserController extends AbstractNewController {
 
     @RequestMapping(value = "/users/updateForm", method = RequestMethod.GET)
     public ModelAndView updateForm(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        User user = userService.findUser(request.getParameter("userId"));
+        User user = userService.findByUserId(request.getParameter("userId"));
 
         if (!UserSessionUtils.isSameUser(request.getSession(), user)) {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
@@ -74,7 +74,7 @@ public class UserController extends AbstractNewController {
 
     @RequestMapping(value = "/users/update", method = RequestMethod.POST)
     public ModelAndView update(HttpServletRequest req, HttpServletResponse response) throws Exception {
-        User user = userService.findUser(req.getParameter("userId"));
+        User user = userService.findByUserId(req.getParameter("userId"));
 
         if (!UserSessionUtils.isSameUser(req.getSession(), user)) {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
@@ -98,7 +98,7 @@ public class UserController extends AbstractNewController {
     public ModelAndView login(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userId = request.getParameter("userId");
         String password = request.getParameter("password");
-        User user = userService.findUser(userId);
+        User user = userService.findByUserId(userId);
 
         if (user.matchPassword(password)) {
             HttpSession session = request.getSession();

@@ -54,7 +54,7 @@ public class ApiUserController {
         logger.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("user", userService.findUser(userId));
+        mav.addObject("user", userService.findByUserId(userId));
         return mav;
     }
 
@@ -65,7 +65,7 @@ public class ApiUserController {
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
 
-        User user = userService.findUser(userId);
+        User user = userService.findByUserId(userId);
         user.update(updateDto);
         userService.update(user);
 

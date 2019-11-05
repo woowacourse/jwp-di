@@ -22,7 +22,7 @@ public class UserService {
         userRepository.insert(user);
     }
 
-    public User findUser(String userId) {
+    public User findByUserId(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundUserException("유저를 찾을 수 없습니다."));
     }
