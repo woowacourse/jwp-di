@@ -27,8 +27,18 @@ public class BeanFactory {
     public void initialize() {
         for (Class clazz : preInstantiateBeans) {
             Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+            putInstance(clazz, injectedConstructor);
+        }
+    }
+
+    private void putInstance(Class clazz, Constructor<?> injectedConstructor) {
+        if (hasNotClass(clazz)) {
             beans.put(clazz, instantiateBean(clazz, injectedConstructor));
         }
+    }
+
+    private boolean hasNotClass(Class clazz) {
+        return !beans.containsKey(clazz);
     }
 
     private Object instantiateBean(Class clazz, Constructor<?> constructor) {
