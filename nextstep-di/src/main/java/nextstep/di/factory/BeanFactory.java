@@ -2,8 +2,6 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.lang.annotation.Annotation;
@@ -13,10 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
     private Set<Class<?>> preInstantiateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
@@ -34,6 +29,16 @@ public class BeanFactory {
         }
     }
 
+    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
+        Map<Class<?>, Object> annotatedBeans = Maps.newHashMap();
+        for (Class<?> clazz : preInstantiateBeans) {
+            if (clazz.isAnnotationPresent(annotation)) {
+                annotatedBeans.put(clazz, beans.get(clazz));
+            }
+        }
+        return annotatedBeans;
+    }
+
     private Object instantiateClass(Class<?> clazz) {
         Constructor constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
         if (constructor != null) {
@@ -46,27 +51,17 @@ public class BeanFactory {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         List<Object> args = Lists.newArrayList();
         for (Class<?> clazz : parameterTypes) {
-            args.add(getOrInstantiate(clazz));
+            args.add(getOrInstantiateBean(clazz));
         }
         return BeanUtils.instantiateClass(constructor, args.toArray());
     }
 
-    private Object getOrInstantiate(Class<?> clazz) {
+    private Object getOrInstantiateBean(Class<?> clazz) {
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
         Object instance = instantiateClass(clazz);
         beans.put(clazz, instance);
         return instance;
-    }
-
-    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
-        Map<Class<?>, Object> annotatedBeans = Maps.newHashMap();
-        for (Class<?> clazz : preInstantiateBeans) {
-            if (clazz.isAnnotationPresent(annotation)) {
-                annotatedBeans.put(clazz, beans.get(clazz));
-            }
-        }
-        return annotatedBeans;
     }
 }
