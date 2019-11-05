@@ -100,10 +100,6 @@ public class UserController extends AbstractNewController {
         String password = request.getParameter("password");
         User user = userService.findUser(userId);
 
-        if (user == null) {
-            throw new NullPointerException("사용자를 찾을 수 없습니다.");
-        }
-
         if (user.matchPassword(password)) {
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
