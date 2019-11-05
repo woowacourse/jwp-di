@@ -1,20 +1,21 @@
-# 프레임워크 구현
+### di 프레임워크
 
-### todo
+### 요구사항
+- [ ] slipp 코드에 di 프레임워크 적용
+    - [x] `@Controller, @Service, @Repository` 등록
+        - [x] Service 적용
+            - [x] UserService
+            - [x] LoginService
+            - 어느정도 역할을 적용해줄까요?
+        - [x] UserDao `@Respository` 등록
+    - 테스트 적용
+        - 컨트롤러 테스트
+            - 리턴된 modelAndView 를 확인하면 되지 않을까?!
+                - 원하는 뷰와 모델을 잘 반환하는지
+                - 너무 구현을 많이 아는 건 아닐까? (view 나 모델이 바뀌면 테스트도 같이 바뀌기에...ㄷㄷ)
+                    - 그래도.. 필요한 것 같다.. ㄷ
+            - UserController
+            - LoginController
 
-
-
-### 고려할 점들
-
-- BeanFactory 에서 '@Component 이 안 달린 클래스'를 생성해야 할 경우
-    - @Resource 등 처리
-- @Bean 이라는 것이 무엇인지?
-- 사이클 있는 경우
-    - 애러처리
-        - 좀 더 좋은 예외(사이클에 포함된 클래스들 표시)
-
-todo
-- 리팩토링
-    - 테스트? 
-- 추가요구사항
-    - slipp 코드에 di 프레임워크 적용
+### 구현하면서 필요하다고 생각된 기능
+- [ ] 로깅 + aop

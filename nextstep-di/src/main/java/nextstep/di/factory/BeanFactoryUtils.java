@@ -2,6 +2,8 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -13,6 +15,8 @@ import static org.reflections.ReflectionUtils.getAllConstructors;
 import static org.reflections.ReflectionUtils.withAnnotation;
 
 public class BeanFactoryUtils {
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryUtils.class);
+
     /**
      * 인자로 전달하는 클래스의 생성자 중 @Inject 애노테이션이 설정되어 있는 생성자를 반환
      *
@@ -54,12 +58,14 @@ public class BeanFactoryUtils {
 
     public static List<Class<?>> findConcreteClasses(List<Class<?>> classes, Set<Class<?>> preInstantiatedBeans) {
         return classes.stream()
-                .map(parameter -> BeanFactoryUtils.findConcreteClass(parameter, preInstantiatedBeans))
+                .map(parameter -> findConcreteClass(parameter, preInstantiatedBeans))
                 .collect(Collectors.toList());
     }
 
     public static Constructor<?> getBeanConstructor(Class<?> type) {
-        return Optional.ofNullable(BeanFactoryUtils.getInjectedConstructor(type))
+        log.debug("type: {}", type.toString());
+
+        return Optional.ofNullable(getInjectedConstructor(type))
                 .orElse((Constructor) type.getConstructors()[0]);
     }
 }

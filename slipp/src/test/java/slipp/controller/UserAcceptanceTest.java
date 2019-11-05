@@ -48,4 +48,8 @@ public class UserAcceptanceTest {
         assertThat(actual.getName()).isEqualTo(updateUser.getName());
         assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
     }
+
+    // [TODO] profile 검증
+    // 유저 생성
+    // 해당 페이지에 특정 정보 존재하는지 검증
 }

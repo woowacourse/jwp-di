@@ -1,5 +1,7 @@
 package slipp.dto;
 
+import slipp.domain.User;
+
 public class UserCreatedDto {
     private String userId;
     private String password;
@@ -30,5 +32,23 @@ public class UserCreatedDto {
 
     public String getEmail() {
         return email;
+    }
+
+    public User toUser() {
+        return new User(
+                userId,
+                password,
+                name,
+                email);
+    }
+
+    @Override
+    public String toString() {
+        return "UserCreatedDto{" +
+                "userId='" + userId + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }
