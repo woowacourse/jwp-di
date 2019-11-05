@@ -23,7 +23,8 @@ public class UserService {
     }
 
     public User findUser(String userId) {
-        return userRepository.findById(userId);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundUserException("유저를 찾을 수 없습니다."));
     }
 
     public void update(User user) {
