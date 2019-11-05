@@ -47,7 +47,7 @@ public class BeanFactory {
             Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
 
             if (injectedConstructor == null) {
-                beans.put(preInstantiateBean, getInstance(getDefaultConstructor(concreteClass)));
+                beans.put(preInstantiateBean, createInstance(getDefaultConstructor(concreteClass)));
             }
         }
     }
@@ -74,17 +74,17 @@ public class BeanFactory {
         }
 
         Class concreteClass = findConcreteClass(clazz);
-        Object injectedBean = inject(concreteClass);
+        Object injectedBean = createInjectedInstance(concreteClass);
 
         beans.put(concreteClass, injectedBean);
     }
 
-    private Object inject(Class concreteClass) {
+    private Object createInjectedInstance(Class concreteClass) {
         Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
         assert injectedConstructor != null;
         List<Object> parameters = prepareParameterBeans(injectedConstructor);
 
-        return getInstance(injectedConstructor, parameters.toArray());
+        return createInstance(injectedConstructor, parameters.toArray());
     }
 
     private List<Object> prepareParameterBeans(Constructor<?> injectedConstructor) {
@@ -119,7 +119,7 @@ public class BeanFactory {
             parameters.add(beans.get(parameter));
         }
 
-        Object injectedBean = getInstance(injectedConstructor, parameters.toArray());
+        Object injectedBean = createInstance(injectedConstructor, parameters.toArray());
         beans.put(concreteClass, injectedBean);
     }
 
@@ -127,7 +127,7 @@ public class BeanFactory {
         return BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
     }
 
-    private Object getInstance(Constructor constructor, Object... parameters) {
+    private Object createInstance(Constructor constructor, Object... parameters) {
         try {
             return constructor.newInstance(parameters);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
