@@ -10,7 +10,7 @@ public interface Repository {
 
     void insert(User user);
 
-    Optional<User> findById(String userId);
+    Optional<User> findUserById(String userId);
 
     void update(User user);
 
