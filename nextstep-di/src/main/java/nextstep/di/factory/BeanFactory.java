@@ -15,11 +15,11 @@ public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Set<Class<?>> preInstanticateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Set<Class<?>> preInstanticateBeans) {
         this.preInstanticateBeans = preInstanticateBeans;
+        initialize();
     }
 
     @SuppressWarnings("unchecked")
@@ -27,7 +27,7 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() {
+    private void initialize() {
         for (Class<?> preInstanticateBean : preInstanticateBeans) {
             scanBean(preInstanticateBean);
         }
