@@ -37,34 +37,12 @@ public class BeanFactory {
 
     @SuppressWarnings("unchecked")
     public void initialize() {
-        initializeNotInjectedBeans();
         initializeInjectedBeans();
-    }
-
-    private void initializeNotInjectedBeans() {
-        for (Class<?> preInstantiateBean : preInstantiateBeans) {
-            Class concreteClass = findConcreteClass(preInstantiateBean);
-            Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
-
-            if (injectedConstructor == null) {
-                beans.put(preInstantiateBean, createInstance(getDefaultConstructor(concreteClass)));
-            }
-        }
     }
 
     private void initializeInjectedBeans() {
         for (Class<?> preInstantiateBean : preInstantiateBeans) {
             initializeInjectedBean(preInstantiateBean);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Constructor getDefaultConstructor(Class concreteClass) {
-        try {
-            return concreteClass.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            logger.error(e.getMessage(), e);
-            throw new BeanCreationFailException(e);
         }
     }
 
@@ -81,10 +59,32 @@ public class BeanFactory {
 
     private Object createInjectedInstance(Class concreteClass) {
         Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
-        assert injectedConstructor != null;
-        List<Object> parameters = prepareParameterBeans(injectedConstructor);
 
+        if (injectedConstructor == null) {
+            return createInstance(getDefaultConstructor(concreteClass));
+        }
+
+        List<Object> parameters = prepareParameterBeans(injectedConstructor);
         return createInstance(injectedConstructor, parameters.toArray());
+    }
+
+    private Object createInstance(Constructor constructor, Object... parameters) {
+        try {
+            return constructor.newInstance(parameters);
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            logger.error(e.getMessage(), e);
+            throw new BeanCreationFailException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Constructor getDefaultConstructor(Class concreteClass) {
+        try {
+            return concreteClass.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            logger.error(e.getMessage(), e);
+            throw new BeanCreationFailException(e);
+        }
     }
 
     private List<Object> prepareParameterBeans(Constructor<?> injectedConstructor) {
@@ -101,39 +101,7 @@ public class BeanFactory {
         return parameters;
     }
 
-    private void initializeInjectedBean2(Class clazz) {
-        if (beans.containsKey(clazz)) {
-            return;
-        }
-
-        Class concreteClass = findConcreteClass(clazz);
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
-        List<Object> parameters = new ArrayList<>();
-
-        for (Class<?> parameterType : injectedConstructor.getParameterTypes()) {
-            Class parameter = findConcreteClass(parameterType);
-
-            if (!beans.containsKey(parameter)) {
-                initializeInjectedBean2(parameter);
-            }
-            parameters.add(beans.get(parameter));
-        }
-
-        Object injectedBean = createInstance(injectedConstructor, parameters.toArray());
-        beans.put(concreteClass, injectedBean);
-    }
-
     private Class findConcreteClass(Class<?> clazz) {
         return BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
     }
-
-    private Object createInstance(Constructor constructor, Object... parameters) {
-        try {
-            return constructor.newInstance(parameters);
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            logger.error(e.getMessage(), e);
-            throw new BeanCreationFailException(e);
-        }
-    }
-
 }
