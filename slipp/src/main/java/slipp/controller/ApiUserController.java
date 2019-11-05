@@ -25,7 +25,6 @@ public class ApiUserController {
 
     private UserDao userDao = UserDao.getInstance();
 
-
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);

@@ -20,23 +20,20 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackage;
-
+    private Map<Class<?>, Object> beans;
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackage) {
-        this.basePackage = basePackage;
+    public AnnotationHandlerMapping(Map<Class<?>, Object> beans) {
+        this.beans = beans;
     }
 
     public void initialize() {
-        ControllerScanner controllerScanner = new ControllerScanner(basePackage);
-        Map<Class<?>, Object> controllers = controllerScanner.getControllers();
-        Set<Method> methods = getRequestMappingMethods(controllers.keySet());
+        Set<Method> methods = getRequestMappingMethods(beans.keySet());
         for (Method method : methods) {
-            RequestMapping rm = method.getAnnotation(RequestMapping.class);
+            RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
-                    rm.value(), rm.method(), method);
-            addHandlerExecutions(controllers, method, rm);
+                    requestMapping.value(), requestMapping.method(), method);
+            addHandlerExecutions(beans, method, requestMapping);
         }
 
         logger.info("Initialized AnnotationHandlerMapping!");
@@ -44,9 +41,9 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private void addHandlerExecutions(Map<Class<?>, Object> controllers, Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
-        handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(controllers.get(method.getDeclaringClass()), method));
-        });
+        handlerKeys.forEach(handlerKey ->
+                handlerExecutions.put(handlerKey, new HandlerExecution(controllers.get(method.getDeclaringClass()), method)));
+//                handlerExecutions.put(handlerKey, new HandlerExecution(beans.get(), method)));
     }
 
     private List<HandlerKey> mapHandlerKeys(final String value, final RequestMethod[] originalMethods) {
