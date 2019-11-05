@@ -1,16 +1,17 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.annotation.Bean;
+import nextstep.annotation.Configuration;
 import nextstep.di.factory.exception.BeanFactoryInitializeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -18,6 +19,7 @@ public class BeanFactory {
     private Set<Class<?>> preInstantiateBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, BeanConstructor> constructors;
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
@@ -29,14 +31,28 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstantiateBeans
-                .forEach(this::getOrInstantiate);
+        Map<Class<?>, Object> instances = new HashMap<>();
+        constructors = preInstantiateBeans.stream()
+                .filter(cls -> cls.isAnnotationPresent(Configuration.class))
+                .peek(cls -> instances.put(cls, BeanFactoryUtils.instantiate(cls)))
+                .flatMap(cls -> Arrays.stream(cls.getMethods()).filter(method -> method.isAnnotationPresent(Bean.class)))
+                .map(method -> new MethodBeanConstructor(method, instances.get(method.getDeclaringClass())))
+                .collect(Collectors.toMap(MethodBeanConstructor::getReturnType, ctor -> ctor));
+
+        constructors.putAll(
+                preInstantiateBeans.stream()
+                        .filter(cls -> !cls.isAnnotationPresent(Configuration.class))
+                        .map(ClassBeanConstructor::of)
+                        .collect(Collectors.toMap(ClassBeanConstructor::getReturnType, ctor -> ctor)));
+
+        constructors.keySet().forEach(this::getOrInstantiate);
     }
 
     private Object getOrInstantiate(Class<?> clazz) {
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
+
         Object instance = tryInstantiateBean(clazz);
         beans.put(clazz, instance);
         return instance;
@@ -45,31 +61,24 @@ public class BeanFactory {
     private Object tryInstantiateBean(Class<?> clazz) {
         try {
             return instantiateBean(clazz);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (Exception e) {
             logger.error("Error while instantiate bean", e);
             throw new BeanFactoryInitializeException(e);
         }
     }
 
-    private Object instantiateBean(Class<?> clazz) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<?> ctor = getConstructor(clazz);
+    private Object instantiateBean(Class<?> clazz) throws Exception {
+        BeanConstructor ctor = constructors.get(clazz);
         Object[] params = resolveConstructorParameters(ctor);
 
-        return ctor.newInstance(params);
+        return ctor.construct(params);
     }
 
-    private Constructor<?> getConstructor(Class<?> clazz) throws NoSuchMethodException {
-        Constructor<?> ctor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        if (Objects.isNull(ctor)) {
-            return clazz.getConstructor();
-        }
-        return ctor;
-    }
-
-    private Object[] resolveConstructorParameters(Constructor<?> ctor) {
+    private Object[] resolveConstructorParameters(BeanConstructor ctor) {
         return Arrays.stream(ctor.getParameterTypes())
-                    .map(param -> BeanFactoryUtils.findConcreteClass(param, preInstantiateBeans))
-                    .map(this::getOrInstantiate)
-                    .toArray();
+                .map(param -> BeanFactoryUtils.findConcreteClass(param, constructors.keySet())
+                        .orElse(param))
+                .map(this::getOrInstantiate)
+                .toArray();
     }
 }
