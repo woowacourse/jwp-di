@@ -5,6 +5,8 @@ import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private final Set<Class<?>> preInstantiateBeans;
@@ -48,12 +50,8 @@ public class BeanFactory {
     }
 
     public Map<Class<?>, Object> getControllers() {
-        final Map<Class<?>, Object> controllers = new HashMap<>();
-        for (final Class<?> clazz : preInstantiateBeans) {
-            if (clazz.isAnnotationPresent(Controller.class)) {
-                controllers.put(clazz, beans.get(clazz));
-            }
-        }
-        return controllers;
+        return preInstantiateBeans.stream()
+                .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
+                .collect(Collectors.toUnmodifiableMap(Function.identity(), beans::get));
     }
 }
