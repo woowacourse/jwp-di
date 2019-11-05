@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.di.validation.BeanValidationExecutor;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,11 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
+    public Map<Class<?>, Object> getControllers() {
+        return getBeansAnnotatedWith(Controller.class);
+    }
+
+    private Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
         return beans.entrySet().stream()
                 .filter(entry -> entry.getKey().isAnnotationPresent(annotation))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

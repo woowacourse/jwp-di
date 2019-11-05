@@ -41,10 +41,10 @@ public class BeanFactoryTest {
     }
 
     @Test
-    void getBeansAnnotatedWith() {
-        Map<Class<?>, Object> repositoryBeans = beanFactory.getBeansAnnotatedWith(Repository.class);
-        assertNotNull(repositoryBeans.get(JdbcQuestionRepository.class));
-        assertNotNull(repositoryBeans.get(JdbcUserRepository.class));
+    void getControllers() {
+        Map<Class<?>, Object> controllerBeans = beanFactory.getControllers();
+        assertNotNull(controllerBeans.get(QnaController.class));
+        assertNotNull(controllerBeans.get(TestQnaController.class));
     }
 
     @Test
