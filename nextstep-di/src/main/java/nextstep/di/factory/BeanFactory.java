@@ -35,46 +35,67 @@ public class BeanFactory {
         if (clazz.isInterface()) {
             throw new InterfaceCannotInstantiatedException();
         }
-
-        Constructor[] ctors = clazz.getDeclaredConstructors();
-        Optional<Constructor> injectCtor = Arrays.stream(ctors)
-                .filter(ctor -> ctor.isAnnotationPresent(Inject.class))
-                .findFirst();
+        Optional<Constructor> injectCtor = getInjectCtor(clazz.getDeclaredConstructors());
         if (injectCtor.isEmpty()) {
-            try {
-                return clazz.getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
-                throw new NoDefaultConstructorException();
-            }
+            return instantiateUsingDefaultCtor(clazz);
         }
         Constructor ctor = injectCtor.get();
-        List<Object> realParams = Lists.newArrayList();
-        for (Class<?> param : ctor.getParameterTypes()) {
-            if (history.contains(param)) {
-                throw new RecursiveFieldException();
-            }
+        List<Object> realParams = createParamsOfInjectCtor(history, ctor);
+        return instantiateUsingInjectCtor(ctor, realParams);
+    }
 
-            if (param.isPrimitive()) {
-                throw new PrimitiveTypeInjectionFailException();
-            }
-
-            if (beans.containsKey(param)) {
-                realParams.add(beans.get(param));
-                continue;
-            }
-
-            if (param.isInterface()) {
-                param = findImplClass(param);
-            }
-
-            List<Class<?>> newHistory = Lists.newArrayList(history);
-            newHistory.add(param);
-            realParams.add(instantiate(param, newHistory));
-        }
+    private Object instantiateUsingInjectCtor(Constructor ctor, List<Object> realParams) {
         try {
             return ctor.newInstance(realParams.toArray());
         } catch (Exception e) {
             throw new ObjectInstantiationFailException(e);
+        }
+    }
+
+    private List<Object> createParamsOfInjectCtor(List<Class<?>> history, Constructor ctor) {
+        List<Object> realParams = Lists.newArrayList();
+        for (Class<?> param : ctor.getParameterTypes()) {
+            validateNoRecursiveField(history, param);
+            validateNoPrimitiveInjection(param);
+            if (beans.containsKey(param)) {
+                realParams.add(beans.get(param));
+                continue;
+            }
+            param = param.isInterface() ? findImplClass(param) : param;
+            realParams.add(instantiate(param, createUpdatedHistory(history, param)));
+        }
+        return realParams;
+    }
+
+    private List<Class<?>> createUpdatedHistory(List<Class<?>> history, Class<?> param) {
+        List<Class<?>> newHistory = Lists.newArrayList(history);
+        newHistory.add(param);
+        return newHistory;
+    }
+
+    private Object instantiateUsingDefaultCtor(Class<?> clazz) {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new NoDefaultConstructorException();
+        }
+    }
+
+    private Optional<Constructor> getInjectCtor(Constructor[] ctors) {
+        return Arrays.stream(ctors)
+                .filter(ctor -> ctor.isAnnotationPresent(Inject.class))
+                .findFirst();
+    }
+
+    private void validateNoPrimitiveInjection(Class<?> param) {
+        if (param.isPrimitive()) {
+            throw new PrimitiveTypeInjectionFailException();
+        }
+    }
+
+    private void validateNoRecursiveField(List<Class<?>> history, Class<?> param) {
+        if (history.contains(param)) {
+            throw new RecursiveFieldException();
         }
     }
 
