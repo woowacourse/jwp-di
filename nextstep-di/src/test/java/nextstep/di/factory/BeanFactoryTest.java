@@ -1,9 +1,9 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.*;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
+import nextstep.di.factory.example.JdbcQuestionRepository;
+import nextstep.di.factory.example.MyQnaService;
+import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.example.QuestionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
@@ -28,9 +28,8 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstantiateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstantiateClazz);
+        BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.example");
+        beanFactory = new BeanFactory(beanScanner.getBeans());
     }
 
     @Test
