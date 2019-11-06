@@ -1,6 +1,8 @@
-package nextstep.di.factory.error;
+package nextstep.di.factory.beans.circular;
 
-@Circular
+import nextstep.stereotype.Controller;
+
+@Controller
 public class CircularReferenceBean {
     private CircularReferenceBean2 circularReferenceBean2;
 

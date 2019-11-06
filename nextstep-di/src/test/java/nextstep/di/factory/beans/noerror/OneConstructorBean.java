@@ -1,6 +1,8 @@
-package nextstep.di.factory.error;
+package nextstep.di.factory.beans.noerror;
 
-@GoodBean
+import nextstep.stereotype.Controller;
+
+@Controller
 public class OneConstructorBean {
     private ExampleBean exampleBean;
 

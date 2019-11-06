@@ -1,6 +1,9 @@
-package nextstep.di.factory.error;
+package nextstep.di.factory.beans.error;
 
-@BadBean
+import nextstep.di.factory.beans.noerror.ExampleBean;
+import nextstep.stereotype.Controller;
+
+@Controller
 public class NoAnnotatedMultiConstructorsBean {
     private ExampleBean exampleBean;
 

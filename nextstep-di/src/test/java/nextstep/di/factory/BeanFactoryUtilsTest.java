@@ -1,8 +1,8 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.error.ExampleBean;
-import nextstep.di.factory.error.NoAnnotatedMultiConstructorsBean;
-import nextstep.di.factory.error.OneConstructorBean;
+import nextstep.di.factory.beans.error.NoAnnotatedMultiConstructorsBean;
+import nextstep.di.factory.beans.noerror.ExampleBean;
+import nextstep.di.factory.beans.noerror.OneConstructorBean;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
