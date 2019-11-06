@@ -29,10 +29,10 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public Map<Class<?>, Object> getControllers() {
-        return beans.entrySet().stream()
-                .filter(entry -> entry.getKey().isAnnotationPresent(Controller.class))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public Set<Class<?>> getControllers() {
+        return beans.keySet().stream()
+                .filter(bean -> bean.isAnnotationPresent(Controller.class))
+                .collect(Collectors.toSet());
     }
 
     @SuppressWarnings("unchecked")
