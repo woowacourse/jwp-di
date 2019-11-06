@@ -35,12 +35,7 @@ public class BeanFactory {
                 .collect(Collectors.toSet());
     }
 
-    @SuppressWarnings("unchecked")
     public void initialize() {
-        initializeInjectedBeans();
-    }
-
-    private void initializeInjectedBeans() {
         for (Class<?> preInstantiateBean : preInstantiateBeans) {
             initializeInjectedBean(preInstantiateBean);
         }
