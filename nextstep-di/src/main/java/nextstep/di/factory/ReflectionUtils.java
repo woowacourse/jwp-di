@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.exception.ReflectionUtilException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,7 @@ public class ReflectionUtils {
             return clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             logger.error(e.getMessage(), e);
-            throw new RuntimeException();
+            throw new ReflectionUtilException(e.getMessage(), e);
         }
     }
 
@@ -23,7 +24,7 @@ public class ReflectionUtils {
             return constructor.newInstance(parameters);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             logger.error(e.getMessage(), e);
-            throw new RuntimeException();
+            throw new ReflectionUtilException(e.getMessage(), e);
         }
     }
 }

@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
+import nextstep.di.factory.exception.ReflectionUtilException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,6 +17,6 @@ public class ReflectionUtilsTest {
 
     @Test
     public void newInstanceThrowsRuntimeException() {
-        assertThrows(RuntimeException.class, () -> ReflectionUtils.newInstance(MyQnaService.class));
+        assertThrows(ReflectionUtilException.class, () -> ReflectionUtils.newInstance(MyQnaService.class));
     }
 }
