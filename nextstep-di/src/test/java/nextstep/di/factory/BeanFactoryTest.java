@@ -10,12 +10,6 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -50,13 +44,5 @@ public class BeanFactoryTest {
         final QuestionRepository actual = myQnaService.getQuestionRepository();
         final QuestionRepository expected = beanFactory.getBean(JdbcQuestionRepository.class);
         assertThat(actual).isEqualTo(expected);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        return Arrays.stream(annotations)
-                .map(annotation -> reflections.getTypesAnnotatedWith(annotation))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
     }
 }
