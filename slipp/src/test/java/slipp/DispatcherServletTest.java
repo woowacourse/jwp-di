@@ -34,7 +34,7 @@ class DispatcherServletTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         dispatcher = new DispatcherServlet();
-        BeanScanner beanScanner = new BeanScanner("slipp.controller");
+        BeanScanner beanScanner = new BeanScanner("slipp");
         BeanFactory beanFactory = new BeanFactory(
                 beanScanner.scanAnnotation(Controller.class, Service.class, Repository.class));
         beanFactory.initialize();

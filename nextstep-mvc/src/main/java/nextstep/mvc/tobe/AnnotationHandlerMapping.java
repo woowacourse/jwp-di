@@ -43,7 +43,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey ->
                 handlerExecutions.put(handlerKey, new HandlerExecution(controllers.get(method.getDeclaringClass()), method)));
-//                handlerExecutions.put(handlerKey, new HandlerExecution(beans.get(), method)));
     }
 
     private List<HandlerKey> mapHandlerKeys(final String value, final RequestMethod[] originalMethods) {
