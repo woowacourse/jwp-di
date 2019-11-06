@@ -27,27 +27,17 @@ public class UserDao {
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        RowMapper<User> rm = new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs) throws SQLException {
-                return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-        };
+        RowMapper<User> rm = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                rs.getString("email"));
 
         return jdbcTemplate.queryForObject(sql, rm, userId);
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        RowMapper<User> rm = new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs) throws SQLException {
-                return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-        };
+        RowMapper<User> rm = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                rs.getString("email"));
 
         return jdbcTemplate.query(sql, rm);
     }
