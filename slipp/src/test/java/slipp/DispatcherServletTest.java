@@ -29,7 +29,7 @@ class DispatcherServletTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcher.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());

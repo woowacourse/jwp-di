@@ -3,6 +3,7 @@ package nextstep.di.factory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import nextstep.annotation.Inject;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,7 @@ import java.util.*;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
+    private static BeanFactory instance = null;
 
     private Set<Class<?>> preInstantiatedBeans;
 
@@ -20,15 +22,37 @@ public class BeanFactory {
         this.preInstantiatedBeans = preInstantiatedBeans;
     }
 
+    public BeanFactory() {
+    }
+
+    public static BeanFactory getInstance() {
+        if (instance == null) {
+            return new BeanFactory();
+        }
+        return instance;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() {
+    public void initialize(Set<Class<?>> preInstantiatedBeans) {
+        beans.clear();
+        this.preInstantiatedBeans = preInstantiatedBeans;
         for (Class<?> clazz : preInstantiatedBeans) {
             beans.put(clazz, instantiate(clazz, new ArrayList<>(Collections.singletonList(clazz))));
         }
+    }
+
+    public Map<Class<?>, Object> getControllers() {
+        Map<Class<?>, Object> controllers = Maps.newHashMap();
+        for (Class<?> clazz : preInstantiatedBeans) {
+            if (clazz.isAnnotationPresent(Controller.class)) {
+                controllers.put(clazz, beans.get(clazz));
+            }
+        }
+        return controllers;
     }
 
     private Object instantiate(Class<?> clazz, List<Class<?>> history) {
