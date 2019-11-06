@@ -2,6 +2,8 @@ package slipp.service;
 
 import nextstep.annotation.Inject;
 import nextstep.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
@@ -12,6 +14,8 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
     private UserDao userDao;
 
     @Inject
@@ -50,7 +54,7 @@ public class UserService {
     }
 
     public User authUser(User findUser, User loginUser) {
-        if (loginUser.isSameUser(findUser)) {
+        if (!loginUser.isSameUser(findUser)) {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
         }
         return findUser;

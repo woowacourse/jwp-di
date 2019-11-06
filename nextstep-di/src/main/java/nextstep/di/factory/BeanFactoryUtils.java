@@ -59,7 +59,18 @@ public class BeanFactoryUtils {
     }
 
     public static Constructor<?> getBeanConstructor(Class<?> type) {
-        return Optional.ofNullable(getInjectedConstructor(type))
-                .orElse((Constructor) type.getConstructors()[0]);
+        Constructor<?> constructor = getInjectedConstructor(type);
+        if(getInjectedConstructor(type) == null) {
+            return getDefaultConstructor(type);
+        }
+        return constructor;
+    }
+
+    private static Constructor getDefaultConstructor(Class<?> type) {
+        try {
+            return type.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("기본 생성자를 가져올 수 없습니다.");
+        }
     }
 }
