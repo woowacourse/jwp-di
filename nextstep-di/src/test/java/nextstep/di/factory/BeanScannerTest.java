@@ -5,6 +5,7 @@ import nextstep.di.factory.example.controller.QnaController;
 import nextstep.di.factory.example.repository.JdbcQuestionRepository;
 import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.service.MyQnaService;
+import nextstep.di.factory.example.service.TestService;
 import nextstep.di.factory.outside.OutsideController;
 import nextstep.di.factory.outside.OutsideRepository;
 import nextstep.di.factory.outside.OutsideService;
@@ -25,10 +26,11 @@ public class BeanScannerTest {
         assertThat(preInstantiateClazz).contains(
                 QnaController.class,
                 MyQnaService.class,
+                TestService.class,
                 JdbcQuestionRepository.class,
                 JdbcUserRepository.class
         );
-        assertThat(preInstantiateClazz.size()).isEqualTo(4);
+        assertThat(preInstantiateClazz.size()).isEqualTo(5);
     }
 
     @Test
