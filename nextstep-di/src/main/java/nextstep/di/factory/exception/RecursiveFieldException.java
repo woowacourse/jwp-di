@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.factory.exception;
 
 public class RecursiveFieldException extends RuntimeException {
     private static final String ERROR_MSG = "의존 객체가 순환 참조되어 생성에 실패했습니다.";
