@@ -24,7 +24,7 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
     public void onStartup(ServletContext servletContext) throws ServletException {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
 
-        BeanScanner beanScanner = new BeanScanner("slipp.controller");
+        BeanScanner beanScanner = new BeanScanner("slipp");
         BeanFactory beanFactory = new BeanFactory(
                 beanScanner.scanAnnotation(Controller.class, Service.class, Repository.class));
         beanFactory.initialize();
