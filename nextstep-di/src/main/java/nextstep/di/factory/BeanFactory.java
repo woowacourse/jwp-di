@@ -18,18 +18,11 @@ public class BeanFactory {
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstantiatedBeans) {
-        this.preInstantiatedBeans = preInstantiatedBeans;
-    }
-
-    public BeanFactory() {
+    private BeanFactory() {
     }
 
     public static BeanFactory getInstance() {
-        if (instance == null) {
-            return new BeanFactory();
-        }
-        return instance;
+        return Objects.isNull(instance) ? new BeanFactory() : instance;
     }
 
     @SuppressWarnings("unchecked")
