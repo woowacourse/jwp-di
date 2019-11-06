@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.springframework.beans.BeanUtils;
 
 import java.lang.annotation.Annotation;
@@ -29,14 +30,14 @@ public class BeanFactory {
         }
     }
 
-    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
-        Map<Class<?>, Object> annotatedBeans = Maps.newHashMap();
+    public Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation> annotation) {
+        Set<Class<?>> types = Sets.newHashSet();
         for (Class<?> clazz : preInstantiateBeans) {
             if (clazz.isAnnotationPresent(annotation)) {
-                annotatedBeans.put(clazz, beans.get(clazz));
+                types.add(clazz);
             }
         }
-        return annotatedBeans;
+        return types;
     }
 
     private Object instantiateClass(Class<?> clazz) {
