@@ -36,10 +36,24 @@ public class BeanFactoryTest {
     }
 
     @Test
+    @DisplayName("해당 패키지에 있는 클래스를 찾는다.")
     void getControllers() {
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
         assertThat(controllers.containsKey(QnaController.class)).isTrue();
         assertThat(controllers.size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("해당 패키지에 없는 클래스는 찾지 못한다.")
+    void getControllersFail() {
+        Map<Class<?>, Object> controllers = beanFactory.getControllers();
+        assertThat(controllers.containsKey(BeanScanner.class)).isFalse();
+    }
+
+    @Test
+    @DisplayName("해당 패키지에 있는 클래스의 빈을 찾는다.")
+    void getBean() {
+        assertNotNull(beanFactory.getBean(MyQnaService.class));
     }
 
     @Test
