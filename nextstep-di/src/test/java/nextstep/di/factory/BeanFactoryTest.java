@@ -4,10 +4,10 @@ import com.google.common.collect.Sets;
 import nextstep.di.factory.example.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -65,5 +65,11 @@ public class BeanFactoryTest {
     @Test
     public void interfaceExtendsInterfaceSuccess() {
         beanFactory.initialize(Sets.newHashSet(NoImplService.class, ImplIntermediateRepository.class));
+    }
+
+    @Test
+    public void getControllersTest() {
+        beanFactory.initialize(Sets.newHashSet(AnnotatedController.class, AnnotatedService.class, AnnotatedRepository.class));
+        assertThat(beanFactory.getControllers().size()).isEqualTo(1);
     }
 }

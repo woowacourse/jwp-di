@@ -10,35 +10,33 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
-public class BeanFactory {
+public enum BeanFactory {
+    INSTANCE;
+
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-    private static BeanFactory instance = null;
-
     private Set<Class<?>> preInstantiatedBeans;
-
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
-
-    private BeanFactory() {
-    }
+    private Map<Class<?>, Object> beans;
 
     public static BeanFactory getInstance() {
-        return Objects.isNull(instance) ? new BeanFactory() : instance;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(Class<T> requiredType) {
-        return (T) beans.get(requiredType);
+        return INSTANCE;
     }
 
     public void initialize(Set<Class<?>> preInstantiatedBeans) {
-        beans.clear();
+        beans = Maps.newHashMap();
         this.preInstantiatedBeans = preInstantiatedBeans;
         for (Class<?> clazz : preInstantiatedBeans) {
             beans.put(clazz, instantiate(clazz, new ArrayList<>(Collections.singletonList(clazz))));
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T getBean(Class<T> requiredType) {
+        validateInitialization();
+        return (T) beans.get(requiredType);
+    }
+
     public Map<Class<?>, Object> getControllers() {
+        validateInitialization();
         Map<Class<?>, Object> controllers = Maps.newHashMap();
         for (Class<?> clazz : preInstantiatedBeans) {
             if (clazz.isAnnotationPresent(Controller.class)) {
@@ -113,6 +111,12 @@ public class BeanFactory {
     private void validateNoRecursiveField(List<Class<?>> history, Class<?> param) {
         if (history.contains(param)) {
             throw new RecursiveFieldException();
+        }
+    }
+
+    private void validateInitialization() {
+        if (Objects.isNull(preInstantiatedBeans) || Objects.isNull(beans)) {
+            throw new UninitializedBeanFactoryException();
         }
     }
 
