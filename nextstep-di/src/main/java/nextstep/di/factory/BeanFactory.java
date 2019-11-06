@@ -14,8 +14,8 @@ public class BeanFactory {
     private Set<Class<?>> preInstantiateBeans;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory(Object... basePackage) {
+        preInstantiateBeans = new BeanScanner(basePackage).getAnnotatedTypes();
     }
 
     @SuppressWarnings("unchecked")

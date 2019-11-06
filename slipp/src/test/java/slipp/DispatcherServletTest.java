@@ -1,15 +1,12 @@
 package slipp;
 
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanScanner;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -33,10 +30,7 @@ class DispatcherServletTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
-        BeanScanner beanScanner = new BeanScanner("slipp");
-        BeanFactory beanFactory = new BeanFactory(beanScanner.getTypesAnnotatedWith(
-                Controller.class, Service.class, Repository.class
-        ));
+        BeanFactory beanFactory = new BeanFactory("slipp");
         beanFactory.initialize();
 
         dispatcher = new DispatcherServlet();
