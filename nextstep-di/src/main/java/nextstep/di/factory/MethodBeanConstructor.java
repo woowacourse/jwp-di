@@ -26,4 +26,12 @@ public class MethodBeanConstructor implements BeanConstructor {
     public Object construct(Object... parameters) throws Exception {
         return constructor.invoke(instance, parameters);
     }
+
+    @Override
+    public String toString() {
+        return "MethodBeanConstructor{" +
+                "constructor=" + constructor +
+                ", instance=" + instance +
+                '}';
+    }
 }

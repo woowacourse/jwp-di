@@ -1,14 +1,15 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.annotation.Bean;
-import nextstep.annotation.Configuration;
 import nextstep.di.factory.exception.BeanFactoryInitializeException;
+import nextstep.di.scanner.BeanScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,13 +17,14 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
     private Map<Class<?>, BeanConstructor> constructors;
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory(List<BeanScanner> beanScanners) {
+        constructors = new HashMap<>();
+        beanScanners.stream()
+                .flatMap(scanner -> scanner.getBeanConstructors().stream())
+                .forEach(ctor -> constructors.put(ctor.getReturnType(), ctor));
     }
 
     @SuppressWarnings("unchecked")
@@ -31,20 +33,6 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        Map<Class<?>, Object> instances = new HashMap<>();
-        constructors = preInstantiateBeans.stream()
-                .filter(cls -> cls.isAnnotationPresent(Configuration.class))
-                .peek(cls -> instances.put(cls, BeanFactoryUtils.instantiate(cls)))
-                .flatMap(cls -> Arrays.stream(cls.getMethods()).filter(method -> method.isAnnotationPresent(Bean.class)))
-                .map(method -> new MethodBeanConstructor(method, instances.get(method.getDeclaringClass())))
-                .collect(Collectors.toMap(MethodBeanConstructor::getReturnType, ctor -> ctor));
-
-        constructors.putAll(
-                preInstantiateBeans.stream()
-                        .filter(cls -> !cls.isAnnotationPresent(Configuration.class))
-                        .map(ClassBeanConstructor::of)
-                        .collect(Collectors.toMap(ClassBeanConstructor::getReturnType, ctor -> ctor)));
-
         constructors.keySet().forEach(this::getOrInstantiate);
     }
 
@@ -80,5 +68,12 @@ public class BeanFactory {
                         .orElse(param))
                 .map(this::getOrInstantiate)
                 .toArray();
+    }
+
+    public Set<Object> getBeansWithAnnotation(Class<? extends Annotation> annotation) {
+        return beans.keySet().stream()
+                .filter(cls -> cls.isAnnotationPresent(annotation))
+                .map(beans::get)
+                .collect(Collectors.toSet());
     }
 }
