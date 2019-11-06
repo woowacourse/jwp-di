@@ -47,13 +47,27 @@ public class BeanFactory {
         return !beans.containsKey(clazz);
     }
 
-    private Object instantiateBean(Class clazz, Constructor<?> constructor) {
+    private Object instantiateBean(Class<?> clazz, Constructor<?> constructor) {
         if (constructor == null) {
-            return ReflectionUtils.newInstance(clazz);
+            return getBeanOrDefault(clazz);
         }
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         Object[] parameters = instantiateParameters(parameterTypes);
-        return ReflectionUtils.newInstance(constructor, parameters);
+        return getBeanOrDefault(constructor, parameters);
+    }
+
+    private Object getBeanOrDefault(Constructor<?> constructor, Object[] parameters) {
+        return putIfAbsent(constructor.getDeclaringClass(), ReflectionUtils.newInstance(constructor, parameters));
+    }
+
+    private Object getBeanOrDefault(Class<?> clazz) {
+        return putIfAbsent(clazz, ReflectionUtils.newInstance(clazz));
+    }
+
+    private Object putIfAbsent(Class<?> clazz, Object instance) {
+        Object bean = beans.getOrDefault(clazz, instance);
+        beans.putIfAbsent(bean.getClass(), bean);
+        return bean;
     }
 
     private Object[] instantiateParameters(Class<?>[] parameterTypes) {
