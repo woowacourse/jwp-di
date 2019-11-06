@@ -38,6 +38,7 @@ public class BeanFactory {
 
     private void putInstance(Class clazz, Constructor<?> injectedConstructor) {
         if (hasNotClass(clazz)) {
+            logger.debug("class name : {}, annotation inject constructor: {}", clazz.getName(), injectedConstructor);
             beans.put(clazz, instantiateBean(clazz, injectedConstructor));
         }
     }

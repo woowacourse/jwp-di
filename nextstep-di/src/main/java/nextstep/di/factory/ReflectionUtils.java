@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 public class ReflectionUtils {
     private static final Logger logger = LoggerFactory.getLogger(ReflectionUtils.class);
 
-    public static Object newInstance(Class<?> clazz) {
+    public static <T> T newInstance(Class<T> clazz) {
         try {
             return clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
@@ -18,7 +18,7 @@ public class ReflectionUtils {
         }
     }
 
-    public static Object newInstance(Constructor<?> constructor, Object... parameters) {
+    public static <T> T newInstance(Constructor<T> constructor, Object... parameters) {
         try {
             return constructor.newInstance(parameters);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
