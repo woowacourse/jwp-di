@@ -1,14 +1,14 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.example.MyJdbcTemplate;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.example.QnaController2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,9 +37,11 @@ public class BeanFactoryTest {
     }
 
     @Test
-    void getController2() {
-        Set<Class<?>> controllers = beanFactory.getControllers();
-        assertThat(controllers.size()).isEqualTo(2);
-        assertThat(controllers).isEqualTo(Set.of(QnaController.class, QnaController2.class));
+    void sameInstance() {
+        DataSource dataSource = beanFactory.getBean(DataSource.class);
+        MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        assertThat(dataSource).isEqualTo(beanFactory.getBean(DataSource.class));
+        assertThat(myJdbcTemplate).isEqualTo(beanFactory.getBean(MyJdbcTemplate.class));
+        assertThat(dataSource).isEqualTo(myJdbcTemplate.getDataSource());
     }
 }
