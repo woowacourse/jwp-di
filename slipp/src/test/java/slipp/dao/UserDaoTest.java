@@ -26,12 +26,12 @@ public class UserDaoTest {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = UserDao.getInstance();
         userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
+        User actual = userDao.findById(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        actual = userDao.findById(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
     }
 
