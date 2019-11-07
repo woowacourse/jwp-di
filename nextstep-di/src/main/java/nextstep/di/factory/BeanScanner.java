@@ -1,28 +1,53 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
+import nextstep.annotation.Bean;
+import nextstep.annotation.Configuration;
+import nextstep.di.factory.instantiation.ConstructorInstantiation;
+import nextstep.di.factory.instantiation.MethodInstantiation;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanScanner {
-    private static final Logger logger = LoggerFactory.getLogger(BeanScanner.class);
+    private final Reflections reflection;
 
-    private Reflections reflections;
-
-    public BeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
+    public BeanScanner(Object... basePackages) {
+        this.reflection = new Reflections(basePackages);
     }
 
-    public Set<Class<?>> getBeans(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
+    public BeanCreateMatcher scanBean(Class<? extends Annotation>... annotation) {
+        BeanCreateMatcher beanCreateMatcher = scanConstructorBean(annotation);
+        return scanMethodBean(beanCreateMatcher);
+    }
+
+    private BeanCreateMatcher scanConstructorBean(Class<? extends Annotation>... annotations) {
+        BeanCreateMatcher beanCreateMatcher = new BeanCreateMatcher();
         for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
+            Set<Class<?>> typesAnnotatedWith = reflection.getTypesAnnotatedWith(annotation);
+            typesAnnotatedWith.forEach(clazz -> beanCreateMatcher.put(clazz, new ConstructorInstantiation(clazz)));
         }
-        logger.debug("Bean Scanner : {}", beans);
-        return beans;
+
+        return beanCreateMatcher;
+    }
+
+    public BeanCreateMatcher scanMethodBean(BeanCreateMatcher beanCreateMatcher) {
+        Set<Class<?>> typesAnnotatedWith = reflection.getTypesAnnotatedWith(Configuration.class);
+        typesAnnotatedWith.forEach(configurationClazz -> registerMethodBean(beanCreateMatcher, configurationClazz));
+        return beanCreateMatcher;
+    }
+
+    private void registerMethodBean(BeanCreateMatcher beanCreateMatcher, Class<?> configurationClazz) {
+        Set<Method> methods = Arrays.stream(configurationClazz.getDeclaredMethods())
+                .filter(method -> method.isAnnotationPresent(Bean.class))
+                .collect(Collectors.toSet());
+        for (Method method : methods) {
+            beanCreateMatcher.put(method.getReturnType(),
+                    new MethodInstantiation(method, BeanUtils.instantiateClass(configurationClazz)));
+        }
     }
 }

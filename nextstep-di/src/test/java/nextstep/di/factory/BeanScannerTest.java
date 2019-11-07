@@ -1,18 +1,15 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.JdbcQuestionRepository;
-import nextstep.di.factory.example.JdbcUserRepository;
+import nextstep.di.factory.example.MyJdbcTemplate;
 import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.example.QnaController2;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
-import org.assertj.core.util.Sets;
+import nextstep.stereotype.Service;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BeanScannerTest {
     private BeanScanner beanScanner;
@@ -23,18 +20,19 @@ class BeanScannerTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    void getBeans() {
-        Set<Class<?>> beans = beanScanner.getBeans(Controller.class);
-        Set<Class<?>> expected = Sets.newHashSet();
-        expected.add(QnaController.class);
-        expected.add(QnaController2.class);
-        assertThat(beans).isEqualTo(expected);
+    void beanScan() {
+        BeanCreateMatcher createMatcher = beanScanner.scanBean(Controller.class);
+        assertTrue(createMatcher.containsKey(QnaController.class));
+    }
 
-        expected.clear();
-        expected.add(JdbcQuestionRepository.class);
-        expected.add(JdbcUserRepository.class);
-        beans = beanScanner.getBeans(Repository.class);
-        assertThat(beans).isEqualTo(expected);
+    @Test
+    void beanScanAll() {
+        BeanCreateMatcher beanCreateMatcher = beanScanner.scanBean(Controller.class, Service.class, Repository.class);
+        assertTrue(beanCreateMatcher.containsKey(MyJdbcTemplate.class));
+    }
+
+    @AfterEach
+    void tearDown() {
+        beanScanner = null;
     }
 }
