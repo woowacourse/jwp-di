@@ -26,7 +26,7 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> preInstantiateBean : preInstantiateBeans) {
-            beans.put(preInstantiateBean, instantiateClass(preInstantiateBean));
+            getOrInstantiateBean(preInstantiateBean);
         }
     }
 
@@ -38,6 +38,16 @@ public class BeanFactory {
             }
         }
         return types;
+    }
+
+    private Object getOrInstantiateBean(Class<?> clazz) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
+        if (beans.containsKey(concreteClass)) {
+            return beans.get(concreteClass);
+        }
+        Object instance = instantiateClass(concreteClass);
+        beans.put(concreteClass, instance);
+        return instance;
     }
 
     private Object instantiateClass(Class<?> clazz) {
@@ -55,14 +65,5 @@ public class BeanFactory {
             args.add(getOrInstantiateBean(clazz));
         }
         return BeanUtils.instantiateClass(constructor, args.toArray());
-    }
-
-    private Object getOrInstantiateBean(Class<?> clazz) {
-        if (beans.containsKey(clazz)) {
-            return beans.get(clazz);
-        }
-        Object instance = instantiateClass(clazz);
-        beans.put(clazz, instance);
-        return instance;
     }
 }

@@ -1,7 +1,9 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.example.QuestionRepository;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,10 +55,10 @@ public class BeanFactoryTest {
     @Test
     @DisplayName("di된 객체와 BeanFactory가 가진 객체가 실제로 같은지 확인")
     public void beanTest() {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        MyQnaService myQnaService = beanFactory.getBean(MyQnaService.class);
 
-        MyQnaService actual = qnaController.getQnaService();
-        MyQnaService expected = beanFactory.getBean(MyQnaService.class);
+        QuestionRepository actual = myQnaService.getQuestionRepository();
+        QuestionRepository expected = beanFactory.getBean(JdbcQuestionRepository.class);
 
         assertThat(actual).isEqualTo(expected);
     }
