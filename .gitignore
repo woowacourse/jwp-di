@@ -36,3 +36,5 @@ nbdist/
 docker/
 !docker/docker-compose.yml
 !docker/db/mysql/init/init.sql
+
+*.db
