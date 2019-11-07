@@ -1,5 +1,6 @@
 package slipp.controller;
 
+import nextstep.annotation.Inject;
 import nextstep.mvc.ModelAndView;
 import nextstep.mvc.tobe.AbstractNewController;
 import nextstep.stereotype.Controller;
@@ -7,6 +8,7 @@ import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import slipp.dao.JdbcUserDao;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
@@ -19,7 +21,12 @@ import javax.servlet.http.HttpSession;
 public class UserController extends AbstractNewController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    private UserDao userDao = UserDao.getInstance();
+    private UserDao userDao;
+
+    @Inject
+    public UserController(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public ModelAndView list(HttpServletRequest request, HttpServletResponse response) throws Exception {

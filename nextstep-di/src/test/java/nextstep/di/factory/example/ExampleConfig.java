@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 
 @Configuration
 public class ExampleConfig {
+    
     @Bean
     public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
