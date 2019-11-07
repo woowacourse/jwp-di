@@ -1,6 +1,7 @@
 package slipp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nextstep.annotation.Inject;
 import nextstep.mvc.JsonView;
 import nextstep.mvc.ModelAndView;
 import nextstep.stereotype.Controller;
@@ -9,12 +10,10 @@ import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.ConnectionManager;
-import slipp.support.db.DataBase;
+import slipp.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,10 +24,11 @@ public class ApiUserController {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private UserDao userDao;
+    private UserService userService;
 
-    public ApiUserController() {
-        this.userDao = new UserDao(ConnectionManager.getDataSource());
+    @Inject
+    public ApiUserController(UserService userService) {
+        this.userService = userService;
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
@@ -36,11 +36,7 @@ public class ApiUserController {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
 
-        userDao.insert(new User(
-                createdDto.getUserId(),
-                createdDto.getPassword(),
-                createdDto.getName(),
-                createdDto.getEmail()));
+        userService.create(createdDto);
 
         response.setHeader("Location", "/api/users?userId=" + createdDto.getUserId());
         response.setStatus(HttpStatus.CREATED.value());
@@ -53,8 +49,10 @@ public class ApiUserController {
         String userId = request.getParameter("userId");
         logger.debug("userId : {}", userId);
 
+        User user = userService.findById(userId);
+
         ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("user", userDao.findByUserId(userId));
+        mav.addObject("user", user);
         return mav;
     }
 
@@ -65,9 +63,7 @@ public class ApiUserController {
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
 
-        User user = userDao.findByUserId(userId);
-        user.update(updateDto);
-        userDao.update(user);
+        userService.update(userId, updateDto);
 
         return new ModelAndView(new JsonView());
     }
