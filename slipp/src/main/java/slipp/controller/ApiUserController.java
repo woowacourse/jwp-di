@@ -13,8 +13,6 @@ import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
-import slipp.support.db.ConnectionManager;
-import slipp.support.db.DataBase;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,8 +25,8 @@ public class ApiUserController {
 
     private UserDao userDao;
 
-    public ApiUserController() {
-        this.userDao = new UserDao(ConnectionManager.getDataSource());
+    public ApiUserController(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
