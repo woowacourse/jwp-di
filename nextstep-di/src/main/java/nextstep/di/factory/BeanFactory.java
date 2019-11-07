@@ -37,19 +37,17 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> preInstantiateBean : preInstantiateBeans) {
-            initializeInjectedBean(preInstantiateBean);
+            Class concreteClass = findConcreteClass(preInstantiateBean);
+            beans.put(concreteClass, createBean(concreteClass));
         }
     }
 
-    private void initializeInjectedBean(Class clazz) {
+    private Object createBean(Class clazz) {
         if (beans.containsKey(clazz)) {
-            return;
+            return beans.get(clazz);
         }
 
-        Class concreteClass = findConcreteClass(clazz);
-        Object injectedBean = createInjectedInstance(concreteClass);
-
-        beans.put(concreteClass, injectedBean);
+        return createInjectedInstance(clazz);
     }
 
     private Object createInjectedInstance(Class concreteClass) {
@@ -86,11 +84,8 @@ public class BeanFactory {
         List<Object> parameters = new ArrayList<>();
         for (Class<?> parameterType : injectedConstructor.getParameterTypes()) {
             Class parameter = findConcreteClass(parameterType);
-
-            if (!beans.containsKey(parameter)) {
-                initializeInjectedBean(parameter);
-            }
-            parameters.add(beans.get(parameter));
+            Object bean = createBean(parameter);
+            parameters.add(bean);
         }
 
         return parameters;
