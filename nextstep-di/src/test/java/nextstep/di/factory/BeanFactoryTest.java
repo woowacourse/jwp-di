@@ -49,7 +49,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void di2() {
+    public void diRepository() {
         JdbcUserRepository repository = beanFactory.getBean(JdbcUserRepository.class);
         assertNotNull(repository);
     }
