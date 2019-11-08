@@ -7,8 +7,6 @@ import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import nextstep.web.WebApplicationInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +23,7 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
 
         BeanScanner beanScanner = new BeanScanner("slipp");
-        BeanFactory beanFactory = new BeanFactory(
-                beanScanner.scanAnnotation(Controller.class, Service.class, Repository.class));
+        BeanFactory beanFactory = new BeanFactory(beanScanner.scan());
         beanFactory.initialize();
 
         dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(beanFactory.getBeans(Controller.class)));

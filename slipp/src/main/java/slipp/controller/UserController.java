@@ -8,7 +8,6 @@ import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import slipp.dao.JdbcUserDao;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;

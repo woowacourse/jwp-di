@@ -4,9 +4,6 @@ import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +21,7 @@ public class BeanScannerTest {
 
     @Test
     public void scanAnnotationTest() {
-        Set<Class<?>> classes = beanScanner.scanAnnotation(Controller.class, Service.class, Repository.class);
+        Set<Class<?>> classes = beanScanner.scan();
         assertThat(classes)
                 .contains(QnaController.class)
                 .contains(MyQnaService.class)
