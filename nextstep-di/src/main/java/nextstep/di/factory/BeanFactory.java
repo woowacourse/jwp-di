@@ -27,7 +27,6 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-
     public void initialize() {
         for (Class clazz : preInstantiateBeans) {
             Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
