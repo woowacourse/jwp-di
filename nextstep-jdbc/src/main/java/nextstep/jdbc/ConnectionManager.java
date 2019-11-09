@@ -1,4 +1,4 @@
-package slipp.support.db;
+package nextstep.jdbc;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class ConnectionManager {
     private static final String DB_DRIVER = "org.h2.Driver";
-    private static final String DB_URL = "jdbc:h2:mem:jwp-framework";
+    private static final String DB_URL = "jdbc:h2:~/jwp-framework;MVCC=TRUE;DB_CLOSE_ON_EXIT=FALSE";
     private static final String DB_USERNAME = "sa";
     private static final String DB_PW = "";
 
