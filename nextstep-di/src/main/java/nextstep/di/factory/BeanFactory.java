@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,9 +19,9 @@ public class BeanFactory {
     private Map<Class<?>, Object> beans = Maps.newHashMap();
     private Map<Class<?>, BeanConstructor> constructors;
 
-    public BeanFactory(List<BeanScanner> beanScanners) {
+    public BeanFactory(BeanScanner... beanScanners) {
         constructors = new HashMap<>();
-        beanScanners.stream()
+        Arrays.stream(beanScanners)
                 .flatMap(scanner -> scanner.getBeanConstructors().stream())
                 .forEach(ctor -> constructors.put(ctor.getReturnType(), ctor));
     }

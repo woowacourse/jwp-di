@@ -9,15 +9,13 @@ import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ConfigurationScannerTest {
     @Test
     public void register_simple() {
         ConfigurationScanner cs = new ConfigurationScanner(ExampleConfig.class);
-        BeanFactory beanFactory = new BeanFactory(Arrays.asList(cs));
+        BeanFactory beanFactory = new BeanFactory(cs);
         beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));
@@ -27,7 +25,7 @@ public class ConfigurationScannerTest {
     public void register_classpathBeanScanner_통합() {
         ConfigurationScanner configurationScanner = new ConfigurationScanner(IntegrationConfig.class);
         ComponentScanner componentScanner = new ComponentScanner("nextstep.di.factory.example");
-        BeanFactory beanFactory = new BeanFactory(Arrays.asList(configurationScanner, componentScanner));
+        BeanFactory beanFactory = new BeanFactory(configurationScanner, componentScanner);
         beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));

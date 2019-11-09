@@ -5,8 +5,6 @@ import nextstep.di.factory.BeanFactory;
 import nextstep.di.scanner.ComponentScanner;
 import nextstep.di.scanner.ConfigurationScanner;
 
-import java.util.Arrays;
-
 public class ApplicationContext {
 
     private final BeanFactory beanFactory;
@@ -17,9 +15,9 @@ public class ApplicationContext {
         if (basePackages.length == 0) {
             basePackages = new Object[]{root.getPackage().getName()};
         }
-        beanFactory = new BeanFactory(Arrays.asList(
+        beanFactory = new BeanFactory(
                 new ConfigurationScanner(basePackages),
-                new ComponentScanner(basePackages)));
+                new ComponentScanner(basePackages));
         beanFactory.initialize();
     }
 
