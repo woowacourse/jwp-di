@@ -20,7 +20,7 @@ public class BeanFactory {
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    private CircularReferenceDetector circularReferenceDetector = new CircularReferenceDetector();
+    private CircularReferenceDetector circularReferenceDetector;
 
     public BeanFactory(Set<Class<?>> preInstanticateBeans) {
         this.preInstanticateBeans = preInstanticateBeans;
@@ -32,6 +32,7 @@ public class BeanFactory {
     }
 
     public void initialize() {
+        circularReferenceDetector = new CircularReferenceDetector();
         for (Class<?> preInstanticateBean : preInstanticateBeans) {
             beans.put(preInstanticateBean, createBean(preInstanticateBean));
         }
