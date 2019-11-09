@@ -1,21 +1,41 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
+    private final Set<Class<?>> preInstantiateBeans;
+    private final Map<Class<?>, Object> beans = new ConcurrentHashMap<>();
 
-    private Set<Class<?>> preInstanticateBeans;
+    public BeanFactory(Object... basePackages) {
+        this.preInstantiateBeans = (new BeanScanner(basePackages)).getPreInstantiateBeans();
+    }
 
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    public BeanFactory initialize() {
+        this.preInstantiateBeans.forEach(x -> this.beans.put(x, instantiateClass(x)));
+        return this;
+    }
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    private Object instantiateClass(Class<?> clazz) {
+        return BeanFactoryUtils.getInjectedConstructor(clazz).map(this::instantiateConstructor).orElseGet(() ->
+                BeanUtils.instantiateClass(BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans))
+        );
+    }
+
+    private Object instantiateConstructor(Constructor<?> cons) {
+        return BeanUtils.instantiateClass(
+                cons,
+                Stream.of(
+                        cons.getParameterTypes()
+                ).map(x -> this.beans.computeIfAbsent(x, k -> instantiateClass(x))).toArray()
+        );
     }
 
     @SuppressWarnings("unchecked")
@@ -23,7 +43,8 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() {
-
+    public Map<Class<?>, Object> getAllBeansWithAnnotation(Class<? extends Annotation> annotation) {
+        return this.beans.entrySet().stream().filter(x -> x.getKey().isAnnotationPresent(annotation))
+                                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
