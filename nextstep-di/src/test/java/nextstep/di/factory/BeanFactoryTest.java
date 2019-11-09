@@ -1,11 +1,11 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
-import nextstep.di.factory.example.MyQnaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
@@ -18,7 +18,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     private Reflections reflections;
     private BeanFactory beanFactory;
@@ -48,7 +48,9 @@ public class BeanFactoryTest {
     private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
+            Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(annotation);
+            log.debug("annotation: {}, beans : {}", annotation, typesAnnotatedWith);
+            beans.addAll(typesAnnotatedWith);
         }
         log.debug("Scan Beans Type : {}", beans);
         return beans;

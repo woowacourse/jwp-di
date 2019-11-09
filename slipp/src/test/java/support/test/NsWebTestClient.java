@@ -2,6 +2,7 @@ package support.test;
 
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -10,10 +11,13 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
 
 public class NsWebTestClient {
     private static final String BASE_URL = "http://localhost";
+    private static final String  JSESSTIONID = "JSESSIONID";
+
 
     private String baseUrl = BASE_URL;
     private int port;
     private WebTestClient.Builder testClientBuilder;
+    private String sessionId;
 
     private NsWebTestClient(String baseUrl, int port) {
         this.baseUrl = baseUrl;
@@ -26,6 +30,20 @@ public class NsWebTestClient {
     public NsWebTestClient basicAuth(String username, String password) {
         this.testClientBuilder = testClientBuilder.filter(basicAuthentication(username, password));
         return this;
+    }
+
+    public void login(String userId, String password) {
+        testClientBuilder.build()
+                .post()
+                .uri("/users/login")
+                .body(BodyInserters
+                        .fromFormData("userId", userId)
+                        .with("password", password))
+                .exchange()
+                .expectBody()
+                .consumeWith(result -> {
+                    sessionId = result.getResponseCookies().get(JSESSTIONID).toString().split(";")[0].split("=")[1];
+                });
     }
 
     public <T> URI createResource(String url, T body, Class<T> clazz) {
@@ -44,6 +62,7 @@ public class NsWebTestClient {
         testClientBuilder.build()
                 .put()
                 .uri(location.toString())
+                .cookie(JSESSTIONID, sessionId)
                 .body(Mono.just(body), clazz)
                 .exchange()
                 .expectStatus().isOk();
