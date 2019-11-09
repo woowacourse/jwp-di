@@ -3,12 +3,9 @@ package nextstep.di.factory;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +18,7 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        BeanFactoryManager.addBeans(Arrays.asList(Controller.class, Service.class, Repository.class), "nextstep.di.factory.example");
+        BeanFactoryManager.addBeans("nextstep.di.factory.example");
         beanFactory = BeanFactory.getInstance();
     }
 
