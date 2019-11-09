@@ -9,8 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Map;
+import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
@@ -38,8 +39,8 @@ public class BeanFactoryTest {
 
     @Test
     void getAnnotatedBeans() {
-        Map<Class<?>, Object> annotatedBeans = beanFactory.getAnnotatedBeans(Controller.class);
+        Set<Class<?>> annotatedBeans = beanFactory.getAnnotatedClasses(Controller.class);
 
-        assertNotNull(annotatedBeans.get(QnaController.class));
+        assertThat(annotatedBeans.contains(QnaController.class)).isTrue();
     }
 }

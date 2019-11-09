@@ -31,15 +31,16 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public Map<Class<?>, Object> getAnnotatedBeans(Class<? extends Annotation> annotation) {
-        return Collections.unmodifiableMap(beans.entrySet().stream()
-                .filter(entry -> entry.getKey().isAnnotationPresent(annotation))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    public Set<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotation) {
+        return beans.keySet().stream()
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
+                .collect(Collectors.toSet());
     }
 
     protected void addBeans(Set<Class<?>> preInstantiateBeans) {
         preInstantiateBeans.forEach(ExceptionUtils.consumerWrapper(bean -> {
             logger.debug(bean.getName());
+
             if (!beans.containsKey(bean)) {
                 instantiateBean(bean, preInstantiateBeans);
             }
