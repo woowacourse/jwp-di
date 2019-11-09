@@ -34,20 +34,26 @@ public class BeanFactory {
     public void initialize() {
         circularReferenceDetector = new CircularReferenceDetector();
         for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            beans.put(preInstanticateBean, createBean(preInstanticateBean));
+            getConcreteBean(preInstanticateBean);
         }
     }
 
-    private Object createBean(Class<?> preInstanticateBean) {
-        if (beans.get(preInstanticateBean) != null) {
-            return beans.get(preInstanticateBean);
-        }
-        circularReferenceDetector.add(preInstanticateBean);
+    private Object getConcreteBean(Class<?> preInstanticateBean) {
         Class<?> concrete = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans);
+        if (beans.containsKey(concrete)) {
+            return beans.get(concrete);
+        }
+        return createConcreteBean(concrete);
+    }
+
+    private Object createConcreteBean(Class<?> concrete) {
+        circularReferenceDetector.add(concrete);
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(concrete).orElseThrow(BeanCreateException::new);
         List<Object> params = getParams(constructor);
         try {
             Object result = constructor.newInstance(params.toArray());
+            logger.debug("New Bean {}, Class : {}", result, concrete);
+            beans.put(result.getClass(), result);
             circularReferenceDetector.remove();
             return result;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -58,7 +64,7 @@ public class BeanFactory {
 
     private List<Object> getParams(Constructor<?> constructor) {
         return Arrays.stream(constructor.getParameterTypes())
-                .map(this::createBean)
+                .map(this::getConcreteBean)
                 .collect(Collectors.toList());
     }
 
