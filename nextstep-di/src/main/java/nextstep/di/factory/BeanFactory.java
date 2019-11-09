@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,5 +26,27 @@ public class BeanFactory {
 
     public void initialize() {
 
+    }
+
+    public Object instantiateBean(Class<?> clazz) throws NoSuchMethodException {
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+        if (hasNotInjected(injectedConstructor)) {
+            return instantiateByDefaultConstructor(clazz);
+        }
+        
+        return new Object();
+    }
+
+    private boolean hasNotInjected(final Constructor<?> injectedConstructor) {
+        return injectedConstructor == null;
+    }
+
+    private Object instantiateByDefaultConstructor(final Class<?> clazz) {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new NotFoundDefaultConstructorException();
+        }
     }
 }
