@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 public class ClassBeanConstructor implements BeanConstructor {
@@ -44,7 +45,7 @@ public class ClassBeanConstructor implements BeanConstructor {
     }
 
     @Override
-    public Object construct(Object... parameters) throws Exception {
+    public Object construct(Object... parameters) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         return constructor.newInstance(parameters);
     }
 }

@@ -1,12 +1,11 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.annotation.Configuration;
 import nextstep.di.configuration.example.JdbcTemplateStub;
-import nextstep.di.configuration.example.MyConfiguration;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
-import nextstep.di.scanner.BeanScanner;
+import nextstep.di.scanner.ComponentScanner;
+import nextstep.di.scanner.ConfigurationScanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +33,7 @@ public class BeanFactoryTest {
     public void setup() {
         reflections = new Reflections("nextstep.di.factory.example");
         Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
+        beanFactory = new BeanFactory(Arrays.asList(new ComponentScanner("nextstep.di.factory.example")));
         beanFactory.initialize();
     }
 
@@ -62,8 +62,7 @@ public class BeanFactoryTest {
     @Test
     void configuration() {
         // given
-        BeanScanner beanScanner = new BeanScanner(MyConfiguration.class);
-        BeanFactory beanFactory = new BeanFactory(beanScanner.getTypesAnnotatedWith(Configuration.class));
+        BeanFactory beanFactory = new BeanFactory(Arrays.asList(new ConfigurationScanner("nextstep.di.configuration.example")));
         beanFactory.initialize();
 
         // when
@@ -71,5 +70,15 @@ public class BeanFactoryTest {
 
         // then
         assertThat(bean).isNotNull();
+    }
+
+    @Test
+    void get_bean_by_annotation() {
+        // given
+        BeanFactory beanFactory = new BeanFactory(Arrays.asList(new ComponentScanner("nextstep.di.factory.example")));
+        beanFactory.initialize();
+
+        // when & then
+        assertThat(beanFactory.getBeansWithAnnotation(Repository.class)).hasSize(2);
     }
 }

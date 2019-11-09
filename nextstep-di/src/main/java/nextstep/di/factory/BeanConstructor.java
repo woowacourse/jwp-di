@@ -1,8 +1,9 @@
 package nextstep.di.factory;
 
-public interface BeanConstructor {
+import java.lang.reflect.InvocationTargetException;
 
+public interface BeanConstructor {
     Class[] getParameterTypes();
     Class<?> getReturnType();
-    Object construct(Object... parameters) throws Exception;
+    Object construct(Object... parameters) throws IllegalAccessException, InvocationTargetException, InstantiationException;
 }

@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class MethodBeanConstructor implements BeanConstructor {
@@ -23,7 +24,15 @@ public class MethodBeanConstructor implements BeanConstructor {
     }
 
     @Override
-    public Object construct(Object... parameters) throws Exception {
+    public Object construct(Object... parameters) throws InvocationTargetException, IllegalAccessException {
         return constructor.invoke(instance, parameters);
+    }
+
+    @Override
+    public String toString() {
+        return "MethodBeanConstructor{" +
+                "constructor=" + constructor +
+                ", instance=" + instance +
+                '}';
     }
 }
