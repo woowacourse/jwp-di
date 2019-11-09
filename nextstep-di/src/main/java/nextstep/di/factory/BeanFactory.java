@@ -15,15 +15,7 @@ public class BeanFactory {
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    private static class BeanFactoryHolder {
-        static final BeanFactory INSTANCE = new BeanFactory();
-    }
-
-    private BeanFactory() {
-    }
-
-    public static BeanFactory getInstance() {
-        return BeanFactoryHolder.INSTANCE;
+    protected BeanFactory() {
     }
 
     @SuppressWarnings("unchecked")

@@ -18,7 +18,7 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        BeanFactoryManager.addBeans("nextstep.di.factory.example");
+        BeanFactoryManager.createBeanFactory("nextstep.di.factory.example");
         beanFactory = BeanFactory.getInstance();
     }
 

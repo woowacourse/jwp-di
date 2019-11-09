@@ -3,6 +3,7 @@ package nextstep.mvc.tobe;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.BeanFactoryManager;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
@@ -24,32 +25,36 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping() {
+    private Object[] basePackage;
+
+    public AnnotationHandlerMapping(Object... basePackage) {
+        this.basePackage = basePackage;
     }
 
     public void initialize() {
-        Set<Class<?>> controllers = BeanFactory.getInstance().getAnnotatedClasses(Controller.class);
+        BeanFactory beanFactory = BeanFactoryManager.createBeanFactory(basePackage);
+        Set<Class<?>> controllers = beanFactory.getAnnotatedClasses(Controller.class);
         Set<Method> methods = getRequestMappingMethods(controllers);
-        mapToHandlerExecutions(methods);
+        mapToHandlerExecutions(beanFactory, methods);
 
         logger.info("Initialized AnnotationHandlerMapping!");
     }
 
-    private void mapToHandlerExecutions(Set<Method> methods) {
+    private void mapToHandlerExecutions(BeanFactory beanFactory, Set<Method> methods) {
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                     rm.value(), rm.method(), method);
-            addHandlerExecutions(method, rm);
+            addHandlerExecutions(beanFactory, method, rm);
         }
     }
 
-    private void addHandlerExecutions(Method method, RequestMapping rm) {
+    private void addHandlerExecutions(BeanFactory beanFactory, Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey ->
                 handlerExecutions.put(
                         handlerKey,
-                        new HandlerExecution(BeanFactory.getInstance().getBean(method.getDeclaringClass()), method)
+                        new HandlerExecution(beanFactory.getBean(method.getDeclaringClass()), method)
                 )
         );
     }

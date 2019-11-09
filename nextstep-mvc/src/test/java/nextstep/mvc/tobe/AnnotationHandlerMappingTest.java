@@ -15,8 +15,7 @@ public class AnnotationHandlerMappingTest {
 
     @BeforeEach
     public void setup() {
-        BeanFactoryManager.addBeans("samples");
-        handlerMapping = new AnnotationHandlerMapping();
+        handlerMapping = new AnnotationHandlerMapping("samples");
         handlerMapping.initialize();
     }
 
