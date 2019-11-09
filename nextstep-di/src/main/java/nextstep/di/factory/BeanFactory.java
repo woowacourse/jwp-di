@@ -8,6 +8,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static nextstep.di.factory.BeanFactoryUtils.findConcreteClass;
 import static nextstep.di.factory.BeanFactoryUtils.getInjectedConstructor;
@@ -18,24 +19,17 @@ public class BeanFactory {
 
     private static final int DEFAULT_CONSTRUCTOR_PARAMETER_NUMBER = 0;
 
-    private Set<Class<?>> preInstanticateBeans;
-
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private final Set<Class<?>> preInstanticateBeans;
+    private final Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Set<Class<?>> preInstanticateBeans) {
         this.preInstanticateBeans = preInstanticateBeans;
     }
 
     public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
-        Map<Class<?>, Object> newBeans = Maps.newHashMap();
-        for (Object value : beans.values()) {
-            boolean annotationPresent = value.getClass().isAnnotationPresent(annotation);
-            if (annotationPresent) {
-                newBeans.put(value.getClass(), value);
-            }
-
-        }
-        return newBeans;
+        return beans.values().stream()
+                .filter(value -> value.getClass().isAnnotationPresent(annotation))
+                .collect(Collectors.toMap(Object::getClass, value -> value));
     }
 
     @SuppressWarnings("unchecked")
@@ -45,36 +39,36 @@ public class BeanFactory {
 
     public void initialize() {
         this.preInstanticateBeans.forEach(clazz -> {
-            Set<Class<?>> circularReference = new HashSet<>();
-            initBean(clazz, circularReference);
+            Set<Class<?>> waitingForInitializationBeans = new HashSet<>();
+            initBean(clazz, waitingForInitializationBeans);
         });
     }
 
-    private void initBean(Class<?> clazz, Set<Class<?>> circularReference) {
+    private void initBean(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {
         Class<?> concreteClass = findConcreteClass(clazz, preInstanticateBeans);
         if (beans.containsKey(concreteClass)) {
             return;
         }
 
-        makeBean(concreteClass, circularReference);
+        checkCircularReference(concreteClass, waitingForInitializationBeans);
+        waitingForInitializationBeans.add(concreteClass);
+
+        beans.put(concreteClass, createBean(concreteClass, waitingForInitializationBeans));
     }
 
-    private void makeBean(Class<?> concreteClass, Set<Class<?>> circularReference) {
-        checkCircularReference(concreteClass, circularReference);
-        circularReference.add(concreteClass);
-
-        logger.info("{}.initBean() >> {}", TAG, concreteClass);
-
-        Constructor<?> constructor = getConstructor(concreteClass);
-        List<Object> parameters = getParameterBeans(constructor, circularReference);
-
-        beans.put(concreteClass, createInstance(constructor, parameters));
-    }
-
-    private void checkCircularReference(Class<?> clazz, Set<Class<?>> circularReference) {
-        if (circularReference.contains(clazz)) {
+    private void checkCircularReference(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {
+        if (waitingForInitializationBeans.contains(clazz)) {
             throw new IllegalStateException();
         }
+    }
+
+    private Object createBean(Class<?> concreteClass, Set<Class<?>> waitingForInitializationBeans) {
+        logger.info("{}.createBean() >> {}", TAG, concreteClass);
+
+        Constructor<?> constructor = getConstructor(concreteClass);
+        List<Object> parameters = getParameterizedBeans(constructor, waitingForInitializationBeans);
+
+        return createInstance(constructor, parameters);
     }
 
     private Constructor<?> getConstructor(Class<?> concreteClass) {
@@ -88,36 +82,33 @@ public class BeanFactory {
     }
 
     private Constructor<?> getDefaultConstructor(Class<?> concreteClass) {
-        //TODO 커스텀 에러 만들기
         return Arrays.stream(concreteClass.getConstructors())
                 .filter(this::isDefaultConstructor)
                 .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(IllegalStateException::new);
     }
 
     private boolean isDefaultConstructor(Constructor<?> beanConstructor) {
         return beanConstructor.getParameterCount() == DEFAULT_CONSTRUCTOR_PARAMETER_NUMBER;
     }
 
-    private List<Object> getParameterBeans(Constructor<?> constructor, Set<Class<?>> circularReference) {
-        List<Object> parameters = new ArrayList<>();
-        Class<?>[] types = Objects.requireNonNull(constructor).getParameterTypes();
+    private List<Object> getParameterizedBeans(Constructor<?> constructor, Set<Class<?>> waitingForInitializationBeans) {
+        Class<?>[] parameterTypes = Objects.requireNonNull(constructor).getParameterTypes();
 
-        for (Class<?> type : types) {
-            parameters.add(getParameterBean(type, circularReference));
-        }
-
-        return parameters;
+        return Arrays.stream(parameterTypes)
+                .map(type -> getParameterizedBean(type, waitingForInitializationBeans))
+                .collect(Collectors.toList());
     }
 
-    private Object getParameterBean(Class<?> type, Set<Class<?>> circularReference) {
-        if (Objects.isNull(getInnerBean(type))) {
-            initBean(type, circularReference);
+    private Object getParameterizedBean(Class<?> type, Set<Class<?>> waitingForInitializationBeans) {
+        if (Objects.isNull(getBeanInternal(type))) {
+            initBean(type, waitingForInitializationBeans);
         }
-        return getInnerBean(type);
+
+        return getBeanInternal(type);
     }
 
-    private Object getInnerBean(Class<?> type) {
+    private Object getBeanInternal(Class<?> type) {
         return beans.get(findConcreteClass(type, preInstanticateBeans));
     }
 

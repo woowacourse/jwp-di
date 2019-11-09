@@ -27,51 +27,11 @@ public class BeanFactoryTest {
 
     private static final String NEXTSTEP_DI_FACTORY_EXAMPLE = "nextstep.di.factory.example";
     private static final String NEXTSTEP_DI_FACTORY_CIRCULAR = "nextstep.di.factory.circular";
+    private static final String NEXTSTEP_DI_FACTORY_CONSTRUCTOR = "nextstep.di.factory.constructor";
 
-    @SuppressWarnings("unchecked")
-    public BeanFactory getBeanFactory(String prefix) {
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(prefix, Controller.class, Service.class, Repository.class);
-        BeanFactory beanFactory = new BeanFactory(preInstanticateClazz);
-        beanFactory.initialize();
-
-        return beanFactory;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(String prefix, Class<? extends Annotation>... annotations) {
-        Reflections reflections = new Reflections(prefix);
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
-    }
-
-    /*
-    *
-    @BeforeEach
-    @SuppressWarnings("unchecked")
-    public void setup() {
-        reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
-        beanFactory.initialize();
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
-    }
-    * */
 
     @Test
-    public void di() throws Exception {
+    public void di() {
         QnaController qnaController = getBeanFactory(NEXTSTEP_DI_FACTORY_EXAMPLE).getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -128,5 +88,31 @@ public class BeanFactoryTest {
 
         assertThat(bean1 == bean3).isTrue();
         assertThat(bean2 == bean4).isTrue();
+    }
+
+    @Test
+    @DisplayName("기본 생성자가 존재하지 않고 Inject 어노테이션도 없을 경우 예외 테스트")
+    void noDefaultConstructor() {
+        assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CONSTRUCTOR));
+    }
+
+    @SuppressWarnings("unchecked")
+    public BeanFactory getBeanFactory(String prefix) {
+        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(prefix, Controller.class, Service.class, Repository.class);
+        BeanFactory beanFactory = new BeanFactory(preInstanticateClazz);
+        beanFactory.initialize();
+
+        return beanFactory;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Class<?>> getTypesAnnotatedWith(String prefix, Class<? extends Annotation>... annotations) {
+        Reflections reflections = new Reflections(prefix);
+        Set<Class<?>> beans = Sets.newHashSet();
+        for (Class<? extends Annotation> annotation : annotations) {
+            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
+        }
+        log.debug("Scan Beans Type : {}", beans);
+        return beans;
     }
 }
