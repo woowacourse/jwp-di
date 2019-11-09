@@ -1,7 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.exception.BeanFactoryInitializeException;
+import nextstep.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,18 +38,12 @@ public class BeanFactory {
     }
 
     protected void addBeans(Set<Class<?>> preInstantiateBeans) {
-        logger.debug("Initialize BeanFactory!");
-        preInstantiateBeans.forEach(bean -> {
+        preInstantiateBeans.forEach(ExceptionUtils.consumerWrapper(bean -> {
             logger.debug(bean.getName());
-            try {
-                if (!beans.containsKey(bean)) {
-                    instantiateBean(bean, preInstantiateBeans);
-                }
-            } catch (Exception e) {
-                logger.error("BeanFactory Initialize Error :  {}", e);
-                throw new BeanFactoryInitializeException(e);
+            if (!beans.containsKey(bean)) {
+                instantiateBean(bean, preInstantiateBeans);
             }
-        });
+        }));
     }
 
     private void instantiateBean(Class<?> bean, Set<Class<?>> preInstantiateBeans) throws Exception {
