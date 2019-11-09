@@ -12,7 +12,6 @@ import java.util.*;
 import static nextstep.di.factory.BeanFactoryUtils.findConcreteClass;
 import static nextstep.di.factory.BeanFactoryUtils.getInjectedConstructor;
 
-// TODO 순환참조 좀..
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
     private static final String TAG = "BeanFactory";
@@ -45,17 +44,37 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        this.preInstanticateBeans.forEach(clazz -> beans.put(clazz, initBean(clazz)));
+        this.preInstanticateBeans.forEach(clazz -> {
+            Set<Class<?>> circularReference = new HashSet<>();
+            initBean(clazz, circularReference);
+        });
     }
 
-    private Object initBean(Class<?> clazz) {
+    private void initBean(Class<?> clazz, Set<Class<?>> circularReference) {
         Class<?> concreteClass = findConcreteClass(clazz, preInstanticateBeans);
+        if (beans.containsKey(concreteClass)) {
+            return;
+        }
+
+        makeBean(concreteClass, circularReference);
+    }
+
+    private void makeBean(Class<?> concreteClass, Set<Class<?>> circularReference) {
+        checkCircularReference(concreteClass, circularReference);
+        circularReference.add(concreteClass);
+
         logger.info("{}.initBean() >> {}", TAG, concreteClass);
 
         Constructor<?> constructor = getConstructor(concreteClass);
-        List<Object> parameters = getParameterBeans(constructor);
+        List<Object> parameters = getParameterBeans(constructor, circularReference);
 
-        return createInstance(constructor, parameters);
+        beans.put(concreteClass, createInstance(constructor, parameters));
+    }
+
+    private void checkCircularReference(Class<?> clazz, Set<Class<?>> circularReference) {
+        if (circularReference.contains(clazz)) {
+            throw new IllegalStateException();
+        }
     }
 
     private Constructor<?> getConstructor(Class<?> concreteClass) {
@@ -80,19 +99,26 @@ public class BeanFactory {
         return beanConstructor.getParameterCount() == DEFAULT_CONSTRUCTOR_PARAMETER_NUMBER;
     }
 
-    private List<Object> getParameterBeans(Constructor<?> constructor) {
+    private List<Object> getParameterBeans(Constructor<?> constructor, Set<Class<?>> circularReference) {
         List<Object> parameters = new ArrayList<>();
         Class<?>[] types = Objects.requireNonNull(constructor).getParameterTypes();
 
         for (Class<?> type : types) {
-            parameters.add(getParameterBean(type));
+            parameters.add(getParameterBean(type, circularReference));
         }
 
         return parameters;
     }
 
-    private Object getParameterBean(Class<?> type) {
-        return beans.containsKey(type) ? beans.get(type) : initBean(type);
+    private Object getParameterBean(Class<?> type, Set<Class<?>> circularReference) {
+        if (Objects.isNull(getInnerBean(type))) {
+            initBean(type, circularReference);
+        }
+        return getInnerBean(type);
+    }
+
+    private Object getInnerBean(Class<?> type) {
+        return beans.get(findConcreteClass(type, preInstanticateBeans));
     }
 
     private Object createInstance(Constructor<?> constructor, List<Object> parameters) {
