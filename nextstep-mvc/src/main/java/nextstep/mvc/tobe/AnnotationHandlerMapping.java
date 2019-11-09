@@ -38,14 +38,18 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         Map<Class<?>, Object> controllers = beanFactory.getBeansWithAnnotation(Controller.class);
 
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
+        addHandlerExecutions(controllers, methods);
+
+        logger.info("Initialized AnnotationHandlerMapping!");
+    }
+
+    private void addHandlerExecutions(Map<Class<?>, Object> controllers, Set<Method> methods) {
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                     rm.value(), rm.method(), method);
             addHandlerExecutions(controllers, method, rm);
         }
-
-        logger.info("Initialized AnnotationHandlerMapping!");
     }
 
     private void addHandlerExecutions(Map<Class<?>, Object> controllers, Method method, RequestMapping rm) {
