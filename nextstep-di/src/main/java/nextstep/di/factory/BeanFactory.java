@@ -2,25 +2,28 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.BeanFactoryInitializeException;
+import nextstep.di.scanner.BeanScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, BeanConstructor> constructors;
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory(BeanScanner... beanScanners) {
+        constructors = new HashMap<>();
+        Arrays.stream(beanScanners)
+                .flatMap(scanner -> scanner.getBeanConstructors().stream())
+                .forEach(ctor -> constructors.put(ctor.getReturnType(), ctor));
     }
 
     @SuppressWarnings("unchecked")
@@ -29,14 +32,14 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstantiateBeans
-                .forEach(this::getOrInstantiate);
+        constructors.keySet().forEach(this::getOrInstantiate);
     }
 
     private Object getOrInstantiate(Class<?> clazz) {
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
+
         Object instance = tryInstantiateBean(clazz);
         beans.put(clazz, instance);
         return instance;
@@ -45,31 +48,31 @@ public class BeanFactory {
     private Object tryInstantiateBean(Class<?> clazz) {
         try {
             return instantiateBean(clazz);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (Exception e) {
             logger.error("Error while instantiate bean", e);
             throw new BeanFactoryInitializeException(e);
         }
     }
 
-    private Object instantiateBean(Class<?> clazz) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<?> ctor = getConstructor(clazz);
+    private Object instantiateBean(Class<?> clazz) throws Exception {
+        BeanConstructor ctor = constructors.get(clazz);
         Object[] params = resolveConstructorParameters(ctor);
 
-        return ctor.newInstance(params);
+        return ctor.construct(params);
     }
 
-    private Constructor<?> getConstructor(Class<?> clazz) throws NoSuchMethodException {
-        Constructor<?> ctor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        if (Objects.isNull(ctor)) {
-            return clazz.getConstructor();
-        }
-        return ctor;
-    }
-
-    private Object[] resolveConstructorParameters(Constructor<?> ctor) {
+    private Object[] resolveConstructorParameters(BeanConstructor ctor) {
         return Arrays.stream(ctor.getParameterTypes())
-                    .map(param -> BeanFactoryUtils.findConcreteClass(param, preInstantiateBeans))
-                    .map(this::getOrInstantiate)
-                    .toArray();
+                .map(param -> BeanFactoryUtils.findConcreteClass(param, constructors.keySet())
+                        .orElse(param))
+                .map(this::getOrInstantiate)
+                .toArray();
+    }
+
+    public Set<Object> getBeansWithAnnotation(Class<? extends Annotation> annotation) {
+        return beans.keySet().stream()
+                .filter(cls -> cls.isAnnotationPresent(annotation))
+                .map(beans::get)
+                .collect(Collectors.toSet());
     }
 }
