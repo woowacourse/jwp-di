@@ -3,8 +3,11 @@ package nextstep.di.factory;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,28 +28,46 @@ public class BeanFactory {
     }
 
     public void initialize() {
-
+        preInstanticateBeans.forEach(this::instantiateBean);
     }
 
-    public Object instantiateBean(Class<?> clazz) throws NoSuchMethodException {
+    private Object instantiateBean(final Class<?> clazz) {
+        if (isBeanExists(clazz)) {
+            return beans.get(clazz);
+        }
+
         Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
         if (hasNotInjected(injectedConstructor)) {
-            return instantiateByDefaultConstructor(clazz);
+            return registerBean(clazz);
         }
-        
-        return new Object();
+
+        return registerBean(clazz, injectedConstructor);
+    }
+
+    private boolean isBeanExists(final Class<?> clazz) {
+        return beans.containsKey(clazz);
     }
 
     private boolean hasNotInjected(final Constructor<?> injectedConstructor) {
         return injectedConstructor == null;
     }
 
-    private Object instantiateByDefaultConstructor(final Class<?> clazz) {
-        try {
-            return clazz.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw new NotFoundDefaultConstructorException();
+    private Object registerBean(final Class<?> clazz) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstanticateBeans);
+        Object bean = BeanUtils.instantiateClass(concreteClass);
+        beans.put(clazz, bean);
+        return bean;
+    }
+
+    private Object registerBean(final Class<?> clazz, final Constructor<?> injectedConstructor) {
+        List<Object> params = new ArrayList<>();
+        for (Class<?> parameterType : injectedConstructor.getParameterTypes()) {
+            Object paramBean = instantiateBean(parameterType);
+            params.add(paramBean);
         }
+
+        Object bean = BeanUtils.instantiateClass(injectedConstructor, params.toArray());
+        beans.put(clazz, bean);
+        return bean;
     }
 }
