@@ -1,15 +1,11 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Inject;
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.example.TestScanner;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
