@@ -1,6 +1,5 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -10,8 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanScanner {
     private static final Logger logger = LoggerFactory.getLogger(BeanScanner.class);
@@ -24,11 +25,10 @@ public class BeanScanner {
     }
 
     public Set<Class<?>> getTypesAnnotated() {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : ANNOTATIONS) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        logger.debug("Scan Beans Type : {}", beans);
-        return beans;
+        return ANNOTATIONS.stream()
+                .map(reflections::getTypesAnnotatedWith)
+                .flatMap(Collection::stream)
+                .peek(bean -> logger.debug("Scan Beans Type : {}", bean))
+                .collect(Collectors.toSet());
     }
 }
