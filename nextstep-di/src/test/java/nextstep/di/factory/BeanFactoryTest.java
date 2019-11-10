@@ -7,14 +7,17 @@ import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import nextstep.di.factory.example.MyQnaService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
@@ -42,6 +45,15 @@ public class BeanFactoryTest {
         MyQnaService qnaService = qnaController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
+    }
+
+    @Test
+    @DisplayName("controller들 잘 가져오는지 확인")
+    public void getControllers() {
+        Map<Class<?>, Object> controllers = beanFactory.getControllers();
+
+        assertThat(controllers).hasSize(1);
+        assertThat(controllers.containsKey(QnaController.class)).isTrue();
     }
 
     @SuppressWarnings("unchecked")
