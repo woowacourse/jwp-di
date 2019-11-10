@@ -1,12 +1,12 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,7 +62,7 @@ public class BeanFactory {
     }
 
     private Object registerBean(final Class<?> clazz, final Constructor<?> injectedConstructor) {
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Lists.newArrayList();
         for (Class<?> parameterType : injectedConstructor.getParameterTypes()) {
             Object paramBean = instantiateBean(parameterType);
             params.add(paramBean);
