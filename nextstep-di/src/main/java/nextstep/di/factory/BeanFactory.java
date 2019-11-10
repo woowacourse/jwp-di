@@ -9,11 +9,11 @@ import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BeanFactory {
+    private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
+
     private Set<Class<?>> preInstantiateBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
@@ -28,41 +28,44 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstantiateBeans.forEach(this::instantiate);
+        preInstantiateBeans.forEach(this::getInstantiateClass);
     }
 
-    private Object instantiate(Class<?> clazz) {
-        if (beans.containsKey(clazz)) {
-            return beans.get(clazz);
+    private Object getInstantiateClass(Class<?> clazz) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
+
+        if(beans.containsKey(concreteClass)) {
+            getBean(concreteClass);
         }
+
+        Object instance = instantiateClass(clazz);
+        beans.put(clazz, instance);
+        return instance;
+    }
+
+    private Object instantiateClass(Class<?> clazz) {
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
 
-        if (constructor != null) {
-            Object inst = instantiateConstructor(constructor);
-            beans.put(clazz, inst);
-            return inst;
-        }
-
-        try {
-            Object inst = clazz.getDeclaredConstructor().newInstance();
-            beans.put(clazz, inst);
-            return inst;
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            throw new ScannerException(e);
-        }
+        return Optional.ofNullable(constructor)
+                .map(this::instantiateConstructor)
+                .orElseGet(() -> defaultConstructorInstantiate(clazz));
     }
 
     private Object instantiateConstructor(Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         List<Object> args = Lists.newArrayList();
+
         for (Class<?> clazz : parameterTypes) {
-            if (beans.containsKey(clazz)) {
-                args.add(beans.get(clazz));
-            } else {
-                args.add(instantiate(BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans)));
-            }
+            args.add(getInstantiateClass(BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans)));
         }
         return BeanUtils.instantiateClass(constructor, args.toArray());
     }
 
+    private Object defaultConstructorInstantiate(Class<?> clazz) {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            throw new ScannerException(e);
+        }
+    }
 }
