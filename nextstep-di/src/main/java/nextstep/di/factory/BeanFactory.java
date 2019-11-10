@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -80,12 +82,9 @@ public class BeanFactory {
     }
 
     public Map<Class<?>, Object> getControllers() {
-        Map<Class<?>, Object> controllers = new HashMap<>();
-
-        beans.keySet()
+        return beans.keySet()
             .stream()
             .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
-            .forEach(clazz -> controllers.put(clazz, beans.get(clazz)));
-        return controllers;
+            .collect(Collectors.toMap(clazz -> clazz, clazz -> beans.get(clazz)));
     }
 }
