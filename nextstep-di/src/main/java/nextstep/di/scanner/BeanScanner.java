@@ -9,9 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 public class BeanScanner {
+    private static final Set<Class<? extends Annotation>> annotations =
+            new HashSet<>(Arrays.asList(Controller.class, Service.class, Repository.class));
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     private Reflections reflections;
@@ -21,10 +25,6 @@ public class BeanScanner {
     }
 
     public Set<Class<?>> scan() {
-        return scanAnnotation(Controller.class, Service.class, Repository.class);
-    }
-
-    private Set<Class<?>> scanAnnotation(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : annotations) {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
