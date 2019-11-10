@@ -20,7 +20,9 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        BeanFactoryInitializer.init(Arrays.asList(Controller.class, Service.class, Repository.class), "nextstep.di.factory.example");
+        BeanFactoryInitializer.init(
+                new BasicBeanScannerConfig(Arrays.asList(Controller.class, Service.class, Repository.class),
+                "nextstep.di.factory.example"));
         beanFactory = BeanFactory.getInstance();
     }
 
