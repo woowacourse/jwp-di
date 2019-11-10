@@ -45,8 +45,7 @@ class BeanFactoryTest {
                         .collect(Collectors.toSet());
         BeanFactory beanFactory = new BeanFactory(manualScanner);
         beanFactory.initialize();
-        NotAnnotatedClass notEnrolledBean = beanFactory.getBean(NotAnnotatedClass.class);
-        assertNull(notEnrolledBean);
+        assertNull(beanFactory.getBean(NotAnnotatedClass.class));
     }
 
     @Test
