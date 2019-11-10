@@ -2,6 +2,7 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -20,22 +21,21 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackage;
+    private final BeanFactory beanFactory;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackage) {
-        this.basePackage = basePackage;
+    public AnnotationHandlerMapping(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     public void initialize() {
-        ControllerScanner controllerScanner = new ControllerScanner(basePackage);
-        Map<Class<?>, Object> controllers = controllerScanner.getControllers();
+        Map<Class<?>, Object> controllers = beanFactory.getControllers();
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
-                    rm.value(), rm.method(), method);
+                rm.value(), rm.method(), method);
             addHandlerExecutions(controllers, method, rm);
         }
 
@@ -55,8 +55,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
             targetMethods = RequestMethod.values();
         }
         return Arrays.stream(targetMethods)
-                .map(method -> new HandlerKey(value, method))
-                .collect(Collectors.toList());
+            .map(method -> new HandlerKey(value, method))
+            .collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")
@@ -64,7 +64,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         Set<Method> requestMappingMethods = Sets.newHashSet();
         for (Class<?> clazz : controlleers) {
             requestMappingMethods
-                    .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
+                .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
         }
         return requestMappingMethods;
     }
