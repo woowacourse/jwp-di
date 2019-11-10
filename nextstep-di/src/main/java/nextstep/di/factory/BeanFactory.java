@@ -3,13 +3,17 @@ package nextstep.di.factory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.ScannerException;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public class BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
@@ -20,6 +24,7 @@ public class BeanFactory {
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
+        this.initialize();
     }
 
     @SuppressWarnings("unchecked")
@@ -34,12 +39,12 @@ public class BeanFactory {
     private Object getInstantiateClass(Class<?> clazz) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
 
-        if(beans.containsKey(concreteClass)) {
+        if (beans.containsKey(concreteClass)) {
             getBean(concreteClass);
         }
 
         Object instance = instantiateClass(concreteClass);
-        beans.put(clazz, instance);
+        beans.put(concreteClass, instance);
         return instance;
     }
 
@@ -67,5 +72,15 @@ public class BeanFactory {
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             throw new ScannerException(e);
         }
+    }
+
+    public Map<Class<?>, Object> getControllers() {
+        Map<Class<?>, Object> controllers = Maps.newHashMap();
+        for (Class<?> clazz : preInstantiateBeans) {
+            if (clazz.isAnnotationPresent(Controller.class)) {
+                controllers.put(clazz, beans.get(clazz));
+            }
+        }
+        return controllers;
     }
 }
