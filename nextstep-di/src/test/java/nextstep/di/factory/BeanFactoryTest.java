@@ -5,99 +5,96 @@ import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.example.TestScanner;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
-import nextstep.stereotype.Controller;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     @Test
-    void di() {
-        Scanner scanner = new TestScanner("nextstep.di.factory.example");
-        BeanFactory beanFactory = new BeanFactory(scanner);
+    void 어노테이션_빈_등록_성공() {
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedClass.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
         beanFactory.initialize();
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        AnnotatedClass annotatedClass = beanFactory.getBean(AnnotatedClass.class);
+        assertNotNull(annotatedClass);
+    }
 
-        assertNotNull(qnaController);
-        assertNotNull(qnaController.getQnaService());
+    @Test
+    void 파라미터_빈_등록_성공() {
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedClass.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
+        beanFactory.initialize();
+        AnnotatedClass annotatedClass = beanFactory.getBean(AnnotatedClass.class);
+        assertNotNull(annotatedClass.getParameterClass());
+    }
 
-        MyQnaService qnaService = qnaController.getQnaService();
-        assertNotNull(qnaService.getUserRepository());
-        assertNotNull(qnaService.getQuestionRepository());
+
+    @Test
+    void 없는_빈_Null() {
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedClass.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
+        beanFactory.initialize();
+        NotAnnotatedClass notEnrolledBean = beanFactory.getBean(NotAnnotatedClass.class);
+        assertNull(notEnrolledBean);
     }
 
     @Test
     void 애노테이션이_있는_인터페이스() {
-        Scanner scanner = new TestScanner("nextstep.di.factory.fail");
-        BeanFactory beanFactory = new BeanFactory(scanner);
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedInterface.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
         assertThrows(InvalidBeanClassTypeException.class, beanFactory::initialize);
     }
 
     @Test
     void 빈_싱글턴_보장_여부() {
-        Scanner scanner = () -> {
-            Set<Class<?>> annotatedClass = new HashSet<>();
-            annotatedClass.add(SingletonTest1.class);
-            annotatedClass.add(SingletonTest2.class);
-            return annotatedClass;
-        };
-        BeanFactory beanFactory = new BeanFactory(scanner);
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedClass.class, ParameterClass.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
         beanFactory.initialize();
-        SingletonTest1 singletonTest1 = beanFactory.getBean(SingletonTest1.class);
-        SingletonTest2 singletonTest2 = beanFactory.getBean(SingletonTest2.class);
-        assertThat(singletonTest1.getQnaService()).isEqualTo(singletonTest2.getQnaService());
+        AnnotatedClass annotatedClass = beanFactory.getBean(AnnotatedClass.class);
+        assertThat(annotatedClass.getParameterClass()).isEqualTo(beanFactory.getBean(ParameterClass.class));
     }
 
-    @Controller
-    public static class SingletonTest1 {
-        private MyQnaService qnaService;
+
+    private interface AnnotatedInterface {
+    }
+
+    private static class AnnotatedClass {
+        private ParameterClass parameterClass;
 
         @Inject
-        public SingletonTest1(MyQnaService qnaService) {
-            this.qnaService = qnaService;
+        public AnnotatedClass(ParameterClass parameterClass) {
+            this.parameterClass = parameterClass;
         }
 
-        MyQnaService getQnaService() {
-            return qnaService;
-        }
-    }
-
-    @Controller
-    public static class SingletonTest2 {
-        private MyQnaService qnaService;
-
-        @Inject
-        public SingletonTest2(MyQnaService qnaService) {
-            this.qnaService = qnaService;
-        }
-
-        MyQnaService getQnaService() {
-            return qnaService;
+        ParameterClass getParameterClass() {
+            return parameterClass;
         }
     }
 
-
-    @Test
-    void create_Correct_Boundary() {
-        Scanner scanner = new Scanner() {
-            @Override
-            public Set<Class<?>> getAnnotatedClasses() {
-                return null;
-            }
-        };
-
-
+    private static class ParameterClass {
     }
 
+    private static class NotAnnotatedClass {
+    }
 
 
 }
