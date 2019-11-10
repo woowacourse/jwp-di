@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
+
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
@@ -49,7 +51,7 @@ public class BeanFactory {
     }
 
     private boolean hasNotInjected(final Constructor<?> injectedConstructor) {
-        return injectedConstructor == null;
+        return isNull(injectedConstructor);
     }
 
     private Object registerBean(final Class<?> clazz) {
