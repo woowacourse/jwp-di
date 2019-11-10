@@ -38,7 +38,7 @@ public class BeanFactory {
             getBean(concreteClass);
         }
 
-        Object instance = instantiateClass(clazz);
+        Object instance = instantiateClass(concreteClass);
         beans.put(clazz, instance);
         return instance;
     }
@@ -56,7 +56,7 @@ public class BeanFactory {
         List<Object> args = Lists.newArrayList();
 
         for (Class<?> clazz : parameterTypes) {
-            args.add(getInstantiateClass(BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans)));
+            args.add(getInstantiateClass(clazz));
         }
         return BeanUtils.instantiateClass(constructor, args.toArray());
     }
