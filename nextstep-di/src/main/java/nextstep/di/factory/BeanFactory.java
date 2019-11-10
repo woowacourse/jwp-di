@@ -51,6 +51,7 @@ public class BeanFactory {
         Class<?> requiredType = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans);
         
         if (!preInstanticateBeans.contains(requiredType)) {
+            logger.error("해당 패키지에 존재하지 않는 클래스 입니다.");
             throw new IllegalArgumentException("해당 클래스를 찾을 수 없습니다.");
         }
     }
@@ -67,16 +68,12 @@ public class BeanFactory {
         }
     }
 
-    private Object getInstance(Class<?> preInstanticateBean) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    private Object getInstance(Class<?> preInstanticateBean) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
         if (injectedConstructor == null) {
-            return createDefaultConstructorInstance(preInstanticateBean);
+            return createInstance(preInstanticateBean.getDeclaredConstructor());
         }
         return createInstance(injectedConstructor);
-    }
-
-    private Object createDefaultConstructorInstance(Class<?> preInstanticateBean) throws IllegalAccessException, InstantiationException {
-        return preInstanticateBean.newInstance();
     }
 
     private Object createInstance(Constructor<?> injectedConstructor) throws IllegalAccessException, InvocationTargetException, InstantiationException {
