@@ -9,12 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -49,11 +48,8 @@ public class BeanFactory {
 
     private Object instantiateConstructor(Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
-        List<Object> parameterObject = Lists.newArrayList();
 
-        for (Class<?> parameterType : parameterTypes) {
-            instantiateParameter(parameterObject, parameterType);
-        }
+        List<Object> parameterObject = instantiateParameter(parameterTypes);
 
         Class<?> clazz = constructor.getDeclaringClass();
         Object bean = BeanUtils.instantiateClass(constructor, parameterObject.toArray());
@@ -61,13 +57,20 @@ public class BeanFactory {
         return bean;
     }
 
-    private void instantiateParameter(List<Object> parameterObject, Class<?> aClass) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(aClass, preInstanticateBeans);
+    private List<Object> instantiateParameter(Class<?>[] parameterTypes) {
+        return Arrays.stream(parameterTypes)
+            .map(parameterType -> {
+                Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateBeans);
+                return getParameter(concreteClass, parameterType);
+            })
+            .collect(Collectors.toList());
+    }
+
+    public Object getParameter(Class<?> concreteClass, Class<?> parameterType) {
         if (beans.containsKey(concreteClass)) {
-            parameterObject.add(beans.get(concreteClass));
-            return;
+            return beans.get(concreteClass);
         }
-        parameterObject.add(instantiateClass(aClass));
+        return instantiateClass(parameterType);
     }
 
     private Object createBeanDefaultConstructor(Class<?> clazz) {
