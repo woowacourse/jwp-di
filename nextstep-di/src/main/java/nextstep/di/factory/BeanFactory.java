@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -10,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
@@ -27,6 +29,15 @@ public class BeanFactory {
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         return (T) beans.get(requiredType);
+    }
+
+    public Map<Class<?>, Object> getControllers() {
+        return preInstanticateBeans.stream().filter(this::isAnnotationPresent)
+            .collect(Collectors.toMap(clazz -> clazz, clazz -> beans.get(clazz)));
+    }
+
+    private boolean isAnnotationPresent(final Class<?> clazz) {
+        return clazz.isAnnotationPresent(Controller.class);
     }
 
     public void initialize() {
