@@ -7,14 +7,18 @@ import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
@@ -33,15 +37,21 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void di() throws Exception {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
-
+    public void di() {
+        QnaController qnaController = beanFactory.getBean(QnaController.class).get();
         assertNotNull(qnaController);
         assertNotNull(qnaController.getQnaService());
 
         MyQnaService qnaService = qnaController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
+    }
+
+    @Test
+    @DisplayName("다른 패키지의 클래스를 찾으려고 할 때")
+    void another_package_class() {
+        Optional<BeanScanner> bean = beanFactory.getBean(BeanScanner.class);
+        assertThat(bean).isEqualTo(Optional.empty());
     }
 
     @SuppressWarnings("unchecked")

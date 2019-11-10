@@ -1,6 +1,5 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import nextstep.exception.DefaultConstructorFindFailException;
 import nextstep.stereotype.Controller;
@@ -12,12 +11,11 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
     private Set<Class<?>> preInstanticateBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
@@ -27,8 +25,8 @@ public class BeanFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getBean(Class<T> requiredType) {
-        return (T) beans.get(requiredType);
+    public <T> Optional<T> getBean(Class<T> requiredType) {
+        return Optional.ofNullable((T)beans.get(requiredType));
     }
 
     public void initialize() {
