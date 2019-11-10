@@ -65,11 +65,6 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void getBeansTest() {
-        assertThat(beanFactory.getBeans(Controller.class)).containsKey(QnaController.class);
-    }
-
-    @Test
     public void equals() {
         MyQnaService qnaService = beanFactory.getBean(QnaController.class).getQnaService();
         MyQnaService bean = beanFactory.getBean(MyQnaService.class);
