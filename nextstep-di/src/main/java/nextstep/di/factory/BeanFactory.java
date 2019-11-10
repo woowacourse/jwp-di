@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
+    private static final int ONE = 1;
+    private static final int ZERO = 0;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
@@ -72,17 +74,17 @@ public class BeanFactory {
     private Constructor findConstructor(Class<?> bean) {
         logger.debug("Find Constructor : {}", bean.getName());
 
-        Constructors constructors = new Constructors(bean.getConstructors());
-        if (constructors.isOneSize()) {
-            return constructors.getFirstConstructor();
+        List<Constructor<?>> constructors = Arrays.asList(bean.getConstructors());
+        if (constructors.size() == ONE) {
+            return constructors.get(ZERO);
         }
 
-        Constructors injectedConstructors = new Constructors(Arrays.stream(bean.getConstructors())
+        List<Constructor> injectedConstructors = constructors.stream()
                 .filter(constructor -> constructor.isAnnotationPresent(Inject.class))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
 
-        if (injectedConstructors.isOneSize()) {
-            return injectedConstructors.getFirstConstructor();
+        if (injectedConstructors.size() == ONE) {
+            return injectedConstructors.get(ZERO);
         }
 
         throw new NotFoundConstructorException("올바른 생성자를 찾을 수 없습니다.");
