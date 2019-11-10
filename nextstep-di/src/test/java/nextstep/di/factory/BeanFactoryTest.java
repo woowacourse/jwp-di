@@ -1,22 +1,27 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.*;
+import nextstep.annotation.Inject;
+import nextstep.di.factory.example.MyQnaService;
+import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.example.TestScanner;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
+import nextstep.stereotype.Controller;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class BeanFactoryTest {
+class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     @Test
-    public void di() {
+    void di() {
         Scanner scanner = new TestScanner("nextstep.di.factory.example");
         BeanFactory beanFactory = new BeanFactory(scanner);
         beanFactory.initialize();
@@ -39,7 +44,12 @@ public class BeanFactoryTest {
 
     @Test
     void 빈_싱글턴_보장_여부() {
-        Scanner scanner = new TestScanner("nextstep.di.factory.example");
+        Scanner scanner = () -> {
+            Set<Class<?>> annotatedClass = new HashSet<>();
+            annotatedClass.add(SingletonTest1.class);
+            annotatedClass.add(SingletonTest2.class);
+            return annotatedClass;
+        };
         BeanFactory beanFactory = new BeanFactory(scanner);
         beanFactory.initialize();
         SingletonTest1 singletonTest1 = beanFactory.getBean(SingletonTest1.class);
@@ -47,8 +57,37 @@ public class BeanFactoryTest {
         assertThat(singletonTest1.getQnaService()).isEqualTo(singletonTest2.getQnaService());
     }
 
+    @Controller
+    public static class SingletonTest1 {
+        private MyQnaService qnaService;
+
+        @Inject
+        public SingletonTest1(MyQnaService qnaService) {
+            this.qnaService = qnaService;
+        }
+
+        MyQnaService getQnaService() {
+            return qnaService;
+        }
+    }
+
+    @Controller
+    public static class SingletonTest2 {
+        private MyQnaService qnaService;
+
+        @Inject
+        public SingletonTest2(MyQnaService qnaService) {
+            this.qnaService = qnaService;
+        }
+
+        MyQnaService getQnaService() {
+            return qnaService;
+        }
+    }
+
+
     @Test
-    void create_Correct_Boundary(){
+    void create_Correct_Boundary() {
         Scanner scanner = new Scanner() {
             @Override
             public Set<Class<?>> getAnnotatedClasses() {
@@ -58,6 +97,7 @@ public class BeanFactoryTest {
 
 
     }
+
 
 
 }
