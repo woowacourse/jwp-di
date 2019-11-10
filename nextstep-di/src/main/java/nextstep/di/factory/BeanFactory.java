@@ -1,8 +1,8 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Inject;
-import nextstep.exception.BeanFactoryInitializeException;
-import nextstep.exception.NotFoundConstructorException;
+import nextstep.di.exception.BeanFactoryInitializeException;
+import nextstep.di.exception.NotFoundConstructorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
