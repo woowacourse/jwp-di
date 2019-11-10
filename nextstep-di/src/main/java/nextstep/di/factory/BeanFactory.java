@@ -1,6 +1,5 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Maps;
 import nextstep.annotation.Inject;
 import nextstep.exception.BeanFactoryInitializeException;
 import nextstep.exception.NotFoundConstructorException;
@@ -17,22 +16,19 @@ public class BeanFactory {
     private static final int ONE = 1;
     private static final int ZERO = 0;
 
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private BeanRegister beanRegister;
 
-    private BeanFactory() {
-    }
-
-    public static BeanFactory getInstance() {
-        return BeanFactoryHolder.instance;
+    public BeanFactory() {
+        beanRegister = BeanRegister.getInstance();
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
-        return (T) beans.get(requiredType);
+        return beanRegister.get(requiredType);
     }
 
     public Map<Class<?>, Object> getAnnotatedBeans(Class<? extends Annotation> annotation) {
-        return Collections.unmodifiableMap(beans.entrySet().stream()
+        return Collections.unmodifiableMap(beanRegister.entrySet().stream()
                 .filter(entry -> entry.getKey().isAnnotationPresent(annotation))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
@@ -42,7 +38,7 @@ public class BeanFactory {
         preInstantiateBeans.forEach(bean -> {
             logger.debug(bean.getName());
             try {
-                if (!beans.containsKey(bean)) {
+                if (!beanRegister.containsKey(bean)) {
                     createInstance(bean, preInstantiateBeans);
                 }
             } catch (Exception e) {
@@ -61,14 +57,14 @@ public class BeanFactory {
             logger.debug("ParameterType : {}", parameterType.getName());
 
             Class concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
-            if (!beans.containsKey(concreteClass)) {
+            if (!beanRegister.containsKey(concreteClass)) {
                 createInstance(concreteClass, preInstantiateBeans);
             }
-            params.add(beans.get(concreteClass));
+            params.add(beanRegister.get(concreteClass));
         }
 
         logger.debug("Create : {}", bean.getName());
-        beans.put(bean, constructor.newInstance(params.toArray()));
+        beanRegister.put(bean, constructor.newInstance(params.toArray()));
     }
 
     private Constructor findConstructor(Class<?> bean) {
@@ -88,9 +84,5 @@ public class BeanFactory {
         }
 
         throw new NotFoundConstructorException("올바른 생성자를 찾을 수 없습니다.");
-    }
-
-    private static class BeanFactoryHolder {
-        static final BeanFactory instance = new BeanFactory();
     }
 }

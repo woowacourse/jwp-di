@@ -28,7 +28,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        Map<Class<?>, Object> controllers = BeanFactory.getInstance().getAnnotatedBeans(Controller.class);
+        Map<Class<?>, Object> controllers = new BeanFactory().getAnnotatedBeans(Controller.class);
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);

@@ -23,7 +23,7 @@ public class BeanFactoryTest {
         BeanFactoryInitializer.init(
                 new BasicBeanScannerConfig(Arrays.asList(Controller.class, Service.class, Repository.class),
                 "nextstep.di.factory.example"));
-        beanFactory = BeanFactory.getInstance();
+        beanFactory = new BeanFactory();
     }
 
     @Test

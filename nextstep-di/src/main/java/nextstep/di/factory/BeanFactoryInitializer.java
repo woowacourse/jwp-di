@@ -4,7 +4,7 @@ public class BeanFactoryInitializer {
     @SuppressWarnings("unchecked")
     public static void init(BeanScannerConfig beanScannerConfig) {
         BeanScanner beanScanner = new BeanScanner(beanScannerConfig);
-        BeanFactory beanFactory = BeanFactory.getInstance();
+        BeanFactory beanFactory = new BeanFactory();
         beanFactory.initialize(beanScanner.getTypesAnnotatedWith());
     }
 }
