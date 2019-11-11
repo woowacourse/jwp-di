@@ -17,7 +17,7 @@ public class ConfigurationBeanScanner {
     }
 
     public void register(Class<?>... classes) {
-        Set<MethodBeanDefinition> beanDefinitions = Arrays.stream(classes)
+        Set<BeanDefinition> beanDefinitions = Arrays.stream(classes)
                 .filter(clazz -> clazz.isAnnotationPresent(Configuration.class))
                 .map(Class::getMethods)
                 .flatMap(Arrays::stream)
