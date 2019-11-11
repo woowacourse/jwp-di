@@ -48,4 +48,9 @@ public class BeanFactoryTest {
         assertThat(actual).isEqualTo(expected);
     }
 
+    @Test
+    void beanScopeTest() {
+        assertThat(beanFactory.getBean(TestService.class)).isNull();
+        assertThat(beanFactory.getBean(TestServiceObject.class)).isNull();
+    }
 }
