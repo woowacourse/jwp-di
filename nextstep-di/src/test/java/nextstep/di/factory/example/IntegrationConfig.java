@@ -11,11 +11,6 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = "nextstep.di.factory.example")
 public class IntegrationConfig {
     @Bean
-    public MyJdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new MyJdbcTemplate(dataSource);
-    }
-
-    @Bean
     public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName("org.h2.Driver");
@@ -23,5 +18,10 @@ public class IntegrationConfig {
         ds.setUsername("sa");
         ds.setPassword("");
         return ds;
+    }
+
+    @Bean
+    public MyJdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new MyJdbcTemplate(dataSource);
     }
 }

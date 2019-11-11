@@ -2,8 +2,10 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import nextstep.di.bean.BeanDefinition;
 
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -48,5 +50,21 @@ public class BeanFactoryUtils {
         }
 
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+    }
+
+    public static Class<?> findConcreteClassByBeanDefinition(Class<?> clazz, Collection<BeanDefinition> beanDefinitions) {
+        if (!clazz.isInterface()) {
+            return clazz;
+        }
+
+        for (final BeanDefinition beanDefinition : beanDefinitions) {
+            Class<?> beanClass = beanDefinition.getBeanClass();
+            Set<Class<?>> interfaces = Sets.newHashSet(beanClass.getInterfaces());
+            if (interfaces.contains(clazz)) {
+                return beanDefinition.getBeanClass();
+            }
+        }
+
+        return clazz;
     }
 }
