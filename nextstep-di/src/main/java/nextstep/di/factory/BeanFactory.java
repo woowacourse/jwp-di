@@ -3,6 +3,7 @@ package nextstep.di.factory;
 import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.DefaultConstructorInitException;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
+import nextstep.di.factory.exception.InvalidBeanTargetException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -61,9 +62,16 @@ public class BeanFactory {
     }
 
     private Object createBeanInstance(Class<?> clazz) {
+        if (isNotBeanTarget(clazz)) {
+            throw new InvalidBeanTargetException();
+        }
         Constructor<?> constructor = getConstructor(clazz);
         List<Object> paramInstances = initParameters(constructor);
         return BeanUtils.instantiateClass(constructor, paramInstances.toArray());
+    }
+
+    private boolean isNotBeanTarget(Class<?> clazz) {
+        return !preInstanticateBeans.contains(clazz);
     }
 
     private boolean isBeanExists(Class<?> bean) {
