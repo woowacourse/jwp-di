@@ -1,20 +1,20 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.di.factory.example.JdbcQuestionRepository;
-import nextstep.di.factory.example.JdbcUserRepository;
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.circular.CircularDependenceA;
+import nextstep.di.factory.circular.CircularDependenceB;
+import nextstep.di.factory.constructor.notbean.AnyClass;
+import nextstep.di.factory.constructor.notdefault.AnyService;
+import nextstep.di.factory.constructor.notdefault.NoDefaultConstructor;
+import nextstep.di.factory.example.*;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,12 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
-
-    private static final String NEXTSTEP_DI_FACTORY_EXAMPLE = "nextstep.di.factory.example";
-    private static final String NEXTSTEP_DI_FACTORY_CIRCULAR = "nextstep.di.factory.circular";
-    private static final String NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTDEFAULT = "nextstep.di.factory.constructor.notdefault";
-    private static final String NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTBEAN = "nextstep.di.factory.constructor.notbean";
+    private static final List<Class<?>> NEXTSTEP_DI_FACTORY_EXAMPLE = Arrays.asList(JdbcQuestionRepository.class, JdbcUserRepository.class, MyQnaService.class, QnaController.class, QuestionRepository.class, UserRepository.class);
+    private static final List<Class<?>> NEXTSTEP_DI_FACTORY_CIRCULAR = Arrays.asList(CircularDependenceA.class, CircularDependenceB.class);
+    private static final List<Class<?>> NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTDEFAULT = Arrays.asList(AnyService.class, NoDefaultConstructor.class);
+    private static final List<Class<?>> NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTBEAN = Arrays.asList(AnyClass.class, NoDefaultConstructor.class);
 
     @Test
     public void di() {
@@ -102,23 +100,11 @@ public class BeanFactoryTest {
         assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTDEFAULT));
     }
 
-    @SuppressWarnings("unchecked")
-    public BeanFactory getBeanFactory(String prefix) {
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(prefix, Controller.class, Service.class, Repository.class);
+    private BeanFactory getBeanFactory(List<Class<?>> prefix) {
+        Set<Class<?>> preInstanticateClazz = Sets.newHashSet(prefix);
         BeanFactory beanFactory = new BeanFactory(preInstanticateClazz);
         beanFactory.initialize();
 
         return beanFactory;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(String prefix, Class<? extends Annotation>... annotations) {
-        Reflections reflections = new Reflections(prefix);
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
     }
 }
