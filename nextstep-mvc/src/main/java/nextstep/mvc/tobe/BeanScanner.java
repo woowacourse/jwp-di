@@ -2,6 +2,7 @@ package nextstep.mvc.tobe;
 
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.Scanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -18,9 +19,10 @@ public class BeanScanner implements Scanner {
     private static final Class[] AVAILABLE_ANNOTATIONS = {Controller.class, Service.class, Repository.class};
 
     private Reflections reflections;
+    private BeanFactory beanFactory;
 
-    public BeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
+    public BeanScanner(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     @SuppressWarnings("unchecked")
@@ -36,5 +38,11 @@ public class BeanScanner implements Scanner {
         }
         log.debug("Scan Beans Type : {}", beans);
         return beans;
+    }
+
+    public void doScan(String basePackage) {
+        reflections = new Reflections(basePackage);
+        beanFactory.setPreInstanticateBeans(getAnnotatedClasses());
+        beanFactory.initialize();
     }
 }

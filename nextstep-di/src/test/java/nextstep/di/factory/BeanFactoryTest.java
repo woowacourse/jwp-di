@@ -15,9 +15,10 @@ public class BeanFactoryTest {
 
     @Test
     public void di() {
-        Scanner scanner = new TestScanner("nextstep.di.factory.example");
-        BeanFactory beanFactory = new BeanFactory(scanner);
-        beanFactory.initialize();
+        BeanFactory beanFactory = new BeanFactory();
+        TestScanner scanner = new TestScanner(beanFactory);
+        scanner.doScan("nextstep.di.factory.example");
+
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -30,16 +31,17 @@ public class BeanFactoryTest {
 
     @Test
     void 애노테이션이_있는_인터페이스() {
-        Scanner scanner = new TestScanner("nextstep.di.factory.fail");
-        BeanFactory beanFactory = new BeanFactory(scanner);
-        assertThrows(InvalidBeanClassTypeException.class, beanFactory::initialize);
+        BeanFactory beanFactory = new BeanFactory();
+        TestScanner scanner = new TestScanner(beanFactory);
+        assertThrows(InvalidBeanClassTypeException.class,
+                () -> scanner.doScan("nextstep.di.factory.fail"));
     }
 
     @Test
     void 빈_싱글턴_보장_여부() {
-        Scanner scanner = new TestScanner("nextstep.di.factory.example");
-        BeanFactory beanFactory = new BeanFactory(scanner);
-        beanFactory.initialize();
+        BeanFactory beanFactory = new BeanFactory();
+        TestScanner scanner = new TestScanner(beanFactory);
+        scanner.doScan("nextstep.di.factory.example");
         SingletonTest1 singletonTest1 = beanFactory.getBean(SingletonTest1.class);
         SingletonTest2 singletonTest2 = beanFactory.getBean(SingletonTest2.class);
         assertThat(singletonTest1.getQnaService()).isEqualTo(singletonTest2.getQnaService());

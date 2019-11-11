@@ -1,5 +1,7 @@
 package nextstep.mvc.tobe;
 
+import nextstep.annotation.Bean;
+import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.Scanner;
 import nextstep.mvc.exception.AnnotationNotFoundException;
 import nextstep.stereotype.Controller;
@@ -18,7 +20,9 @@ class BeanScannerTest {
 
     @Test
     void bean_스캐닝() {
-        Scanner scanner = new BeanScanner("samples");
+        BeanFactory beanFactory = new BeanFactory();
+        BeanScanner scanner = new BeanScanner(beanFactory);
+        scanner.doScan("samples");
         Set<Class<?>> annotatedClasses = scanner.getAnnotatedClasses();
         for (Class<?> annotatedClass : annotatedClasses) {
             Annotation[] annotations = annotatedClass.getAnnotations();

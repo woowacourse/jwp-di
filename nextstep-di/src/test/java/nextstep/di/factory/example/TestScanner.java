@@ -1,6 +1,7 @@
 package nextstep.di.factory.example;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.Scanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -16,9 +17,10 @@ public class TestScanner implements Scanner {
     private static final Logger log = LoggerFactory.getLogger(TestScanner.class);
 
     private Reflections reflections;
+    private BeanFactory beanFactory;
 
-    public TestScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
+    public TestScanner(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     @SuppressWarnings("unchecked")
@@ -34,5 +36,11 @@ public class TestScanner implements Scanner {
         }
         log.debug("Scan Beans Type : {}", beans);
         return beans;
+    }
+
+    public void doScan(String basePackage) {
+        reflections = new Reflections(basePackage);
+        beanFactory.setPreInstanticateBeans(getAnnotatedClasses());
+        beanFactory.initialize();
     }
 }

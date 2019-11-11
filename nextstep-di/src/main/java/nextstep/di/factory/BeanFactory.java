@@ -9,11 +9,9 @@ import org.springframework.beans.BeanUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
@@ -23,8 +21,11 @@ public class BeanFactory {
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Scanner scanner) {
-        this.preInstanticateBeans = scanner.getAnnotatedClasses();
+    public BeanFactory() {
+    }
+
+    public void setPreInstanticateBeans(Set<Class<?>> preInstanticateBeans) {
+        this.preInstanticateBeans = preInstanticateBeans;
     }
 
     public Map<Class<?>, Object> getBeansWithType(Class<? extends Annotation> type) {
@@ -40,9 +41,41 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> bean : preInstanticateBeans) {
+            // TODO refactor
+
+//            if (bean.isAnnotationPresent(Configuration.class)) {
+//                Method[] methods = bean.getMethods();
+//                Arrays.stream(methods)
+//                        .filter(method -> method.isAnnotationPresent(Bean.class))
+//                        .map(beanMethod -> enrollMethodBean(beanMethod));
+//                continue;
+//            }
             checkIfInterface(bean);
             enrollBean(bean);
         }
+    }
+
+//    private Object enrollMethodBean(Method beanMethod) {
+//        List<Object> arguments = getArguments(beanMethod);
+//
+//        beanMethod.invoke(beanMethod, Arrays.asList(arguments));
+//        return null;
+//    }
+
+    private List<Object> getArguments(Method beanMethod) {
+        Parameter[] parameters = beanMethod.getParameters();
+        return Arrays.stream(parameters).
+                map(this::createOrGetBean)
+                .collect(Collectors.toList());
+    }
+
+    private Object createOrGetBean(Parameter parameter) {
+        if (beans.containsKey(parameter.getType())) {
+            return beans.get(parameter.getType());
+        }
+
+        // TODO refactor
+        return null;
     }
 
     private void checkIfInterface(Class<?> bean) {
