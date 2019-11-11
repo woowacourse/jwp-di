@@ -20,7 +20,6 @@ public class BeanFactoryTest {
     @Test
     public void di() throws Exception {
         beanFactory = new BeanFactory(BeanScanner.scan(basePackages));
-        beanFactory.initialize();
 
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
@@ -34,44 +33,43 @@ public class BeanFactoryTest {
 
     @Test
     public void recursiveReferenceException() {
-        beanFactory = new BeanFactory(Sets.newHashSet(RecursiveController.class));
-        assertThrows(RecursiveFieldException.class, () -> beanFactory.initialize());
+        assertThrows(RecursiveFieldException.class, () ->
+                new BeanFactory(Sets.newHashSet(RecursiveController.class)));
     }
 
     @Test
     public void noDefaultConstructorException() {
-        beanFactory = new BeanFactory(Sets.newHashSet(NoDefaultCtorController.class));
-        assertThrows(NoDefaultConstructorException.class, () -> beanFactory.initialize());
+        assertThrows(NoDefaultConstructorException.class, () ->
+                new BeanFactory(Sets.newHashSet(NoDefaultCtorController.class)));
     }
 
     @Test
     public void implClassNotFoundException() {
-        beanFactory = new BeanFactory(Sets.newHashSet(NoImplService.class));
-        assertThrows(ImplClassNotFoundException.class, () -> beanFactory.initialize());
+        assertThrows(ImplClassNotFoundException.class, () ->
+                new BeanFactory(Sets.newHashSet(NoImplService.class)));
     }
 
     @Test
     public void interfaceCannotInstantiatedException() {
-        beanFactory = new BeanFactory(Sets.newHashSet(NoImplRepository.class));
-        assertThrows(InterfaceCannotInstantiatedException.class, () -> beanFactory.initialize());
+        assertThrows(InterfaceCannotInstantiatedException.class, () ->
+                new BeanFactory(Sets.newHashSet(NoImplRepository.class)));
     }
 
     @Test
     public void primitiveTypeInjectionFailException() {
-        beanFactory = new BeanFactory(Sets.newHashSet(PrimitiveTypeInjectController.class));
-        assertThrows(PrimitiveTypeInjectionFailException.class, () -> beanFactory.initialize());
+        assertThrows(PrimitiveTypeInjectionFailException.class, () ->
+                new BeanFactory(Sets.newHashSet(PrimitiveTypeInjectController.class)));
     }
 
     @Test
     public void interfaceExtendsInterfaceSuccess() {
-        beanFactory = new BeanFactory(Sets.newHashSet(NoImplService.class, ImplIntermediateRepository.class));
-        assertDoesNotThrow(() -> beanFactory.initialize());
+        assertDoesNotThrow(() ->
+                new BeanFactory(Sets.newHashSet(NoImplService.class, ImplIntermediateRepository.class)));
     }
 
     @Test
     public void getControllersTest() {
         beanFactory = new BeanFactory(Sets.newHashSet(AnnotatedController.class, AnnotatedService.class, AnnotatedRepository.class));
-        beanFactory.initialize();
         assertThat(beanFactory.getControllers().size()).isEqualTo(1);
     }
 }

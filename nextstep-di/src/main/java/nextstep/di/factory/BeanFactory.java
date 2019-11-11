@@ -20,9 +20,10 @@ public class BeanFactory {
 
     public BeanFactory(Set<Class<?>> preInstantiatedBeans) {
         this.preInstantiatedBeans = preInstantiatedBeans;
+        initialize();
     }
 
-    public void initialize() {
+    private void initialize() {
         for (Class<?> clazz : preInstantiatedBeans) {
             beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
         }
@@ -30,12 +31,10 @@ public class BeanFactory {
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
-        validateInitialization();
         return (T) beans.get(requiredType);
     }
 
     public Map<Class<?>, Object> getControllers() {
-        validateInitialization();
         Map<Class<?>, Object> controllers = Maps.newHashMap();
         for (Class<?> clazz : preInstantiatedBeans) {
             if (clazz.isAnnotationPresent(Controller.class)) {
@@ -110,12 +109,6 @@ public class BeanFactory {
     private void validateNoRecursiveField(Set<Class<?>> history, Class<?> param) {
         if (history.contains(param)) {
             throw new RecursiveFieldException();
-        }
-    }
-
-    private void validateInitialization() {
-        if (Objects.isNull(preInstantiatedBeans) || Objects.isNull(beans)) {
-            throw new UninitializedBeanFactoryException();
         }
     }
 
