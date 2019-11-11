@@ -3,7 +3,6 @@ package slipp.controller;
 import nextstep.annotation.Inject;
 import nextstep.mvc.JspView;
 import nextstep.mvc.ModelAndView;
-import nextstep.mvc.tobe.AbstractNewController;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
