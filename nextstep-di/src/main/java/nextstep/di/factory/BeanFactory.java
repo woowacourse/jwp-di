@@ -66,10 +66,11 @@ public class BeanFactory {
         return BeanUtils.instantiateClass(constructor, args.toArray());
     }
 
-    private Object defaultConstructorInstantiate(Class<?> clazz) {
+    public Object defaultConstructorInstantiate(Class<?> clazz) {
         try {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            log.error("Fail to instantiate by default constructor : ", e);
             throw new ScannerException(e);
         }
     }
