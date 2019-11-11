@@ -50,7 +50,7 @@ public class BeanFactoryTest {
     @Test
     @DisplayName("controller들 잘 가져오는지 확인")
     public void getControllers() {
-        Map<Class<?>, Object> controllers = beanFactory.getControllers();
+        Map<Class<?>, Object> controllers = beanFactory.getBeansOf(Controller.class);
 
         assertThat(controllers).hasSize(1);
         assertThat(controllers.containsKey(QnaController.class)).isTrue();
