@@ -1,4 +1,4 @@
-package nextstep.di.factory.constructor;
+package nextstep.di.factory.constructor.notdefault;
 
 import nextstep.stereotype.Controller;
 

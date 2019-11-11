@@ -1,6 +1,9 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,15 +53,26 @@ public class BeanFactory {
             return;
         }
 
+        checkIfBean(concreteClass);
+
         checkCircularReference(concreteClass, waitingForInitializationBeans);
         waitingForInitializationBeans.add(concreteClass);
 
         beans.put(concreteClass, createBean(concreteClass, waitingForInitializationBeans));
     }
 
+    private void checkIfBean(Class<?> concreteClass) {
+        List<Class<? extends Annotation>> annotations = Arrays.asList(Controller.class, Service.class, Repository.class);
+
+        boolean isNotBean = annotations.stream().noneMatch(concreteClass::isAnnotationPresent);
+        if (isNotBean) {
+            throw new IllegalStateException("Bean으로 등록되지 않은 클래스는 파라미터에 포함될 수 없습니다.");
+        }
+    }
+
     private void checkCircularReference(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {
         if (waitingForInitializationBeans.contains(clazz)) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("순환 참조가 발생했습니다.");
         }
     }
 
@@ -85,7 +99,7 @@ public class BeanFactory {
         return Arrays.stream(concreteClass.getConstructors())
                 .filter(this::isDefaultConstructor)
                 .findFirst()
-                .orElseThrow(IllegalStateException::new);
+                .orElseThrow(() -> new IllegalStateException("주입 가능한 생성자가 존재하지 않습니다."));
     }
 
     private boolean isDefaultConstructor(Constructor<?> beanConstructor) {

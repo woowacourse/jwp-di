@@ -27,8 +27,8 @@ public class BeanFactoryTest {
 
     private static final String NEXTSTEP_DI_FACTORY_EXAMPLE = "nextstep.di.factory.example";
     private static final String NEXTSTEP_DI_FACTORY_CIRCULAR = "nextstep.di.factory.circular";
-    private static final String NEXTSTEP_DI_FACTORY_CONSTRUCTOR = "nextstep.di.factory.constructor";
-
+    private static final String NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTDEFAULT = "nextstep.di.factory.constructor.notdefault";
+    private static final String NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTBEAN = "nextstep.di.factory.constructor.notbean";
 
     @Test
     public void di() {
@@ -71,6 +71,12 @@ public class BeanFactoryTest {
     }
 
     @Test
+    @DisplayName("생성자 파라미터에 Bean이 아닌 클래스형이 포함됐을 때 테스트")
+    void constructorNotBean() {
+        assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTBEAN));
+    }
+
+    @Test
     @DisplayName("순환참조 테스트")
     void circularReference() {
         assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CIRCULAR));
@@ -93,7 +99,7 @@ public class BeanFactoryTest {
     @Test
     @DisplayName("기본 생성자가 존재하지 않고 Inject 어노테이션도 없을 경우 예외 테스트")
     void noDefaultConstructor() {
-        assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CONSTRUCTOR));
+        assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTDEFAULT));
     }
 
     @SuppressWarnings("unchecked")
