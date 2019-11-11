@@ -50,10 +50,21 @@ public class BeanFactory {
             return;
         }
 
-        checkCircularReference(concreteClass, waitingForInitializationBeans);
-        waitingForInitializationBeans.add(concreteClass);
+        validateBean(waitingForInitializationBeans, concreteClass);
 
         beans.put(concreteClass, createBean(concreteClass, waitingForInitializationBeans));
+    }
+
+    private void validateBean(Set<Class<?>> waitingForInitializationBeans, Class<?> concreteClass) {
+        canInitializeBean(concreteClass);
+        checkCircularReference(concreteClass, waitingForInitializationBeans);
+        waitingForInitializationBeans.add(concreteClass);
+    }
+
+    private void canInitializeBean(Class<?> concreteClass) {
+        if (!preInstanticateBeans.contains(concreteClass)) {
+            throw new IllegalStateException();
+        }
     }
 
     private void checkCircularReference(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {

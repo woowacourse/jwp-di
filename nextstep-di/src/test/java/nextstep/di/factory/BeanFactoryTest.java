@@ -28,6 +28,7 @@ public class BeanFactoryTest {
     private static final String NEXTSTEP_DI_FACTORY_EXAMPLE = "nextstep.di.factory.example";
     private static final String NEXTSTEP_DI_FACTORY_CIRCULAR = "nextstep.di.factory.circular";
     private static final String NEXTSTEP_DI_FACTORY_CONSTRUCTOR = "nextstep.di.factory.constructor";
+    private static final String NEXTSTEP_DI_FACTORY_NOT_BEAN = "nextstep.di.factory.nobean";
 
 
     @Test
@@ -94,6 +95,20 @@ public class BeanFactoryTest {
     @DisplayName("기본 생성자가 존재하지 않고 Inject 어노테이션도 없을 경우 예외 테스트")
     void noDefaultConstructor() {
         assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CONSTRUCTOR));
+    }
+
+    @Test
+    @DisplayName("빈이 아닌걸 Inject 주입 테스트")
+    void injectNotBean() {
+        assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_NOT_BEAN));
+    }
+
+    @Test
+    @DisplayName("다른 패키지 빈 생성 테스트")
+    void getOtherPackageBeans() {
+        BeanFactory beanFactory = getBeanFactory(NEXTSTEP_DI_FACTORY_NOT_BEAN);
+        beanFactory.initialize();
+        assertThat(beanFactory.getBean(MyQnaService.class)).isNull();
     }
 
     @SuppressWarnings("unchecked")
