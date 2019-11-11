@@ -32,8 +32,13 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> clazz : preInstantiateBeans) {
-            beans.put(clazz, instantiate(clazz));
+            putBean(clazz);
         }
+    }
+
+    private Object putBean(Class<?> clazz) {
+        beans.put(clazz, instantiate(clazz));
+        return beans.get(clazz);
     }
 
     private Object instantiate(Class<?> clazz) {
@@ -59,7 +64,7 @@ public class BeanFactory {
     private Object[] getParameters(Constructor<?> constructor) {
         return Arrays.stream(constructor.getParameterTypes())
                 .map(clazz -> BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans))
-                .map(this::instantiate)
+                .map(this::putBean)
                 .toArray();
     }
 
