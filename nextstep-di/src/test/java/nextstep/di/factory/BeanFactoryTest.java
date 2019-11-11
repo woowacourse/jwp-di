@@ -12,8 +12,6 @@ import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     private static final List<Class<?>> NOT_BEAN_PACKAGE_BEANS = Arrays.asList(InjectNotBean.class);
     private static final List<Class<?>> CIRCULARDEPENDENCY_PACKAGE_BEANS = Arrays.asList(CircularDependenceA.class, CircularDependenceB.class);
@@ -76,7 +73,6 @@ class BeanFactoryTest {
     @DisplayName("순환참조 테스트")
     void circularReference() {
         assertThrows(IllegalStateException.class, () -> getBeanFactory(CIRCULARDEPENDENCY_PACKAGE_BEANS));
-
     }
 
     @Test
