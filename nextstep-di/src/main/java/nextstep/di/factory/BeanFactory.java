@@ -36,7 +36,7 @@ public class BeanFactory {
 
     public Map<Class<?>, Object> getControllers() {
         Map<Class<?>, Object> controllers = Maps.newHashMap();
-        for (Class<?> clazz : preInstantiatedBeans) {
+        for (Class<?> clazz : beans.keySet()) {
             if (clazz.isAnnotationPresent(Controller.class)) {
                 controllers.put(clazz, beans.get(clazz));
             }
