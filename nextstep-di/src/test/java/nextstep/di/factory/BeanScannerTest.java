@@ -2,9 +2,6 @@ package nextstep.di.factory;
 
 import nextstep.BeanScanner;
 import nextstep.di.factory.example.*;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -16,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BeanScannerTest {
 
     private BeanScanner beanScanner = new BeanScanner("nextstep.di.factory");
-    private Set<Class<?>> scan = beanScanner.scan(Controller.class, Service.class, Repository.class);
+    private Set<Class<?>> scan = beanScanner.scan();
 
     @ParameterizedTest
     @ValueSource(classes = {QnaController.class, MyQnaService.class, JdbcUserRepository.class, JdbcQuestionRepository.class})
