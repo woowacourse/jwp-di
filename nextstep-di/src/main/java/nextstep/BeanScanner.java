@@ -18,7 +18,7 @@ public class BeanScanner {
     }
 
     @SuppressWarnings("unchecked")
-    public Set<Class<?>> scan(Class<? extends Annotation>... annotations) {
+    public Set<Class<?>> scan(Set<Class<? extends Annotation>> annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
 
         for (Class<? extends Annotation> annotation : annotations) {

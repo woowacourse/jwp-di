@@ -7,9 +7,7 @@ import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
+import nextstep.stereotype.BeanAnnotations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -36,7 +34,7 @@ class DispatcherServletTest {
         dispatcher = new DispatcherServlet();
 
         BeanScanner beanScanner = new BeanScanner("slipp.controller");
-        BeanFactory beanFactory = new BeanFactory(beanScanner.scan(Controller.class, Service.class, Repository.class));
+        BeanFactory beanFactory = new BeanFactory(beanScanner.scan(BeanAnnotations.getClazz()));
         beanFactory.initialize();
 
         dispatcher.addHandlerMpping(new AnnotationHandlerMapping(beanFactory));
