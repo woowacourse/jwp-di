@@ -60,18 +60,18 @@ public class BeanFactory {
     }
 
     private void validateInitialization(Set<Class<?>> waitingForInitializationBeans, Class<?> concreteClass) {
-        isValidBean(concreteClass);
-        isCircularReference(concreteClass, waitingForInitializationBeans);
+        validateBean(concreteClass);
+        validateCircularReference(concreteClass, waitingForInitializationBeans);
         waitingForInitializationBeans.add(concreteClass);
     }
 
-    private void isValidBean(Class<?> concreteClass) {
+    private void validateBean(Class<?> concreteClass) {
         if (!preInstanticateBeans.contains(concreteClass)) {
             throw new IllegalStateException("해당 객체가 빈으로 등록되지 않았습니다.");
         }
     }
 
-    private void isCircularReference(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {
+    private void validateCircularReference(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {
         if (waitingForInitializationBeans.contains(clazz)) {
             throw new IllegalStateException("순환 참조가 발생합니다.");
         }
