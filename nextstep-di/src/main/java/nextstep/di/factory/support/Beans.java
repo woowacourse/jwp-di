@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.factory.support;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.BeanNotExistException;

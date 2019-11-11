@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.factory.support;
 
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
