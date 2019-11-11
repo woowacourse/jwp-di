@@ -4,7 +4,7 @@ import nextstep.stereotype.Service;
 
 @Service
 public class TestService {
-    public TestService() {
+    public TestService(TestServiceObject object) {
     }
 }
 
