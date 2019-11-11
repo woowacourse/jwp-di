@@ -69,7 +69,7 @@ public class BeanFactory {
     private Object registerBean(final Class<?> clazz) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstanticateBeans);
         Object bean = BeanUtils.instantiateClass(concreteClass);
-        beans.put(clazz, bean);
+        putBean(clazz, bean);
         return bean;
     }
 
@@ -81,7 +81,11 @@ public class BeanFactory {
         }
 
         Object bean = BeanUtils.instantiateClass(injectedConstructor, params.toArray());
-        beans.put(clazz, bean);
+        putBean(clazz, bean);
         return bean;
+    }
+
+    private Object putBean(final Class<?> clazz, final Object bean) {
+        return beans.put(clazz, bean);
     }
 }
