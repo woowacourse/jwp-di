@@ -22,6 +22,6 @@ class ConfigurationBeanScannerTest {
 
     @Test
     void Configuration_없을경우_예외처리() {
-        assertThrows(IllegalArgumentException.class, () -> new ConfigurationBeanScanner(ExampleConfig.class));
+        assertThrows(IllegalStateException.class, () -> new ConfigurationBeanScanner(ExampleConfig.class));
     }
 }

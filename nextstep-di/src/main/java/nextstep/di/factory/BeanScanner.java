@@ -12,8 +12,8 @@ public interface BeanScanner {
     Set<Class<?>> getClassTypes();
 
     @SuppressWarnings("uncheked")
-    default Set<Class<?>> getTypesAnnotatedWith(Object[] basePackage, Class<? extends Annotation>... annotations) {
-        Reflections reflections = new Reflections(basePackage);
+    default Set<Class<?>> getTypesAnnotatedWith(Object[] basePackages, Class<? extends Annotation>... annotations) {
+        Reflections reflections = new Reflections(basePackages);
         return Stream.of(annotations)
                 .map(reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)

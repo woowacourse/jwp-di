@@ -15,15 +15,14 @@ public class ConfigurationBeanScanner implements BeanScanner {
     private final Set<Class<?>> classTypes;
 
     public ConfigurationBeanScanner(Class<?>... configurations) {
-        this.basePackages = getBasePackages(configurations);
+        this.basePackages = initBasePackages(configurations);
         if (ArrayUtils.isEmpty(basePackages)) {
-            throw new IllegalArgumentException("ComponentScan이 없습니다.");
+            throw new IllegalStateException("ComponentScan이 없습니다.");
         }
         this.classTypes = getTypesAnnotatedWith(basePackages, COMPONENT_ANNOTATION);
     }
 
-    // TODO: 2019/11/11 가변인자 혹은 이름
-    private Object[] getBasePackages(Class<?>... configurations) {
+    private Object[] initBasePackages(Class<?>... configurations) {
         return Stream.of(configurations)
                 .filter(clazz -> clazz.isAnnotationPresent(ComponentScan.class))
                 .map(clazz -> clazz.getAnnotation(ComponentScan.class))

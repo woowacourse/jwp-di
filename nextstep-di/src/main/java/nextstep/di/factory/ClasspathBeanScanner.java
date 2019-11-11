@@ -11,8 +11,8 @@ public class ClasspathBeanScanner implements BeanScanner {
 
     private final Set<Class<?>> classTypes;
 
-    public ClasspathBeanScanner(Object... basePackage) {
-        this.classTypes = getTypesAnnotatedWith(basePackage, COMPONENT_ANNOTATIONS);
+    public ClasspathBeanScanner(Object... basePackages) {
+        this.classTypes = getTypesAnnotatedWith(basePackages, COMPONENT_ANNOTATIONS);
     }
 
     @Override

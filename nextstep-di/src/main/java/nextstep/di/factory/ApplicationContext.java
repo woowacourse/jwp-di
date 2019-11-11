@@ -14,11 +14,11 @@ public class ApplicationContext implements BeanFactory {
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(configurations);
         ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(configurationBeanScanner.getBasePackages());
 
-        Set<Class<?>> clazz = Stream.of(configurationBeanScanner.getClassTypes(), classpathBeanScanner.getClassTypes())
+        Set<Class<?>> preInstantiatedBeans = Stream.of(configurationBeanScanner.getClassTypes(), classpathBeanScanner.getClassTypes())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        beanFactory = new DefaultBeanFactory(clazz);
+        beanFactory = new DefaultBeanFactory(preInstantiatedBeans);
     }
 
     @Override

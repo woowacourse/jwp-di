@@ -30,17 +30,25 @@ public class DefaultBeanFactory implements BeanFactory {
 
     private void initBeanDefinition(final Set<Class<?>> preInstantiatedBeans) {
         preInstantiatedBeans.forEach(clazz -> {
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
-            DefaultBeanDefinition dbd = new DefaultBeanDefinition(concreteClass);
-            beanDefinitions.put(dbd.getBeanClass(), dbd);
-
-            Stream.of(clazz.getMethods())
-                    .filter(method -> method.isAnnotationPresent(Bean.class))
-                    .forEach(method -> {
-                        MethodBeanDefinition mbd = new MethodBeanDefinition(getOrCreateBean(dbd), method.getReturnType(), method);
-                        beanDefinitions.put(mbd.getBeanClass(), mbd);
-                    });
+            DefaultBeanDefinition dbd = initDefaultBeanDefinition(preInstantiatedBeans, clazz);
+            initMethodBeanDefinition(clazz, dbd);
         });
+    }
+
+    private DefaultBeanDefinition initDefaultBeanDefinition(final Set<Class<?>> preInstantiatedBeans, final Class<?> clazz) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
+        DefaultBeanDefinition dbd = new DefaultBeanDefinition(concreteClass);
+        beanDefinitions.put(dbd.getBeanClass(), dbd);
+        return dbd;
+    }
+
+    private void initMethodBeanDefinition(final Class<?> clazz, final DefaultBeanDefinition dbd) {
+        Stream.of(clazz.getMethods())
+                .filter(method -> method.isAnnotationPresent(Bean.class))
+                .forEach(method -> {
+                    MethodBeanDefinition mbd = new MethodBeanDefinition(getOrCreateBean(dbd), method.getReturnType(), method);
+                    beanDefinitions.put(mbd.getBeanClass(), mbd);
+                });
     }
 
     private void initBeans() {
@@ -52,21 +60,22 @@ public class DefaultBeanFactory implements BeanFactory {
         if (beans.containsKey(beanDefinition.getBeanClass())) {
             return beans.get(beanDefinition.getBeanClass());
         }
-
         logger.debug("create Class = {}", beanDefinition.getBeanClass());
 
-        Object[] parameters = Stream.of(beanDefinition.getParameterTypes())
-                .map(parameterType -> {
-                    Class<?> concreteClass = BeanFactoryUtils.findConcreteClassByBeanDefinition(parameterType, beanDefinitions.values());
-                    return getOrCreateBean(beanDefinitions.get(concreteClass));
-                })
-                .toArray();
-
+        Object[] parameters = createParameters(beanDefinition);
         Object bean = beanDefinition.createBean(parameters);
         beans.put(beanDefinition.getBeanClass(), bean);
         return bean;
     }
 
+    private Object[] createParameters(final BeanDefinition beanDefinition) {
+        return Stream.of(beanDefinition.getParameterTypes())
+                .map(parameterType -> {
+                    Class<?> concreteClass = BeanFactoryUtils.findConcreteClassByBeanDefinition(parameterType, beanDefinitions.values());
+                    return getOrCreateBean(beanDefinitions.get(concreteClass));
+                })
+                .toArray();
+    }
 
     private Object getOrCreateBean(BeanDefinition beanDefinition) {
         return beans.getOrDefault(beanDefinition.getBeanClass(), createBean(beanDefinition));
