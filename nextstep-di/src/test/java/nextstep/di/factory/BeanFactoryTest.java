@@ -112,7 +112,7 @@ public class BeanFactoryTest {
         assertThat(beanFactory.getBean(AnyService.class)).isNull();
     }
 
-    public BeanFactory getBeanFactory(List<Class<?>> classes) {
+    private BeanFactory getBeanFactory(List<Class<?>> classes) {
         BeanFactory beanFactory = new BeanFactory(Sets.newHashSet(classes));
         beanFactory.initialize();
 

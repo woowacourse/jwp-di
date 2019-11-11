@@ -46,30 +46,34 @@ public class BeanFactory {
 
     private void initBean(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {
         Class<?> concreteClass = findConcreteClass(clazz, preInstanticateBeans);
-        if (beans.containsKey(concreteClass)) {
+        if (isAlreadyInitializedBean(concreteClass)) {
             return;
         }
 
-        validateBean(waitingForInitializationBeans, concreteClass);
+        validateInitialization(waitingForInitializationBeans, concreteClass);
 
         beans.put(concreteClass, createBean(concreteClass, waitingForInitializationBeans));
     }
 
-    private void validateBean(Set<Class<?>> waitingForInitializationBeans, Class<?> concreteClass) {
-        canInitializeBean(concreteClass);
-        checkCircularReference(concreteClass, waitingForInitializationBeans);
+    private boolean isAlreadyInitializedBean(Class<?> concreteClass) {
+        return beans.containsKey(concreteClass);
+    }
+
+    private void validateInitialization(Set<Class<?>> waitingForInitializationBeans, Class<?> concreteClass) {
+        isValidBean(concreteClass);
+        isCircularReference(concreteClass, waitingForInitializationBeans);
         waitingForInitializationBeans.add(concreteClass);
     }
 
-    private void canInitializeBean(Class<?> concreteClass) {
+    private void isValidBean(Class<?> concreteClass) {
         if (!preInstanticateBeans.contains(concreteClass)) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("해당 객체가 빈으로 등록되지 않았습니다.");
         }
     }
 
-    private void checkCircularReference(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {
+    private void isCircularReference(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {
         if (waitingForInitializationBeans.contains(clazz)) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("순환 참조가 발생합니다.");
         }
     }
 
@@ -96,7 +100,7 @@ public class BeanFactory {
         return Arrays.stream(concreteClass.getConstructors())
                 .filter(this::isDefaultConstructor)
                 .findFirst()
-                .orElseThrow(IllegalStateException::new);
+                .orElseThrow(() -> new IllegalStateException("기본 생성자가 존재하지 않습니다."));
     }
 
     private boolean isDefaultConstructor(Constructor<?> beanConstructor) {
