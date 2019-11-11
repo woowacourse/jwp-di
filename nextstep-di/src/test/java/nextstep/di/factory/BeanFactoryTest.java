@@ -19,7 +19,9 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        beanFactory = new BeanFactory("nextstep.di.factory.example");
+        beanFactory = new BeanFactory();
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.doScan("nextstep.di.factory.example");
         beanFactory.initialize();
     }
 
@@ -47,7 +49,7 @@ public class BeanFactoryTest {
     @DisplayName("해당 패키지에 없는 클래스는 찾지 못한다.")
     void getControllersFail() {
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
-        assertThat(controllers.containsKey(BeanScanner.class)).isFalse();
+        assertThat(controllers.containsKey(ClasspathBeanScanner.class)).isFalse();
     }
 
     @Test
@@ -59,6 +61,6 @@ public class BeanFactoryTest {
     @Test
     @DisplayName("다른 패키지에 있는 클래스의 빈을 찾는 경우 예외가 발생한다.")
     void getBeanFail() {
-        assertThrows(IllegalArgumentException.class, () -> beanFactory.getBean(BeanScanner.class));
+        assertThrows(RuntimeException.class, () -> beanFactory.getBean(ClasspathBeanScanner.class));
     }
 }

@@ -15,44 +15,41 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     private Set<BeanDefinition> beanDefinitions = Sets.newHashSet();
-
-    public BeanFactory(Object... basePackage) {
-        BeanScanner beanScanner = new BeanScanner(basePackage);
-        this.preInstanticateBeans = beanScanner.getTypesAnnotated();
-    }
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         if (!beans.containsKey(requiredType)) {
             registerBean(requiredType);
         }
-        return (T) beans.get(requiredType);
+        return (T) beans.get(findConcreteClass(requiredType));
     }
 
     public void initialize() {
-        for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            registerBean(preInstanticateBean);
-        }
-    }
-
-    public void initialize2() {
         for (BeanDefinition beanDefinition : beanDefinitions) {
             registerBean(beanDefinition);
         }
     }
 
     private void registerBean(Class<?> preInstanticateBean) {
-        BeanDefinition beanDefinition = beanDefinitions.stream()
-                .filter(bd -> bd.getBeanClass().equals(preInstanticateBean))
+        Class<?> concreteClass = findConcreteClass(preInstanticateBean);
+
+        BeanDefinition beanDefinition = this.beanDefinitions.stream()
+                .filter(bd -> bd.getBeanClass().equals(concreteClass))
                 .findAny()
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 빈 입니다."));
 
         registerBean(beanDefinition);
+    }
+
+    private Class<?> findConcreteClass(Class<?> preInstanticateBean) {
+        Set<Class<?>> beanClazz = this.beanDefinitions.stream()
+                .map(BeanDefinition::getBeanClass)
+                .collect(Collectors.toSet());
+
+        return BeanFactoryUtils.findConcreteClass(preInstanticateBean, beanClazz);
     }
 
     private void registerBean(BeanDefinition beanDefinition) {
@@ -62,7 +59,16 @@ public class BeanFactory {
 
         if (beanDefinition instanceof MethodBeanDefinition) {
             createMethodBean((MethodBeanDefinition) beanDefinition);
+            return;
         }
+
+        createDefaultBean((DefaultBeanDefinition) beanDefinition);
+    }
+
+    private void createDefaultBean(DefaultBeanDefinition beanDefinition) {
+        Class<?> beanClass = beanDefinition.getBeanClass();
+
+        beans.put(beanClass, createBean(beanClass));
     }
 
     private void createMethodBean(MethodBeanDefinition beanDefinition) {
@@ -80,22 +86,10 @@ public class BeanFactory {
         }
     }
 
-    private void validateClassType(Class<?> preInstanticateBean) {
-        Class<?> requiredType = preInstanticateBean;
-        if (requiredType.isInterface()) {
-            requiredType = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans);
-        }
-
-        if (!preInstanticateBeans.contains(requiredType)) {
-            logger.error("해당 패키지에 존재하지 않는 클래스 입니다.");
-            throw new IllegalArgumentException("해당 클래스를 찾을 수 없습니다.");
-        }
-    }
-
     private Object createBean(Class<?> preInstanticateBean) {
         try {
             if (preInstanticateBean.isInterface()) {
-                return createBean(BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans));
+                return createBean(findConcreteClass(preInstanticateBean));
             }
             return getInstance(preInstanticateBean);
         } catch (Exception e) {
