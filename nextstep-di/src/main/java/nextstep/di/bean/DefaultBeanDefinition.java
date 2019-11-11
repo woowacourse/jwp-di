@@ -5,7 +5,6 @@ import nextstep.exception.BeanDefinitionException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Optional;
 
 public class DefaultBeanDefinition implements BeanDefinition {
 
@@ -14,14 +13,16 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
     public DefaultBeanDefinition(final Class<?> beanClass) {
         this.beanClass = beanClass;
-        Optional<Constructor<?>> maybeInjectedConstructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
-        this.constructor = maybeInjectedConstructor.orElseGet(() -> {
-            try {
-                return beanClass.getConstructor();
-            } catch (NoSuchMethodException e) {
-                throw new BeanDefinitionException(e);
-            }
-        });
+        this.constructor = BeanFactoryUtils.getInjectedConstructor(beanClass)
+                                            .orElseGet(() -> getDefaultConstructor(beanClass));
+    }
+
+    private Constructor<?> getDefaultConstructor(final Class<?> beanClass) {
+        try {
+            return beanClass.getConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new BeanDefinitionException(e);
+        }
     }
 
     @Override
