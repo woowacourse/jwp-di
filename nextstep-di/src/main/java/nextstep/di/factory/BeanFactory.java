@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,8 @@ public class BeanFactory {
     private Set<Class<?>> preInstanticateBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+
+    private Set<MethodBeanDefinition> beanDefinitions = Sets.newHashSet();
 
     public BeanFactory(Object... basePackage) {
         BeanScanner beanScanner = new BeanScanner(basePackage);
@@ -92,5 +95,9 @@ public class BeanFactory {
         return beans.values().stream()
                 .filter(bean -> bean.getClass().isAnnotationPresent(Controller.class))
                 .collect(Collectors.toMap(Object::getClass, bean -> bean));
+    }
+
+    public void register(Set<MethodBeanDefinition> beanDefinitions) {
+        this.beanDefinitions.addAll(beanDefinitions);
     }
 }
