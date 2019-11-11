@@ -2,8 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.example.*;
 import nextstep.exception.BeanInstantiationException;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -25,18 +24,14 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     private Reflections reflections;
-    private BeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
         reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
-        beanFactory.initialize();
     }
 
     @DisplayName("Bean 초기화 확인")
@@ -70,16 +65,29 @@ public class BeanFactoryTest {
         assertThat(beanFactory.getController()).doesNotContain(TestClassWithoutController.class);
     }
 
+    @DisplayName("Bean 생성과정에서 주입된 객체가 Bean으로 등록된 객체인지 확인")
     @Test
-    public void di() throws Exception {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
+    public void di() {
+        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        BeanFactory beanFactory = new BeanFactory(preInstanticateClazz);
+        beanFactory.initialize();
 
+        QnaController qnaController = beanFactory.getBean(QnaController.class);
         assertNotNull(qnaController);
-        assertNotNull(qnaController.getQnaService());
+        assertThat(beanFactory.getBean(QnaController.class)).isInstanceOf(QnaController.class);
 
         MyQnaService qnaService = qnaController.getQnaService();
-        assertNotNull(qnaService.getUserRepository());
-        assertNotNull(qnaService.getQuestionRepository());
+        assertNotNull(qnaService);
+        assertThat(qnaService).isEqualTo(beanFactory.getBean(MyQnaService.class));
+
+        UserRepository userRepository = qnaService.getUserRepository();
+        QuestionRepository questionRepository = qnaService.getQuestionRepository();
+
+        assertNotNull(userRepository);
+        assertNotNull(questionRepository);
+
+        assertThat(userRepository).isEqualTo(beanFactory.getBean(JdbcUserRepository.class));
+        assertThat(questionRepository).isEqualTo(beanFactory.getBean(JdbcQuestionRepository.class));
     }
 
     @SuppressWarnings("unchecked")
