@@ -1,21 +1,27 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Maps;
+import nextstep.di.factory.support.BeanFactoryUtils;
+import nextstep.di.factory.support.Beans;
+import nextstep.di.factory.support.ReflectionUtils;
+import nextstep.di.scanner.BeanScanner;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.lang.reflect.Constructor;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
+    private Set<Class<?>> preInstantiateBeans;
+    private Beans beans;
 
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
-
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    public BeanFactory(BeanScanner beanScanner) {
+        this.preInstantiateBeans = beanScanner.scan();
+        this.beans = new Beans();
     }
 
     @SuppressWarnings("unchecked")
@@ -24,6 +30,50 @@ public class BeanFactory {
     }
 
     public void initialize() {
+        for (Class clazz : preInstantiateBeans) {
+            instantiateBean(clazz);
+        }
+    }
 
+    private Object instantiateBean(Class<?> clazz) {
+        return beans.instantiate(clazz, () -> createInstance(clazz));
+    }
+
+    private Object createInstance(Class<?> clazz) {
+        logger.debug("after getInstance()...");
+        logger.debug("Class Type : {}", clazz);
+
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+
+        if (injectedConstructor == null) {
+            return createBean(clazz);
+        }
+
+        Object[] instances = createParameters(injectedConstructor.getParameterTypes());
+        return createBeanWithParameters(injectedConstructor, instances);
+    }
+
+    private Object[] createParameters(Class<?>[] parameterTypes) {
+        Object[] instances = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            Class<?> parameterType = BeanFactoryUtils.findConcreteClass(parameterTypes[i], preInstantiateBeans);
+            instances[i] = instantiateBean(parameterType);
+        }
+        return instances;
+    }
+
+    private Object createBean(Class<?> clazz) {
+        return ReflectionUtils.newInstance(clazz);
+    }
+
+    private Object createBeanWithParameters(Constructor<?> injectedConstructor, Object[] instances) {
+        return ReflectionUtils.newInstance(injectedConstructor, instances);
+    }
+
+    public Set<Class<?>> getControllers() {
+        return preInstantiateBeans.stream()
+                .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
+                .collect(toSet());
     }
 }
+

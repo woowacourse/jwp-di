@@ -1,6 +1,8 @@
 package nextstep.jdbc;
 
-import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,15 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-    private DataSource dataSource;
+    private static final Logger logger = LoggerFactory.getLogger( JdbcTemplate.class );
 
-    public JdbcTemplate(DataSource dataSource) {
-        super();
-        this.dataSource = dataSource;
+    public JdbcTemplate() {
     }
 
     public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {
-        try (Connection conn = dataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pss.setParameters(pstmt);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -30,13 +31,15 @@ public class JdbcTemplate {
     }
 
     public void update(PreparedStatementCreator psc, KeyHolder holder) {
-        try (Connection conn = dataSource.getConnection()) {
-            PreparedStatement ps = psc.createPreparedStatement(conn);
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement ps = psc.createPreparedStatement(conn)) {
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                holder.setId(rs.getLong(1));
+                long generatedKey = rs.getLong(1);
+                logger.debug("Generated Key : {}", generatedKey);
+                holder.setId(generatedKey);
             }
             rs.close();
         } catch (SQLException e) {
@@ -57,11 +60,17 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rm, PreparedStatementSetter pss) throws DataAccessException {
-        ResultSet rs = null;
-        try (Connection conn = dataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pss.setParameters(pstmt);
-            rs = pstmt.executeQuery();
+            return mapResultSetToObject(rm, pstmt);
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
 
+    private <T> List<T> mapResultSetToObject(RowMapper<T> rm, PreparedStatement pstmt) {
+        try(ResultSet rs = pstmt.executeQuery()) {
             List<T> list = new ArrayList<T>();
             while (rs.next()) {
                 list.add(rm.mapRow(rs));
@@ -69,14 +78,6 @@ public class JdbcTemplate {
             return list;
         } catch (SQLException e) {
             throw new DataAccessException(e);
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-            } catch (SQLException e) {
-                throw new DataAccessException(e);
-            }
         }
     }
 
@@ -85,12 +86,9 @@ public class JdbcTemplate {
     }
 
     private PreparedStatementSetter createPreparedStatementSetter(Object... parameters) {
-        return new PreparedStatementSetter() {
-            @Override
-            public void setParameters(PreparedStatement pstmt) throws SQLException {
-                for (int i = 0; i < parameters.length; i++) {
-                    pstmt.setObject(i + 1, parameters[i]);
-                }
+        return pstmt -> {
+            for (int i = 0; i < parameters.length; i++) {
+                pstmt.setObject(i + 1, parameters[i]);
             }
         };
     }
