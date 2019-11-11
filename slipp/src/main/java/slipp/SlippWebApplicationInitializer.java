@@ -21,17 +21,14 @@ import java.util.Set;
 
 public class SlippWebApplicationInitializer  implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
+    public static final String BASE_DIR = "slipp.controller";
+
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        BeanScanner beanScanner = new BeanScanner("slipp.controller");
-        Set<Class<?>> preInstantiatedClazz = beanScanner.getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-
-        BeanFactory beanFactory = new BeanFactory(preInstantiatedClazz);
-        beanFactory.initialize();
+        Map<Class<?>, Object> beans = createBeans(BASE_DIR);
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-        Map<Class<?>, Object> beans = beanFactory.getBeans();
         dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(beans));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
@@ -42,5 +39,13 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
         dispatcher.addMapping("/");
 
         log.info("Start MyWebApplication Initializer");
+    }
+
+    private Map<Class<?>, Object> createBeans(String baseDir) {
+        BeanScanner beanScanner = new BeanScanner(baseDir);
+        Set<Class<?>> preInstantiatedClazz = beanScanner.getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        BeanFactory beanFactory = new BeanFactory(preInstantiatedClazz);
+        beanFactory.initialize();
+        return beanFactory.getBeans();
     }
 }

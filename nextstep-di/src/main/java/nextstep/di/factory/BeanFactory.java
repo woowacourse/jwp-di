@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.annotation.Configuration;
 import nextstep.di.factory.exception.CreateBeanException;
 import nextstep.di.factory.exception.CycleReferenceException;
 import nextstep.di.factory.exception.InaccessibleConstructorException;
@@ -32,6 +33,11 @@ public class BeanFactory {
         checkCycleReference(preInstantiateBeans);
 
         preInstantiateBeans.forEach(this::createBeanWithTryCatch);
+        logger.debug("beans created: {}", beans);
+        Set<Class<?>> configurationBeans = beans.keySet().stream()
+                .filter(key -> key.isAnnotationPresent(Configuration.class))
+                .collect(Collectors.toSet());
+        logger.debug("configuration beans: {}", configurationBeans);
     }
 
     private void checkCycleReference(Set<Class<?>> preInstantiateBeans) {

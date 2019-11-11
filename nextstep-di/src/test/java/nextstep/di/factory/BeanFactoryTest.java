@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import nextstep.annotation.Configuration;
 import nextstep.di.factory.example.*;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,8 +27,8 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        beanScanner = new BeanScanner("nextstep.di.factory.example");
-        Set<Class<?>> preInstantiatedClazz = beanScanner.getTypesAnnotatedWith(Repository.class, Service.class, Controller.class);
+        beanScanner = new BeanScanner("nextstep.di.factory.example", "nextstep.annotation");
+        Set<Class<?>> preInstantiatedClazz = beanScanner.getTypesAnnotatedWith(Repository.class, Service.class, Controller.class, Configuration.class);
 
         beanFactory = new BeanFactory(preInstantiatedClazz);
         beanFactory.initialize();
@@ -81,5 +83,17 @@ public class BeanFactoryTest {
         TestService testService = testController.getTestService();
         assertNotNull(testService.getUserRepository());
         assertNotNull(testService.getQuestionRepository());
+    }
+
+    @Test
+    public void configuration_injection_test() {
+        TestJdbcTemplate testJdbcTemplate = beanFactory.getBean(TestJdbcTemplate.class);
+        DataSource testDataSource = beanFactory.getBean(DataSource.class);
+
+        assertNotNull(testJdbcTemplate);
+        assertNotNull(testJdbcTemplate.getDataSource());
+        assertNotNull(testDataSource);
+
+        assertThat(testJdbcTemplate.getDataSource() == testDataSource).isTrue();
     }
 }
