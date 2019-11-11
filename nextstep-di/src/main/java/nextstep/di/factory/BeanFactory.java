@@ -1,21 +1,20 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.util.Map;
 import java.util.Set;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Set<Class<?>> preInstantiateBeans;
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Beans beans;
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
+        this.beans = new Beans();
     }
 
     @SuppressWarnings("unchecked")
@@ -30,13 +29,7 @@ public class BeanFactory {
     }
 
     private Object instantiateBean(Class<?> clazz) {
-        logger.debug("getSingletonInstance()...");
-        if (beans.containsKey(clazz)) {
-            return beans.get(clazz);
-        }
-        Object instance = createInstance(clazz);
-        beans.put(clazz, instance);
-        return instance;
+        return beans.instantiate(clazz, () -> createInstance(clazz));
     }
 
     private Object createInstance(Class<?> clazz) {
