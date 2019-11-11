@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class BeanFactoryTest {
+class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     private static final List<Class<?>> NOT_BEAN_PACKAGE_BEANS = Arrays.asList(InjectNotBean.class);
@@ -33,7 +33,7 @@ public class BeanFactoryTest {
             , UserRepository.class);
 
     @Test
-    public void di() {
+    void di() {
         QnaController qnaController = getBeanFactory(EXAMPLE_PACKAGE_BEANS).getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -105,7 +105,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    @DisplayName("다른 패키지 빈 생성 테스")
+    @DisplayName("다른 패키지 빈 생성 테스트")
     void getOtherPackageBeans() {
         BeanFactory beanFactory = getBeanFactory(EXAMPLE_PACKAGE_BEANS);
         beanFactory.initialize();
