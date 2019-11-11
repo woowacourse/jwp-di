@@ -1,5 +1,6 @@
 package slipp.controller;
 
+import nextstep.mvc.JspView;
 import nextstep.mvc.ModelAndView;
 import nextstep.mvc.tobe.AbstractNewController;
 import nextstep.stereotype.Controller;
@@ -10,10 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
-public class HomeController extends AbstractNewController {
+public class HomeController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return jspView("home.jsp");
+        return new ModelAndView(new JspView("home.jsp"));
     }
 }

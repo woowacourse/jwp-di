@@ -13,13 +13,7 @@ import java.util.List;
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger( JdbcTemplate.class );
 
-    private static JdbcTemplate jdbcTemplate = new JdbcTemplate();
-
-    private JdbcTemplate() {
-    }
-
-    public static JdbcTemplate getInstance() {
-        return jdbcTemplate;
+    public JdbcTemplate() {
     }
 
     public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {
@@ -92,12 +86,9 @@ public class JdbcTemplate {
     }
 
     private PreparedStatementSetter createPreparedStatementSetter(Object... parameters) {
-        return new PreparedStatementSetter() {
-            @Override
-            public void setParameters(PreparedStatement pstmt) throws SQLException {
-                for (int i = 0; i < parameters.length; i++) {
-                    pstmt.setObject(i + 1, parameters[i]);
-                }
+        return pstmt -> {
+            for (int i = 0; i < parameters.length; i++) {
+                pstmt.setObject(i + 1, parameters[i]);
             }
         };
     }

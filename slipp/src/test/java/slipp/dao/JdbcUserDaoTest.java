@@ -1,6 +1,7 @@
 package slipp.dao;
 
 import nextstep.jdbc.ConnectionManager;
+import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -14,17 +15,20 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JdbcUserDaoTest {
+    private JdbcTemplate jdbcTemplate;
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        jdbcTemplate = new JdbcTemplate();
     }
 
     @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        JdbcUserDao jdbcUserDao = new JdbcUserDao();
+        JdbcUserDao jdbcUserDao = new JdbcUserDao(jdbcTemplate);
         jdbcUserDao.insert(expected);
         User actual = jdbcUserDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -37,7 +41,7 @@ public class JdbcUserDaoTest {
 
     @Test
     public void findAll() throws Exception {
-        JdbcUserDao jdbcUserDao = new JdbcUserDao();
+        JdbcUserDao jdbcUserDao = new JdbcUserDao(jdbcTemplate);
         List<User> users = jdbcUserDao.findAll();
         assertThat(users).hasSize(1);
     }

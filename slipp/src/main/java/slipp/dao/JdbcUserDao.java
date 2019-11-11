@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.annotation.Inject;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import nextstep.stereotype.Repository;
@@ -11,7 +12,12 @@ import java.util.List;
 
 @Repository
 public class JdbcUserDao implements UserDao {
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private JdbcTemplate jdbcTemplate;
+
+    @Inject
+    public JdbcUserDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
