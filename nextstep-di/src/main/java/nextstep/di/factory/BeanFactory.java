@@ -1,6 +1,6 @@
 package nextstep.di.factory;
 
-import nextstep.stereotype.Controller;
+import nextstep.di.scanner.BeanScanner;
 import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
@@ -9,21 +9,19 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private final Set<Class<?>> preInstantiateBeans;
+    private final Set<Class<?>> preInstantiateBeans = new HashSet<>();
     private final Map<Class<?>, Object> beans = new HashMap<>();
 
-    public BeanFactory(final Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
-        initialize();
+    public BeanFactory(final BeanScanner... beanScanners) {
+        for (final BeanScanner scanner : beanScanners) {
+            preInstantiateBeans.addAll(scanner.getBeans());
+        }
+        preInstantiateBeans.forEach(this::instantiate);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(final Class<T> requiredType) {
         return (T) beans.get(requiredType);
-    }
-
-    private void initialize() {
-        preInstantiateBeans.forEach(this::instantiate);
     }
 
     @SuppressWarnings("unchecked")
@@ -49,9 +47,10 @@ public class BeanFactory {
         return parameters.toArray();
     }
 
-    public Map<Class<?>, Object> getControllers() {
+    @SuppressWarnings("unchecked")
+    public Map<Class<?>, Object> getAnnotatedClasses(final Class aClass) {
         return preInstantiateBeans.stream()
-                .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
+                .filter(clazz -> clazz.isAnnotationPresent(aClass))
                 .collect(Collectors.toUnmodifiableMap(Function.identity(), beans::get));
     }
 }

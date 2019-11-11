@@ -5,6 +5,7 @@ import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.example.QuestionRepository;
+import nextstep.di.scanner.BeanScanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -30,8 +31,13 @@ class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     void setup() {
         reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstantiateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstantiateClazz);
+        BeanScanner beanScanner = new BeanScanner() {
+            @Override
+            public Set<Class<?>> getBeans() {
+                return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+            }
+        };
+        beanFactory = new BeanFactory(beanScanner);
     }
 
     @Test
