@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
@@ -16,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -65,9 +65,12 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void equals() {
+    public void singleInstanceTest() {
         MyQnaService qnaService = beanFactory.getBean(QnaController.class).getQnaService();
         MyQnaService bean = beanFactory.getBean(MyQnaService.class);
         assertSame(qnaService, bean);
+
+        assertSame(qnaService.getQuestionRepository(), beanFactory.getBean(JdbcQuestionRepository.class));
+        assertSame(qnaService.getUserRepository(), beanFactory.getBean(JdbcUserRepository.class));
     }
 }

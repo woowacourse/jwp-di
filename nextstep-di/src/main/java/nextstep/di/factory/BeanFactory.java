@@ -25,56 +25,45 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class clazz : preInstantiateBeans) {
-            Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-            putInstance(clazz, injectedConstructor);
+            instantiateBean(clazz);
         }
     }
 
-    private void putInstance(Class clazz, Constructor<?> injectedConstructor) {
-        if (hasNotClass(clazz)) {
-            logger.debug("class name : {}, annotation inject constructor: {}", clazz.getName(), injectedConstructor);
-            beans.put(clazz, instantiateBean(clazz, injectedConstructor));
+    private Object instantiateBean(Class<?> clazz) {
+        logger.debug("getSingletonInstance()...");
+        if (beans.containsKey(clazz)) {
+            return beans.get(clazz);
         }
+        Object instance = createInstance(clazz);
+        beans.put(clazz, instance);
+        return instance;
     }
 
-    private boolean hasNotClass(Class clazz) {
-        return !beans.containsKey(clazz);
-    }
+    private Object createInstance(Class<?> clazz) {
+        logger.debug("after getInstance()...");
+        logger.debug("Class Type : {}", clazz);
 
-    private Object instantiateBean(Class<?> clazz, Constructor<?> constructor) {
-        if (constructor == null) {
-            return getBeanOrDefault(clazz);
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+
+        if (injectedConstructor == null) {
+            return createBean(clazz);
         }
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        Object[] parameters = instantiateParameters(parameterTypes);
-        return getBeanOrDefault(constructor, parameters);
-    }
 
-    private Object getBeanOrDefault(Constructor<?> constructor, Object[] parameters) {
-        return putIfAbsent(constructor.getDeclaringClass(), ReflectionUtils.newInstance(constructor, parameters));
-    }
-
-    private Object getBeanOrDefault(Class<?> clazz) {
-        return putIfAbsent(clazz, ReflectionUtils.newInstance(clazz));
-    }
-
-    private Object putIfAbsent(Class<?> clazz, Object instance) {
-        Object bean = beans.getOrDefault(clazz, instance);
-        beans.putIfAbsent(bean.getClass(), bean);
-        return bean;
-    }
-
-    private Object[] instantiateParameters(Class<?>[] parameterTypes) {
+        Class<?> parameterTypes[] = injectedConstructor.getParameterTypes();
         Object[] instances = new Object[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
-            instances[i] = instantiateInjectedConstructor(parameterTypes[i]);
+            Class<?> parameterType = BeanFactoryUtils.findConcreteClass(parameterTypes[i], preInstantiateBeans);
+            instances[i] = instantiateBean(parameterType);
         }
-        return instances;
+        return createBeanWithParameters(injectedConstructor, instances);
     }
 
-    private Object instantiateInjectedConstructor(Class parameterType) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(parameterType);
-        return instantiateBean(concreteClass, injectedConstructor);
+    private Object createBean(Class<?> clazz) {
+        return ReflectionUtils.newInstance(clazz);
+    }
+
+    private Object createBeanWithParameters(Constructor<?> injectedConstructor, Object[] instances) {
+        return ReflectionUtils.newInstance(injectedConstructor, instances);
     }
 }
+
