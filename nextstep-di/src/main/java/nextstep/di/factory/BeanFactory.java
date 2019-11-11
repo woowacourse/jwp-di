@@ -1,14 +1,10 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import nextstep.di.BeanInitiator;
+import nextstep.di.scanner.BeanScanners;
 import nextstep.supports.TopologySort;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,17 +12,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
-    private Set<Class<?>> preInstantiatedTypes = Sets.newHashSet();
-
+    private BeanScanners beanScanners;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory() {
-    }
-
-    public void registerInstantiatedTypes(Set<Class<?>> preInstantiatedTypes) {
-        this.preInstantiatedTypes.addAll(preInstantiatedTypes);
+    public BeanFactory(BeanScanners beanScanners) {
+        this.beanScanners = beanScanners;
     }
 
     public void initialize() {
@@ -35,8 +25,8 @@ public class BeanFactory {
 
     private TopologySort<Class<?>> createTopologySort() {
         return new TopologySort<>(
-                preInstantiatedTypes,
-                type -> getParameterTypes(BeanFactoryUtils.getBeanConstructor(type)),
+                beanScanners.getPreInstantiatedTypes(),
+                type -> getParameterTypes(beanScanners.getBeanInitiator(type)),
                 () -> {
                     throw new IllegalArgumentException("사이클..!!");
                 });
@@ -49,15 +39,17 @@ public class BeanFactory {
     }
 
     private void addBean(Class<?> type) {
-        beans.put(type, instantiate(BeanFactoryUtils.getBeanConstructor(type)));
+        beans.put(type, instantiate(beanScanners.getBeanInitiator(type)));
     }
 
-    private Object instantiate(Constructor<?> constructor) {
-        return BeanUtils.instantiateClass(constructor, getBeans(getParameterTypes(constructor)));
+    private Object instantiate(BeanInitiator beanInitiator) {
+        return beanInitiator.instantiate(getBeans(getParameterTypes(beanInitiator)));
     }
 
-    private List<Class<?>> getParameterTypes(Constructor<?> constructor) {
-        return BeanFactoryUtils.findConcreteClasses(Arrays.asList(constructor.getParameterTypes()), preInstantiatedTypes);
+    private List<Class<?>> getParameterTypes(BeanInitiator beanInitiator) {
+        return BeanFactoryUtils.findConcreteClasses(
+                beanInitiator.getParameterTypes(),
+                beanScanners.getPreInstantiatedTypes());
     }
 
     private Object[] getBeans(List<Class<?>> parameterTypes) {
@@ -71,9 +63,9 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public Map<Class<?>, Object> getBeans(Predicate<Class<?>> predicate) {
+    public Set<Class<?>> getBeanTypes(Predicate<Class<?>> predicate) {
         return beans.keySet().stream()
                 .filter(predicate)
-                .collect(Collectors.toMap(type -> type, this::getBean));
+                .collect(Collectors.toSet());
     }
 }

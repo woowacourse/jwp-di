@@ -10,16 +10,11 @@ import java.util.List;
 
 @Repository
 public class UserDao implements UserRepository {
-    private static final UserDao userDao = new UserDao();
     private JdbcTemplate jdbcTemplate;
 
     @Inject
-    private UserDao(JdbcTemplate jdbcTemplate) {
+    public UserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public static UserDao getInstance() {
-        return userDao;
     }
 
     @Override

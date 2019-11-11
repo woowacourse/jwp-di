@@ -5,7 +5,6 @@ import nextstep.annotation.Inject;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,28 +48,12 @@ public class BeanFactoryUtils {
             }
         }
 
-        throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+        return injectedClazz;
     }
 
     public static List<Class<?>> findConcreteClasses(List<Class<?>> classes, Set<Class<?>> preInstantiatedBeans) {
         return classes.stream()
                 .map(parameter -> findConcreteClass(parameter, preInstantiatedBeans))
                 .collect(Collectors.toList());
-    }
-
-    public static Constructor<?> getBeanConstructor(Class<?> type) {
-        Constructor<?> constructor = getInjectedConstructor(type);
-        if(getInjectedConstructor(type) == null) {
-            return getDefaultConstructor(type);
-        }
-        return constructor;
-    }
-
-    private static Constructor getDefaultConstructor(Class<?> type) {
-        try {
-            return type.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("기본 생성자를 가져올 수 없습니다.");
-        }
     }
 }

@@ -1,35 +1,30 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
+import nextstep.di.scanner.BeanScanners;
+import nextstep.di.scanner.ClasspathBeanScanner;
+import nextstep.di.scanner.ConfigurationBeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.annotation.Annotation;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
-    private Reflections reflections;
     private BeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory();
-        beanFactory.registerInstantiatedTypes(preInstanticateClazz);
+        beanFactory = new BeanFactory(
+                new BeanScanners(
+                        new ClasspathBeanScanner("nextstep.di.factory.example"),
+                        new ConfigurationBeanScanner("nextstep.di.factory.example")
+                ));
         beanFactory.initialize();
     }
 
@@ -43,17 +38,5 @@ public class BeanFactoryTest {
         MyQnaService qnaService = qnaController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(annotation);
-            log.debug("annotation: {}, beans : {}", annotation, typesAnnotatedWith);
-            beans.addAll(typesAnnotatedWith);
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
     }
 }
