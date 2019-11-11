@@ -18,7 +18,7 @@ class BeanScannerTest {
 
     @BeforeEach
     void setup() {
-        beanScanner=new BeanScanner("nextstep.di.factory.example");
+        beanScanner = new BeanScanner("nextstep.di.factory.example");
     }
 
     @Test
