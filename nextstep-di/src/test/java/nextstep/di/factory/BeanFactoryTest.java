@@ -1,24 +1,25 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.di.factory.example.QnaController;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import nextstep.di.factory.example.MyQnaService;
+import nextstep.di.factory.example.QnaController;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     private Reflections reflections;
     private BeanFactory beanFactory;
@@ -26,9 +27,7 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
+        beanFactory = new BeanFactory("nextstep.di.factory.example");
         beanFactory.initialize();
     }
 
@@ -52,5 +51,18 @@ public class BeanFactoryTest {
         }
         log.debug("Scan Beans Type : {}", beans);
         return beans;
+    }
+
+    @Test
+    void getControllers() {
+        Map<Class<?>, Object> controllers = beanFactory.getControllers();
+        assertThat(controllers.containsKey(QnaController.class)).isTrue();
+        assertThat(controllers.size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("다른 패키지에 있는 클래스의 빈을 찾는 경우 예외가 발생한다.")
+    void getBeanFail() {
+        assertThrows(IllegalArgumentException.class, () -> beanFactory.getBean(BeanScanner.class));
     }
 }
