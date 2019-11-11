@@ -1,5 +1,6 @@
 package slipp;
 
+import nextstep.di.factory.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
@@ -15,6 +16,10 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
+import slipp.support.MyConfiguration;
+
+import javax.sql.DataSource;
+import javax.xml.crypto.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,15 +30,15 @@ class DispatcherServletTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        ApplicationContext applicationContext = new ApplicationContext(WebServerLauncher.class, MyConfiguration.class);
+        applicationContext.initialize();
+
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-
-        BeanFactory beanFactory = new BeanFactory("slipp");
-        beanFactory.initialize();
+        DatabasePopulatorUtils.execute(populator, applicationContext.getBean(DataSource.class));
 
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping(beanFactory.getControllers()));
+        dispatcher.addHandlerMpping(new AnnotationHandlerMapping(applicationContext.getControllers()));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());

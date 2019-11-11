@@ -14,6 +14,9 @@ import java.util.List;
 public class UserDao {
     private JdbcTemplate jdbcTemplate;
 
+    public UserDao() {
+    }
+
     @Inject
     public UserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
