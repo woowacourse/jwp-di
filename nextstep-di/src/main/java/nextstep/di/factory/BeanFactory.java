@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.exception.CycleException;
 import nextstep.di.initiator.BeanInitiator;
 import nextstep.di.scanner.BeanScanners;
 import nextstep.supports.TopologySort;
@@ -27,7 +28,7 @@ public class BeanFactory {
         return new TopologySort<>(
                 type -> getParameterTypes(beanScanners.getBeanInitiator(type)),
                 () -> {
-                    throw new IllegalArgumentException("사이클..!!");
+                    throw new CycleException();
                 });
     }
 
