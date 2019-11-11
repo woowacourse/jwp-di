@@ -12,20 +12,17 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
-public enum BeanFactory {
-    INSTANCE;
-
+public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-    private Set<Class<?>> preInstantiatedBeans;
-    private Map<Class<?>, Object> beans;
 
-    public static BeanFactory getInstance() {
-        return INSTANCE;
+    private Set<Class<?>> preInstantiatedBeans;
+    private Map<Class<?>, Object> beans = Maps.newHashMap();
+
+    public BeanFactory(Set<Class<?>> preInstantiatedBeans) {
+        this.preInstantiatedBeans = preInstantiatedBeans;
     }
 
-    public void initialize(Set<Class<?>> preInstantiatedBeans) {
-        beans = Maps.newHashMap();
-        this.preInstantiatedBeans = preInstantiatedBeans;
+    public void initialize() {
         for (Class<?> clazz : preInstantiatedBeans) {
             beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
         }

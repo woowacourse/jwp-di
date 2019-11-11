@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static nextstep.di.factory.BeanFactory.getInstance;
-
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
@@ -33,8 +31,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        BeanFactory beanFactory = BeanFactory.getInstance();
-        beanFactory.initialize(BeanScanner.scan(basePackage));
+        BeanFactory beanFactory = new BeanFactory(BeanScanner.scan(basePackage));
+        beanFactory.initialize();
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
         for (Method method : methods) {
