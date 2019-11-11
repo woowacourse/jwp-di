@@ -8,10 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
@@ -21,7 +19,7 @@ public class BeanFactory {
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    private Set<MethodBeanDefinition> beanDefinitions = Sets.newHashSet();
+    private Set<BeanDefinition> beanDefinitions = Sets.newHashSet();
 
     public BeanFactory(Object... basePackage) {
         BeanScanner beanScanner = new BeanScanner(basePackage);
@@ -42,11 +40,43 @@ public class BeanFactory {
         }
     }
 
-    private void registerBean(Class<?> preInstanticateBean) {
-        validateClassType(preInstanticateBean);
+    public void initialize2() {
+        for (BeanDefinition beanDefinition : beanDefinitions) {
+            registerBean(beanDefinition);
+        }
+    }
 
-        if (!beans.containsKey(preInstanticateBean)) {
-            beans.put(preInstanticateBean, createBean(preInstanticateBean));
+    private void registerBean(Class<?> preInstanticateBean) {
+        BeanDefinition beanDefinition = beanDefinitions.stream()
+                .filter(bd -> bd.getBeanClass().equals(preInstanticateBean))
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 빈 입니다."));
+
+        registerBean(beanDefinition);
+    }
+
+    private void registerBean(BeanDefinition beanDefinition) {
+        if (beans.containsKey(beanDefinition.getBeanClass())) {
+            return;
+        }
+
+        if (beanDefinition instanceof MethodBeanDefinition) {
+            createMethodBean((MethodBeanDefinition) beanDefinition);
+        }
+    }
+
+    private void createMethodBean(MethodBeanDefinition beanDefinition) {
+        Class<?> beanClass = beanDefinition.getBeanClass();
+        Object implementation = beanDefinition.getImplementation();
+        Method method = beanDefinition.getMethod();
+
+        Object[] parameterBeans = Arrays.stream(method.getParameterTypes())
+                .map(this::getBean)
+                .toArray();
+        try {
+            beans.put(beanClass, method.invoke(implementation, parameterBeans));
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -97,7 +127,7 @@ public class BeanFactory {
                 .collect(Collectors.toMap(Object::getClass, bean -> bean));
     }
 
-    public void register(Set<MethodBeanDefinition> beanDefinitions) {
+    public void register(Set<BeanDefinition> beanDefinitions) {
         this.beanDefinitions.addAll(beanDefinitions);
     }
 }
