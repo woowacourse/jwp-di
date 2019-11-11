@@ -49,13 +49,18 @@ public class BeanFactory {
             return createBean(clazz);
         }
 
-        Class<?> parameterTypes[] = injectedConstructor.getParameterTypes();
+        Class<?>[] parameterTypes = injectedConstructor.getParameterTypes();
+        Object[] instances = createParameters(parameterTypes);
+        return createBeanWithParameters(injectedConstructor, instances);
+    }
+
+    private Object[] createParameters(Class<?>[] parameterTypes) {
         Object[] instances = new Object[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
             Class<?> parameterType = BeanFactoryUtils.findConcreteClass(parameterTypes[i], preInstantiateBeans);
             instances[i] = instantiateBean(parameterType);
         }
-        return createBeanWithParameters(injectedConstructor, instances);
+        return instances;
     }
 
     private Object createBean(Class<?> clazz) {

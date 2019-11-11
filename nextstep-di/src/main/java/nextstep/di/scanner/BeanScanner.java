@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Set;
 
 public class BeanScanner {
-    private static final Set<Class<? extends Annotation>> annotations =
-            new HashSet<>(Arrays.asList(Controller.class, Service.class, Repository.class));
+    private static final Collection<Class<? extends Annotation>> annotations =
+            Arrays.asList(Controller.class, Service.class, Repository.class);
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     private Reflections reflections;
