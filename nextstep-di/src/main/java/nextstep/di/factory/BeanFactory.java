@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.scanner.BeanScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -9,16 +10,15 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
+    private BeanScanner beanScanner;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    public BeanFactory(Object... basePackage) {
+        beanScanner = new BeanScanner(basePackage);
         initialize();
     }
 
@@ -28,7 +28,7 @@ public class BeanFactory {
     }
 
     private void initialize() {
-        for (Class<?> preInstanticateBean : preInstanticateBeans) {
+        for (Class<?> preInstanticateBean : beanScanner.getBeans()) {
             scanBean(preInstanticateBean);
         }
     }
@@ -62,7 +62,7 @@ public class BeanFactory {
         Object[] params = new Object[constructor.getParameterCount()];
         for (int i = 0; i < params.length; i++) {
             Class<?> parameterType = constructor.getParameterTypes()[i];
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateBeans);
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, beanScanner.getBeans());
             params[i] = scanBean(concreteClass);
         }
         return params;
