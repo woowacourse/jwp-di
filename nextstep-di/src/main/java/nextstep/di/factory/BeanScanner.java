@@ -13,6 +13,7 @@ import java.util.Set;
 
 public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+    private static final Set<Class<? extends Annotation>> ANNOTATIONS = Sets.newHashSet(Controller.class, Service.class, Repository.class);
 
     private Reflections reflections;
 
@@ -21,11 +22,11 @@ public class BeanScanner {
     }
 
     public Set<Class<?>> getPreInstanticateClass() {
-        return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        return getTypesAnnotatedWith(ANNOTATIONS);
     }
 
     @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(final Class<? extends Annotation>... annotations) {
+    private Set<Class<?>> getTypesAnnotatedWith(final Set<Class<? extends Annotation>> annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
 
         for (Class<? extends Annotation> annotation : annotations) {
