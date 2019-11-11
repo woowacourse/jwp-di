@@ -1,10 +1,15 @@
 package slipp;
 
+import nextstep.BeanScanner;
+import nextstep.di.factory.BeanFactory;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
+import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -29,7 +34,12 @@ class DispatcherServletTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping("slipp.controller"));
+
+        BeanScanner beanScanner = new BeanScanner("slipp.controller");
+        BeanFactory beanFactory = new BeanFactory(beanScanner.scan(Controller.class, Service.class, Repository.class));
+        beanFactory.initialize();
+
+        dispatcher.addHandlerMpping(new AnnotationHandlerMapping(beanFactory));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());
