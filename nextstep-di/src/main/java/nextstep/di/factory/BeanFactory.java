@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,12 +20,16 @@ public class BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
 
     private Set<Class<?>> preInstantiateBeans;
+    private Set<Method> preInvokedBeanMethods;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
+    public BeanFactory() {
+    }
+
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
-        this.initialize();
+        classPathInitializer();
     }
 
     @SuppressWarnings("unchecked")
@@ -33,7 +38,23 @@ public class BeanFactory {
     }
 
     public void initialize() {
+        preInvokedBeanMethods.forEach(method -> {
+            try {
+                Object object = method.invoke(method.getDeclaringClass().getDeclaredConstructor().newInstance());
+                System.out.println(object.getClass());
+                beans.put(object.getClass(), object);
+            } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+                throw new ScannerException(e);
+            }
+        });
+    }
+
+    public void classPathInitializer() {
         preInstantiateBeans.forEach(this::getInstantiateClass);
+    }
+
+    public void configurationInitializer(Set<Method> preInvokedBeanMethods) {
+        this.preInvokedBeanMethods = preInvokedBeanMethods;
     }
 
     private Object getInstantiateClass(Class<?> clazz) {
@@ -83,5 +104,9 @@ public class BeanFactory {
             }
         }
         return controllers;
+    }
+
+    public void addPreInstantiateBeans(Class<?> clazz) {
+        preInstantiateBeans.add(clazz);
     }
 }
