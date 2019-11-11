@@ -34,17 +34,29 @@ public class BeanFactory {
     }
 
     private void registerBean(Class<?> preInstanticateBean) {
-        Class<?> concreteClass = findConcreteClass(preInstanticateBean);
-
-        BeanDefinition beanDefinition = this.beanDefinitions.stream()
-                .filter(bd -> bd.getBeanClass().equals(concreteClass))
-                .findAny()
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 빈 입니다."));
+        BeanDefinition beanDefinition = findBeanDefinition(preInstanticateBean);
 
         registerBean(beanDefinition);
     }
 
+    private BeanDefinition findBeanDefinition(Class<?> concreteClass) {
+        Optional<BeanDefinition> maybeBeanDefinition = this.beanDefinitions.stream()
+                .filter(beanDefinition -> beanDefinition.getBeanClass().equals(concreteClass))
+                .findAny();
+        if (maybeBeanDefinition.isPresent()) {
+            return maybeBeanDefinition.get();
+        }
+
+        if (concreteClass.isInterface()) {
+            return findBeanDefinition(findConcreteClass(concreteClass));
+        }
+        throw new RuntimeException();
+    }
+
     private Class<?> findConcreteClass(Class<?> preInstanticateBean) {
+        if (beans.containsKey(preInstanticateBean)) {
+            return preInstanticateBean;
+        }
         Set<Class<?>> beanClazz = this.beanDefinitions.stream()
                 .map(BeanDefinition::getBeanClass)
                 .collect(Collectors.toSet());
