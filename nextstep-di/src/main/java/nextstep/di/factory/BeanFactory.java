@@ -36,7 +36,7 @@ public class BeanFactory {
     }
 
     private Object createBean(Class<?> preInstantiateBean) {
-        if(beans.containsKey(preInstantiateBean)) {
+        if (beans.containsKey(preInstantiateBean)) {
             return beans.get(preInstantiateBean);
         }
         Constructor constructor = BeanFactoryUtils.getInjectedConstructor(preInstantiateBean);
@@ -45,8 +45,7 @@ public class BeanFactory {
             bean = constructor == null ? createNonConstructorBean(preInstantiateBean) : createConstructorBean(constructor);
             beans.put(preInstantiateBean, bean);
             return bean;
-        } catch (
-                InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
         return null;

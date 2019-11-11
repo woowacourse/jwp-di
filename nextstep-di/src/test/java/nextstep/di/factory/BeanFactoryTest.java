@@ -1,16 +1,12 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.example.QuestionRepository;
-import nextstep.di.factory.example.UserRepository;
+import nextstep.di.factory.example.*;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -19,8 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
-
     private BeanFactory beanFactory;
 
     @BeforeEach
@@ -33,7 +27,8 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void di() throws Exception {
+    @DisplayName("DI Test")
+    public void di() {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -45,14 +40,33 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void getControllers() throws Exception {
+    @DisplayName("Controller 가져오기 테스트")
+    public void getControllers() {
         Map<Class<?>, Object> beanByAnnotation = beanFactory.getBeanByAnnotation(Controller.class);
 
         assertNotNull(beanByAnnotation.get(QnaController.class));
     }
 
     @Test
-    public void getBean() throws Exception {
+    @DisplayName("Service 가져오기 테스트")
+    public void getServices() {
+        Map<Class<?>, Object> beanByAnnotation = beanFactory.getBeanByAnnotation(Service.class);
+
+        assertNotNull(beanByAnnotation.get(MyQnaService.class));
+    }
+
+    @Test
+    @DisplayName("Repository 가져오기 테스트")
+    public void getRepositories() {
+        Map<Class<?>, Object> beanByAnnotation = beanFactory.getBeanByAnnotation(Repository.class);
+
+        assertNotNull(beanByAnnotation.get(JdbcUserRepository.class));
+        assertNotNull(beanByAnnotation.get(JdbcQuestionRepository.class));
+    }
+
+    @Test
+    @DisplayName("특정 빈 가져오기 테스트")
+    public void getBean() {
         Object bean1 = beanFactory.getBean(MyQnaService.class).getUserRepository();
         Object bean2 = beanFactory.getBean(UserRepository.class);
 
