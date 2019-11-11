@@ -20,9 +20,8 @@ class TopologySortTest {
                 new Node(0, new int[]{1}),
                 new Node(1, new int[]{0}),
         };
-        TopologySort<Node> topologySort = createTopologySort(nodes);
 
-        assertThrows(RuntimeException.class, () -> topologySort.calculateReversedOrders());
+        assertThrows(RuntimeException.class, () -> createTopologySort(nodes));
     }
 
     @DisplayName("3개짜리 사이클")
@@ -33,9 +32,8 @@ class TopologySortTest {
                 new Node(1, new int[]{2}),
                 new Node(2, new int[]{0}),
         };
-        TopologySort<Node> topologySort = createTopologySort(nodes);
 
-        assertThrows(RuntimeException.class, () -> topologySort.calculateReversedOrders());
+        assertThrows(RuntimeException.class, () -> createTopologySort(nodes));
     }
 
     @DisplayName("부모가 여러명인 경우")

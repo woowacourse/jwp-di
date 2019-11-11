@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.exception.BeanIncludingCycleException;
 import nextstep.supports.TopologySort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class BeanFactory {
                 preInstantiatedTypes,
                 type -> getParameterTypes(BeanFactoryUtils.getBeanConstructor(type)),
                 () -> {
-                    throw new IllegalArgumentException("사이클..!!");
+                    throw new BeanIncludingCycleException();
                 });
     }
 
@@ -45,14 +46,14 @@ public class BeanFactory {
     }
 
     private Object instantiate(Constructor<?> constructor) {
-        return BeanUtils.instantiateClass(constructor, getBeans(getParameterTypes(constructor)));
+        return BeanUtils.instantiateClass(constructor, getBeansSatisfiedWith(getParameterTypes(constructor)));
     }
 
     private List<Class<?>> getParameterTypes(Constructor<?> constructor) {
         return BeanFactoryUtils.findConcreteClasses(Arrays.asList(constructor.getParameterTypes()), preInstantiatedTypes);
     }
 
-    private Object[] getBeans(List<Class<?>> parameterTypes) {
+    private Object[] getBeansSatisfiedWith(List<Class<?>> parameterTypes) {
         return parameterTypes.stream()
                 .map(type -> getBean(type))
                 .toArray();
@@ -63,7 +64,7 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public Map<Class<?>, Object> getBeans(Predicate<Class<?>> predicate) {
+    public Map<Class<?>, Object> getBeansSatisfiedWith(Predicate<Class<?>> predicate) {
         return beans.keySet().stream()
                 .filter(predicate)
                 .collect(Collectors.toMap(type -> type, this::getBean));

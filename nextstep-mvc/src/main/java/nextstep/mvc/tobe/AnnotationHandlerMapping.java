@@ -37,7 +37,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     public void initialize() {
         BeanFactory beanFactory = new BeanFactory(new TypeScanner(basePackage).scanAnnotatedWith(Controller.class, Service.class, Repository.class));
         beanFactory.initialize();
-        Map<Class<?>, Object> controllers = beanFactory.getBeans(clazz -> clazz.isAnnotationPresent(Controller.class));
+        Map<Class<?>, Object> controllers = beanFactory.getBeansSatisfiedWith(clazz -> clazz.isAnnotationPresent(Controller.class));
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
 
         for (Method method : methods) {

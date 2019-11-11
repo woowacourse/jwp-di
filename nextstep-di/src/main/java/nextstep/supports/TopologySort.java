@@ -3,6 +3,7 @@ package nextstep.supports;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -12,30 +13,30 @@ public class TopologySort<T> {
     private final ToNodeGenerator<T> toNodeGenerator;
     private final CycleErrorHandler cycleErrorHandler;
 
-    private final Set<T> visited;
-    private final Set<T> finished;
-
+    private List<T> orders;
 
     public TopologySort(Set<T> inputNodes, ToNodeGenerator<T> toNodeGenerator, CycleErrorHandler cycleErrorHandler) {
         this.inputNodes = inputNodes;
         this.toNodeGenerator = toNodeGenerator;
         this.cycleErrorHandler = cycleErrorHandler;
 
-        visited = Sets.newHashSet();
-        finished = Sets.newHashSet();
+        calculate();
     }
 
-    public List<T> calculateReversedOrders() {
-        List<T> orders = Lists.newArrayList();
+    private void calculate() {
+        final Set<T> visited = Sets.newHashSet();
+        final Set<T> finished = Sets.newHashSet();
+        orders = Lists.newArrayList();
 
         for (T root : inputNodes) {
-            recursive(orders, root);
+            recursive(root, visited, finished);
         }
-        return orders;
+
+        Collections.reverse(orders);
     }
 
-    private void recursive(List<T> orders, T node) {
-        handleIfCycleExist(node);
+    private void recursive(T node, Set<T> visited, Set<T> finished) {
+        handleIfCycleExist(node, visited, finished);
 
         if (visited.contains(node)) {
             return;
@@ -44,16 +45,32 @@ public class TopologySort<T> {
         visited.add(node);
 
         for (T toNode : toNodeGenerator.getToNodes(node)) {
-            recursive(orders, toNode);
+            recursive(toNode, visited, finished);
         }
 
         finished.add(node);
         orders.add(node);
     }
 
-    private void handleIfCycleExist(T node) {
+    private void handleIfCycleExist(T node, Set<T> visited, Set<T> finished) {
         if (visited.contains(node) && !finished.contains(node)) {
             cycleErrorHandler.errorHandle();
         }
+    }
+
+    public List<T> calculateReversedOrders() {
+        List<T> copy = copy();
+        Collections.reverse(copy);
+
+        return copy;
+    }
+
+    // 지금은 외부에서 orders 요소들의 값을 바꾸지 않는다는 가정이 있음
+    // 그래서 reference 만 복사를 해도 괜찮음
+    private List<T> copy() {
+        List<T> copy = Lists.newArrayList();
+        copy.addAll(orders);
+
+        return orders;
     }
 }
