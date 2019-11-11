@@ -22,7 +22,7 @@ class TopologySortTest {
         };
         TopologySort<Node> topologySort = createTopologySort(nodes);
 
-        assertThrows(RuntimeException.class, () -> topologySort.calculateReversedOrders());
+        assertThrows(RuntimeException.class, () -> topologySort.calculateReversedOrders(Sets.newHashSet(Arrays.asList(nodes))));
     }
 
     @DisplayName("3개짜리 사이클")
@@ -35,7 +35,7 @@ class TopologySortTest {
         };
         TopologySort<Node> topologySort = createTopologySort(nodes);
 
-        assertThrows(RuntimeException.class, () -> topologySort.calculateReversedOrders());
+        assertThrows(RuntimeException.class, () -> topologySort.calculateReversedOrders(Sets.newHashSet(Arrays.asList(nodes))));
     }
 
     @DisplayName("부모가 여러명인 경우")
@@ -49,7 +49,7 @@ class TopologySortTest {
         };
         TopologySort<Node> topologySort = createTopologySort(nodes);
 
-        List<Node> reversedOrders = topologySort.calculateReversedOrders();
+        List<Node> reversedOrders = topologySort.calculateReversedOrders(Sets.newHashSet(Arrays.asList(nodes)));
 
         // Assert
         assertReversedOrders(nodes, reversedOrders);
@@ -66,7 +66,7 @@ class TopologySortTest {
         };
         TopologySort<Node> topologySort = createTopologySort(nodes);
 
-        List<Node> reversedOrders = topologySort.calculateReversedOrders();
+        List<Node> reversedOrders = topologySort.calculateReversedOrders(Sets.newHashSet(Arrays.asList(nodes)));
 
         // Assert
         assertReversedOrders(nodes, reversedOrders);
@@ -89,7 +89,7 @@ class TopologySortTest {
         };
         TopologySort<Node> topologySort = createTopologySort(nodes);
 
-        List<Node> reversedOrders = topologySort.calculateReversedOrders();
+        List<Node> reversedOrders = topologySort.calculateReversedOrders(Sets.newHashSet(Arrays.asList(nodes)));
 
         // Assert
         assertReversedOrders(nodes, reversedOrders);
@@ -110,7 +110,6 @@ class TopologySortTest {
 
     private TopologySort<Node> createTopologySort(Node[] nodes) {
         return new TopologySort<>(
-                Sets.newHashSet(Arrays.asList(nodes)),
                 getNodeToNodeGenerator(nodes),
                 getErrorHandler()
         );

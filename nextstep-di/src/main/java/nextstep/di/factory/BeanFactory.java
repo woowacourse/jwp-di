@@ -20,12 +20,11 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        addBeans(createTopologySort().calculateReversedOrders());
+        addBeans(createTopologySort().calculateReversedOrders(beanScanners.getPreInstantiatedTypes()));
     }
 
     private TopologySort<Class<?>> createTopologySort() {
         return new TopologySort<>(
-                beanScanners.getPreInstantiatedTypes(),
                 type -> getParameterTypes(beanScanners.getBeanInitiator(type)),
                 () -> {
                     throw new IllegalArgumentException("사이클..!!");
