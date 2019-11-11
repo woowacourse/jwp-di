@@ -49,8 +49,7 @@ public class BeanFactory {
             return createBean(clazz);
         }
 
-        Class<?>[] parameterTypes = injectedConstructor.getParameterTypes();
-        Object[] instances = createParameters(parameterTypes);
+        Object[] instances = createParameters(injectedConstructor.getParameterTypes());
         return createBeanWithParameters(injectedConstructor, instances);
     }
 

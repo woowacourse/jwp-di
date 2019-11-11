@@ -67,9 +67,7 @@ public class BeanFactoryTest {
     @Test
     public void singleInstanceTest() {
         MyQnaService qnaService = beanFactory.getBean(QnaController.class).getQnaService();
-        MyQnaService bean = beanFactory.getBean(MyQnaService.class);
-        assertSame(qnaService, bean);
-
+        assertSame(qnaService, beanFactory.getBean(MyQnaService.class));
         assertSame(qnaService.getQuestionRepository(), beanFactory.getBean(JdbcQuestionRepository.class));
         assertSame(qnaService.getUserRepository(), beanFactory.getBean(JdbcUserRepository.class));
     }
