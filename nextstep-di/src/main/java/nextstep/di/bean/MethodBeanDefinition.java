@@ -1,5 +1,7 @@
 package nextstep.di.bean;
 
+import nextstep.exception.BeanDefinitionException;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -30,7 +32,7 @@ public class MethodBeanDefinition implements BeanDefinition {
         try {
             return method.invoke(instance, parameters);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new BeanDefinitionException(e);
         }
     }
 

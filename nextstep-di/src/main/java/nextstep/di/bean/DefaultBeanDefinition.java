@@ -1,6 +1,7 @@
 package nextstep.di.bean;
 
 import nextstep.di.factory.BeanFactoryUtils;
+import nextstep.exception.BeanDefinitionException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -18,8 +19,7 @@ public class DefaultBeanDefinition implements BeanDefinition {
             try {
                 return beanClass.getConstructor();
             } catch (NoSuchMethodException e) {
-                // TODO: 2019/11/12 예외처리 추가
-                throw new RuntimeException(e);
+                throw new BeanDefinitionException(e);
             }
         });
     }
@@ -39,7 +39,7 @@ public class DefaultBeanDefinition implements BeanDefinition {
         try {
             return constructor.newInstance(parameters);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new BeanDefinitionException(e);
         }
     }
 
