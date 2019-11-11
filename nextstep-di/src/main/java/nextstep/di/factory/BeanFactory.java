@@ -1,7 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.BeanInitiator;
+import nextstep.di.initiator.BeanInitiator;
 import nextstep.di.scanner.BeanScanners;
 import nextstep.supports.TopologySort;
 

@@ -1,4 +1,4 @@
-package nextstep.di;
+package nextstep.di.initiator;
 
 import java.util.List;
 

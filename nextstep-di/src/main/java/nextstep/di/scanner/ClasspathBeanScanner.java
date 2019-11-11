@@ -1,8 +1,8 @@
 package nextstep.di.scanner;
 
 import com.google.common.collect.Maps;
-import nextstep.di.BeanInitiator;
-import nextstep.di.ClasspathBeanInitiator;
+import nextstep.di.initiator.BeanInitiator;
+import nextstep.di.initiator.ClasspathBeanInitiator;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;

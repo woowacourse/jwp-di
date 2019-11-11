@@ -2,7 +2,7 @@ package nextstep.di.scanner;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import nextstep.di.BeanInitiator;
+import nextstep.di.initiator.BeanInitiator;
 
 import java.util.Arrays;
 import java.util.List;

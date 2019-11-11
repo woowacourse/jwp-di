@@ -1,4 +1,4 @@
-package nextstep.di;
+package nextstep.di.initiator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

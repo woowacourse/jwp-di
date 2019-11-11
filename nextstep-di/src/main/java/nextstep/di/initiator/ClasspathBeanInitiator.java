@@ -1,4 +1,4 @@
-package nextstep.di;
+package nextstep.di.initiator;
 
 import nextstep.di.factory.BeanFactoryUtils;
 import org.springframework.beans.BeanUtils;

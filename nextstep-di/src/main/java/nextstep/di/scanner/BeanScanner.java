@@ -1,6 +1,6 @@
 package nextstep.di.scanner;
 
-import nextstep.di.BeanInitiator;
+import nextstep.di.initiator.BeanInitiator;
 
 import java.util.Set;
 
