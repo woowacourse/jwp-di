@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ public enum BeanFactory {
         beans = Maps.newHashMap();
         this.preInstantiatedBeans = preInstantiatedBeans;
         for (Class<?> clazz : preInstantiatedBeans) {
-            beans.put(clazz, instantiate(clazz, new ArrayList<>(Collections.singletonList(clazz))));
+            beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
         }
     }
 
@@ -46,7 +47,7 @@ public enum BeanFactory {
         return controllers;
     }
 
-    private Object instantiate(Class<?> clazz, List<Class<?>> history) {
+    private Object instantiate(Class<?> clazz, Set<Class<?>> history) {
         if (clazz.isInterface()) {
             throw new InterfaceCannotInstantiatedException();
         }
@@ -67,7 +68,7 @@ public enum BeanFactory {
         }
     }
 
-    private List<Object> createParamsOfInjectCtor(List<Class<?>> history, Constructor ctor) {
+    private List<Object> createParamsOfInjectCtor(Set<Class<?>> history, Constructor ctor) {
         List<Object> realParams = Lists.newArrayList();
         for (Class<?> param : ctor.getParameterTypes()) {
             validateNoRecursiveField(history, param);
@@ -82,8 +83,8 @@ public enum BeanFactory {
         return realParams;
     }
 
-    private List<Class<?>> createUpdatedHistory(List<Class<?>> history, Class<?> param) {
-        List<Class<?>> newHistory = Lists.newArrayList(history);
+    private Set<Class<?>> createUpdatedHistory(Set<Class<?>> history, Class<?> param) {
+        Set<Class<?>> newHistory = Sets.newHashSet(history);
         newHistory.add(param);
         return newHistory;
     }
@@ -108,7 +109,7 @@ public enum BeanFactory {
         }
     }
 
-    private void validateNoRecursiveField(List<Class<?>> history, Class<?> param) {
+    private void validateNoRecursiveField(Set<Class<?>> history, Class<?> param) {
         if (history.contains(param)) {
             throw new RecursiveFieldException();
         }
