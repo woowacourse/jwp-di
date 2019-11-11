@@ -22,18 +22,16 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private BeanScanner beanScanner;
     private BeanFactory beanFactory;
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackages) {
-        this.beanScanner = new BeanScanner(basePackages);
-        this.beanFactory = new BeanFactory(beanScanner.scan());
+    public AnnotationHandlerMapping(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
         this.beanFactory.initialize();
     }
 
     public void initialize() {
-        Set<Method> methods = getRequestMappingMethods(beanScanner.scan());
+        Set<Method> methods = getRequestMappingMethods(beanFactory.getControllers());
         for (Method method : methods) {
             RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",

@@ -3,11 +3,15 @@ package nextstep.di.factory;
 import nextstep.di.factory.support.BeanFactoryUtils;
 import nextstep.di.factory.support.Beans;
 import nextstep.di.factory.support.ReflectionUtils;
+import nextstep.di.scanner.BeanScanner;
+import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -15,8 +19,8 @@ public class BeanFactory {
     private Set<Class<?>> preInstantiateBeans;
     private Beans beans;
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory(BeanScanner beanScanner) {
+        this.preInstantiateBeans = beanScanner.scan();
         this.beans = new Beans();
     }
 
@@ -64,6 +68,12 @@ public class BeanFactory {
 
     private Object createBeanWithParameters(Constructor<?> injectedConstructor, Object[] instances) {
         return ReflectionUtils.newInstance(injectedConstructor, instances);
+    }
+
+    public Set<Class<?>> getControllers() {
+        return preInstantiateBeans.stream()
+                .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
+                .collect(toSet());
     }
 }
 

@@ -14,9 +14,9 @@ import java.util.Collection;
 import java.util.Set;
 
 public class BeanScanner {
+    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
     private static final Collection<Class<? extends Annotation>> annotations =
             Arrays.asList(Controller.class, Service.class, Repository.class);
-    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     private Reflections reflections;
 
