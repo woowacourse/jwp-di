@@ -37,7 +37,6 @@ class BeanFactoryTest {
         assertNotNull(annotatedClass.getParameterClass());
     }
 
-
     @Test
     void 없는_빈_Null() {
         Scanner manualScanner = () ->
@@ -68,7 +67,6 @@ class BeanFactoryTest {
         assertThat(annotatedClass.getParameterClass()).isEqualTo(beanFactory.getBean(ParameterClass.class));
     }
 
-
     private interface AnnotatedInterface {
     }
 
@@ -90,6 +88,4 @@ class BeanFactoryTest {
 
     private static class NotAnnotatedClass {
     }
-
-
 }
