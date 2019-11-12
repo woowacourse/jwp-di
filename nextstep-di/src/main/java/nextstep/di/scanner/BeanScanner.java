@@ -1,13 +1,24 @@
 package nextstep.di.scanner;
 
-import nextstep.di.initiator.BeanInitiator;
+import com.google.common.collect.Sets;
+import org.reflections.Reflections;
 
+import java.lang.annotation.Annotation;
 import java.util.Set;
 
-public interface BeanScanner {
-    Set<Class<?>> getInstantiatedTypes();
+public abstract class BeanScanner {
+    private Reflections reflections;
 
-    boolean isContainsBean(Class<?> clazz);
+    BeanScanner(Object... basePackage) {
+        this.reflections = new Reflections(basePackage);
+    }
 
-    BeanInitiator getBeanInitiator(Class<?> clazz);
+    Set<Class<?>> scanAnnotatedWith(Class<? extends Annotation>... annotations) {
+        Set<Class<?>> beans = Sets.newHashSet();
+        for (Class<? extends Annotation> annotation : annotations) {
+            Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(annotation);
+            beans.addAll(typesAnnotatedWith);
+        }
+        return beans;
+    }
 }

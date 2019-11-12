@@ -2,7 +2,6 @@ package nextstep.di;
 
 import nextstep.annotation.ComponentScan;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.scanner.BeanScanners;
 import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.di.scanner.ConfigurationBeanScanner;
 
@@ -15,10 +14,9 @@ public class ApplicationContext {
     }
 
     public void initialize(Object... basePackage) {
-        BeanScanners beanScanners = new BeanScanners(new ClasspathBeanScanner(basePackage),
-                new ConfigurationBeanScanner(basePackage));
-        beanFactory = new BeanFactory(beanScanners);
-
+        beanFactory = new BeanFactory();
+        new ClasspathBeanScanner(beanFactory, basePackage);
+        new ConfigurationBeanScanner(beanFactory, basePackage);
         beanFactory.initialize();
     }
 

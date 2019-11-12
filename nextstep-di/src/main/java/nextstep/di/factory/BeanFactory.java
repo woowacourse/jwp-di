@@ -3,7 +3,6 @@ package nextstep.di.factory;
 import com.google.common.collect.Maps;
 import nextstep.di.exception.CycleException;
 import nextstep.di.initiator.BeanInitiator;
-import nextstep.di.scanner.BeanScanners;
 import nextstep.supports.TopologySort;
 
 import java.util.List;
@@ -13,20 +12,23 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private BeanScanners beanScanners;
+    private BeanInitiatorRegistry beanInitiatorRegistry = new BeanInitiatorRegistry();
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(BeanScanners beanScanners) {
-        this.beanScanners = beanScanners;
+    public BeanFactory() {
+    }
+
+    public void addBeanInitiator(Class<?> clazz, BeanInitiator beanInitiator) {
+        beanInitiatorRegistry.addBeanInitiator(clazz, beanInitiator);
     }
 
     public void initialize() {
-        addBeans(createTopologySort().calculateReversedOrders(beanScanners.getPreInstantiatedTypes()));
+        addBeans(createTopologySort().calculateReversedOrders(beanInitiatorRegistry.getPreInstantiatedTypes()));
     }
 
     private TopologySort<Class<?>> createTopologySort() {
         return new TopologySort<>(
-                type -> getParameterTypes(beanScanners.getBeanInitiator(type)),
+                type -> getParameterTypes(beanInitiatorRegistry.getBeanInitiator(type)),
                 () -> {
                     throw new CycleException();
                 });
@@ -39,7 +41,7 @@ public class BeanFactory {
     }
 
     private void addBean(Class<?> type) {
-        beans.put(type, instantiate(beanScanners.getBeanInitiator(type)));
+        beans.put(type, instantiate(beanInitiatorRegistry.getBeanInitiator(type)));
     }
 
     private Object instantiate(BeanInitiator beanInitiator) {
@@ -49,7 +51,7 @@ public class BeanFactory {
     private List<Class<?>> getParameterTypes(BeanInitiator beanInitiator) {
         return BeanFactoryUtils.findConcreteClasses(
                 beanInitiator.getParameterTypes(),
-                beanScanners.getPreInstantiatedTypes());
+                beanInitiatorRegistry.getPreInstantiatedTypes());
     }
 
     private Object[] getBeans(List<Class<?>> parameterTypes) {

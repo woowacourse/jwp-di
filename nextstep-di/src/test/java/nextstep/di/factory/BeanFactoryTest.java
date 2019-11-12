@@ -2,7 +2,6 @@ package nextstep.di.factory;
 
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
-import nextstep.di.scanner.BeanScanners;
 import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.di.scanner.ConfigurationBeanScanner;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,11 +19,10 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        beanFactory = new BeanFactory(
-                new BeanScanners(
-                        new ClasspathBeanScanner("nextstep.di.factory.example"),
-                        new ConfigurationBeanScanner("nextstep.di.factory.example")
-                ));
+        beanFactory = new BeanFactory();
+        new ClasspathBeanScanner(beanFactory, "nextstep.di.factory.example");
+        new ConfigurationBeanScanner(beanFactory, "nextstep.di.factory.example");
+
         beanFactory.initialize();
     }
 
