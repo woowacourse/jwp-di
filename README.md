@@ -31,5 +31,17 @@ docker-compose up -d
 
 > https://dev.mysql.com/doc/workbench/en/wb-admin-export-import-table.html
 
+---
 
+##기능 구현 목록
 
+1. DI 기능
+    - 패키지에서 지정된 클래스를 `Bean`으로 관리
+    - 싱글 인스턴스로 관리
+    - 레거시 코드에 적용
+    
+2. @Configuration 설정
+    - 자바 클래스로 설정을 관리 (@Configuration)
+    - 등록할 인스턴스 (@Bean)
+    - 기본 패키지 설정 (@ComponentScan)
+    
