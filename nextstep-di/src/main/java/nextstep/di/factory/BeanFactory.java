@@ -1,8 +1,6 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -13,8 +11,6 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
     private Set<Class<?>> preInstantiateBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
@@ -28,60 +24,36 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-
     public void initialize() {
-        for (Class clazz : preInstantiateBeans) {
-            Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-            putInstance(clazz, injectedConstructor);
+        for (Class<?> clazz : preInstantiateBeans) {
+            beans.putIfAbsent(clazz, instantiateBean(clazz));
         }
     }
 
-    private void putInstance(Class clazz, Constructor<?> injectedConstructor) {
-        if (hasNotClass(clazz)) {
-            logger.debug("class name : {}, annotation inject constructor: {}", clazz.getName(), injectedConstructor);
-            beans.put(clazz, instantiateBean(clazz, injectedConstructor));
+    private <T> T instantiateBean(Class<T> clazz) {
+        if (beans.containsKey(clazz)) {
+            return (T) beans.get(clazz);
         }
+        return instantiate(clazz);
     }
 
-    private boolean hasNotClass(Class clazz) {
-        return !beans.containsKey(clazz);
-    }
-
-    private Object instantiateBean(Class<?> clazz, Constructor<?> constructor) {
+    private <T> T instantiate(Class<T> clazz) {
+        Constructor<T> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
         if (constructor == null) {
-            return getBeanOrDefault(clazz);
+            return ReflectionUtils.newInstance(clazz);
         }
+        Object[] parameters = instantiateParameters(constructor);
+        return ReflectionUtils.newInstance(constructor, parameters);
+    }
+
+    private Object[] instantiateParameters(Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
-        Object[] parameters = instantiateParameters(parameterTypes);
-        return getBeanOrDefault(constructor, parameters);
-    }
-
-    private Object getBeanOrDefault(Constructor<?> constructor, Object[] parameters) {
-        return putIfAbsent(constructor.getDeclaringClass(), ReflectionUtils.newInstance(constructor, parameters));
-    }
-
-    private Object getBeanOrDefault(Class<?> clazz) {
-        return putIfAbsent(clazz, ReflectionUtils.newInstance(clazz));
-    }
-
-    private Object putIfAbsent(Class<?> clazz, Object instance) {
-        Object bean = beans.getOrDefault(clazz, instance);
-        beans.putIfAbsent(bean.getClass(), bean);
-        return bean;
-    }
-
-    private Object[] instantiateParameters(Class<?>[] parameterTypes) {
-        Object[] instances = new Object[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            instances[i] = instantiateInjectedConstructor(parameterTypes[i]);
+        Object[] parameters = new Object[parameterTypes.length];
+        for (int i = 0; i < parameters.length; i++) {
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterTypes[i], preInstantiateBeans);
+            parameters[i] = instantiateBean(concreteClass);
         }
-        return instances;
-    }
-
-    private Object instantiateInjectedConstructor(Class parameterType) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(parameterType);
-        return instantiateBean(concreteClass, injectedConstructor);
+        return parameters;
     }
 
     public Map<Class<?>, Object> getBeans(Class<? extends Annotation> annotation) {
