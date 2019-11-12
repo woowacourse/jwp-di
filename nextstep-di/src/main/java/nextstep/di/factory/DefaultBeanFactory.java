@@ -84,12 +84,7 @@ public class DefaultBeanFactory implements BeanFactory {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getBean(final Class<T> requiredType) {
-        T bean = (T) beans.get(requiredType);
-
-        if (bean != null) {
-            return bean;
-        }
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(requiredType, beans.keySet());
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClassByBeanDefinition(requiredType, beanDefinitions.values());
         return (T) beans.get(concreteClass);
     }
 
