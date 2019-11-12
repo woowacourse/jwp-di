@@ -26,3 +26,7 @@
     
     @Configuration을 찾고 @ComponentScan의 값을 BeanScanner에 전달하여 빈 생성
     @Configuration도 빈으로 등록하여 내부의 @Bean 메서드 결과를 빈으로 등록한다.
+
+
+### 의문사항
+- `@ComponentScan` 어노테이션에 value와 basepackage가 공통된 정보를 나타내서 이를 어떻게 처리해야할지 궁금합니다.
