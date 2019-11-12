@@ -13,13 +13,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public class BeanScanner {
-    private static final Logger logger = LoggerFactory.getLogger(BeanScanner.class);
+public class ClasspathBeanScanner {
+    private static final Logger logger = LoggerFactory.getLogger(ClasspathBeanScanner.class);
 
     private Reflections reflections;
     private List<Class<? extends Annotation>> annotations;
 
-    public BeanScanner(Object... basePackage) {
+    public ClasspathBeanScanner(Object... basePackage) {
         reflections = new Reflections(basePackage);
         annotations = Arrays.asList(
                 Controller.class, Service.class, Repository.class

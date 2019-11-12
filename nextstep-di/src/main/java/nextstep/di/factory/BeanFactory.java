@@ -21,7 +21,7 @@ public class BeanFactory {
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Object... basePackage) {
-        preInstantiateBeans = new BeanScanner(basePackage).getAnnotatedTypes();
+        preInstantiateBeans = new ClasspathBeanScanner(basePackage).getAnnotatedTypes();
     }
 
     @SuppressWarnings("unchecked")

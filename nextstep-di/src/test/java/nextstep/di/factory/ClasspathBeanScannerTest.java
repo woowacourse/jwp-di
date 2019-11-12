@@ -10,11 +10,11 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BeanScannerTest {
+public class ClasspathBeanScannerTest {
     @Test
     public void getTypesAnnotatedTest() {
-        BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.example");
-        Set<Class<?>> typesAnnotatedWithController = beanScanner.getAnnotatedTypes();
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner("nextstep.di.factory.example");
+        Set<Class<?>> typesAnnotatedWithController = classpathBeanScanner.getAnnotatedTypes();
 
         assertThat(typesAnnotatedWithController).contains(QnaController.class);
         assertThat(typesAnnotatedWithController).contains(MyQnaService.class);
