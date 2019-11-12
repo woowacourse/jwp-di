@@ -24,7 +24,7 @@ public class BeanFactory {
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
-        this.initialize();
+        initialize();
     }
 
     @SuppressWarnings("unchecked")
@@ -33,10 +33,16 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstantiateBeans.forEach(this::getInstantiateClass);
+        try {
+            preInstantiateBeans.forEach(this::getInstantiateClass);
+        } catch (ScannerException | NotRegisteredBeanException e) {
+            throw new InstantiateBeansException(e.getMessage(), e.getCause());
+        }
     }
 
     private Object getInstantiateClass(Class<?> clazz) {
+        checkPreInstantiateBean(clazz);
+
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
 
         if (beans.containsKey(concreteClass)) {
@@ -46,6 +52,12 @@ public class BeanFactory {
         Object instance = instantiateClass(concreteClass);
         beans.put(concreteClass, instance);
         return instance;
+    }
+
+    private void checkPreInstantiateBean(Class<?> clazz) {
+        if (!preInstantiateBeans.contains(clazz)) {
+            throw new NotRegisteredBeanException("Cannot instantiate not registered class!");
+        }
     }
 
     private Object instantiateClass(Class<?> clazz) {

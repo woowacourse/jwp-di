@@ -6,8 +6,7 @@ import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.repository.QuestionRepository;
 import nextstep.di.factory.example.repository.UserRepository;
 import nextstep.di.factory.example.service.MyQnaService;
-import nextstep.di.factory.example2.TestService;
-import nextstep.di.factory.example2.TestServiceObject;
+import nextstep.di.factory.example.service.TestService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,16 +19,18 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     private BeanFactory beanFactory;
+    private Set<Class<?>> preInstantiateClazz;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        Set<Class<?>> preInstantiateClazz = new HashSet<>(Arrays.asList(MyQnaService.class, UserRepository.class, QuestionRepository.class,
+        preInstantiateClazz = new HashSet<>(Arrays.asList(MyQnaService.class, UserRepository.class, QuestionRepository.class,
                 JdbcUserRepository.class, JdbcQuestionRepository.class, QnaController.class));
 
         beanFactory = new BeanFactory(preInstantiateClazz);
@@ -59,8 +60,12 @@ public class BeanFactoryTest {
     }
 
     @Test
+    @DisplayName("Bean으로 등록되지 않은 클래스를 생성하지 않는지 확인")
     void beanScopeTest() {
-        assertThat(beanFactory.getBean(TestService.class)).isNull();
-        assertThat(beanFactory.getBean(TestServiceObject.class)).isNull();
+        preInstantiateClazz.add(TestService.class);
+
+        assertThrows(InstantiateBeansException.class, () -> {
+            new BeanFactory(preInstantiateClazz);
+        });
     }
 }
