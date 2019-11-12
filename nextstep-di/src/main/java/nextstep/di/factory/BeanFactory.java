@@ -68,25 +68,28 @@ public class BeanFactory {
             return beans.get(method.getReturnType());
         }
         for (Class<?> parameterType : method.getParameterTypes()) {
-            Optional<Method> returnMethod = methods.stream().filter(parameterMethod -> parameterMethod.getReturnType() == parameterType).findFirst();
+            Optional<Method> returnMethod = methods.stream()
+                    .filter(parameterMethod -> parameterMethod.getReturnType() == parameterType)
+                    .findFirst();
 
-            if (returnMethod.isPresent()) {
-                parameters.add(createMethodBean(returnMethod.get(), methods));
-            }
-
-            else if(preInstantiateBeans.contains(parameterType)) {
-                parameters.add(createBeanWithTryCatch(parameterType));
-            }
-
-            else {
-                throw new IllegalMethodBeanException();
-            }
+            parameters.add(getParameterBean(methods, parameterType, returnMethod));
 
         }
         Object obj = method.getDeclaringClass().getDeclaredConstructor().newInstance();
         Object instance = method.invoke(obj, parameters.toArray());
         beans.put(method.getReturnType(), instance);
         return instance;
+    }
+
+    private Object getParameterBean(Set<Method> methods, Class<?> parameterType, Optional<Method> returnMethod) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
+        if (returnMethod.isPresent()) {
+            return createMethodBean(returnMethod.get(), methods);
+        }
+        if (preInstantiateBeans.contains(parameterType)) {
+            return createBeanWithTryCatch(parameterType);
+        }
+        throw new IllegalMethodBeanException();
+
     }
 
     private void checkCycleReference(Set<Class<?>> preInstantiateBeans) {
