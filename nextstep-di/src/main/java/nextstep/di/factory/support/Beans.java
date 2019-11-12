@@ -23,11 +23,11 @@ public class Beans {
                 .orElseThrow(BeanNotExistException::new);
     }
 
-    public Object instantiate(Class<?> clazz, Supplier supplier) {
+    public Object instantiate(Class<?> clazz, Supplier instanceSupplier) {
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
-        beans.put(clazz, supplier.get());
+        beans.put(clazz, instanceSupplier.get());
         return beans.get(clazz);
     }
 }

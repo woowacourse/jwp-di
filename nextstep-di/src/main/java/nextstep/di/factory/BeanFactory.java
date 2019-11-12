@@ -4,10 +4,10 @@ import nextstep.di.factory.support.BeanFactoryUtils;
 import nextstep.di.factory.support.Beans;
 import nextstep.di.factory.support.ReflectionUtils;
 import nextstep.di.scanner.BeanScanner;
-import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Set;
 
@@ -70,9 +70,9 @@ public class BeanFactory {
         return ReflectionUtils.newInstance(injectedConstructor, instances);
     }
 
-    public Set<Class<?>> getControllers() {
+    public Set<Class<?>> getSupportedClassByAnnotation(Class<? extends Annotation> annotation) {
         return preInstantiateBeans.stream()
-                .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
                 .collect(toSet());
     }
 }

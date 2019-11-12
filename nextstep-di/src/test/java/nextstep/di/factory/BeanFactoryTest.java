@@ -5,9 +5,9 @@ import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.di.scanner.BeanScanner;
+import nextstep.stereotype.Controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
-    private Reflections reflections;
     private BeanFactory beanFactory;
 
     @BeforeEach
@@ -60,7 +59,7 @@ public class BeanFactoryTest {
 
     @Test
     public void getControllersTest() {
-        Set<Class<?>> actual = beanFactory.getControllers();
+        Set<Class<?>> actual = beanFactory.getSupportedClassByAnnotation(Controller.class);
         assertThat(actual).contains(QnaController.class);
     }
 }
