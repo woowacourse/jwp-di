@@ -1,7 +1,9 @@
 package nextstep.di.scanner;
 
+import nextstep.di.bean.BeanDefinition;
+
 import java.util.Set;
 
 public interface Scanner {
-    Set<Class<?>> getAnnotatedClasses();
+    Set<BeanDefinition> scan();
 }

@@ -1,23 +1,30 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.*;
+import nextstep.di.bean.BeanDefinition;
+import nextstep.di.factory.config.ExampleConfig;
+import nextstep.di.factory.config.FailConfig;
+import nextstep.di.factory.example.MyQnaService;
+import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.example.SingletonTest1;
+import nextstep.di.factory.example.SingletonTest2;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
+import nextstep.di.scanner.ClassPathBeanScanner;
+import nextstep.di.scanner.Scanner;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
+class BeanFactoryTest {
 
     @Test
-    public void di() {
-        BeanFactory beanFactory = new BeanFactory();
-        TestScanner scanner = new TestScanner(beanFactory);
-        scanner.doScan("nextstep.di.factory.example");
+    void di() {
+        Scanner classPathBeanScanner = new ClassPathBeanScanner(ExampleConfig.class);
+        Set<BeanDefinition> beanDefinitions = classPathBeanScanner.scan();
+        BeanFactory beanFactory = new BeanFactory(beanDefinitions);
 
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
@@ -31,17 +38,16 @@ public class BeanFactoryTest {
 
     @Test
     void 애노테이션이_있는_인터페이스() {
-        BeanFactory beanFactory = new BeanFactory();
-        TestScanner scanner = new TestScanner(beanFactory);
-        assertThrows(InvalidBeanClassTypeException.class,
-                () -> scanner.doScan("nextstep.di.factory.fail"));
+        Scanner classPathBeanScanner = new ClassPathBeanScanner(FailConfig.class);
+        assertThrows(InvalidBeanClassTypeException.class, classPathBeanScanner::scan);
     }
 
     @Test
     void 빈_싱글턴_보장_여부() {
-        BeanFactory beanFactory = new BeanFactory();
-        TestScanner scanner = new TestScanner(beanFactory);
-        scanner.doScan("nextstep.di.factory.example");
+        Scanner classPathBeanScanner = new ClassPathBeanScanner(ExampleConfig.class);
+        Set<BeanDefinition> beanDefinitions = classPathBeanScanner.scan();
+        BeanFactory beanFactory = new BeanFactory(beanDefinitions);
+
         SingletonTest1 singletonTest1 = beanFactory.getBean(SingletonTest1.class);
         SingletonTest2 singletonTest2 = beanFactory.getBean(SingletonTest2.class);
         assertThat(singletonTest1.getQnaService()).isEqualTo(singletonTest2.getQnaService());
