@@ -34,13 +34,10 @@ public class BeanScanner {
             .map(object -> (ComponentScan) ((Class) object).getAnnotation(ComponentScan.class))
             .map(ComponentScan::basePackages)
             .distinct()
-            .toArray()
-            ;
-
+            .toArray();
         if (basePackagePaths.length != PATH_EMPTY_COUNT) {
             return basePackagePaths;
         }
-
         return basePackage;
     }
 
@@ -55,7 +52,6 @@ public class BeanScanner {
             Set<Class<?>> typesAnnotatedWith = reflection.getTypesAnnotatedWith(annotation);
             typesAnnotatedWith.forEach(clazz -> beanCreateMatcher.put(clazz, new ConstructorInstantiation(clazz)));
         }
-
         return beanCreateMatcher;
     }
 
