@@ -15,14 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
-    private Reflections reflections;
     private BeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
         final String basePackage = "nextstep.di.factory.example";
-        reflections = new Reflections(basePackage);
         BeanScanner beanScanner = new BeanScanner(basePackage);
         Set<Class<?>> preInstanticateClazz = beanScanner.getPreInstanticateClass();
         beanFactory = new BeanFactory(preInstanticateClazz);
@@ -30,7 +28,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void di() throws Exception {
+    public void di() {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
