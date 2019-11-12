@@ -4,11 +4,15 @@ import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BeanFactoryTest {
+    private static final Logger logger = LoggerFactory.getLogger( BeanFactoryTest.class );
+
     private final BeanScanner beanScanner = (new BeanScanner("nextstep.di.factory.example"));
     private BeanFactory beanFactory;
 
