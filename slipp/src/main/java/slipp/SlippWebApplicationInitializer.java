@@ -13,16 +13,19 @@ import slipp.support.config.MyConfiguration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
+import javax.sql.DataSource;
 
 public class SlippWebApplicationInitializer  implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
+    public static final String SERVLET_CONTEXT_DATASOURCE = "datasource";
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        DispatcherServlet dispatcherServlet = new DispatcherServlet();
         ApplicationContext applicationContext = new ApplicationContext(MyConfiguration.class);
-        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(applicationContext));
+        servletContext.setAttribute(SERVLET_CONTEXT_DATASOURCE, applicationContext.getBean(DataSource.class));
 
+        DispatcherServlet dispatcherServlet = new DispatcherServlet();
+        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(applicationContext));
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
 
