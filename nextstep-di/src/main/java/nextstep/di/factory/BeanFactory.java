@@ -39,9 +39,7 @@ public class BeanFactory {
         }
     }
 
-    private Object getInstantiateClass(Class<?> clazz) {
-        checkPreInstantiateBean(clazz);
-
+    private Object instantiateBean(Class<?> clazz) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
 
         if (beans.containsKey(concreteClass)) {
@@ -53,18 +51,19 @@ public class BeanFactory {
         return instance;
     }
 
-    private void checkPreInstantiateBean(Class<?> clazz) {
-        if (!preInstantiateBeans.contains(clazz)) {
-            throw new NotRegisteredBeanException("Cannot instantiate not registered class!");
-        }
-    }
-
     private Object instantiateClass(Class<?> clazz) {
+        checkPreInstantiateBean(clazz);
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
 
         return Optional.ofNullable(constructor)
                 .map(this::instantiateConstructor)
                 .orElseGet(() -> defaultConstructorInstantiate(clazz));
+    }
+
+    private void checkPreInstantiateBean(Class<?> clazz) {
+        if (!preInstantiateBeans.contains(clazz)) {
+            throw new NotRegisteredBeanException("Cannot instantiate not registered class!");
+        }
     }
 
     private Object instantiateConstructor(Constructor<?> constructor) {

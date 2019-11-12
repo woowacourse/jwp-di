@@ -4,7 +4,6 @@ import nextstep.di.factory.example.controller.QnaController;
 import nextstep.di.factory.example.repository.JdbcQuestionRepository;
 import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.repository.QuestionRepository;
-import nextstep.di.factory.example.repository.UserRepository;
 import nextstep.di.factory.example.service.MyQnaService;
 import nextstep.di.factory.example.service.TestService;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,9 +29,8 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        preInstantiateClazz = new HashSet<>(Arrays.asList(MyQnaService.class, UserRepository.class, QuestionRepository.class,
+        preInstantiateClazz = new HashSet<>(Arrays.asList(MyQnaService.class,
                 JdbcUserRepository.class, JdbcQuestionRepository.class, QnaController.class));
-
         beanFactory = new BeanFactory(preInstantiateClazz);
     }
 
@@ -64,7 +62,7 @@ public class BeanFactoryTest {
     void beanScopeTest() {
         preInstantiateClazz.add(TestService.class);
 
-        assertThrows(InstantiateBeansException.class, () -> {
+        assertThrows(NotRegisteredBeanException.class, () -> {
             new BeanFactory(preInstantiateClazz);
         });
     }
