@@ -2,8 +2,8 @@ package nextstep.di.factory.instantiation;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.BeanCreateMatcher;
-import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.MyJdbcTemplate;
+import nextstep.di.factory.example.config.IntegrationConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;

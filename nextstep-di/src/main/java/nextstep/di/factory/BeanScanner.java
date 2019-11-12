@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Bean;
+import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.instantiation.ConstructorInstantiation;
 import nextstep.di.factory.instantiation.MethodInstantiation;
@@ -14,10 +15,33 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanScanner {
+    private static final int PATH_EMPTY_COUNT = 0;
+
     private final Reflections reflection;
 
-    public BeanScanner(Object... basePackages) {
-        this.reflection = new Reflections(basePackages);
+    public BeanScanner(Object... basePackage) {
+        this.reflection = generateReflection(basePackage);
+    }
+
+    private Reflections generateReflection(Object... basePackage) {
+        return new Reflections(findBasePackage(basePackage));
+    }
+
+    private Object[] findBasePackage(Object... basePackage) {
+        Object[] basePackagePaths = Arrays.stream(basePackage)
+            .filter(object -> object instanceof Class)
+            .filter(object -> ((Class) object).isAnnotationPresent(ComponentScan.class))
+            .map(object -> (ComponentScan) ((Class) object).getAnnotation(ComponentScan.class))
+            .map(ComponentScan::basePackages)
+            .distinct()
+            .toArray()
+            ;
+
+        if (basePackagePaths.length != PATH_EMPTY_COUNT) {
+            return basePackagePaths;
+        }
+
+        return basePackage;
     }
 
     public BeanCreateMatcher scanBean(Class<? extends Annotation>... annotation) {

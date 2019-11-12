@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import slipp.MyConfiguration;
+import slipp.configuration.MyConfiguration;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 
@@ -26,12 +26,12 @@ public class UserDaoTest {
         userDao = new UserDao(getJdbcTemplate());
     }
 
-    private JdbcTemplate getJdbcTemplate() {
-        return new JdbcTemplate(getDataSource());
-    }
-
     private DataSource getDataSource() {
         return MyConfiguration.dataSource();
+    }
+
+    private JdbcTemplate getJdbcTemplate() {
+        return new JdbcTemplate(getDataSource());
     }
 
     @Test

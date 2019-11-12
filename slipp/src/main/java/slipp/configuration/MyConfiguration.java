@@ -1,6 +1,7 @@
-package slipp;
+package slipp.configuration;
 
 import nextstep.annotation.Bean;
+import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
 import nextstep.jdbc.JdbcTemplate;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -8,6 +9,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 
 @Configuration
+@ComponentScan(basePackages = "slipp")
 public class MyConfiguration {
     @Bean
     public static DataSource dataSource() {
