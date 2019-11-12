@@ -1,9 +1,12 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.annotation.Bean;
 import nextstep.annotation.Inject;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
@@ -48,5 +51,17 @@ public class BeanFactoryUtils {
         }
 
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+    }
+
+    /**
+     * 파라미터로 받은 class 에서 `@Bean` 어노테이션이 설정된 method 배열을 반환
+     *
+     * @param clazz
+     * @return included `@Bean` annotation method
+     */
+    public static Method[] getHavingBeanAnnotation(Class<?> clazz) {
+        return Arrays.stream(clazz.getDeclaredMethods())
+                .filter(method -> method.isAnnotationPresent(Bean.class))
+                .toArray(Method[]::new);
     }
 }
