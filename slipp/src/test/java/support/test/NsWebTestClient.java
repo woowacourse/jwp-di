@@ -19,8 +19,8 @@ public class NsWebTestClient {
         this.baseUrl = baseUrl;
         this.port = port;
         this.testClientBuilder = WebTestClient
-                .bindToServer()
-                .baseUrl(baseUrl + ":" + port);
+            .bindToServer()
+            .baseUrl(baseUrl + ":" + port);
     }
 
     public NsWebTestClient basicAuth(String username, String password) {
@@ -30,33 +30,33 @@ public class NsWebTestClient {
 
     public <T> URI createResource(String url, T body, Class<T> clazz) {
         EntityExchangeResult<byte[]> response = testClientBuilder.build()
-                .post()
-                .uri(url)
-                .body(Mono.just(body), clazz)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .returnResult();
+            .post()
+            .uri(url)
+            .body(Mono.just(body), clazz)
+            .exchange()
+            .expectStatus().isCreated()
+            .expectBody()
+            .returnResult();
         return response.getResponseHeaders().getLocation();
     }
 
     public <T> void updateResource(URI location, T body, Class<T> clazz) {
         testClientBuilder.build()
-                .put()
-                .uri(location.toString())
-                .body(Mono.just(body), clazz)
-                .exchange()
-                .expectStatus().isOk();
+            .put()
+            .uri(location.toString())
+            .body(Mono.just(body), clazz)
+            .exchange()
+            .expectStatus().isOk();
     }
 
     public <T> T getResource(URI location, Class<T> clazz) {
         return testClientBuilder.build()
-                .get()
-                .uri(location.toString())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(clazz)
-                .returnResult().getResponseBody();
+            .get()
+            .uri(location.toString())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(clazz)
+            .returnResult().getResponseBody();
     }
 
     public static NsWebTestClient of(int port) {

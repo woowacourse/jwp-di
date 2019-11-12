@@ -29,8 +29,8 @@ public class UserUpdatedDto {
     @Override
     public String toString() {
         return "UserUpdatedDto{" +
-                "name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                '}';
+            "name='" + name + '\'' +
+            ", email='" + email + '\'' +
+            '}';
     }
 }

@@ -43,11 +43,11 @@ public class BeanScanner {
 
     private void registerMethodBean(BeanCreateMatcher beanCreateMatcher, Class<?> configurationClazz) {
         Set<Method> methods = Arrays.stream(configurationClazz.getDeclaredMethods())
-                .filter(method -> method.isAnnotationPresent(Bean.class))
-                .collect(Collectors.toSet());
+            .filter(method -> method.isAnnotationPresent(Bean.class))
+            .collect(Collectors.toSet());
         for (Method method : methods) {
             beanCreateMatcher.put(method.getReturnType(),
-                    new MethodInstantiation(method, BeanUtils.instantiateClass(configurationClazz)));
+                new MethodInstantiation(method, BeanUtils.instantiateClass(configurationClazz)));
         }
     }
 }

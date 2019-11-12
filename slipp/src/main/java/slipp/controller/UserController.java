@@ -54,7 +54,7 @@ public class UserController extends AbstractNewController {
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = new User(request.getParameter("userId"), request.getParameter("password"),
-                request.getParameter("name"), request.getParameter("email"));
+            request.getParameter("name"), request.getParameter("email"));
         log.debug("User : {}", user);
         userDao.insert(user);
         return jspView("redirect:/");
@@ -81,9 +81,9 @@ public class UserController extends AbstractNewController {
         }
 
         UserUpdatedDto updateUser = new UserUpdatedDto(
-                req.getParameter("password"),
-                req.getParameter("name"),
-                req.getParameter("email"));
+            req.getParameter("password"),
+            req.getParameter("name"),
+            req.getParameter("email"));
         log.debug("Update User : {}", updateUser);
         user.update(updateUser);
         return jspView("redirect:/");
