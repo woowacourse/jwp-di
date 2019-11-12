@@ -1,6 +1,5 @@
-package nextstep.mvc.tobe;
+package nextstep.mvc;
 
-import nextstep.mvc.ModelAndView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,7 +1,6 @@
-package nextstep.mvc;
+package nextstep.mvc.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nextstep.mvc.View;
 import nextstep.web.support.MediaType;
 
 import javax.servlet.ServletOutputStream;

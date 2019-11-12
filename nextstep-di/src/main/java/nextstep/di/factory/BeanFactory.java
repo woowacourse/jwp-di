@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.DefaultConstructorInitException;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
 import nextstep.di.factory.exception.InvalidBeanTargetException;
+import nextstep.di.factory.scanner.BeanDefinition;
+import nextstep.di.factory.scanner.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -11,21 +13,25 @@ import org.springframework.beans.BeanUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
+    private Map<Class<?>, BeanDefinition> targetBeanDefinitions = Maps.newHashMap();
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Scanner scanner) {
-        this.preInstanticateBeans = scanner.getAnnotatedClasses();
+    public BeanFactory(Scanner... scanners) {
+        setTargetBeanDefinitions(scanners);
+    }
+
+    private void setTargetBeanDefinitions(Scanner[] scanners) {
+        Arrays.stream(scanners)
+                .map(Scanner::getBeanDefinitions)
+                .flatMap(Collection::stream)
+                .forEach(beanDefinition -> targetBeanDefinitions.put(beanDefinition.getBeanClass(), beanDefinition));
     }
 
     public Map<Class<?>, Object> getBeansWithType(Class<? extends Annotation> type) {
@@ -40,9 +46,9 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> bean : preInstanticateBeans) {
-            checkIfInterface(bean);
-            enrollBean(bean);
+        for (Class<?> beanClass : targetBeanDefinitions.keySet()) {
+            checkIfInterface(beanClass);
+            enrollBean(beanClass);
         }
     }
 
@@ -71,7 +77,7 @@ public class BeanFactory {
     }
 
     private boolean isNotBeanTarget(Class<?> clazz) {
-        return !preInstanticateBeans.contains(clazz);
+        return !targetBeanDefinitions.containsKey(clazz);
     }
 
     private boolean isBeanExists(Class<?> bean) {
@@ -99,7 +105,7 @@ public class BeanFactory {
         Parameter[] parameters = constructor.getParameters();
         List<Object> paramInstances = new ArrayList<>();
         for (Parameter parameter : parameters) {
-            Class<?> clazz = BeanFactoryUtils.findConcreteClass(parameter.getType(), preInstanticateBeans);
+            Class<?> clazz = BeanFactoryUtils.findConcreteClass(parameter.getType(), targetBeanDefinitions.keySet());
             paramInstances.add(enrollBean(clazz));
         }
         return paramInstances;
