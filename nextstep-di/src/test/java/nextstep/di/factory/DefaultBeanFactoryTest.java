@@ -2,7 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Configuration;
-import nextstep.di.factory.example.*;
+import nextstep.di.example.*;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -28,7 +28,7 @@ public class DefaultBeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        reflections = new Reflections("nextstep.di.factory.example");
+        reflections = new Reflections("nextstep.di.example");
         Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class, Configuration.class);
         beanFactory = new DefaultBeanFactory(preInstanticateClazz);
     }

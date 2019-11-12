@@ -1,8 +1,8 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.IntegrationConfig;
-import nextstep.di.factory.example.JdbcUserRepository;
-import nextstep.di.factory.example.MyJdbcTemplate;
+import nextstep.di.example.IntegrationConfig;
+import nextstep.di.example.JdbcUserRepository;
+import nextstep.di.example.MyJdbcTemplate;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;

@@ -1,7 +1,7 @@
-package nextstep.di.factory;
+package nextstep.di.scanner;
 
-import nextstep.di.factory.example.ExampleConfig;
-import nextstep.di.factory.example.IntegrationConfig;
+import nextstep.di.example.ExampleConfig;
+import nextstep.di.example.IntegrationConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

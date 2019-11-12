@@ -1,4 +1,4 @@
-package nextstep.di.factory.example;
+package nextstep.di.example;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

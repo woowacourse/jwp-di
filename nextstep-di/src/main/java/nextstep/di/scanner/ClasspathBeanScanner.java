@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.scanner;
 
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
