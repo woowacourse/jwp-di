@@ -5,7 +5,7 @@ public class BeanFactoryManager {
     public static BeanFactory createBeanFactory(Object... basePackage) {
         BeanScanner beanScanner = new BeanScanner(basePackage);
         BeanFactory beanFactory = new BeanFactory();
-        beanFactory.addBeans(beanScanner.getPreInstantiateBeans());
+        beanFactory.addBeans(beanScanner.scanBeans());
         return beanFactory;
     }
 }
