@@ -62,7 +62,7 @@ public class BeanFactory {
 
     private void checkPreInstantiateBean(Class<?> clazz) {
         if (!preInstantiateBeans.contains(clazz)) {
-            throw new NotRegisteredBeanException("Cannot instantiate not registered class!");
+            throw new NotRegisteredBeanException();
         }
     }
 
