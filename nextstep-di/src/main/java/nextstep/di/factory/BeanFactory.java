@@ -2,7 +2,6 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import nextstep.di.factory.exception.ScannerException;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +82,7 @@ public class BeanFactory {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             log.error("Fail to instantiate by default constructor : ", e);
-            throw new ScannerException(e);
+            throw new InstantiateBeansException(e);
         }
     }
 

@@ -1,7 +1,7 @@
 package nextstep.di.factory;
 
 public class InstantiateBeansException extends RuntimeException {
-    public InstantiateBeansException(String message, Throwable cause) {
-        super(message, cause);
+    public InstantiateBeansException(Exception e) {
+        super(e.getMessage(), e.getCause());
     }
 }
