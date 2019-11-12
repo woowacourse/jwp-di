@@ -51,7 +51,7 @@ public class BeanFactory {
         List<Object> parameterObject = Lists.newArrayList();
 
         for (Class<?> parameterType : parameterTypes) {
-            instantiateParameter(parameterObject, parameterType);
+            parameterObject.add(instantiateParameter(parameterType));
         }
 
         Class<?> clazz = constructor.getDeclaringClass();
@@ -60,13 +60,12 @@ public class BeanFactory {
         return bean;
     }
 
-    private void instantiateParameter(List<Object> parameterObject, Class<?> aClass) {
+    private Object instantiateParameter(Class<?> aClass) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(aClass, preInstanticateBeans);
         if (beans.containsKey(concreteClass)) {
-            parameterObject.add(beans.get(concreteClass));
-            return;
+            return beans.get(concreteClass);
         }
-        parameterObject.add(instantiateClass(aClass));
+        return instantiateClass(aClass);
     }
 
     private Object createBeanDefaultConstructor(Class<?> clazz) {
