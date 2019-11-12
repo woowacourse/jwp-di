@@ -2,7 +2,8 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanScanner;
+import nextstep.di.factory.ClasspathBeanScanner;
+import nextstep.di.factory.ConfigurationBeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
@@ -12,26 +13,30 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackage;
+    private Class<?>[] configurations;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackage) {
-        this.basePackage = basePackage;
+    public AnnotationHandlerMapping(Class<?>... configurations) {
+        this.configurations = configurations;
     }
 
     public void initialize() {
-        BeanScanner beanScanner = new BeanScanner(basePackage);
-        BeanFactory beanFactory = new BeanFactory(beanScanner.getBeans());
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(configurations);
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(configurationBeanScanner.getBasePackages());
+
+        Set<Class<?>> classTypes = Stream.of(configurationBeanScanner.getClassTypes(), classpathBeanScanner.getClassTypes())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        BeanFactory beanFactory = new BeanFactory(classTypes);
         beanFactory.initialize();
 
         Set<Method> methods = beanFactory.findMethodsByAnnotation(RequestMapping.class, Controller.class);
