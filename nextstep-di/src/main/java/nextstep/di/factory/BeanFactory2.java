@@ -2,33 +2,26 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.di.bean.BeanDefinition;
-import nextstep.di.factory.exception.DefaultConstructorInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.*;
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BeanFactory2 {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory2.class);
 
-
-    // Refactoring 하는 부분
-    private List<BeanDefinition> preBeans;
-
+    private Map<Class<?>, BeanDefinition> preBeans;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory2(Set<BeanDefinition> beanDefinitions) {
-//        this.preBeans = beanDefinitions.stream()
-//                .collect(Collectors.toMap(BeanDefinition::getClazz, Function.identity()));
-        this.preBeans = new ArrayList<>(beanDefinitions);
-        // TODO
-        //initialize();
+        this.preBeans = beanDefinitions.stream()
+                .collect(Collectors.toMap(BeanDefinition::getClazz, Function.identity()));
+        this.preBeans.forEach(this::initBean);
     }
 
     @SuppressWarnings("unchecked")
@@ -36,60 +29,37 @@ public class BeanFactory2 {
         return (T) beans.get(requiredType);
     }
 
-//    public void initialize() {
-//        for (BeanDefinition preBean : preBeans) {
-//
-//            Method[] methods = preBean.getClass().getMethods();
-//            for (Method targetMethod : methods) {
-//                beans.put(preBean.getClass(), createInstance(targetMethod));
-//            }
-//        }
-//    }
-
-//    private Object createInstance(Method method) {
-//        Parameter[] parameters = method.getParameters();
-//        Constructor<?> constructor = getConstructor(method.getClass());
-//        Object classInstance = BeanUtils.instantiateClass(constructor);
-//        List<Object> arguments = Arrays.stream(parameters)
-//                .map(parameter -> getOrCreateInstance(parameter.getType()))
-//                .collect(Collectors.toList());
-//        try {
-//            return method.invoke(classInstance, arguments);
-//        } catch (IllegalAccessException | InvocationTargetException e) {
-//            e.printStackTrace();
-//            throw new RuntimeException();
-//        }
-//    }
-
-// TODO
-//    private Object getOrCreateInstance(Class<?> clazz) {
-//        if (beans.containsKey(clazz)) {
-//            return getBean(clazz);
-//        }
-//
-//        BeanDefinition beanDefinition = preBeans.stream()
-//                .filter(prebean -> prebean.getClass() == clazz)
-//                .findFirst()
-//                .orElseThrow(RuntimeException::new);
-//        Object instance = createInstance(beanDefinition);
-//        beans.put(beanDefinition.getClass(), instance);
-//        return instance;
-//    }
-
-    private Constructor<?> getConstructor(Class<?> clazz) {
-        Constructor injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        if (injectedConstructor == null) {
-            return getDefaultConstructor(clazz);
-        }
-        return injectedConstructor;
+    private void initBean(Class<?> clazz, BeanDefinition beanDefinition) {
+        Object[] params = getParams(beanDefinition);
+        beans.putIfAbsent(clazz, beanDefinition.invoke(params));
     }
 
-    private Constructor getDefaultConstructor(Class<?> clazz) {
-        try {
-            return clazz.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            logger.error("Error : {0}", e);
-            throw new DefaultConstructorInitException(e);
+    private Object[] getParams(BeanDefinition beanDefinition) {
+        return Arrays.stream(beanDefinition.getParametersType())
+                .map(this::getParam)
+                .toArray();
+    }
+
+    private Object getParam(Class<?> clazz) {
+        if (beans.containsKey(clazz)) {
+            return beans.get(clazz);
         }
+        initBean(clazz, findBean(clazz));
+        return beans.get(clazz);
+    }
+
+    private BeanDefinition findBean(Class<?> clazz) {
+        if (preBeans.containsKey(clazz)) {
+            return preBeans.get(clazz);
+        }
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preBeans.keySet());
+        return preBeans.get(concreteClass);
+    }
+
+    public Map<Class<?>, Object> getBeansWithType(Class<? extends Annotation> type) {
+        return this.beans.entrySet().stream()
+                .filter(bean -> bean.getKey().isAnnotationPresent(type))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
+
