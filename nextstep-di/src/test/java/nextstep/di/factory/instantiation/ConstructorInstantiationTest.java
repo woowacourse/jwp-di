@@ -1,5 +1,6 @@
 package nextstep.di.factory.instantiation;
 
+import com.google.common.collect.Maps;
 import nextstep.di.factory.BeanCreateMatcher;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
@@ -25,7 +26,7 @@ class ConstructorInstantiationTest {
     @Test
     void getInstance() {
         constructorInstantiation = new ConstructorInstantiation(MyQnaService.class);
-        assertNotNull(constructorInstantiation.getInstance(beanCreateMatcher));
+        assertNotNull(constructorInstantiation.getInstance(beanCreateMatcher, Maps.newHashMap()));
     }
 
     @AfterEach

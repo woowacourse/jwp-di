@@ -1,8 +1,10 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyJdbcTemplate;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -37,11 +39,25 @@ public class BeanFactoryTest {
     }
 
     @Test
-    void sameInstance() {
+    void sameInstanceMethod() {
         DataSource dataSource = beanFactory.getBean(DataSource.class);
         MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
         assertThat(dataSource).isEqualTo(beanFactory.getBean(DataSource.class));
         assertThat(myJdbcTemplate).isEqualTo(beanFactory.getBean(MyJdbcTemplate.class));
         assertThat(dataSource).isEqualTo(myJdbcTemplate.getDataSource());
+    }
+
+    @Test
+    void sameInstanceConstructor() {
+        MyQnaService myQnaService = beanFactory.getBean(MyQnaService.class);
+        JdbcUserRepository jdbcUserRepository = beanFactory.getBean(JdbcUserRepository.class);
+        assertThat(myQnaService).isEqualTo(beanFactory.getBean(MyQnaService.class));
+        assertThat(jdbcUserRepository).isEqualTo(beanFactory.getBean(JdbcUserRepository.class));
+        assertThat(jdbcUserRepository).isEqualTo(myQnaService.getUserRepository());
+    }
+
+    @AfterEach
+    void tearDown() {
+        beanFactory = null;
     }
 }

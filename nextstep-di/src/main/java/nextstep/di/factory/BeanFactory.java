@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.instantiation.InstantiationMethod;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -24,7 +25,10 @@ public class BeanFactory {
 
 
     public void initialize() {
-        matcher.entrySet().forEach(entry -> beans.put(entry.getKey(), entry.getValue().getInstance(matcher)));
+        for (Map.Entry<Class<?>, InstantiationMethod> entry : matcher.entrySet()) {
+            beans.putIfAbsent(entry.getKey(), entry.getValue().getInstance(matcher, beans));
+        }
+//        matcher.entrySet().forEach(entry -> beans.putIfAbsent(entry.getKey(), entry.getValue().getInstance(matcher, beans)));
         logger.debug("Bean init : {}", beans);
     }
 
