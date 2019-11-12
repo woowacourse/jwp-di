@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import nextstep.di.scanner.ClasspathBeanScanner;
+import nextstep.di.scanner.ComponentScanner;
 import nextstep.di.scanner.ConfigurationBeanScanner;
 
 import java.lang.annotation.Annotation;
@@ -14,8 +15,11 @@ public class ApplicationContext implements BeanFactory {
     private BeanFactory beanFactory;
 
     public ApplicationContext(Class<?>... configurations) {
+        ComponentScanner componentScanner = new ComponentScanner(configurations);
+        Object[] basePackages = componentScanner.getBasePackages();
+
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(configurations);
-        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(configurationBeanScanner.getBasePackages());
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(basePackages);
 
         Set<Class<?>> preInstantiatedBeans = Stream.of(configurationBeanScanner.getClassTypes(), classpathBeanScanner.getClassTypes())
                 .flatMap(Collection::stream)
