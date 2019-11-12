@@ -39,7 +39,7 @@ public class BeanFactory {
         }
     }
 
-    private Object instantiateBean(Class<?> clazz) {
+    private Object registerInstantiatedBean(Class<?> clazz) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
 
         if (beans.containsKey(concreteClass)) {
