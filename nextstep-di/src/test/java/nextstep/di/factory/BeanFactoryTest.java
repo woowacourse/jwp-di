@@ -1,56 +1,92 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
-import nextstep.di.factory.example.QnaController;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
-import nextstep.di.factory.example.MyQnaService;
-import org.junit.jupiter.api.BeforeEach;
+import nextstep.annotation.Inject;
+import nextstep.di.factory.exception.InvalidBeanClassTypeException;
+import nextstep.di.factory.exception.InvalidBeanTargetException;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
+class BeanFactoryTest {
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
-    private Reflections reflections;
-    private BeanFactory beanFactory;
-
-    @BeforeEach
-    @SuppressWarnings("unchecked")
-    public void setup() {
-        reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
+    @Test
+    void 어노테이션_빈_등록_성공() {
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedClass.class, ParameterClass.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
         beanFactory.initialize();
+        AnnotatedClass annotatedClass = beanFactory.getBean(AnnotatedClass.class);
+        assertNotNull(annotatedClass);
     }
 
     @Test
-    public void di() throws Exception {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
-
-        assertNotNull(qnaController);
-        assertNotNull(qnaController.getQnaService());
-
-        MyQnaService qnaService = qnaController.getQnaService();
-        assertNotNull(qnaService.getUserRepository());
-        assertNotNull(qnaService.getQuestionRepository());
+    void 파라미터_빈_대상_아닐시_등록_실패() {
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedClass.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
+        assertThrows(InvalidBeanTargetException.class, () -> {
+            beanFactory.initialize();
+        });
     }
 
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
+    @Test
+    void 없는_빈_Null() {
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedClass.class, ParameterClass.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
+        beanFactory.initialize();
+        assertNull(beanFactory.getBean(NotAnnotatedClass.class));
+    }
+
+    @Test
+    void 애노테이션이_있는_인터페이스() {
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedInterface.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
+        assertThrows(InvalidBeanClassTypeException.class, beanFactory::initialize);
+    }
+
+    @Test
+    void 빈_싱글턴_보장_여부() {
+        Scanner manualScanner = () ->
+                Stream.of(AnnotatedClass.class, ParameterClass.class)
+                        .collect(Collectors.toSet());
+        BeanFactory beanFactory = new BeanFactory(manualScanner);
+        beanFactory.initialize();
+        AnnotatedClass annotatedClass = beanFactory.getBean(AnnotatedClass.class);
+        assertThat(annotatedClass.getParameterClass()).isEqualTo(beanFactory.getBean(ParameterClass.class));
+    }
+
+    private interface AnnotatedInterface {
+    }
+
+    private static class AnnotatedClass {
+        private ParameterClass parameterClass;
+
+        @Inject
+        public AnnotatedClass(ParameterClass parameterClass) {
+            this.parameterClass = parameterClass;
         }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
+
+        ParameterClass getParameterClass() {
+            return parameterClass;
+        }
+    }
+
+    private static class ParameterClass {
+    }
+
+    private static class NotAnnotatedClass {
     }
 }
