@@ -3,10 +3,16 @@ package nextstep.di.factory;
 import nextstep.annotation.Inject;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
 import nextstep.di.factory.exception.InvalidBeanTargetException;
+import nextstep.di.factory.scanner.BeanDefinition;
+import nextstep.di.factory.scanner.ClassPathBeanDefinition;
+import nextstep.di.factory.scanner.Scanner;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,6 +26,7 @@ class BeanFactoryTest {
     void 어노테이션_빈_등록_성공() {
         Scanner manualScanner = () ->
                 Stream.of(AnnotatedClass.class, ParameterClass.class)
+                        .map(ClassPathBeanDefinition::new)
                         .collect(Collectors.toSet());
         BeanFactory beanFactory = new BeanFactory(manualScanner);
         beanFactory.initialize();
@@ -31,6 +38,7 @@ class BeanFactoryTest {
     void 파라미터_빈_대상_아닐시_등록_실패() {
         Scanner manualScanner = () ->
                 Stream.of(AnnotatedClass.class)
+                        .map(ClassPathBeanDefinition::new)
                         .collect(Collectors.toSet());
         BeanFactory beanFactory = new BeanFactory(manualScanner);
         assertThrows(InvalidBeanTargetException.class, () -> {
@@ -42,6 +50,7 @@ class BeanFactoryTest {
     void 없는_빈_Null() {
         Scanner manualScanner = () ->
                 Stream.of(AnnotatedClass.class, ParameterClass.class)
+                        .map(ClassPathBeanDefinition::new)
                         .collect(Collectors.toSet());
         BeanFactory beanFactory = new BeanFactory(manualScanner);
         beanFactory.initialize();
@@ -52,6 +61,7 @@ class BeanFactoryTest {
     void 애노테이션이_있는_인터페이스() {
         Scanner manualScanner = () ->
                 Stream.of(AnnotatedInterface.class)
+                        .map(ClassPathBeanDefinition::new)
                         .collect(Collectors.toSet());
         BeanFactory beanFactory = new BeanFactory(manualScanner);
         assertThrows(InvalidBeanClassTypeException.class, beanFactory::initialize);
@@ -61,6 +71,7 @@ class BeanFactoryTest {
     void 빈_싱글턴_보장_여부() {
         Scanner manualScanner = () ->
                 Stream.of(AnnotatedClass.class, ParameterClass.class)
+                        .map(ClassPathBeanDefinition::new)
                         .collect(Collectors.toSet());
         BeanFactory beanFactory = new BeanFactory(manualScanner);
         beanFactory.initialize();

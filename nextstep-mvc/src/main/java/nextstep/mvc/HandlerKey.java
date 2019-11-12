@@ -1,4 +1,4 @@
-package nextstep.mvc.tobe;
+package nextstep.mvc;
 
 import nextstep.web.annotation.RequestMethod;
 

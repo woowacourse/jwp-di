@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.DefaultConstructorInitException;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
 import nextstep.di.factory.exception.InvalidBeanTargetException;
+import nextstep.di.factory.scanner.BeanDefinition;
+import nextstep.di.factory.scanner.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -20,12 +22,12 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
+    private Set<BeanDefinition> preInstanticateBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Scanner scanner) {
-        this.preInstanticateBeans = scanner.getAnnotatedClasses();
+        this.preInstanticateBeans = scanner.getBeanDefinitions();
     }
 
     public Map<Class<?>, Object> getBeansWithType(Class<? extends Annotation> type) {
@@ -40,9 +42,10 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> bean : preInstanticateBeans) {
-            checkIfInterface(bean);
-            enrollBean(bean);
+        for (BeanDefinition beanDefinition : preInstanticateBeans) {
+            Class beanClass = beanDefinition.getBeanClass();
+            checkIfInterface(beanClass);
+            enrollBean(beanClass);
         }
     }
 

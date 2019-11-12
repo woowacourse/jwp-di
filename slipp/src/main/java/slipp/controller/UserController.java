@@ -1,7 +1,7 @@
 package slipp.controller;
 
 import nextstep.mvc.ModelAndView;
-import nextstep.mvc.tobe.AbstractNewController;
+import nextstep.mvc.AbstractController;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @Controller
-public class UserController extends AbstractNewController {
+public class UserController extends AbstractController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     private UserDao userDao = UserDao.getInstance();
