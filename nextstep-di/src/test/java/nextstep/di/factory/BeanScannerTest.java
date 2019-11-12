@@ -1,6 +1,8 @@
 package nextstep.di.factory;
 
 import nextstep.di.factory.example.TestApplication;
+import nextstep.di.factory.example.config.ExampleConfig;
+import nextstep.di.factory.example.config.IntegrationConfig;
 import nextstep.di.factory.example.controller.QnaController;
 import nextstep.di.factory.example.repository.JdbcQuestionRepository;
 import nextstep.di.factory.example.repository.JdbcUserRepository;
@@ -51,5 +53,22 @@ public class BeanScannerTest {
         Set<Class<?>> preInstantiateClazz = BeanScanner.scan("nextstep.di.factory.example");
 
         assertThat(preInstantiateClazz).doesNotContain(TestApplication.class);
+    }
+
+    @Test
+    @DisplayName("빈 설정 파일을 스캔한다.")
+    void configurationScan() {
+        Set<Class<?>> configurations = BeanScanner.scanConfiguration("nextstep.di.factory.example.config");
+
+        assertThat(configurations).contains(
+                ExampleConfig.class,
+                IntegrationConfig.class,
+                QnaController.class,
+                MyQnaService.class,
+                TestService.class,
+                JdbcQuestionRepository.class,
+                JdbcUserRepository.class
+        );
+        assertThat(configurations.size()).isEqualTo(7);
     }
 }
