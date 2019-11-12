@@ -2,7 +2,6 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
-import nextstep.di.factory.scanner.BeanDefinition;
 
 import java.lang.reflect.Constructor;
 import java.util.Set;
@@ -32,19 +31,18 @@ public class BeanFactoryUtils {
      * 인터페이스인 경우 BeanFactory가 관리하는 모든 클래스 중에 인터페이스를 구현하는 클래스를 찾아 반환
      *
      * @param injectedClazz
-     * @param beanDefinitions
+     * @param preInstanticateBeans
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<BeanDefinition> beanDefinitions) {
+    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
         if (!injectedClazz.isInterface()) {
             return injectedClazz;
         }
 
-        for (BeanDefinition beanDefinition : beanDefinitions) {
-            Class implementedClazz = beanDefinition.getBeanClass();
-            Set<Class<?>> interfaces = Sets.newHashSet(implementedClazz.getInterfaces());
+        for (Class<?> clazz : preInstanticateBeans) {
+            Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
             if (interfaces.contains(injectedClazz)) {
-                return implementedClazz;
+                return clazz;
             }
         }
 
