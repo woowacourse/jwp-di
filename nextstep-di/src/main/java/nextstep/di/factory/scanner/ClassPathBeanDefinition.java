@@ -1,7 +1,7 @@
 package nextstep.di.factory.scanner;
 
 public class ClassPathBeanDefinition implements BeanDefinition {
-    Class<?> clazz;
+    private Class<?> clazz;
 
     public ClassPathBeanDefinition(Class<?> clazz) {
         this.clazz = clazz;

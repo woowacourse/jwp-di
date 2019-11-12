@@ -3,16 +3,14 @@ package nextstep.di.factory;
 import nextstep.annotation.Inject;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
 import nextstep.di.factory.exception.InvalidBeanTargetException;
-import nextstep.di.factory.scanner.BeanDefinition;
 import nextstep.di.factory.scanner.ClassPathBeanDefinition;
+import nextstep.di.factory.scanner.MethodBeanDefinition;
 import nextstep.di.factory.scanner.Scanner;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,7 +21,7 @@ class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     @Test
-    void 어노테이션_빈_등록_성공() {
+    void 클래스_어노테이션_빈_등록_성공() {
         Scanner manualScanner = () ->
                 Stream.of(AnnotatedClass.class, ParameterClass.class)
                         .map(ClassPathBeanDefinition::new)
@@ -78,6 +76,18 @@ class BeanFactoryTest {
         AnnotatedClass annotatedClass = beanFactory.getBean(AnnotatedClass.class);
         assertThat(annotatedClass.getParameterClass()).isEqualTo(beanFactory.getBean(ParameterClass.class));
     }
+// TODO: 2019-11-13 ConfigurationScanner TDD 및 구현 후 구현을 위한 실패하는 테스트
+//    @Test
+//    void 메소드_빈_등록_성공() throws NoSuchMethodException {
+//        Method method = AnnotatedClass.class.getDeclaredMethod("annotatedMethod");
+//        Scanner manualScanner = () -> Stream.of()
+//                .map(MethodBeanDefinition::new)
+//                .collect(Collectors.toSet());
+//        BeanFactory beanFactory = new BeanFactory(manualScanner);
+//        beanFactory.initialize();
+//        assertNotNull(beanFactory.getBean(method.getReturnType()));
+//    }
+
 
     private interface AnnotatedInterface {
     }
@@ -92,6 +102,10 @@ class BeanFactoryTest {
 
         ParameterClass getParameterClass() {
             return parameterClass;
+        }
+
+        private ParameterClass annotatedMethod() {
+            return null;
         }
     }
 
