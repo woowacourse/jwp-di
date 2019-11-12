@@ -36,7 +36,6 @@ public class BeanFactoryTest {
         assertNotNull(qnaService.getQuestionRepository());
     }
 
-    // TODO: 테스트 통과시켜야 함.
     @Test
     void sameInstance() {
         DataSource dataSource = beanFactory.getBean(DataSource.class);

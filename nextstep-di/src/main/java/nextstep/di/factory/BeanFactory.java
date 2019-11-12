@@ -24,7 +24,7 @@ public class BeanFactory {
 
 
     public void initialize() {
-        matcher.entrySet().forEach(entry -> beans.put(entry.getKey(), entry.getValue().getInstance(matcher)));
+        matcher.entrySet().forEach(entry -> beans.put(entry.getKey(), entry.getValue().getInstance(matcher, beans)));
     }
 
     @SuppressWarnings("unchecked")

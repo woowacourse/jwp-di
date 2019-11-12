@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Map;
 
 public class MethodInstantiation implements InstantiationMethod {
     private static final Logger logger = LoggerFactory.getLogger(MethodInstantiation.class);
@@ -21,13 +22,13 @@ public class MethodInstantiation implements InstantiationMethod {
     }
 
     @Override
-    public Object getInstance(BeanCreateMatcher beanCreateMatcher) {
+    public Object getInstance(BeanCreateMatcher beanCreateMatcher, Map<Class<?>, Object> beans) {
         try {
             Class<?>[] parameterTypes = method.getParameterTypes();
             Object[] objects = Arrays.stream(parameterTypes)
-                    .map(parameterType -> beanCreateMatcher.get(parameterType).getInstance(beanCreateMatcher))
+                    .map(parameterType -> getBean(beanCreateMatcher, beans, parameterType))
                     .toArray();
-            return method.invoke(instanceWithConfigureAnnotation, objects);
+            return beans.getOrDefault(method.getReturnType(), method.invoke(instanceWithConfigureAnnotation, objects));
         } catch (IllegalAccessException | InvocationTargetException e) {
             logger.error("error : ", e);
             throw new BeanCreateException(e);
