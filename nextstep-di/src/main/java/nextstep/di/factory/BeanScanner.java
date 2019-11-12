@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.annotation.ComponentScan;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,11 +12,12 @@ import java.util.Set;
 public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
     private Reflections reflections;
+    private Class<ComponentScan> componentScanClass = ComponentScan.class;
+    private Set<String> basePackages;
 
     public BeanScanner(Object... basePackages) {
         reflections = new Reflections(basePackages);
     }
-
 
     public Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
