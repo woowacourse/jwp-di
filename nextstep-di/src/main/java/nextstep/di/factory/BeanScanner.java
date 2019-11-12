@@ -35,7 +35,7 @@ public class BeanScanner {
         return beanCreateMatcher;
     }
 
-    public BeanCreateMatcher scanMethodBean(BeanCreateMatcher beanCreateMatcher) {
+    private BeanCreateMatcher scanMethodBean(BeanCreateMatcher beanCreateMatcher) {
         Set<Class<?>> typesAnnotatedWith = reflection.getTypesAnnotatedWith(Configuration.class);
         typesAnnotatedWith.forEach(configurationClazz -> registerMethodBean(beanCreateMatcher, configurationClazz));
         return beanCreateMatcher;
