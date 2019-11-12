@@ -6,7 +6,7 @@
 3. 드라이버는 30분 간격으로 교체한다.
 4. TDD로 할 수 있다면 최대한 적용한다.
 
-## 요구사항
+## step-1 요구사항
 
 - @Service, @Repository 클래스 스캔
     
@@ -17,11 +17,12 @@
 - @Inject에 필요한 객체를 찾아서 주입 / 생성
 - 기존의 @Controller를 스캔하는 ControllerScanner 클래스를 확장된 BeanScanner와 통합
 
-## TO DO
-- `BeanFactoryUtils.getInjectedConstructor` 메서드에서 `@Inject`가 붙은 생성자가 여러개일 때 처리 방법 고민 
--  BeanScannerTest 추가
-    - base 패키지 바깥의 클래스를 스캔하지 않는지 확인
-    - 다른 종류의 애노테이션이 선언된 클래스를 스캔하지 않는지 확인
+## step-2 요구사항
+
+- @Configuration 어노테이션으로 빈 설정
     
- ## 의문 사항
- - 테스트 코드를 작성하면서 테스트만을 위한 패키지를 만드는 것에 대해 어떻게 생각하시나요?
+    1. @ComponentScan
+    2. @Bean으로 빈 수동 생성
+    
+    @Configuration을 찾고 @ComponentScan의 값을 BeanScanner에 전달하여 빈 생성
+    @Configuration도 빈으로 등록하여 내부의 @Bean 메서드 결과를 빈으로 등록한다.
