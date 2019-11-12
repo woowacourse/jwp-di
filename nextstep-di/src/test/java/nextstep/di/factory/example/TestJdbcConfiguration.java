@@ -21,7 +21,7 @@ public class TestJdbcConfiguration {
     }
 
     @Bean
-    public TestJdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new TestJdbcTemplate(dataSource);
+    public TestJdbcTemplate jdbcTemplate(DataSource dataSource, JdbcUserRepository jdbcUserRepository) {
+        return new TestJdbcTemplate(dataSource, jdbcUserRepository);
     }
 }

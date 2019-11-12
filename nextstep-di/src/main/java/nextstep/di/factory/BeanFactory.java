@@ -4,12 +4,14 @@ import com.google.common.collect.Maps;
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.exception.CreateBeanException;
 import nextstep.di.factory.exception.CycleReferenceException;
+import nextstep.di.factory.exception.IllegalMethodBeanException;
 import nextstep.di.factory.exception.InaccessibleConstructorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,14 +34,59 @@ public class BeanFactory {
     }
 
     public void initialize() {
+        Set<Class<?>> configurationBeans = preInstantiateBeans.stream()
+                .filter(key -> key.isAnnotationPresent(Configuration.class))
+                .collect(Collectors.toSet());
+
+        logger.debug("configuration beans: {}", configurationBeans);
+
+        Set<Method> methods = configurationBeans.stream()
+                .map(Class::getDeclaredMethods)
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toSet());
+
+        logger.debug("method beans: {}", methods);
+
+        methods.forEach(method -> {
+            try {
+                createMethodBean(method,methods);
+            } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException | InstantiationException e) {
+                throw new IllegalMethodBeanException();
+            }
+        });
+
         checkCycleReference(preInstantiateBeans);
 
         preInstantiateBeans.forEach(this::createBeanWithTryCatch);
         logger.debug("beans created: {}", beans);
-        Set<Class<?>> configurationBeans = beans.keySet().stream()
-                .filter(key -> key.isAnnotationPresent(Configuration.class))
-                .collect(Collectors.toSet());
-        logger.debug("configuration beans: {}", configurationBeans);
+    }
+
+    private Object createMethodBean(Method method, Set<Method> methods) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
+        List<Object> parameters = new ArrayList<>();
+
+        if (beans.containsKey(method.getReturnType())) {
+            return beans.get(method.getReturnType());
+        }
+        for (Class<?> parameterType : method.getParameterTypes()) {
+            Optional<Method> returnMethod = methods.stream().filter(parameterMethod -> parameterMethod.getReturnType() == parameterType).findFirst();
+
+            if (returnMethod.isPresent()) {
+                parameters.add(createMethodBean(returnMethod.get(), methods));
+            }
+
+            else if(preInstantiateBeans.contains(parameterType)) {
+                parameters.add(createBeanWithTryCatch(parameterType));
+            }
+
+            else {
+                throw new IllegalMethodBeanException();
+            }
+
+        }
+        Object obj = method.getDeclaringClass().getDeclaredConstructor().newInstance();
+        Object instance = method.invoke(obj, parameters.toArray());
+        beans.put(method.getReturnType(), instance);
+        return instance;
     }
 
     private void checkCycleReference(Set<Class<?>> preInstantiateBeans) {
