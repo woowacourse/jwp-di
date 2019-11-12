@@ -90,7 +90,7 @@ public class BeanFactory {
         Map<Class<?>, Object> controllers = Maps.newHashMap();
         for (Class<?> clazz : preInstantiateBeans) {
             if (clazz.isAnnotationPresent(Controller.class)) {
-                controllers.put(clazz, beans.get(clazz));
+                controllers.put(clazz, getBean(clazz));
             }
         }
         return controllers;

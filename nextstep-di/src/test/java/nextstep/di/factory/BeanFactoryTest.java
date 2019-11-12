@@ -68,4 +68,9 @@ public class BeanFactoryTest {
             new BeanFactory(preInstantiateClazz);
         });
     }
+
+    @Test
+    void getBeanTest() {
+        assertNotNull(beanFactory.getBean(MyQnaService.class));
+    }
 }
