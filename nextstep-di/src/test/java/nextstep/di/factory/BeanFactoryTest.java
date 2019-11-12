@@ -6,7 +6,9 @@ import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.repository.QuestionRepository;
 import nextstep.di.factory.example.service.MyQnaService;
 import nextstep.di.factory.example.service.TestService;
+import nextstep.di.factory.example.service.UserService;
 import nextstep.di.factory.exception.NotRegisteredBeanException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,9 +32,10 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        preInstantiateClazz = new HashSet<>(Arrays.asList(MyQnaService.class,
-                JdbcUserRepository.class, JdbcQuestionRepository.class, QnaController.class));
+        preInstantiateClazz = new HashSet<>(Arrays.asList(MyQnaService.class, JdbcUserRepository.class,
+                JdbcQuestionRepository.class, QnaController.class));
         beanFactory = new BeanFactory(preInstantiateClazz);
+        beanFactory.initialize();
     }
 
     @Test
@@ -62,14 +65,22 @@ public class BeanFactoryTest {
     @DisplayName("Bean으로 등록되지 않은 클래스를 생성하지 않는지 확인")
     void beanScopeTest() {
         preInstantiateClazz.add(TestService.class);
-
-        assertThrows(NotRegisteredBeanException.class, () -> {
-            new BeanFactory(preInstantiateClazz);
-        });
+        assertThrows(NotRegisteredBeanException.class, () -> new BeanFactory(preInstantiateClazz).initialize());
     }
 
     @Test
+    @DisplayName("이미 등록된 Bean을 활용하는 테스트")
     void getBeanTest() {
-        assertNotNull(beanFactory.getBean(MyQnaService.class));
+        preInstantiateClazz.add(UserService.class);
+        BeanFactory additionBeanFactory = new BeanFactory(preInstantiateClazz);
+        additionBeanFactory.initialize();
+        assertNotNull(additionBeanFactory.getBean(UserService.class));
+        assertThat(beanFactory.getBeansSize() + 1).isEqualTo(additionBeanFactory.getBeansSize());
+    }
+
+    @AfterEach
+    void tearDown() {
+        preInstantiateClazz.clear();
+        beanFactory = null;
     }
 }

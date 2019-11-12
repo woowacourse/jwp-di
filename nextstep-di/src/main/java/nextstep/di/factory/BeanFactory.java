@@ -25,7 +25,6 @@ public class BeanFactory {
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
-        initialize();
     }
 
     @SuppressWarnings("unchecked")
@@ -74,7 +73,7 @@ public class BeanFactory {
         return BeanUtils.instantiateClass(constructor, args.toArray());
     }
 
-    public Object defaultConstructorInstantiate(Class<?> clazz) {
+    private Object defaultConstructorInstantiate(Class<?> clazz) {
         try {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
@@ -91,5 +90,9 @@ public class BeanFactory {
             }
         }
         return controllers;
+    }
+
+    public int getBeansSize() {
+        return beans.size();
     }
 }
