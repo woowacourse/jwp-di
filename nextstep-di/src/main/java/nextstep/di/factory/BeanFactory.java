@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,10 +32,7 @@ public class BeanFactory {
     }
 
     private <T> T instantiateBean(Class<T> clazz) {
-        if (beans.containsKey(clazz)) {
-            return (T) beans.get(clazz);
-        }
-        return instantiate(clazz);
+        return beans.containsKey(clazz) ? (T) beans.get(clazz) : instantiate(clazz);
     }
 
     private <T> T instantiate(Class<T> clazz) {
@@ -47,13 +45,10 @@ public class BeanFactory {
     }
 
     private Object[] instantiateParameters(Constructor<?> constructor) {
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        Object[] parameters = new Object[parameterTypes.length];
-        for (int i = 0; i < parameters.length; i++) {
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterTypes[i], preInstantiateBeans);
-            parameters[i] = instantiateBean(concreteClass);
-        }
-        return parameters;
+        return Arrays.stream(constructor.getParameterTypes())
+                .map(type -> BeanFactoryUtils.findConcreteClass(type, preInstantiateBeans))
+                .map(this::instantiateBean)
+                .toArray(Object[]::new);
     }
 
     public Map<Class<?>, Object> getBeans(Class<? extends Annotation> annotation) {
