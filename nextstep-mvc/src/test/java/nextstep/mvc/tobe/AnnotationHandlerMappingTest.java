@@ -2,7 +2,6 @@ package nextstep.mvc.tobe;
 
 import nextstep.db.DataBase;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.Scanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -10,6 +9,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import samples.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AnnotationHandlerMappingTest {
     private AnnotationHandlerMapping handlerMapping;

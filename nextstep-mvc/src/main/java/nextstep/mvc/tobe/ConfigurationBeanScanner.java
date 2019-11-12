@@ -1,7 +1,7 @@
 package nextstep.mvc.tobe;
 
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.Scanner;
+import nextstep.di.scanner.Scanner;
 
 import java.util.HashSet;
 import java.util.Set;

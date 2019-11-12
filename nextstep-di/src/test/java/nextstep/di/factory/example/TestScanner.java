@@ -2,7 +2,7 @@ package nextstep.di.factory.example;
 
 import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.Scanner;
+import nextstep.di.scanner.Scanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;

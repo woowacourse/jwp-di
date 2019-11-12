@@ -1,10 +1,15 @@
 package nextstep.di.factory;
 
+import nextstep.di.bean.BeanDefinition;
 import nextstep.di.factory.example.*;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
+import nextstep.di.scanner.ConfigurationBeanScanner;
+import nextstep.di.scanner.Scanner2;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -45,5 +50,14 @@ public class BeanFactoryTest {
         SingletonTest1 singletonTest1 = beanFactory.getBean(SingletonTest1.class);
         SingletonTest2 singletonTest2 = beanFactory.getBean(SingletonTest2.class);
         assertThat(singletonTest1.getQnaService()).isEqualTo(singletonTest2.getQnaService());
+    }
+
+    @Test
+    void configuration_bean_scan_후_팩토리() {
+        BeanFactory beanFactory = new BeanFactory();
+        Scanner2 scanner = new ConfigurationBeanScanner();
+        Set<BeanDefinition> beans = scanner.scan("nextstep.di.factory.example");
+        beanFactory.registerPreBeans(beans);
+
     }
 }

@@ -1,9 +1,9 @@
-package nextstep.mvc.tobe;
-
+package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
+import nextstep.di.bean.BeanDefinition;
+import nextstep.di.bean.ClassPathBeanDefinition;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.scanner.Scanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -12,22 +12,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.HashSet;
 import java.util.Set;
 
-public class BeanScanner implements Scanner {
-    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+public class ClassPathBeanScanner implements Scanner2 {
+    private static final Logger log = LoggerFactory.getLogger(ClassPathBeanScanner.class);
+
     private static final Class[] AVAILABLE_ANNOTATIONS = {Controller.class, Service.class, Repository.class};
 
     private Reflections reflections;
-    private BeanFactory beanFactory;
 
-    public BeanScanner(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
-
+    @Override
     @SuppressWarnings("unchecked")
-    public Set<Class<?>> getAnnotatedClasses() {
-        return getTypesAnnotatedWith(AVAILABLE_ANNOTATIONS);
+    public Set<BeanDefinition> scan(String basePackage) {
+        reflections = new Reflections(basePackage);
+        Set<BeanDefinition> beans = new HashSet<>();
+        Set<Class<?>> annotatedClasses = getTypesAnnotatedWith(AVAILABLE_ANNOTATIONS);
+        for (Class<?> target : annotatedClasses) {
+            beans.add(new ClassPathBeanDefinition(target));
+        }
+        return beans;
     }
 
     @SuppressWarnings("unchecked")
@@ -39,10 +43,6 @@ public class BeanScanner implements Scanner {
         log.debug("Scan Beans Type : {}", beans);
         return beans;
     }
-
-    public void doScan(String basePackage) {
-        reflections = new Reflections(basePackage);
-        beanFactory.setPreInstanticateBeans(getAnnotatedClasses());
-        beanFactory.initialize();
-    }
 }
+
+

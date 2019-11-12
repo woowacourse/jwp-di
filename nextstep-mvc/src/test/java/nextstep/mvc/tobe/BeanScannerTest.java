@@ -1,8 +1,6 @@
 package nextstep.mvc.tobe;
 
-import nextstep.annotation.Bean;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.Scanner;
 import nextstep.mvc.exception.AnnotationNotFoundException;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;

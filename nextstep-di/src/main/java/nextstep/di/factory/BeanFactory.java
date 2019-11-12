@@ -1,8 +1,10 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.bean.BeanDefinition;
 import nextstep.di.factory.exception.DefaultConstructorInitException;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
+import nextstep.di.factory.exception.InvalidBeanTargetException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -12,6 +14,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
@@ -19,9 +22,24 @@ public class BeanFactory {
 
     private Set<Class<?>> preInstanticateBeans;
 
+    // Refactoring 하는 부분
+    private Map<Class<?>, BeanDefinition> preBeans;
+
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory() {
+    }
+
+    public BeanFactory(Set<BeanDefinition> beanDefinitions) {
+        this.preBeans = beanDefinitions.stream()
+                .collect(Collectors.toMap(BeanDefinition::getClazz, Function.identity()));
+        // TODO
+        initialize();
+    }
+
+    // 빈들을 중간에 계속 추가하는 방법
+    public void registerPreBeans(Set<BeanDefinition> beans) {
+        beans.forEach(bean -> preBeans.put(bean.getClazz(), bean));
     }
 
     public void setPreInstanticateBeans(Set<Class<?>> preInstanticateBeans) {
@@ -94,6 +112,9 @@ public class BeanFactory {
     }
 
     private Object createBeanInstance(Class<?> clazz) {
+        if (!preInstanticateBeans.contains(clazz)) {
+            throw new InvalidBeanTargetException("Bean Target 이 아닙니다");
+        }
         Constructor<?> constructor = getConstructor(clazz);
         List<Object> paramInstances = initParameters(constructor);
         return BeanUtils.instantiateClass(constructor, paramInstances.toArray());
