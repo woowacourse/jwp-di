@@ -1,23 +1,21 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
 import nextstep.di.factory.example.controller.QnaController;
 import nextstep.di.factory.example.repository.JdbcQuestionRepository;
+import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.repository.QuestionRepository;
+import nextstep.di.factory.example.repository.UserRepository;
 import nextstep.di.factory.example.service.MyQnaService;
 import nextstep.di.factory.example2.TestService;
 import nextstep.di.factory.example2.TestServiceObject;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,18 +25,18 @@ public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     private BeanFactory beanFactory;
-    private Reflections reflections;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        reflections = new Reflections("nextstep.di.factory.example.");
-        final Set<Class<?>> preInstantiateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        Set<Class<?>> preInstantiateClazz = new HashSet<>(Arrays.asList(MyQnaService.class, UserRepository.class, QuestionRepository.class,
+                JdbcUserRepository.class, JdbcQuestionRepository.class, QnaController.class));
+
         beanFactory = new BeanFactory(preInstantiateClazz);
     }
 
     @Test
-    public void di() throws Exception {
+    public void di() {
         final QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -50,7 +48,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    @DisplayName("QuestionRepository가_싱글_인스턴스가_맞는지_테스트")
+    @DisplayName("QuestionRepository가 싱글 인스턴스가 맞는지 테스트")
     void singleInstanceTest() {
         final MyQnaService myQnaService = beanFactory.getBean(MyQnaService.class);
 
@@ -65,15 +63,4 @@ public class BeanFactoryTest {
         assertThat(beanFactory.getBean(TestService.class)).isNull();
         assertThat(beanFactory.getBean(TestServiceObject.class)).isNull();
     }
-
-    @SafeVarargs
-    private final Set<Class<?>> getTypesAnnotatedWith(final Class<? extends Annotation>... annotations) {
-        final Set<Class<?>> beans = Sets.newHashSet();
-        for (final Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
-    }
-
 }
