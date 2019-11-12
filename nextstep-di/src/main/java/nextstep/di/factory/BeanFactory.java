@@ -25,10 +25,7 @@ public class BeanFactory {
 
 
     public void initialize() {
-        for (Map.Entry<Class<?>, InstantiationMethod> entry : matcher.entrySet()) {
-            beans.putIfAbsent(entry.getKey(), entry.getValue().getInstance(matcher, beans));
-        }
-//        matcher.entrySet().forEach(entry -> beans.putIfAbsent(entry.getKey(), entry.getValue().getInstance(matcher, beans)));
+        matcher.entrySet().forEach(entry -> beans.putIfAbsent(entry.getKey(), entry.getValue().getInstance(matcher, beans)));
         logger.debug("Bean init : {}", beans);
     }
 
