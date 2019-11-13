@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.exception.NotCreateBeanException;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -24,15 +25,14 @@ public class ConfigurationBeanFactory {
         Method[] methods = BeanFactoryUtils.getHavingBeanAnnotation(clazz);
         Object instance = ReflectionUtils.newInstance(clazz);
         for (Method method : methods) {
-            getBean(instance, method);
+            instantiateBean(instance, method);
         }
     }
 
-    private void getBean(Object instance, Method method) {
+    private void instantiateBean(Object instance, Method method) {
         Class<?> returnType = method.getReturnType();
         if (isVoidType(returnType)) {
-            // TODO: 2019-11-13 Exception!!
-            throw new RuntimeException("void 못함!");
+            throw new NotCreateBeanException("Void type cannot be made with bean!!");
         }
         Object[] parameters = getParameterBeans(method);
         beans.put(returnType, ReflectionUtils.invoke(method, instance, parameters));
