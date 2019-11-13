@@ -4,7 +4,7 @@ import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.example.QuestionRepository;
-import nextstep.di.scanner.BeanScanner;
+import nextstep.di.scanner.ClasspathBeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -22,8 +22,8 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         beanFactory = new BeanFactory();
-        BeanScanner beanScanner = new BeanScanner(beanFactory);
-        beanScanner.doScan("nextstep.di.factory.example");
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.doScan("nextstep.di.factory.example");
         beanFactory.initialize();
     }
 

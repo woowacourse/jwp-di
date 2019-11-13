@@ -8,6 +8,8 @@ import org.springframework.beans.BeanUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -18,9 +20,14 @@ public class BeanFactory {
     private Map<Class<?>, Object> beans;
     private Set<Class<?>> preInstanticateClazz;
 
+    private Map<Class<?>, Object> configBeans;
+    private Map<Class<?>, Method> preInstanticateConfigs;
+
     public BeanFactory() {
         beans = Maps.newHashMap();
         preInstanticateClazz = Sets.newHashSet();
+        configBeans = Maps.newHashMap();
+        preInstanticateConfigs = Maps.newHashMap();
     }
 
     @SuppressWarnings("unchecked")
@@ -32,6 +39,10 @@ public class BeanFactory {
         for (Class<?> preInstanticateBean : preInstanticateClazz) {
             scanBean(preInstanticateBean);
         }
+        for (Class<?> preInstanticateConfig : preInstanticateConfigs.keySet()) {
+            scanConfig(preInstanticateConfig);
+        }
+        beans.putAll(configBeans);
     }
 
     private Object scanBean(Class<?> preInstanticateBean) {
@@ -49,6 +60,56 @@ public class BeanFactory {
         }
 
         return putParameterizedObject(preInstanticateBean, injectedConstructor);
+    }
+
+    private Object scanConfig(Class<?> preInstanticateConfig) {
+        if (configBeans.containsKey(preInstanticateConfig)) {
+            return configBeans.get(preInstanticateConfig);
+        }
+
+        Method method = preInstanticateConfigs.get(preInstanticateConfig);
+
+        if (method.getParameterCount() == 0) {
+            try {
+                Object instance = method.getDeclaringClass().newInstance();
+                configBeans.put(preInstanticateConfig, method.invoke(instance));
+                logger.debug("config bean name : {}, instance : {}", preInstanticateConfig, instance);
+                return configBeans.get(preInstanticateConfig);
+            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return putParameterizedConfigureObject(preInstanticateConfig, method);
+    }
+
+    private Object putParameterizedConfigureObject(Class<?> preInstanticateConfig, Method method) {
+        try {
+            Object[] params = getMethodParams(method);
+            Object instance = method.getDeclaringClass().newInstance();
+            configBeans.put(preInstanticateConfig, method.invoke(instance, params));
+            return configBeans.get(preInstanticateConfig);
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            throw new IllegalArgumentException("메서드 초기화 실패");
+        }
+    }
+
+    private Object[] getMethodParams(Method method) {
+        Object[] params = new Object[method.getParameterCount()];
+        for (int i = 0; i < params.length; i++) {
+            Class<?> parameterType = method.getParameterTypes()[i];
+            Class<?> invokeMethod = findConfig(parameterType);
+            params[i] = scanConfig(invokeMethod);
+        }
+        return params;
+    }
+
+    public Class<?> findConfig(Class<?> returnType) {
+        if (preInstanticateConfigs.containsKey(returnType)) {
+            return returnType;
+        }
+
+        throw new IllegalStateException(returnType + "을 찾을 수 없습니다.");
     }
 
     private Object putParameterizedObject(Class<?> preInstanticateBean, Constructor<?> constructor) {
@@ -81,6 +142,11 @@ public class BeanFactory {
 
     public void addPreInstanticateClazz(Set<Class<?>> beans) {
         preInstanticateClazz.addAll(beans);
+        initialize();
+    }
+
+    public void registerBean(Map<Class<?>, Method> configs) {
+        preInstanticateConfigs.putAll(configs);
     }
 }
 
