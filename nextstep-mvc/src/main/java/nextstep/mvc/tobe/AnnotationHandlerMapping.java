@@ -22,23 +22,16 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackages;
+    private ApplicationContext context;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackages) {
-        this.basePackages = basePackages;
+    public AnnotationHandlerMapping(ApplicationContext context) {
+        this.context = context;
     }
 
     public void initialize() {
-        ApplicationContext applicationContext = new ApplicationContext();
-        for (Object basePackage : basePackages) {
-            logger.debug("Scan Base Package : {}", basePackage.toString());
-            applicationContext.scan(String.valueOf(basePackage));
-        }
-        applicationContext.initialize();
-
-        Map<Class<?>, Object> controllers = applicationContext.getBeansWithAnnotation(Controller.class);
+        Map<Class<?>, Object> controllers = context.getBeansWithAnnotation(Controller.class);
 
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
         addHandlerExecutions(controllers, methods);
