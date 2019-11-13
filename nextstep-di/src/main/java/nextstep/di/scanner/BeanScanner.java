@@ -1,6 +1,7 @@
 package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -13,18 +14,23 @@ import java.util.Set;
 
 public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+    private static final Class[] COMPONENTS = {Controller.class, Service.class, Repository.class};
 
     private Reflections reflections;
-    private Set<Class<?>> preInstanticateClazz;
+    private BeanFactory beanFactory;
 
-    @SuppressWarnings("unchecked")
-    public BeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
-        preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+    public BeanScanner(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
-    public Set<Class<?>> getBeans() {
-        return preInstanticateClazz;
+    public void doScan(Object... basePackage) {
+        reflections = new Reflections(basePackage);
+        beanFactory.addPreInstanticateClazz(getBeans());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Class<?>> getBeans() {
+        return getTypesAnnotatedWith(COMPONENTS);
     }
 
     @SuppressWarnings("unchecked")

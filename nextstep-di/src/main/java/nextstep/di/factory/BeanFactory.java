@@ -1,7 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.scanner.BeanScanner;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -10,16 +10,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private BeanScanner beanScanner;
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, Object> beans;
+    private Set<Class<?>> preInstanticateClazz;
 
-    public BeanFactory(Object... basePackage) {
-        beanScanner = new BeanScanner(basePackage);
-        initialize();
+    public BeanFactory() {
+        beans = Maps.newHashMap();
+        preInstanticateClazz = Sets.newHashSet();
     }
 
     @SuppressWarnings("unchecked")
@@ -27,8 +28,8 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    private void initialize() {
-        for (Class<?> preInstanticateBean : beanScanner.getBeans()) {
+    public void initialize() {
+        for (Class<?> preInstanticateBean : preInstanticateClazz) {
             scanBean(preInstanticateBean);
         }
     }
@@ -62,7 +63,7 @@ public class BeanFactory {
         Object[] params = new Object[constructor.getParameterCount()];
         for (int i = 0; i < params.length; i++) {
             Class<?> parameterType = constructor.getParameterTypes()[i];
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, beanScanner.getBeans());
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateClazz);
             params[i] = scanBean(concreteClass);
         }
         return params;
@@ -76,6 +77,10 @@ public class BeanFactory {
             }
         }
         return annotatedClass;
+    }
+
+    public void addPreInstanticateClazz(Set<Class<?>> beans) {
+        preInstanticateClazz.addAll(beans);
     }
 }
 
