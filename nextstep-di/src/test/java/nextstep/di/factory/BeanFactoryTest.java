@@ -1,10 +1,8 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.JdbcQuestionRepository;
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.example.QuestionRepository;
+import nextstep.di.factory.example.*;
 import nextstep.di.scanner.ClasspathBeanScanner;
+import nextstep.di.scanner.ConfigurationBeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -16,15 +14,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
 
+    private static final String TEST_BASE_PACKAGE = "nextstep.di.factory.example";
     private BeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
         beanFactory = new BeanFactory();
-        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
-        classpathBeanScanner.doScan("nextstep.di.factory.example");
+        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
+        cbs.register(IntegrationConfig.class);
         beanFactory.initialize();
+
+        ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
+        cbds.doScan(TEST_BASE_PACKAGE);
     }
 
     @Test

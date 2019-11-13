@@ -1,6 +1,7 @@
 package nextstep.di.scanner;
 
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import org.junit.jupiter.api.Test;
 
@@ -13,9 +14,12 @@ class ClasspathBeanScannerTest {
     @Test
     public void register_simple() {
         BeanFactory beanFactory = new BeanFactory();
-        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
-        classpathBeanScanner.doScan(TEST_BASE_PACKAGE);
+        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
+        cbs.register(IntegrationConfig.class);
         beanFactory.initialize();
+
+        ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
+        cbds.doScan(TEST_BASE_PACKAGE);
 
         assertNotNull(beanFactory.getBean(JdbcQuestionRepository.class));
     }

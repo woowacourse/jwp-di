@@ -39,7 +39,7 @@ class ConfigurationBeanScannerTest {
 
         JdbcUserRepository userRepository = beanFactory.getBean(JdbcUserRepository.class);
         assertNotNull(userRepository);
-//        assertNotNull(userRepository.getDataSource());
+        assertNotNull(userRepository.getDataSource());
 
         MyJdbcTemplate jdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
         assertNotNull(jdbcTemplate);
