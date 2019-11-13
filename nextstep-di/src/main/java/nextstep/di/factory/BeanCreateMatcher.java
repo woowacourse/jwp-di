@@ -6,6 +6,7 @@ import nextstep.di.factory.instantiation.InstantiationMethod;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 public class BeanCreateMatcher {
     private Map<Class<?>, InstantiationMethod> beanGenerationMethod = Maps.newHashMap();
@@ -28,6 +29,10 @@ public class BeanCreateMatcher {
 
     public Set<Map.Entry<Class<?>, InstantiationMethod>> entrySet() {
         return beanGenerationMethod.entrySet();
+    }
+
+    public void forEach(BiConsumer<? super Class<?>, ? super InstantiationMethod> action) {
+        beanGenerationMethod.forEach(action);
     }
 
     public Collection<InstantiationMethod> values() {

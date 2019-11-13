@@ -22,9 +22,8 @@ public class BeanFactory {
         matcher = beanScanner.scanBean(Controller.class, Service.class, Repository.class);
     }
 
-
     public void initialize() {
-        matcher.entrySet().forEach(entry -> beans.putIfAbsent(entry.getKey(), entry.getValue().getInstance(matcher, beans)));
+        matcher.forEach((key, value) -> beans.putIfAbsent(key, value.getInstance(matcher, beans)));
         logger.debug("Bean init : {}", beans);
     }
 
