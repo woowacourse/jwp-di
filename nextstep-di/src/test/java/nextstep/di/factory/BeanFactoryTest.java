@@ -1,6 +1,8 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.beans.integration.IntegrationExampleBean2;
 import nextstep.di.factory.beans.integration.JdbcTestRepository;
+import nextstep.di.factory.beans.noerror.OneConstructorBean;
 import nextstep.di.factory.example.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,7 +71,8 @@ public class BeanFactoryTest {
         beanFactory.scan("nextstep.di.factory.beans.integration");
         beanFactory.initialize();
 
-        assertNotNull(beanFactory.getBean(DataSource.class));
+        DataSource dataSource = beanFactory.getBean(DataSource.class);
+        assertNotNull(dataSource);
 
         JdbcTestRepository testRepository = beanFactory.getBean(JdbcTestRepository.class);
         assertNotNull(testRepository);
@@ -78,6 +81,59 @@ public class BeanFactoryTest {
         MyJdbcTemplate jdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
         assertNotNull(jdbcTemplate);
         assertNotNull(jdbcTemplate.getDataSource());
+
         assertEquals(jdbcTemplate.getDataSource(), testRepository.getDataSource());
+        assertEquals(jdbcTemplate.getDataSource(), dataSource);
+    }
+
+    @Test
+    void 기본_ComponentScan_어노테이션_동작_확인() {
+        beanFactory = new ApplicationContext();
+        beanFactory.register(DefaultComponentScanConfig.class);
+        beanFactory.initialize();
+
+        NewQnaService newQnaService = beanFactory.getBean(NewQnaService.class);
+        assertNotNull(newQnaService);
+        assertNotNull(newQnaService.getQuestionRepository());
+        assertNotNull(newQnaService.getUserRepository());
+
+        MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        assertNotNull(myJdbcTemplate);
+        assertNotNull(myJdbcTemplate.getDataSource());
+    }
+
+    @Test
+    void ComponentScan_어노테이션_basePackage가_하나일_경우_동작_확인() {
+        beanFactory = new ApplicationContext();
+        beanFactory.register(OnePackageComponentScanConfig.class);
+        beanFactory.initialize();
+
+        IntegrationExampleBean2 exampleBean = beanFactory.getBean(IntegrationExampleBean2.class);
+        assertNotNull(exampleBean);
+        assertNotNull(exampleBean.getRepository());
+        assertNotNull(exampleBean.getRepository().getDataSource());
+
+        DataSource dataSource = beanFactory.getBean(DataSource.class);
+        assertNotNull(dataSource);
+
+        assertEquals(dataSource, exampleBean.getRepository().getDataSource());
+    }
+
+    @Test
+    void ComponentScan_어노테이션_basePackage가_두개이상일_경우_동작_확인() {
+        beanFactory = new ApplicationContext();
+        beanFactory.register(OverTwoComponentScanConfig.class);
+        beanFactory.initialize();
+
+        IntegrationExampleBean2 exampleBean2 = beanFactory.getBean(IntegrationExampleBean2.class);
+        assertNotNull(exampleBean2);
+        assertNotNull(exampleBean2.getRepository());
+        assertNotNull(exampleBean2.getRepository().getDataSource());
+
+        MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        assertNotNull(myJdbcTemplate);
+
+        OneConstructorBean oneConstructorBean = beanFactory.getBean(OneConstructorBean.class);
+        assertNotNull(oneConstructorBean);
     }
 }
