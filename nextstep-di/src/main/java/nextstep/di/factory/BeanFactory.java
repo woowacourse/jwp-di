@@ -36,7 +36,8 @@ public class BeanFactory {
     }
 
     private Object instantiateBean(Class<?> clazz) {
-        return beans.instantiate(clazz, () -> createInstance(clazz));
+        beans.instantiate(clazz, () -> createInstance(clazz));
+        return beans.get(clazz);
     }
 
     private Object createInstance(Class<?> clazz) {

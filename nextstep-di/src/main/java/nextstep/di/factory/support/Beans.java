@@ -23,11 +23,9 @@ public class Beans {
                 .orElseThrow(BeanNotExistException::new);
     }
 
-    public Object instantiate(Class<?> clazz, Supplier instanceSupplier) {
-        if (beans.containsKey(clazz)) {
-            return beans.get(clazz);
+    public void instantiate(Class<?> clazz, Supplier instanceSupplier) {
+        if (!beans.containsKey(clazz)) {
+            beans.put(clazz, instanceSupplier.get());
         }
-        beans.put(clazz, instanceSupplier.get());
-        return beans.get(clazz);
     }
 }

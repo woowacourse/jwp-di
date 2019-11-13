@@ -13,11 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class BeansTest {
 
     private Beans beans;
+    private JdbcUserRepository jdbcUserRepository;
 
     @BeforeEach
     public void setUp() {
         beans = new Beans();
-        beans.put(JdbcUserRepository.class, new JdbcUserRepository());
+        jdbcUserRepository = new JdbcUserRepository();
+        beans.put(JdbcUserRepository.class, jdbcUserRepository);
     }
 
     @Test
@@ -33,13 +35,13 @@ public class BeansTest {
 
     @Test
     public void instantiate() {
-        assertThat(beans.instantiate(JdbcUserRepository.class, JdbcUserRepository::new))
-                .isInstanceOf(JdbcUserRepository.class);
+        beans.instantiate(JdbcUserRepository.class, JdbcUserRepository::new);
+        assertThat(beans.get(JdbcUserRepository.class)).isEqualTo(jdbcUserRepository);
     }
 
     @Test
     public void instantiateIfNotExist() {
-        assertThat(beans.instantiate(JdbcQuestionRepository.class, JdbcQuestionRepository::new))
-                .isInstanceOf(JdbcQuestionRepository.class);
+        beans.instantiate(JdbcQuestionRepository.class, JdbcQuestionRepository::new);
+        assertThat(beans.get(JdbcQuestionRepository.class)).isInstanceOf(JdbcQuestionRepository.class);
     }
 }
