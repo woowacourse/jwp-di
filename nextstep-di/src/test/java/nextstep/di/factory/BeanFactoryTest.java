@@ -29,7 +29,7 @@ public class BeanFactoryTest {
     public void setup() {
         reflections = new Reflections("nextstep.di.factory.example");
         Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
+        beanFactory = new DefaultBeanFactory(preInstanticateClazz);
     }
 
     @Test

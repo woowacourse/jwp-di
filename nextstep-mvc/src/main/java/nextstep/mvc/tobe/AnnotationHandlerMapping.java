@@ -1,9 +1,7 @@
 package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
-import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.ClasspathBeanScanner;
-import nextstep.di.factory.ConfigurationBeanScanner;
+import nextstep.di.factory.ApplicationContext;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
@@ -13,50 +11,44 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Class<?>[] configurations;
+    private ApplicationContext applicationContext;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Class<?>... configurations) {
-        this.configurations = configurations;
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     public void initialize() {
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(configurations);
-        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(configurationBeanScanner.getBasePackages());
 
-        Set<Class<?>> classTypes = Stream.of(configurationBeanScanner.getClassTypes(), classpathBeanScanner.getClassTypes())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        BeanFactory beanFactory = new BeanFactory(classTypes);
-
-        Set<Method> methods = beanFactory.findMethodsByAnnotation(RequestMapping.class, Controller.class);
-        createHandlerExecution(beanFactory, methods);
+        Set<Method> methods = applicationContext.findMethodsByAnnotation(RequestMapping.class, Controller.class);
+        createHandlerExecution(applicationContext, methods);
 
         logger.info("Initialized AnnotationHandlerMapping!");
     }
 
-    private void createHandlerExecution(BeanFactory beanFactory, Set<Method> methods) {
+    private void createHandlerExecution(ApplicationContext applicationContext, Set<Method> methods) {
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                     rm.value(), rm.method(), method);
-            addHandlerExecutions(beanFactory, method, rm);
+            addHandlerExecutions(applicationContext, method, rm);
         }
     }
 
-    private void addHandlerExecutions(BeanFactory beanFactory, Method method, RequestMapping rm) {
+    private void addHandlerExecutions(ApplicationContext applicationContext, Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(beanFactory.getBean(method.getDeclaringClass()), method));
+            handlerExecutions.put(handlerKey, new HandlerExecution(applicationContext.getBean(method.getDeclaringClass()), method));
         });
     }
 
