@@ -1,7 +1,7 @@
-package nextstep.di.factory;
+package nextstep.di.factory.scanner;
 
+import nextstep.di.factory.BeanCreateMatcher;
 import nextstep.di.factory.example.JdbcQuestionRepository;
-import nextstep.di.factory.example.MyJdbcTemplate;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.stereotype.Controller;
@@ -12,27 +12,21 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class BeanScannerTest {
+class ClassPathBeanScannerTest {
+    private ClassPathBeanScanner classPathBeanScanner;
     private BeanCreateMatcher beanCreateMatcher;
-    private BeanScanner beanScanner;
 
     @BeforeEach
     void setUp() {
         beanCreateMatcher = new BeanCreateMatcher();
-        beanScanner = new BeanScanner("nextstep.di.factory.example");
+        classPathBeanScanner = new ClassPathBeanScanner("nextstep.di.factory.example");
     }
 
     @Test
-    void beanScan() {
-        beanScanner.scanBean(beanCreateMatcher, Controller.class);
+    void doScan() {
+        classPathBeanScanner.doScan(beanCreateMatcher, Controller.class, Service.class, Repository.class);
         assertTrue(beanCreateMatcher.containsKey(QnaController.class));
-    }
-
-    @Test
-    void beanScanAll() {
-        beanScanner.scanBean(beanCreateMatcher, Controller.class, Service.class, Repository.class);
         assertTrue(beanCreateMatcher.containsKey(MyQnaService.class));
         assertTrue(beanCreateMatcher.containsKey(JdbcQuestionRepository.class));
-        assertTrue(beanCreateMatcher.containsKey(MyJdbcTemplate.class));
     }
 }

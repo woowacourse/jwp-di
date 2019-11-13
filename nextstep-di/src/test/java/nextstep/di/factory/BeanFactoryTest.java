@@ -1,32 +1,31 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.ExampleConfig;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyJdbcTemplate;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.example.config.IntegrationConfig;
-import org.junit.jupiter.api.AfterEach;
+import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class BeanFactoryTest {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactoryTest.class);
-
+class BeanFactoryTest {
+    private BeanCreateMatcher beanCreateMatcher;
     private BeanFactory beanFactory;
 
     @BeforeEach
-    public void setup() {
-        beanFactory = new BeanFactory("nextstep.di.factory.example");
-        beanFactory.initialize();
+    void setUp() {
+        beanCreateMatcher = new BeanCreateMatcher();
+        BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.example");
+        beanScanner.scanBean(beanCreateMatcher, Controller.class, Service.class, Repository.class);
+
+        beanFactory = new BeanFactory(beanCreateMatcher);
     }
 
     @Test
@@ -57,37 +56,5 @@ public class BeanFactoryTest {
         assertThat(myQnaService).isEqualTo(beanFactory.getBean(MyQnaService.class));
         assertThat(jdbcUserRepository).isEqualTo(beanFactory.getBean(JdbcUserRepository.class));
         assertThat(jdbcUserRepository).isEqualTo(myQnaService.getUserRepository());
-    }
-
-    @DisplayName("@ComponentScan이 붙은 클래스를 생성자로 주입")
-    @Test
-    void componentScan() {
-        BeanFactory beanFactory = new BeanFactory(IntegrationConfig.class);
-        beanFactory.initialize();
-
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
-
-        assertNotNull(qnaController);
-        assertNotNull(qnaController.getQnaService());
-
-        MyQnaService qnaService = qnaController.getQnaService();
-        assertNotNull(qnaService.getUserRepository());
-        assertNotNull(qnaService.getQuestionRepository());
-    }
-
-    @DisplayName("@ComponentScan이 붙지 않은 클래스를 생성자로 주입. 해당 클래스의 위치부터 하위 패키지가 scan 대상")
-    @Test
-    void configuration() {
-        BeanFactory beanFactory = new BeanFactory(ExampleConfig.class);
-        beanFactory.initialize();
-
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
-
-        assertNotNull(qnaController);
-        assertNotNull(qnaController.getQnaService());
-
-        MyQnaService qnaService = qnaController.getQnaService();
-        assertNotNull(qnaService.getUserRepository());
-        assertNotNull(qnaService.getQuestionRepository());
     }
 }

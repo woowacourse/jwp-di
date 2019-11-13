@@ -38,4 +38,11 @@ public class BeanCreateMatcher {
     public Collection<InstantiationMethod> values() {
         return beanGenerationMethod.values();
     }
+
+    @Override
+    public String toString() {
+        return "BeanCreateMatcher{" +
+            "beanGenerationMethod=" + beanGenerationMethod +
+            '}';
+    }
 }

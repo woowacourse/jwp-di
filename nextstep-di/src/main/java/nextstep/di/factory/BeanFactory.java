@@ -2,8 +2,6 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,16 +12,10 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private BeanCreateMatcher matcher;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Object... basePackages) {
-        BeanScanner beanScanner = new BeanScanner(basePackages);
-        matcher = beanScanner.scanBean(Controller.class, Service.class, Repository.class);
-    }
-
-    public void initialize() {
-        matcher.forEach((key, value) -> beans.putIfAbsent(key, value.getInstance(matcher, beans)));
+    public BeanFactory(BeanCreateMatcher beanCreateMatcher) {
+        beanCreateMatcher.forEach((key, value) -> beans.putIfAbsent(key, value.getInstance(beanCreateMatcher, beans)));
         logger.debug("Bean init : {}", beans);
     }
 
