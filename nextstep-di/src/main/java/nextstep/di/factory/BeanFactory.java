@@ -3,29 +3,30 @@ package nextstep.di.factory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import nextstep.annotation.Inject;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public enum BeanFactory {
     INSTANCE;
 
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-    private Set<Class<?>> preInstantiatedBeans;
+    private Map<Class<?>, BeanCreator> beanCreators;
     private Map<Class<?>, Object> beans;
 
     public static BeanFactory getInstance() {
         return INSTANCE;
     }
 
-    public void initialize(Set<Class<?>> preInstantiatedBeans) {
+    public void initialize(Map<Class<?>, BeanCreator> beanCreators) {
         beans = Maps.newHashMap();
-        this.preInstantiatedBeans = preInstantiatedBeans;
-        for (Class<?> clazz : preInstantiatedBeans) {
+        this.beanCreators = beanCreators;
+        for (Class<?> clazz : beanCreators.keySet()) {
             beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
         }
     }
@@ -39,7 +40,7 @@ public enum BeanFactory {
     public Map<Class<?>, Object> getControllers() {
         validateInitialization();
         Map<Class<?>, Object> controllers = Maps.newHashMap();
-        for (Class<?> clazz : preInstantiatedBeans) {
+        for (Class<?> clazz : beans.keySet()) {
             if (clazz.isAnnotationPresent(Controller.class)) {
                 controllers.put(clazz, beans.get(clazz));
             }
@@ -51,26 +52,15 @@ public enum BeanFactory {
         if (clazz.isInterface()) {
             throw new InterfaceCannotInstantiatedException();
         }
-        Optional<Constructor> injectCtor = getInjectCtor(clazz.getDeclaredConstructors());
-        if (injectCtor.isEmpty()) {
-            return instantiateUsingDefaultCtor(clazz);
-        }
-        Constructor ctor = injectCtor.get();
-        List<Object> realParams = createParamsOfInjectCtor(history, ctor);
-        return instantiateUsingInjectCtor(ctor, realParams);
+
+        BeanCreator bc = beanCreators.get(clazz);
+        Object[] params = createParams(bc.getParams(), history);
+        return bc.instantiate(params);
     }
 
-    private Object instantiateUsingInjectCtor(Constructor ctor, List<Object> realParams) {
-        try {
-            return ctor.newInstance(realParams.toArray());
-        } catch (Exception e) {
-            throw new ObjectInstantiationFailException(e);
-        }
-    }
-
-    private List<Object> createParamsOfInjectCtor(Set<Class<?>> history, Constructor ctor) {
+    private Object[] createParams(List<Class<?>> params, Set<Class<?>> history) {
         List<Object> realParams = Lists.newArrayList();
-        for (Class<?> param : ctor.getParameterTypes()) {
+        for (Class<?> param : params) {
             validateNoRecursiveField(history, param);
             validateNoPrimitiveInjection(param);
             if (beans.containsKey(param)) {
@@ -80,27 +70,13 @@ public enum BeanFactory {
             param = param.isInterface() ? findImplClass(param) : param;
             realParams.add(instantiate(param, createUpdatedHistory(history, param)));
         }
-        return realParams;
+        return realParams.toArray();
     }
 
     private Set<Class<?>> createUpdatedHistory(Set<Class<?>> history, Class<?> param) {
         Set<Class<?>> newHistory = Sets.newHashSet(history);
         newHistory.add(param);
         return newHistory;
-    }
-
-    private Object instantiateUsingDefaultCtor(Class<?> clazz) {
-        try {
-            return clazz.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new NoDefaultConstructorException();
-        }
-    }
-
-    private Optional<Constructor> getInjectCtor(Constructor[] ctors) {
-        return Arrays.stream(ctors)
-                .filter(ctor -> ctor.isAnnotationPresent(Inject.class))
-                .findFirst();
     }
 
     private void validateNoPrimitiveInjection(Class<?> param) {
@@ -116,13 +92,13 @@ public enum BeanFactory {
     }
 
     private void validateInitialization() {
-        if (Objects.isNull(preInstantiatedBeans) || Objects.isNull(beans)) {
+        if (Objects.isNull(beanCreators) || Objects.isNull(beans)) {
             throw new UninitializedBeanFactoryException();
         }
     }
 
     private Class<?> findImplClass(Class<?> interfaze) {
-        return preInstantiatedBeans.parallelStream()
+        return beanCreators.keySet().parallelStream()
                 .filter(bean -> !interfaze.equals(bean))
                 .filter(interfaze::isAssignableFrom)
                 .findFirst()

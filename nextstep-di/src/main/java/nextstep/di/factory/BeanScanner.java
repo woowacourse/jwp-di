@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -7,12 +8,20 @@ import nextstep.stereotype.Service;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanScanner {
     public static Set<Class<?>> scan(Object... basePackages) {
         Reflections reflections = new Reflections(basePackages);
         return getTypesAnnotatedWith(reflections, Controller.class, Service.class, Repository.class);
+    }
+
+    public static Map<Class<?>, BeanCreator> scan2(Object... basePackages) {
+        Reflections reflections = new Reflections(basePackages);
+        Set<Class<?>> types = getTypesAnnotatedWith(reflections, Controller.class, Service.class, Repository.class);
+        return Maps.asMap(types, ClassBeanCreator::new);
     }
 
     @SuppressWarnings("unchecked")
