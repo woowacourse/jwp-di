@@ -27,8 +27,8 @@ public class BeanFactory {
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
-        if(beans.containsKey(requiredType)) {
-            return (T)beans.get(requiredType);
+        if (beans.containsKey(requiredType)) {
+            return (T) beans.get(requiredType);
         }
         throw new BeanNotFoundException();
     }
@@ -69,8 +69,8 @@ public class BeanFactory {
 
     private void checkParameterIsBean(Constructor<?> ownerConstructor, Class<?> parameterType) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
-        if(preInstantiateBeans.contains(concreteClass)) {
-            instantiateBean(ownerConstructor,concreteClass);
+        if (preInstantiateBeans.contains(concreteClass)) {
+            instantiateBean(ownerConstructor, concreteClass);
             return;
         }
         throw new ParameterIsNotBeanException();
@@ -79,7 +79,7 @@ public class BeanFactory {
     private void instantiateBean(Constructor<?> ownerConstructor, Class<?> parameterType) {
         BeanFactoryUtils.getInjectedConstructor(parameterType)
             .ifPresentOrElse((injectConstructor) -> checkCircularReference(ownerConstructor, injectConstructor),
-                () ->createBeanDefaultConstructor(parameterType));
+                () -> createBeanDefaultConstructor(parameterType));
     }
 
     private void checkCircularReference(Constructor<?> ownerConstructor, Constructor<?> againstOwnerConstructor) {
@@ -90,7 +90,7 @@ public class BeanFactory {
     }
 
     private void checkSameClass(Constructor<?> ownerConstructor, Parameter parameter) {
-        if(parameter.getType().getName() == ownerConstructor.getName()){
+        if (parameter.getType().getName() == ownerConstructor.getName()) {
             throw new CircularReferenceException();
         }
     }
