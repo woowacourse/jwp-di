@@ -19,6 +19,10 @@ public class BeanFactory {
     private Set<Class<?>> preInstantiateBeans;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
+    public BeanFactory() {
+
+    }
+
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
     }
@@ -29,12 +33,14 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> clazz : preInstantiateBeans) {
-            instantiate(clazz);
+        if (Objects.nonNull(preInstantiateBeans)) {
+            for (Class<?> clazz : preInstantiateBeans) {
+                instantiate(clazz);
+            }
         }
     }
 
-    private Object instantiate(Class<?> clazz) {
+    public Object instantiate(Class<?> clazz) {
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
@@ -42,15 +48,15 @@ public class BeanFactory {
         return createSingleInstance(clazz);
     }
 
+    public void addBean(Class<?> clazz, Object instance) {
+        beans.put(clazz, instance);
+    }
+
     private Object createSingleInstance(Class<?> clazz) {
         Object instance = createInstance(clazz);
         addBean(clazz, instance);
 
         return instance;
-    }
-
-    private void addBean(Class<?> clazz, Object instance) {
-        beans.put(clazz, instance);
     }
 
     private Object createInstance(Class<?> clazz) {
