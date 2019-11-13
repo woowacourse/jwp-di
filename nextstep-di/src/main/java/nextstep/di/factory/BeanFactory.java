@@ -82,8 +82,8 @@ public class BeanFactory {
                 () ->createBeanDefaultConstructor(parameterType));
     }
 
-    private void checkCircularReference(Constructor<?> ownerConstructor, Constructor<?> injectConstructor) {
-        Parameter[] parameters = injectConstructor.getParameters();
+    private void checkCircularReference(Constructor<?> ownerConstructor, Constructor<?> againstOwnerConstructor) {
+        Parameter[] parameters = againstOwnerConstructor.getParameters();
         for (Parameter parameter : parameters) {
             checkSameClass(ownerConstructor, parameter);
         }
