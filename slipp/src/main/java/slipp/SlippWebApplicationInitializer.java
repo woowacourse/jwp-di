@@ -1,5 +1,6 @@
 package slipp;
 
+import nextstep.di.factory.BeanFactory;
 import nextstep.di.scanner.BeanScanner;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
@@ -13,14 +14,16 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
-public class SlippWebApplicationInitializer  implements WebApplicationInitializer {
+public class SlippWebApplicationInitializer implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        BeanScanner beanScanner = new BeanScanner("slipp");
+        BeanFactory beanFactory = new BeanFactory();
+        BeanScanner beanScanner = new BeanScanner(beanFactory);
+        beanScanner.doScan("slipp");
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(beanScanner));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(beanFactory));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());

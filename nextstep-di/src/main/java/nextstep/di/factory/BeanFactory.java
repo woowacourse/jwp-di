@@ -24,6 +24,9 @@ public class BeanFactory {
         this.preInstanticateBeans = preInstanticateBeans;
     }
 
+    public BeanFactory() {
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         return (T) beans.get(requiredType);
@@ -78,6 +81,10 @@ public class BeanFactory {
             params[i] = injectInstantiateBean(concreteClass);
         }
         return params;
+    }
+
+    public void addPreInstanticateClazz(Set<Class<?>> preInstanticateClazz) {
+        this.preInstanticateBeans = preInstanticateClazz;
     }
 }
 

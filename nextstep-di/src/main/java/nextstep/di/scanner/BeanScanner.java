@@ -1,6 +1,7 @@
 package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -14,16 +15,22 @@ import java.util.Set;
 public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
+    private BeanFactory beanFactory;
     private Reflections reflections;
     private Set<Class<?>> preInstanticateClazz;
 
-    public BeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
-        initiate();
+    public BeanScanner(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
-    public Set<Class<?>> getPreInstanticateClazz() {
-        return preInstanticateClazz;
+    public void doScan(Object... basePackage) {
+        reflections = new Reflections(basePackage);
+        initiate();
+        getPreInstanticateClazz();
+    }
+
+    public void getPreInstanticateClazz() {
+        beanFactory.addPreInstanticateClazz(preInstanticateClazz);
     }
 
     @SuppressWarnings("unchecked")
