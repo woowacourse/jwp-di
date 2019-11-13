@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.beans.integration.JdbcTestRepository;
 import nextstep.di.factory.example.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
@@ -24,7 +26,6 @@ public class BeanFactoryTest {
         beanFactory.initialize();
     }
 
-    //    // TODO NP 발생!!
     @Test
     public void di() throws Exception {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
@@ -61,4 +62,22 @@ public class BeanFactoryTest {
         assertNotNull(beanFactory.getBean(DataSource.class));
     }
 
+    @Test
+    public void register_classpathBeanScanner_통합() {
+        beanFactory = new ApplicationContext();
+        beanFactory.register(IntegrationConfig.class);
+        beanFactory.scan("nextstep.di.factory.beans.integration");
+        beanFactory.initialize();
+
+        assertNotNull(beanFactory.getBean(DataSource.class));
+
+        JdbcTestRepository testRepository = beanFactory.getBean(JdbcTestRepository.class);
+        assertNotNull(testRepository);
+        assertNotNull(testRepository.getDataSource());
+
+        MyJdbcTemplate jdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        assertNotNull(jdbcTemplate);
+        assertNotNull(jdbcTemplate.getDataSource());
+        assertEquals(jdbcTemplate.getDataSource(), testRepository.getDataSource());
+    }
 }

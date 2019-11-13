@@ -32,7 +32,12 @@ public class BeanInitializeOrderDeterminer {
 
     private Object invoke(Map<Class<?>, Object> beans, BeanCreationResource resource) {
         return resource.initialize(resource.getParameterTypes().stream()
-                .map(clazz -> beans.get(BeanFactoryUtils.findConcreteClass(clazz, preInitializedResources.keySet())))
+                .map(type -> {
+                    if (beans.containsKey(type)) {
+                        return beans.get(type);
+                    }
+                    return beans.get(BeanFactoryUtils.findConcreteClass(type, beans.keySet()));
+                })
                 .toArray());
     }
 
@@ -55,6 +60,9 @@ public class BeanInitializeOrderDeterminer {
     }
 
     private BeanCreationResource getResource(Class<?> parameterType) {
+        if (preInitializedResources.containsKey(parameterType)) {
+            return preInitializedResources.get(parameterType);
+        }
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInitializedResources.keySet());
         if (preInitializedResources.containsKey(concreteClass)) {
             return preInitializedResources.get(concreteClass);
