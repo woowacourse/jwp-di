@@ -1,4 +1,4 @@
-package nextstep.di.scanner;
+package nextstep.di.factory.domain;
 
 import com.google.common.collect.Sets;
 import nextstep.stereotype.Controller;

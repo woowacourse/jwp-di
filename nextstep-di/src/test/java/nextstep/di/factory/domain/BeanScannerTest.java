@@ -1,4 +1,4 @@
-package nextstep.di.scanner;
+package nextstep.di.factory.domain;
 
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;

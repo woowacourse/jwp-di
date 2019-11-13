@@ -1,4 +1,4 @@
-package nextstep.di.factory.support;
+package nextstep.di.factory.util;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;

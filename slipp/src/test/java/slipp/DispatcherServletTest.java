@@ -1,7 +1,7 @@
 package slipp;
 
-import nextstep.di.factory.BeanFactory;
-import nextstep.di.scanner.BeanScanner;
+import nextstep.di.factory.domain.BeanFactory;
+import nextstep.di.factory.domain.BeanScanner;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;

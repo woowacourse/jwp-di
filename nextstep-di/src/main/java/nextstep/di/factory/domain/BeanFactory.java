@@ -1,9 +1,8 @@
-package nextstep.di.factory;
+package nextstep.di.factory.domain;
 
-import nextstep.di.factory.support.BeanFactoryUtils;
 import nextstep.di.factory.support.Beans;
-import nextstep.di.factory.support.ReflectionUtils;
-import nextstep.di.scanner.BeanScanner;
+import nextstep.di.factory.util.BeanFactoryUtils;
+import nextstep.di.factory.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

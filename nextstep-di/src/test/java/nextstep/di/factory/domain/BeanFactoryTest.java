@@ -1,10 +1,9 @@
-package nextstep.di.factory;
+package nextstep.di.factory.domain;
 
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
-import nextstep.di.scanner.BeanScanner;
 import nextstep.stereotype.Controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
