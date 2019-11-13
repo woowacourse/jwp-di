@@ -12,14 +12,14 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-public class BeanScanner {
-    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+public class ClasspathBeanScanner {
+    private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
     private static final Class[] COMPONENTS = {Controller.class, Service.class, Repository.class};
 
     private Reflections reflections;
     private BeanFactory beanFactory;
 
-    public BeanScanner(BeanFactory beanFactory) {
+    public ClasspathBeanScanner(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
