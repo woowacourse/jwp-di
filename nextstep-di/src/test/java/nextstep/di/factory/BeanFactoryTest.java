@@ -90,9 +90,4 @@ public class BeanFactoryTest {
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
     }
-
-    @AfterEach
-    void tearDown() {
-        beanFactory = null;
-    }
 }

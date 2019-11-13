@@ -28,9 +28,4 @@ class ConstructorInstantiationTest {
         constructorInstantiation = new ConstructorInstantiation(MyQnaService.class);
         assertNotNull(constructorInstantiation.getInstance(beanCreateMatcher, Maps.newHashMap()));
     }
-
-    @AfterEach
-    void tearDown() {
-        constructorInstantiation = null;
-    }
 }

@@ -34,9 +34,4 @@ class BeanScannerTest {
         assertTrue(beanCreateMatcher.containsKey(JdbcQuestionRepository.class));
         assertTrue(beanCreateMatcher.containsKey(MyJdbcTemplate.class));
     }
-
-    @AfterEach
-    void tearDown() {
-        beanScanner = null;
-    }
 }
