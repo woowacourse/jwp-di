@@ -8,7 +8,7 @@ import java.util.Objects;
 public class ClasspathBeanCreationResource implements BeanCreationResource {
     private Constructor constructor;
 
-    public ClasspathBeanCreationResource(Constructor constructor) {
+    ClasspathBeanCreationResource(Constructor constructor) {
         this.constructor = constructor;
     }
 

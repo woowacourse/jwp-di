@@ -18,19 +18,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
-    private ApplicationContext beanFactory;
+    private ApplicationContext applicationContext;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        beanFactory = new ApplicationContext();
-        beanFactory.scan("nextstep.di.factory.example");
-        beanFactory.initialize();
+        applicationContext = new ApplicationContext();
+        applicationContext.scan("nextstep.di.factory.example");
+        applicationContext.initialize();
     }
 
     @Test
     public void di() throws Exception {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        QnaController qnaController = applicationContext.getBean(QnaController.class);
 
         assertNotNull(qnaController);
         assertNotNull(qnaController.getQnaService());
@@ -43,12 +43,12 @@ public class BeanFactoryTest {
 
     @Test
     void UserRepository가_싱글_인스턴스가_맞는지_테스트() {
-        final UserRepository beanFactoryUserRepository = beanFactory.getBean(JdbcUserRepository.class);
+        final UserRepository beanFactoryUserRepository = applicationContext.getBean(JdbcUserRepository.class);
 
-        final MyQnaService qnaService = beanFactory.getBean(MyQnaService.class);
+        final MyQnaService qnaService = applicationContext.getBean(MyQnaService.class);
         final UserRepository qnaServiceUserRepository = qnaService.getUserRepository();
 
-        final NewQnaService newQnaService = beanFactory.getBean(NewQnaService.class);
+        final NewQnaService newQnaService = applicationContext.getBean(NewQnaService.class);
         final UserRepository newQnaServiceUserRepository = newQnaService.getUserRepository();
 
         assertThat(beanFactoryUserRepository).isEqualTo(qnaServiceUserRepository);
@@ -57,28 +57,28 @@ public class BeanFactoryTest {
 
     @Test
     public void register_simple() {
-        beanFactory = new ApplicationContext();
-        beanFactory.register(ExampleConfig.class);
-        beanFactory.initialize();
+        applicationContext = new ApplicationContext();
+        applicationContext.register(ExampleConfig.class);
+        applicationContext.initialize();
 
-        assertNotNull(beanFactory.getBean(DataSource.class));
+        assertNotNull(applicationContext.getBean(DataSource.class));
     }
 
     @Test
     public void register_classpathBeanScanner_통합() {
-        beanFactory = new ApplicationContext();
-        beanFactory.register(IntegrationConfig.class);
-        beanFactory.scan("nextstep.di.factory.beans.integration");
-        beanFactory.initialize();
+        applicationContext = new ApplicationContext();
+        applicationContext.register(IntegrationConfig.class);
+        applicationContext.scan("nextstep.di.factory.beans.integration");
+        applicationContext.initialize();
 
-        DataSource dataSource = beanFactory.getBean(DataSource.class);
+        DataSource dataSource = applicationContext.getBean(DataSource.class);
         assertNotNull(dataSource);
 
-        JdbcTestRepository testRepository = beanFactory.getBean(JdbcTestRepository.class);
+        JdbcTestRepository testRepository = applicationContext.getBean(JdbcTestRepository.class);
         assertNotNull(testRepository);
         assertNotNull(testRepository.getDataSource());
 
-        MyJdbcTemplate jdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        MyJdbcTemplate jdbcTemplate = applicationContext.getBean(MyJdbcTemplate.class);
         assertNotNull(jdbcTemplate);
         assertNotNull(jdbcTemplate.getDataSource());
 
@@ -88,32 +88,32 @@ public class BeanFactoryTest {
 
     @Test
     void 기본_ComponentScan_어노테이션_동작_확인() {
-        beanFactory = new ApplicationContext();
-        beanFactory.register(DefaultComponentScanConfig.class);
-        beanFactory.initialize();
+        applicationContext = new ApplicationContext();
+        applicationContext.register(DefaultComponentScanConfig.class);
+        applicationContext.initialize();
 
-        NewQnaService newQnaService = beanFactory.getBean(NewQnaService.class);
+        NewQnaService newQnaService = applicationContext.getBean(NewQnaService.class);
         assertNotNull(newQnaService);
         assertNotNull(newQnaService.getQuestionRepository());
         assertNotNull(newQnaService.getUserRepository());
 
-        MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        MyJdbcTemplate myJdbcTemplate = applicationContext.getBean(MyJdbcTemplate.class);
         assertNotNull(myJdbcTemplate);
         assertNotNull(myJdbcTemplate.getDataSource());
     }
 
     @Test
     void ComponentScan_어노테이션_basePackage가_하나일_경우_동작_확인() {
-        beanFactory = new ApplicationContext();
-        beanFactory.register(OnePackageComponentScanConfig.class);
-        beanFactory.initialize();
+        applicationContext = new ApplicationContext();
+        applicationContext.register(OnePackageComponentScanConfig.class);
+        applicationContext.initialize();
 
-        IntegrationExampleBean2 exampleBean = beanFactory.getBean(IntegrationExampleBean2.class);
+        IntegrationExampleBean2 exampleBean = applicationContext.getBean(IntegrationExampleBean2.class);
         assertNotNull(exampleBean);
         assertNotNull(exampleBean.getRepository());
         assertNotNull(exampleBean.getRepository().getDataSource());
 
-        DataSource dataSource = beanFactory.getBean(DataSource.class);
+        DataSource dataSource = applicationContext.getBean(DataSource.class);
         assertNotNull(dataSource);
 
         assertEquals(dataSource, exampleBean.getRepository().getDataSource());
@@ -121,19 +121,19 @@ public class BeanFactoryTest {
 
     @Test
     void ComponentScan_어노테이션_basePackage가_두개이상일_경우_동작_확인() {
-        beanFactory = new ApplicationContext();
-        beanFactory.register(OverTwoComponentScanConfig.class);
-        beanFactory.initialize();
+        applicationContext = new ApplicationContext();
+        applicationContext.register(OverTwoComponentScanConfig.class);
+        applicationContext.initialize();
 
-        IntegrationExampleBean2 exampleBean2 = beanFactory.getBean(IntegrationExampleBean2.class);
+        IntegrationExampleBean2 exampleBean2 = applicationContext.getBean(IntegrationExampleBean2.class);
         assertNotNull(exampleBean2);
         assertNotNull(exampleBean2.getRepository());
         assertNotNull(exampleBean2.getRepository().getDataSource());
 
-        MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        MyJdbcTemplate myJdbcTemplate = applicationContext.getBean(MyJdbcTemplate.class);
         assertNotNull(myJdbcTemplate);
 
-        OneConstructorBean oneConstructorBean = beanFactory.getBean(OneConstructorBean.class);
+        OneConstructorBean oneConstructorBean = applicationContext.getBean(OneConstructorBean.class);
         assertNotNull(oneConstructorBean);
     }
 }

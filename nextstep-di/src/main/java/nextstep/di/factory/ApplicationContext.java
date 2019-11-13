@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
@@ -19,9 +20,9 @@ public class ApplicationContext {
 
     private List<Class<? extends Annotation>> types = Arrays.asList(Controller.class, Service.class, Repository.class);
 
-    private Map<Class<?>, Object> beans;
+    private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    private BeanInitializeOrderDeterminer determiner = new BeanInitializeOrderDeterminer();
+    private BeanInitializer determiner = new BeanInitializer();
 
     public void register(Class<?> configuration) {
         if (!configuration.isAnnotationPresent(Configuration.class)) {
@@ -32,7 +33,7 @@ public class ApplicationContext {
             Set<BeanCreationResource> resources = Arrays.stream(configuration.getDeclaredMethods())
                     .map(method -> new ConfigurationBeanCreationResource(method, configurationObject))
                     .collect(Collectors.toSet());
-            determiner.determine(resources);
+            determiner.addBeanCreationResources(resources);
         } catch (Exception e) {
             throw new BeanCreateException(e);
         }
@@ -56,11 +57,11 @@ public class ApplicationContext {
     public void scan(String targetPackage) {
         Reflections reflections = new Reflections(targetPackage);
 
-        Set<Class<?>> classWithTypesAnnotation = getTypesWithAnnotation(reflections);
+        Set<Class<?>> typesWithAnnotation = getTypesWithAnnotation(reflections);
 
-        Set<BeanCreationResource> resources = createClasspathBeanCreationResources(classWithTypesAnnotation);
+        Set<BeanCreationResource> resources = createClasspathBeanCreationResources(typesWithAnnotation);
 
-        determiner.determine(resources);
+        determiner.addBeanCreationResources(resources);
     }
 
     private Set<Class<?>> getTypesWithAnnotation(Reflections reflections) {
@@ -79,9 +80,9 @@ public class ApplicationContext {
     }
 
     public void initialize() {
-        beans = determiner.initialize();
+        determiner.initialize(beans);
         for (Map.Entry<Class<?>, Object> classObjectEntry : beans.entrySet()) {
-            logger.info("{} bean made : {}", classObjectEntry.getKey(), classObjectEntry.getValue());
+            logger.info("{} bean is initialized : {}", classObjectEntry.getKey(), classObjectEntry.getValue());
         }
     }
 

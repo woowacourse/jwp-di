@@ -9,7 +9,7 @@ public class ConfigurationBeanCreationResource implements BeanCreationResource {
     private Method method;
     private Object configurationObject;
 
-    public ConfigurationBeanCreationResource(Method method, Object configurationObject) {
+    ConfigurationBeanCreationResource(Method method, Object configurationObject) {
         this.method = method;
         this.configurationObject = configurationObject;
     }
