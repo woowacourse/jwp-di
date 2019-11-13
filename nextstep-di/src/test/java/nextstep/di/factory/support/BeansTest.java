@@ -19,7 +19,7 @@ public class BeansTest {
     public void setUp() {
         beans = new Beans();
         jdbcUserRepository = new JdbcUserRepository();
-        beans.put(JdbcUserRepository.class, jdbcUserRepository);
+        beans.put(JdbcUserRepository.class, () -> jdbcUserRepository);
     }
 
     @Test
@@ -35,13 +35,13 @@ public class BeansTest {
 
     @Test
     public void instantiate() {
-        beans.instantiate(JdbcUserRepository.class, JdbcUserRepository::new);
+        beans.put(JdbcUserRepository.class, JdbcUserRepository::new);
         assertThat(beans.get(JdbcUserRepository.class)).isEqualTo(jdbcUserRepository);
     }
 
     @Test
     public void instantiateIfNotExist() {
-        beans.instantiate(JdbcQuestionRepository.class, JdbcQuestionRepository::new);
+        beans.put(JdbcQuestionRepository.class, JdbcQuestionRepository::new);
         assertThat(beans.get(JdbcQuestionRepository.class)).isInstanceOf(JdbcQuestionRepository.class);
     }
 }
