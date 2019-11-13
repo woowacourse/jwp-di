@@ -49,8 +49,19 @@ public class BeanInitializeOrderDeterminer {
         }
         circularReferenceDetector.push(resource);
         for (Class<?> parameterType : resource.getParameterTypes()) {
-            check(preInitializedResources.get(BeanFactoryUtils.findConcreteClass(parameterType, preInitializedResources.keySet())));
+            check(getResource(parameterType));
         }
         beanInitializationsQueue.add(circularReferenceDetector.pop());
+    }
+
+    private BeanCreationResource getResource(Class<?> parameterType) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInitializedResources.keySet());
+        if (preInitializedResources.containsKey(concreteClass)) {
+            return preInitializedResources.get(concreteClass);
+        }
+        BeanCreationResource resource = new ClasspathBeanCreationResource(
+                BeanFactoryUtils.getInjectedConstructor(concreteClass).orElseThrow(BeanCreateException::new));
+        preInitializedResources.put(concreteClass, resource);
+        return resource;
     }
 }
