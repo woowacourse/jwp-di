@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class ConfigurationBeanFactoryTest {
 
@@ -36,5 +37,11 @@ public class ConfigurationBeanFactoryTest {
     void voidConfig_throwException() {
         configurationBeanFactory = new ConfigurationBeanFactory(VoidConfig.class);
         assertThatThrownBy(() -> configurationBeanFactory.initialize()).isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    void isSameInstance() {
+        Object jdbcTemplate = ((MyJdbcTemplate) configurationBeanFactory.getBean(MyJdbcTemplate.class)).getDataSource();
+        assertSame(configurationBeanFactory.getBean(DataSource.class), jdbcTemplate);
     }
 }
