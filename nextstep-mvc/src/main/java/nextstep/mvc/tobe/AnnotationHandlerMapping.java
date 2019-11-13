@@ -37,7 +37,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
                 .collect(Collectors.toSet());
 
         BeanFactory beanFactory = new BeanFactory(classTypes);
-        beanFactory.initialize();
 
         Set<Method> methods = beanFactory.findMethodsByAnnotation(RequestMapping.class, Controller.class);
         createHandlerExecution(beanFactory, methods);

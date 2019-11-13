@@ -1,80 +1,74 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.exception.BeanFactoryException;
+import nextstep.annotation.Bean;
 import org.reflections.ReflectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
-    private Set<Class<?>> preInstantiatedBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, BeanDefinition> beanDefinitions = new HashMap<>();
 
     public BeanFactory(Set<Class<?>> preInstantiatedBeans) {
-        this.preInstantiatedBeans = preInstantiatedBeans;
+        initBeanDefinitions(preInstantiatedBeans);
+        initBeans();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(final Class<T> requiredType) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(requiredType, preInstantiatedBeans);
-        return (T) beans.get(concreteClass);
+    private void initBeanDefinitions(Set<Class<?>> preInstantiatedBeans) {
+        preInstantiatedBeans.forEach(clazz -> {
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
+            DefaultBeanDefinition defaultBeanDefinition = new DefaultBeanDefinition(concreteClass);
+            beanDefinitions.put(concreteClass, defaultBeanDefinition);
+
+            registerMethodDefinitions(defaultBeanDefinition);
+        });
     }
 
-    public void initialize() {
-        preInstantiatedBeans.forEach(this::createBean);
+    private void registerMethodDefinitions(DefaultBeanDefinition defaultBeanDefinition) {
+        Stream.of(defaultBeanDefinition.getBeanClass().getMethods())
+                .filter(method -> method.isAnnotationPresent(Bean.class))
+                .forEach(method -> {
+                    MethodBeanDefinition methodBeanDefinition = new MethodBeanDefinition(method, method.getReturnType(), createBean(defaultBeanDefinition));
+                    beanDefinitions.put(defaultBeanDefinition.getBeanClass(), methodBeanDefinition);
+                });
     }
 
-    private Object createBean(final Class<?> preInstantiatedBean) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInstantiatedBean, preInstantiatedBeans);
-        if (beans.containsKey(concreteClass)) {
-            return beans.get(concreteClass);
+    private Object createBean(BeanDefinition beanDefinition) {
+        if (beans.containsKey(beanDefinition.getBeanClass())) {
+            return beans.get(beanDefinition.getBeanClass());
         }
-        Object bean = createInstance(concreteClass);
-        beans.put(concreteClass, bean);
+
+        Object[] parameters = createParameters(beanDefinition);
+        Object bean = beanDefinition.createBean(parameters);
+
+        beans.put(beanDefinition.getBeanClass(), bean);
         return bean;
     }
 
-    private Object createInstance(final Class<?> preInstantiatedBean) {
-        try {
-            Constructor<?> constructor = getBeanConstructor(preInstantiatedBean);
-            List<Object> parameters = createParameters(constructor.getParameterTypes());
-
-            return constructor.newInstance(parameters.toArray());
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            logger.error(e.getMessage());
-            throw new BeanFactoryException(e);
-        }
+    private Object[] createParameters(BeanDefinition beanDefinition) {
+        return Arrays.stream(beanDefinition.getParameterTypes())
+                .map(parameter -> BeanFactoryUtils.findConcreteClassByBeanDefinition(parameter, beanDefinitions.values()))
+                .map(clazz -> getOrCreateBean(beanDefinitions.get(clazz)))
+                .toArray();
     }
 
-    private Constructor<?> getBeanConstructor(final Class<?> preInstantiatedBean) {
-        Optional<Constructor<?>> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstantiatedBean);
-        return injectedConstructor.orElseGet(() -> getConstructor(preInstantiatedBean));
+    private Object getOrCreateBean(BeanDefinition beanDefinition) {
+        return beans.getOrDefault(beanDefinition.getBeanClass(), createBean(beanDefinition));
     }
 
-    private Constructor<?> getConstructor(Class<?> clazz) {
-        try {
-            return clazz.getConstructor();
-        } catch (NoSuchMethodException e) {
-            logger.error(e.getMessage());
-            throw new BeanFactoryException(e);
-        }
+    private void initBeans() {
+        beanDefinitions.values().forEach(this::createBean);
     }
 
-    private List<Object> createParameters(final Class<?>[] parameterTypes) {
-        return Stream.of(parameterTypes)
-                .map(this::createBean)
-                .collect(Collectors.toList());
+    @SuppressWarnings("unchecked")
+    public <T> T getBean(Class<T> requiredType) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(requiredType, beans.keySet());
+        return (T) beans.get(concreteClass);
     }
 
     @SuppressWarnings("unchecked")

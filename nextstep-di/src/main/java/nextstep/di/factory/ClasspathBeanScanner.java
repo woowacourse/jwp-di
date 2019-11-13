@@ -11,15 +11,9 @@ public class ClasspathBeanScanner implements BeanScanner {
     private static final Class[] COMPONENT_ANNOTATIONS = {Controller.class, Repository.class, Service.class};
 
     private final Set<Class<?>> classTypes;
-    private final Object[] basePackages;
 
     public ClasspathBeanScanner(Object... basePackages) {
-        this.basePackages = basePackages;
-        this.classTypes = getTypesAnnotatedWith(COMPONENT_ANNOTATIONS);
-    }
-
-    public Set<Class<?>> getBeans() {
-        return classTypes;
+        this.classTypes = getTypesAnnotatedWith(basePackages, COMPONENT_ANNOTATIONS);
     }
 
     @Override
