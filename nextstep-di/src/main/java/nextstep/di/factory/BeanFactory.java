@@ -1,7 +1,6 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -12,20 +11,19 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Map<Class<?>, Object> beans;
-    private Set<Class<?>> preInstanticateClazz;
+    private Map<Class<?>, Constructor> preInstanticateClazz;
 
     private Map<Class<?>, Object> configBeans;
     private Map<Class<?>, Method> preInstanticateConfigs;
 
     public BeanFactory() {
         beans = Maps.newHashMap();
-        preInstanticateClazz = Sets.newHashSet();
+        preInstanticateClazz = Maps.newHashMap();
         configBeans = Maps.newHashMap();
         preInstanticateConfigs = Maps.newHashMap();
     }
@@ -36,7 +34,7 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> preInstanticateBean : preInstanticateClazz) {
+        for (Class<?> preInstanticateBean : preInstanticateClazz.keySet()) {
             scanBean(preInstanticateBean);
         }
         for (Class<?> preInstanticateConfig : preInstanticateConfigs.keySet()) {
@@ -124,7 +122,7 @@ public class BeanFactory {
         Object[] params = new Object[constructor.getParameterCount()];
         for (int i = 0; i < params.length; i++) {
             Class<?> parameterType = constructor.getParameterTypes()[i];
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateClazz);
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateClazz.keySet());
             params[i] = scanBean(concreteClass);
         }
         return params;
@@ -140,8 +138,8 @@ public class BeanFactory {
         return annotatedClass;
     }
 
-    public void addPreInstanticateClazz(Set<Class<?>> beans) {
-        preInstanticateClazz.addAll(beans);
+    public void addPreInstanticateClazz(Map<Class<?>, Constructor> beans) {
+        preInstanticateClazz.putAll(beans);
         initialize();
     }
 
