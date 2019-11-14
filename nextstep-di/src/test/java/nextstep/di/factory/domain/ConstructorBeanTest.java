@@ -38,7 +38,7 @@ public class ConstructorBeanTest {
     private Object makeInstance(ConstructorBean bean) {
         if (bean.hasParameter()) {
             Object[] object = bean.getParameters().stream()
-                    .map(this::makeInstance)
+                    .map(beanDefinition -> beanDefinition.makeInstance())
                     .toArray();
             return bean.makeInstance(object);
         }
@@ -56,7 +56,7 @@ public class ConstructorBeanTest {
             return new ConstructorBean(clazz, constructor, Lists.emptyList());
         }
 
-        List<ConstructorBean> parameters = Stream.of(parameterTypes)
+        List<BeanDefinition> parameters = Stream.of(parameterTypes)
                 .map(classType -> makeConstructorBean(classType))
                 .collect(Collectors.toList());
 

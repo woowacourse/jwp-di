@@ -3,16 +3,15 @@ package nextstep.di.factory.domain;
 import nextstep.di.factory.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
 import java.util.List;
 
 //@TODO AnnotationBean
-public class ConstructorBean {
+public class ConstructorBean implements BeanDefinition {
     private final Constructor<?> constructor;
-    private final List<ConstructorBean> parameters;
+    private final List<BeanDefinition> parameters;
     private Class<?> clazz;
 
-    public ConstructorBean(Class<?> clazz, Constructor<?> constructor, List<ConstructorBean> parameters) {
+    public ConstructorBean(Class<?> clazz, Constructor<?> constructor, List<BeanDefinition> parameters) {
         this.clazz = clazz;
         this.constructor = constructor;
         this.parameters = parameters;
@@ -26,7 +25,7 @@ public class ConstructorBean {
         return ReflectionUtils.newInstance(constructor, parameters);
     }
 
-    public List<ConstructorBean> getParameters() {
+    public List<BeanDefinition> getParameters() {
         return parameters;
     }
 }
