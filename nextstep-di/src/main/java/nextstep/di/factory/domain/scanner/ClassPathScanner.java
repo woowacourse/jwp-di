@@ -19,15 +19,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-public class AnnotationScanner {
-    private static final Logger logger = LoggerFactory.getLogger(AnnotationScanner.class);
+public class ClassPathScanner {
+    private static final Logger logger = LoggerFactory.getLogger(ClassPathScanner.class);
     private static final Collection<Class<? extends Annotation>> ANNOTATIONS =
             Arrays.asList(Controller.class, Service.class, Repository.class);
 
     private Reflections reflections;
     private BeanFactory beanFactory;
 
-    public AnnotationScanner(BeanFactory beanFactory) {
+    public ClassPathScanner(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 

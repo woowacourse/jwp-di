@@ -2,7 +2,7 @@ package slipp;
 
 import nextstep.di.factory.domain.BeanFactory;
 import nextstep.di.factory.domain.GenericBeanFactory;
-import nextstep.di.factory.domain.scanner.AnnotationScanner;
+import nextstep.di.factory.domain.scanner.ClassPathScanner;
 import nextstep.di.factory.domain.scanner.ConfigurationScanner;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
@@ -25,8 +25,8 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
 
         BeanFactory beanFactory = new GenericBeanFactory();
-        AnnotationScanner annotationScanner = new AnnotationScanner(beanFactory);
-        annotationScanner.scan("slipp");
+        ClassPathScanner classPathScanner = new ClassPathScanner(beanFactory);
+        classPathScanner.scan("slipp");
         ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
         configurationScanner.register(JdbcConfiguration.class);
 
