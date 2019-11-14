@@ -17,7 +17,7 @@ public class AnnotationHandlerMappingTest {
 
     @BeforeEach
     public void setup() {
-        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scanConfiguration("samples"));
+        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scan("samples"));
         BeanFactory beanFactory = new BeanFactory(beanDefinitionFactory.createBeanDefinition());
 
         beanFactory.initialize();

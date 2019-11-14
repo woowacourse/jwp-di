@@ -18,7 +18,7 @@ public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     @SuppressWarnings("unchecked")
-    public static Set<Class<?>> scanConfiguration(String basePackage) {
+    public static Set<Class<?>> scan(String basePackage) {
         Reflections reflections = new Reflections(basePackage);
 
         Set<Class<?>> scannedComponents = Sets.newHashSet();
@@ -29,8 +29,9 @@ public class BeanScanner {
 
             if (componentScan != null) {
                 Stream.of(componentScan.value())
-                        .map(BeanScanner::scan)
-                        .forEach(scannedComponents::addAll);
+                        .map(BeanScanner::scanAnnotation)
+                        .forEach(scannedComponents::addAll)
+                ;
             }
         }
 
@@ -39,7 +40,7 @@ public class BeanScanner {
     }
 
     @SuppressWarnings("unchecked")
-    public static Set<Class<?>> scan(String basePackage) {
+    private static Set<Class<?>> scanAnnotation(String basePackage) {
         Reflections reflections = new Reflections(basePackage);
         return getTypesAnnotatedWith(reflections, Controller.class, Service.class, Repository.class, Configuration.class);
     }
