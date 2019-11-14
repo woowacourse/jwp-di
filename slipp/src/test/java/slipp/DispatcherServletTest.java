@@ -2,7 +2,7 @@ package slipp;
 
 import nextstep.di.factory.domain.BeanFactory;
 import nextstep.di.factory.domain.GenericBeanFactory;
-import nextstep.di.factory.domain.scanner.AnnotationScanner;
+import nextstep.di.factory.domain.scanner.ClassPathScanner;
 import nextstep.di.factory.domain.scanner.ConfigurationScanner;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
@@ -35,8 +35,8 @@ class DispatcherServletTest {
 
         dispatcher = new DispatcherServlet();
         BeanFactory beanFactory = new GenericBeanFactory();
-        AnnotationScanner annotationScanner = new AnnotationScanner(beanFactory);
-        annotationScanner.scan("slipp");
+        ClassPathScanner classPathScanner = new ClassPathScanner(beanFactory);
+        classPathScanner.scan("slipp");
         ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
         configurationScanner.register(JdbcConfiguration.class);
         beanFactory.initialize();
