@@ -1,4 +1,4 @@
-package nextstep.di.factory.example;
+package nextstep.di.factory.example.api;
 
 import javax.sql.DataSource;
 

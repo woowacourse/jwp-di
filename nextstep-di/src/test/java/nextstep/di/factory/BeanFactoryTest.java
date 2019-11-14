@@ -1,56 +1,86 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
-import nextstep.di.factory.example.QnaController;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
-import nextstep.di.factory.example.MyQnaService;
+import nextstep.di.factory.example.controller.QnaController;
+import nextstep.di.factory.example.repository.JdbcQuestionRepository;
+import nextstep.di.factory.example.repository.JdbcUserRepository;
+import nextstep.di.factory.example.repository.QuestionRepository;
+import nextstep.di.factory.example.service.MyQnaService;
+import nextstep.di.factory.example.service.TestService;
+import nextstep.di.factory.example.service.UserService;
+import nextstep.di.factory.exception.NotRegisteredBeanException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
-    private Reflections reflections;
     private BeanFactory beanFactory;
+    private Set<Class<?>> preInstantiateClazz;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
+        preInstantiateClazz = new HashSet<>(Arrays.asList(MyQnaService.class, JdbcUserRepository.class,
+                JdbcQuestionRepository.class, QnaController.class));
+        beanFactory = new BeanFactory(preInstantiateClazz);
         beanFactory.initialize();
     }
 
     @Test
-    public void di() throws Exception {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
+    public void di() {
+        final QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
         assertNotNull(qnaController.getQnaService());
 
-        MyQnaService qnaService = qnaController.getQnaService();
+        final MyQnaService qnaService = qnaController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
     }
 
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
+    @Test
+    @DisplayName("QuestionRepository가 싱글 인스턴스가 맞는지 테스트")
+    void singleInstanceTest() {
+        final MyQnaService myQnaService = beanFactory.getBean(MyQnaService.class);
+
+        final QuestionRepository actual = myQnaService.getQuestionRepository();
+        final QuestionRepository expected = beanFactory.getBean(JdbcQuestionRepository.class);
+
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Bean으로 등록되지 않은 클래스를 생성하지 않는지 확인")
+    void beanScopeTest() {
+        preInstantiateClazz.add(TestService.class);
+        assertThrows(NotRegisteredBeanException.class, () -> new BeanFactory(preInstantiateClazz).initialize());
+    }
+
+    @Test
+    @DisplayName("이미 등록된 Bean을 활용하는 테스트")
+    void getBeanTest() {
+        preInstantiateClazz.add(UserService.class);
+        BeanFactory additionBeanFactory = new BeanFactory(preInstantiateClazz);
+        additionBeanFactory.initialize();
+        assertNotNull(additionBeanFactory.getBean(UserService.class));
+        assertThat(beanFactory.getBeansSize() + 1).isEqualTo(additionBeanFactory.getBeansSize());
+    }
+
+    @AfterEach
+    void tearDown() {
+        preInstantiateClazz.clear();
+        beanFactory = null;
     }
 }
