@@ -3,6 +3,7 @@ package nextstep.di.factory.domain;
 import nextstep.di.factory.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigurationBean implements BeanDefinition {
@@ -11,12 +12,15 @@ public class ConfigurationBean implements BeanDefinition {
 
     public ConfigurationBean(Method method) {
         this.method = method;
-
+        parameters = new ArrayList<>();
+        for (Class<?> clazz : method.getParameterTypes()) {
+            parameters.add(new ParameterBeanDefinition(clazz));
+        }
     }
 
     @Override
     public boolean hasParameter() {
-        return parameters.size() > 0;
+        return this.parameters.size() > 0;
     }
 
     @Override

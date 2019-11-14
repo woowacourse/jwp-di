@@ -13,22 +13,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConfigurationScannerTest {
 
     @Test
-    public void test() {
-        ConfigurationScanner configurationScanner = new ConfigurationScanner();
-        configurationScanner.initialize(ExampleConfig.class);
-        BeanFactory2 beanFactory = new BeanFactory2();
-        configurationScanner.scanBeanFactory(beanFactory);
+    public void getDataSourceTest() {
+        BeanFactory beanFactory = new BeanFactory2();
+        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
+        configurationScanner.register(ExampleConfig.class);
+        beanFactory.initialize();
 
         assertThat(beanFactory.getBean(DataSource.class))
                 .isInstanceOf(BasicDataSource.class);
     }
 
     @Test
-    public void test2() {
-        ConfigurationScanner configurationScanner = new ConfigurationScanner();
-        configurationScanner.initialize(IntegrationConfig.class);
-        BeanFactory2 beanFactory = new BeanFactory2();
-        configurationScanner.scanBeanFactory(beanFactory);
+    public void getMyJdbcTemplateTest() {
+        BeanFactory beanFactory = new BeanFactory2();
+        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
+        configurationScanner.register(IntegrationConfig.class);
+        beanFactory.initialize();
 
         assertThat(beanFactory.getBean(DataSource.class))
                 .isInstanceOf(BasicDataSource.class);
@@ -39,10 +39,10 @@ public class ConfigurationScannerTest {
 
     @Test
     public void singleInstanceTest() {
-        ConfigurationScanner configurationScanner = new ConfigurationScanner();
-        configurationScanner.initialize(IntegrationConfig.class);
-        BeanFactory2 beanFactory = new BeanFactory2();
-        configurationScanner.scanBeanFactory(beanFactory);
+        BeanFactory beanFactory = new BeanFactory2();
+        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
+        configurationScanner.register(IntegrationConfig.class);
+        beanFactory.initialize();
 
         MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
         assertThat(myJdbcTemplate.getDataSource())

@@ -38,7 +38,7 @@ class DispatcherServletTest {
         BeanScanner beanScanner = new BeanScanner("slipp");
         beanScanner.initialize();
         ConfigurationScanner configurationScanner = new ConfigurationScanner();
-        configurationScanner.initialize(ConfigurationBean.class);
+        configurationScanner.register(ConfigurationBean.class);
         beanScanner.scanBeanFactory(beanFactory);
         configurationScanner.scanBeanFactory(beanFactory);
 

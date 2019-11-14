@@ -35,13 +35,17 @@ public class BeanFactory2 implements BeanFactory {
 
     private Object makeInstance(BeanDefinition beanDefinition) {
         if (beanDefinition.hasParameter()) {
-            Object[] objects = beanDefinition.getParameters()
-                    .stream()
-                    .map(bean -> createInstance(bean))
-                    .toArray();
+            Object[] objects = createParameterInstances(beanDefinition);
             return beanDefinition.makeInstance(objects);
         }
         return beanDefinition.makeInstance();
+    }
+
+    private Object[] createParameterInstances(BeanDefinition beanDefinition) {
+        return beanDefinition.getParameters()
+                .stream()
+                .map(bean -> createInstance(bean))
+                .toArray();
     }
 
     private Object createInstance(BeanDefinition beanDefinition) {
