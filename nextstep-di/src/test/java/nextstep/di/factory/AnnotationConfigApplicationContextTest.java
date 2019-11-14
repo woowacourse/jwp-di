@@ -2,8 +2,7 @@ package nextstep.di.factory;
 
 import nextstep.di.factory.example.*;
 import nextstep.di.factory.example.BeanInjectedComponent;
-import nextstep.di.factory.example.component.MyJdbcTemplate;
-import nextstep.di.factory.example.component.QnaController;
+import nextstep.di.factory.example.component.*;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
@@ -43,5 +42,15 @@ public class AnnotationConfigApplicationContextTest {
         assertNotNull(component);
         assertNotNull(component.getDataSource());
         assertThat(component.getDataSource()).isEqualTo(context.getBean(DataSource.class));
+    }
+
+    @Test
+    public void getControllers() {
+        String basePackages = "nextstep.di.factory.example.component";
+        MvcApplicationContext context = new AnnotationConfigApplicationContext(basePackages);
+
+        assertThat(context.getControllers().size()).isEqualTo(2);
+        assertThat(context.getControllers().containsKey(AnnotatedController.class)).isTrue();
+        assertThat(context.getControllers().containsKey(QnaController.class)).isTrue();
     }
 }

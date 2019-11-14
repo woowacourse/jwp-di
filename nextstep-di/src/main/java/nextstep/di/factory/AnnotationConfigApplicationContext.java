@@ -10,14 +10,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AnnotationConfigApplicationContext implements MvcApplicationContext {
-    private static final BeanFactory BEAN_FACTORY = BeanFactory.getInstance();
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public AnnotationConfigApplicationContext(Object... basePackages) {
         Map<Class<?>, BeanCreator> componentsCreators = ClassBeanScanner.scan(basePackages);
-
-        BEAN_FACTORY.initialize(componentsCreators, beans);
+        beans = new BeanFactory(componentsCreators, beans).initializeBeans();
     }
 
     public AnnotationConfigApplicationContext(Class<?>... configClass) {
@@ -33,7 +30,7 @@ public class AnnotationConfigApplicationContext implements MvcApplicationContext
         Map<Class<?>, BeanCreator> creators = Maps.newHashMap();
         creators.putAll(componentsCreators);
         creators.putAll(beansCreators);
-        BEAN_FACTORY.initialize(creators, beans);
+        beans = new BeanFactory(creators, beans).initializeBeans();
     }
 
     @Override

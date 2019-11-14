@@ -3,66 +3,35 @@ package nextstep.di.factory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import nextstep.di.factory.exception.ImplClassNotFoundException;
 import nextstep.di.factory.exception.PrimitiveTypeInjectionFailException;
 import nextstep.di.factory.exception.RecursiveFieldException;
-import nextstep.di.factory.exception.UninitializedBeanFactoryException;
-import nextstep.stereotype.Controller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
-public enum BeanFactory {
-    INSTANCE;
-
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
+public class BeanFactory {
     private Map<Class<?>, BeanCreator> beanCreators;
     private Map<Class<?>, Object> beans;
 
-    public static BeanFactory getInstance() {
-        return INSTANCE;
+    public BeanFactory(Map<Class<?>, BeanCreator> beanCreators) {
+        this(beanCreators, Maps.newHashMap());
     }
 
-    public void initialize(Map<Class<?>, BeanCreator> beanCreators) {
-        beans = Maps.newHashMap();
+    public BeanFactory(Map<Class<?>, BeanCreator> beanCreators, Map<Class<?>, Object> initialBeans) {
+        this.beans = initialBeans;
         this.beanCreators = beanCreators;
+    }
+
+    public Map<Class<?>, Object> initializeBeans() {
         for (Class<?> clazz : beanCreators.keySet()) {
             if (!beans.containsKey(clazz)) {
                 beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
             }
         }
-    }
-
-    public void initialize(Map<Class<?>, BeanCreator> beanCreators, Map<Class<?>, Object> initialBeans) {
-        beans = initialBeans;
-        this.beanCreators = beanCreators;
-        for (Class<?> clazz : beanCreators.keySet()) {
-            if (!beans.containsKey(clazz)) {
-                beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(Class<T> requiredType) {
-        validateInitialization();
-        return (T) beans.get(requiredType);
-    }
-
-    public Map<Class<?>, Object> getControllers() {
-        validateInitialization();
-        Map<Class<?>, Object> controllers = Maps.newHashMap();
-        for (Class<?> clazz : beans.keySet()) {
-            if (clazz.isAnnotationPresent(Controller.class)) {
-                controllers.put(clazz, beans.get(clazz));
-            }
-        }
-        return controllers;
+        return Collections.unmodifiableMap(beans);
     }
 
     private Object instantiate(Class<?> clazz, Set<Class<?>> history) {
@@ -105,12 +74,6 @@ public enum BeanFactory {
     private void validateNoRecursiveField(Set<Class<?>> history, Class<?> param) {
         if (history.contains(param)) {
             throw new RecursiveFieldException();
-        }
-    }
-
-    private void validateInitialization() {
-        if (Objects.isNull(beanCreators) || Objects.isNull(beans)) {
-            throw new UninitializedBeanFactoryException();
         }
     }
 
