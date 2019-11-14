@@ -12,15 +12,12 @@ public class ClassPathBeanDefinition implements BeanDefinition {
 
     public ClassPathBeanDefinition(Class<?> clazz) {
         this.clazz = clazz;
-        initConstructor(clazz, BeanFactoryUtils.getInjectedConstructor(clazz));
+        this.constructor = initConstructor(clazz);
     }
 
-    private void initConstructor(Class<?> clazz, Constructor<?> injectedConstructor) {
-        if (injectedConstructor == null) {
-            this.constructor = getDefaultConstructor(clazz);
-            return;
-        }
-        this.constructor = injectedConstructor;
+    private Constructor<?> initConstructor(Class<?> clazz) {
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+        return injectedConstructor == null ? getDefaultConstructor(clazz) : injectedConstructor;
     }
 
     private Constructor getDefaultConstructor(Class<?> clazz) {
