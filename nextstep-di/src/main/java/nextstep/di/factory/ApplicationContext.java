@@ -9,22 +9,18 @@ public class ApplicationContext {
     private BeanFactory beanFactory;
     private ClasspathBeanScanner classpathBeanScanner;
     private ConfigurationBeanScanner configurationBeanScanner;
-    private Class<?>[] configurations;
 
     public ApplicationContext(Class<?>... configurations) {
         beanFactory = new BeanFactory();
         classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
         configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
-        this.configurations = configurations;
-    }
 
-    public void initialize() {
+        classpathBeanScanner.doScan(getBasePackages(configurations));
         configurationBeanScanner.register(configurations);
-        classpathBeanScanner.doScan(getBasePackages());
         beanFactory.initialize();
     }
 
-    private Object[] getBasePackages() {
+    private Object[] getBasePackages(Class<?>[] configurations) {
         return Arrays.stream(configurations)
                 .filter(clazz -> clazz.isAnnotationPresent(ComponentScan.class))
                 .map(clazz -> clazz.getAnnotation(ComponentScan.class).value())
@@ -32,7 +28,7 @@ public class ApplicationContext {
                 .toArray();
     }
 
-    public <T> T getBean(Class<T> requiredType)  {
+    public <T> T getBean(Class<T> requiredType) {
         return beanFactory.getBean(requiredType);
     }
 

@@ -20,7 +20,6 @@ public class ApplicationContextTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         applicationContext = new ApplicationContext(MyConfig.class);
-        applicationContext.initialize();
     }
 
     @Test

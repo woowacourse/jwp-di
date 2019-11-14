@@ -24,7 +24,6 @@ public class UserDaoTest {
     @BeforeEach
     public void setup() {
         applicationContext = new ApplicationContext(WebServerLauncher.class, MyConfiguration.class);
-        applicationContext.initialize();
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, applicationContext.getBean(DataSource.class));

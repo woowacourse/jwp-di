@@ -28,7 +28,6 @@ class DispatcherServletTest {
     @BeforeEach
     void setUp() throws Exception {
         ApplicationContext applicationContext = new ApplicationContext(WebServerLauncher.class, MyConfiguration.class);
-        applicationContext.initialize();
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, applicationContext.getBean(DataSource.class));
