@@ -1,9 +1,6 @@
 package slipp;
 
-import nextstep.di.factory.domain.BeanFactory;
-import nextstep.di.factory.domain.GenericBeanFactory;
-import nextstep.di.factory.domain.scanner.ClassPathScanner;
-import nextstep.di.factory.domain.scanner.ConfigurationScanner;
+import nextstep.di.factory.domain.GenericApplicationContext;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
@@ -34,17 +31,10 @@ class DispatcherServletTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         dispatcher = new DispatcherServlet();
-        BeanFactory beanFactory = new GenericBeanFactory();
-        ClassPathScanner classPathScanner = new ClassPathScanner(beanFactory);
-        classPathScanner.scan("slipp");
-        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
-        configurationScanner.register(JdbcConfiguration.class);
-        beanFactory.initialize();
-
-        dispatcher.addHandlerMapping(new AnnotationHandlerMapping(beanFactory));
+        dispatcher.addHandlerMapping(
+                new AnnotationHandlerMapping(new GenericApplicationContext(JdbcConfiguration.class)));
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());
-
         dispatcher.init();
 
         request = new MockHttpServletRequest();

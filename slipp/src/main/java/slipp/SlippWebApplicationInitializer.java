@@ -1,9 +1,6 @@
 package slipp;
 
-import nextstep.di.factory.domain.BeanFactory;
-import nextstep.di.factory.domain.GenericBeanFactory;
-import nextstep.di.factory.domain.scanner.ClassPathScanner;
-import nextstep.di.factory.domain.scanner.ConfigurationScanner;
+import nextstep.di.factory.domain.GenericApplicationContext;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
@@ -23,14 +20,8 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-
-        BeanFactory beanFactory = new GenericBeanFactory();
-        ClassPathScanner classPathScanner = new ClassPathScanner(beanFactory);
-        classPathScanner.scan("slipp");
-        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
-        configurationScanner.register(JdbcConfiguration.class);
-
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(beanFactory));
+        dispatcherServlet.addHandlerMapping(
+                new AnnotationHandlerMapping(new GenericApplicationContext(JdbcConfiguration.class)));
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
 

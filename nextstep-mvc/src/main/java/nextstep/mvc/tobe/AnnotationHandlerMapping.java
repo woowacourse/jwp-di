@@ -2,7 +2,7 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import nextstep.di.factory.domain.BeanFactory;
+import nextstep.di.factory.domain.ApplicationContext;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
@@ -22,16 +22,17 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private BeanFactory beanFactory;
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
+    private ApplicationContext applicationContext;
 
-    public AnnotationHandlerMapping(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-        beanFactory.initialize();
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        applicationContext.initialize();
     }
 
     public void initialize() {
-        Set<Method> methods = getRequestMappingMethods(beanFactory.getSupportedClassByAnnotation(Controller.class));
+        Set<Method> methods =
+                getRequestMappingMethods(applicationContext.getSupportedClassByAnnotation(Controller.class));
         for (Method method : methods) {
             RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
@@ -47,7 +48,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         handlerKeys.forEach(handlerKey ->
                 handlerExecutions.put(
                         handlerKey,
-                        new HandlerExecution(beanFactory.getBean(method.getDeclaringClass()), method)));
+                        new HandlerExecution(applicationContext.getBean(method.getDeclaringClass()), method)));
     }
 
     private List<HandlerKey> mapHandlerKeys(final String value, final RequestMethod[] originalMethods) {

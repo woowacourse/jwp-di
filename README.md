@@ -43,5 +43,5 @@ docker-compose up -d
 2. @Configuration 설정
     - 자바 클래스로 설정을 관리 (@Configuration) - 완료
     - 등록할 인스턴스 (@Bean) - 완료
-    - 기본 패키지 설정 (@ComponentScan) - 미완료
+    - 기본 패키지 설정 (@ComponentScan) - 완료
     
