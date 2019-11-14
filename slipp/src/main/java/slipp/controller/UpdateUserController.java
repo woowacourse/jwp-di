@@ -1,12 +1,12 @@
 package slipp.controller;
 
-import slipp.dao.UserDao;
-import slipp.domain.User;
-import slipp.dto.UserUpdatedDto;
-import slipp.support.db.DataBase;
+import nextstep.annotation.Inject;
 import nextstep.mvc.asis.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import slipp.dao.UserDao;
+import slipp.domain.User;
+import slipp.dto.UserUpdatedDto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,7 +15,7 @@ public class UpdateUserController implements Controller {
     private static final Logger log = LoggerFactory.getLogger(UpdateUserController.class);
 
     private UserDao userDao;
-
+    @Inject
     public UpdateUserController(UserDao userDao) {
         this.userDao = userDao;
     }

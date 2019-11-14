@@ -1,9 +1,9 @@
 package slipp.controller;
 
+import nextstep.annotation.Inject;
+import nextstep.mvc.asis.Controller;
 import slipp.dao.UserDao;
 import slipp.domain.User;
-import slipp.support.db.DataBase;
-import nextstep.mvc.asis.Controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UpdateFormUserController implements Controller {
     private UserDao userDao;
 
+    @Inject
     public UpdateFormUserController(UserDao userDao) {
         this.userDao = userDao;
     }
