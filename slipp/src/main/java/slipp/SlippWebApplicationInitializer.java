@@ -1,5 +1,6 @@
 package slipp;
 
+import nextstep.di.factory.BeanDefinitionFactory;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.BeanScanner;
 import nextstep.mvc.DispatcherServlet;
@@ -19,7 +20,8 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        BeanFactory beanFactory = new BeanFactory(BeanScanner.scan("slipp"));
+        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scanConfiguration("slipp"));
+        BeanFactory beanFactory = new BeanFactory(beanDefinitionFactory.createBeanDefinition());
         beanFactory.initialize();
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
