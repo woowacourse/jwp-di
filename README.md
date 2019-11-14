@@ -36,12 +36,12 @@ docker-compose up -d
 ##기능 구현 목록
 
 1. DI 기능
-    - 패키지에서 지정된 클래스를 `Bean`으로 관리
-    - 싱글 인스턴스로 관리
-    - 레거시 코드에 적용
+    - 패키지에서 지정된 클래스를 `Bean`으로 관리 - 완료
+    - 싱글 인스턴스로 관리 - 미완료
+    - 레거시 코드에 적용 - 완료
     
 2. @Configuration 설정
-    - 자바 클래스로 설정을 관리 (@Configuration)
-    - 등록할 인스턴스 (@Bean)
-    - 기본 패키지 설정 (@ComponentScan)
+    - 자바 클래스로 설정을 관리 (@Configuration) - 완료
+    - 등록할 인스턴스 (@Bean) - 완료
+    - 기본 패키지 설정 (@ComponentScan) - 미완료
     
