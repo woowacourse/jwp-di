@@ -22,9 +22,10 @@ public class BeanFactory {
     private Map<Class<?>, BeanConstructor> constructors;
 
     public BeanFactory(List<BeanScanner> beanScanners) {
-        constructors = beanScanners.stream()
+        constructors = new HashMap<>();
+        beanScanners.stream()
                 .flatMap(scanner -> scanner.getBeanConstructors().stream())
-                .collect(Collectors.toMap(BeanConstructor::getReturnType, ctor -> ctor));
+                .forEach(ctor -> constructors.put(ctor.getReturnType(), ctor));
     }
 
     @SuppressWarnings("unchecked")

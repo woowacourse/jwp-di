@@ -15,7 +15,7 @@ public class ApplicationContextTest {
         ApplicationContext ctx = new ApplicationContext(ApplicationContextRoot.class);
 
         // when & then
-        assertThat(ctx.getBeanFactory().getBean(DataSource.class)).isNotNull();
-        assertThat(ctx.getBeanFactory().getBean(MyQnaService.class)).isNotNull();
+        assertThat(ctx.getBean(DataSource.class)).isNotNull();
+        assertThat(ctx.getBean(MyQnaService.class)).isNotNull();
     }
 }

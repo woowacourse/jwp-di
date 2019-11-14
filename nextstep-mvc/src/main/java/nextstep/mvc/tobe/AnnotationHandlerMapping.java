@@ -32,15 +32,13 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        BeanFactory beanFactory = applicationContext.getBeanFactory();
-
-        Set<Class<?>> beanTypes = convertToTypes(beanFactory.getBeansWithAnnotation(Controller.class));
+        Set<Class<?>> beanTypes = convertToTypes(applicationContext.getBeansWithAnnotation(Controller.class));
         Set<Method> methods = getRequestMappingMethods(beanTypes);
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                     rm.value(), rm.method(), method);
-            addHandlerExecutions(beanFactory, method, rm);
+            addHandlerExecutions(method, rm);
         }
 
         logger.info("Initialized AnnotationHandlerMapping!");
@@ -62,11 +60,11 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         return requestMappingMethods;
     }
 
-    private void addHandlerExecutions(BeanFactory beanFactory, Method method, RequestMapping rm) {
+    private void addHandlerExecutions(Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey -> {
             handlerExecutions.put(handlerKey, new HandlerExecution(
-                    beanFactory.getBean(method.getDeclaringClass()),
+                    applicationContext.getBean(method.getDeclaringClass()),
                     method));
         });
     }

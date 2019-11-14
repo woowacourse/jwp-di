@@ -5,7 +5,9 @@ import nextstep.di.factory.BeanFactory;
 import nextstep.di.scanner.ComponentScanner;
 import nextstep.di.scanner.ConfigurationScanner;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Set;
 
 public class ApplicationContext {
 
@@ -26,7 +28,11 @@ public class ApplicationContext {
         return basePackages.length == 0 ? new Object[]{root.getPackage().getName()} : basePackages;
     }
 
-    public BeanFactory getBeanFactory() {
-        return beanFactory;
+    public <T> T getBean(Class<T> requiredType) {
+        return beanFactory.getBean(requiredType);
+    }
+
+    public Set<Object> getBeansWithAnnotation(Class<? extends Annotation> annotation) {
+        return beanFactory.getBeansWithAnnotation(annotation);
     }
 }
