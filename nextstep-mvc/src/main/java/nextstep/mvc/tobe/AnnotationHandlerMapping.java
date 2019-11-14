@@ -27,9 +27,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     private final Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
     public AnnotationHandlerMapping(Object... basePackages) {
-        this.beanFactory = (new BeanFactory(
-                new BeanScanner(basePackages).getPreInstantiateBeans()
-        )).initialize();
+        this.beanFactory = (new BeanFactory(new BeanScanner(basePackages))).initialize();
     }
 
     public void initialize() {

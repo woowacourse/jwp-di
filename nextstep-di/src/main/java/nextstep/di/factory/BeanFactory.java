@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,15 +15,17 @@ import java.util.stream.Stream;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private final Set<Class<?>> preInstantiateBeans;
+    private final Set<Class<?>> classpathBeansToInstantiate;
+    private final Map<Class<?>, Method> configBeansToInstantiate;
     private final Map<Class<?>, Object> beans = new ConcurrentHashMap<>();
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory(BeanScanner beanScanner) {
+        this.classpathBeansToInstantiate = beanScanner.getClasspathBeansToInstantiate();
+        this.configBeansToInstantiate = beanScanner.getConfigBeansToInstantiate();
     }
 
     public BeanFactory initialize() {
-        this.preInstantiateBeans.forEach(x -> this.beans.putIfAbsent(x, instantiateBean(x)));
+        this.classpathBeansToInstantiate.forEach(x -> this.beans.putIfAbsent(x, instantiateBean(x)));
         return this;
     }
 
@@ -31,7 +34,7 @@ public class BeanFactory {
             try {
                 return BeanFactoryUtils.findConcreteClass(
                         clazz,
-                        this.preInstantiateBeans
+                        this.classpathBeansToInstantiate
                 ).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 logger.error(e.getMessage());

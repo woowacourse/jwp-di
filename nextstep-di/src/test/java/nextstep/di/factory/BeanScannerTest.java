@@ -14,7 +14,7 @@ class BeanScannerTest {
     @Test
     void getPreInstantiateBeansTest() {
         assertEquals(
-                (new BeanScanner("nextstep.di.factory.example")).getPreInstantiateBeans(),
+                (new BeanScanner("nextstep.di.factory.example")).getClasspathBeansToInstantiate(),
                 new HashSet<Class<?>>() {{
                     add(JdbcQuestionRepository.class);
                     add(QnaController.class);

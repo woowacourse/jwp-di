@@ -19,7 +19,7 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        this.beanFactory = (new BeanFactory(this.beanScanner.getPreInstantiateBeans())).initialize();
+        this.beanFactory = (new BeanFactory(this.beanScanner.getClasspathBeansToInstantiate())).initialize();
     }
 
     @Test
