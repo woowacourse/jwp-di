@@ -1,6 +1,5 @@
 package slipp.controller;
 
-import nextstep.annotation.Inject;
 import nextstep.mvc.asis.Controller;
 import slipp.dao.UserDao;
 import slipp.domain.User;
@@ -11,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 public class ProfileController implements Controller {
     private UserDao userDao;
 
-    @Inject
     public ProfileController(UserDao userDao) {
         this.userDao = userDao;
     }

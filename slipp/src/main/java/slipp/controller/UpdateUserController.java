@@ -1,6 +1,5 @@
 package slipp.controller;
 
-import nextstep.annotation.Inject;
 import nextstep.mvc.asis.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,7 @@ public class UpdateUserController implements Controller {
     private static final Logger log = LoggerFactory.getLogger(UpdateUserController.class);
 
     private UserDao userDao;
-    @Inject
+
     public UpdateUserController(UserDao userDao) {
         this.userDao = userDao;
     }
