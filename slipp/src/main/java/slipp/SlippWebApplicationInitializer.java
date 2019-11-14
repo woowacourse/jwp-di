@@ -2,6 +2,7 @@ package slipp;
 
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.scanner.BeanScanner;
+import nextstep.di.scanner.ConfigurationBeanScanner;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
