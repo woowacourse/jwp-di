@@ -2,6 +2,7 @@ package nextstep.di.scanner;
 
 import nextstep.di.bean.BeanDefinition;
 import nextstep.di.bean.DefaultBeanDefinition;
+import nextstep.di.utils.BeanUtils;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -16,7 +17,7 @@ public class ClasspathBeanScanner implements BeanScanner {
     private final List<BeanDefinition> beanDefinitions;
 
     public ClasspathBeanScanner(Object... basePackages) {
-        Set<Class<?>> classTypes = getTypesAnnotatedWith(basePackages, COMPONENT_ANNOTATIONS);
+        Set<Class<?>> classTypes = BeanUtils.getTypesAnnotatedWith(basePackages, COMPONENT_ANNOTATIONS);
         this.beanDefinitions = initBeanDefinitions(classTypes);
     }
 

@@ -5,6 +5,7 @@ import nextstep.annotation.Configuration;
 import nextstep.di.bean.BeanDefinition;
 import nextstep.di.bean.DefaultBeanDefinition;
 import nextstep.di.bean.MethodBeanDefinition;
+import nextstep.di.utils.BeanUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class ConfigurationBeanScanner implements BeanScanner {
     private final List<BeanDefinition> beanDefinitions;
 
     public ConfigurationBeanScanner(Object... basePackages) {
-        Set<Class<?>> classTypes = getTypesAnnotatedWith(basePackages, COMPONENT_ANNOTATIONS);
+        Set<Class<?>> classTypes = BeanUtils.getTypesAnnotatedWith(basePackages, COMPONENT_ANNOTATIONS);
         this.beanDefinitions = initBeanDefinitions(classTypes);
     }
 
