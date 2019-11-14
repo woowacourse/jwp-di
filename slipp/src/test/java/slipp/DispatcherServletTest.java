@@ -1,6 +1,7 @@
 package slipp;
 
 import nextstep.di.factory.domain.BeanFactory;
+import nextstep.di.factory.domain.BeanFactory2;
 import nextstep.di.factory.domain.BeanScanner;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
@@ -32,9 +33,11 @@ class DispatcherServletTest {
 
         dispatcher = new DispatcherServlet();
         BeanScanner beanScanner = new BeanScanner("slipp");
-        BeanFactory beanFactory = new BeanFactory(beanScanner);
-        dispatcher.addHandlerMapping(new AnnotationHandlerMapping(beanFactory));
+        beanScanner.initialize();
+        BeanFactory beanFactory = new BeanFactory2();
+        beanScanner.scanBeanFactory(beanFactory);
 
+        dispatcher.addHandlerMapping(new AnnotationHandlerMapping(beanFactory));
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());
 

@@ -16,22 +16,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
+public class BeanFactory1Test {
+    private static final Logger log = LoggerFactory.getLogger(BeanFactory1Test.class);
 
-    private BeanFactory beanFactory;
+    private BeanFactory1 beanFactory1;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
         BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.example");
-        beanFactory = new BeanFactory(beanScanner);
-        beanFactory.initialize();
+        beanFactory1 = new BeanFactory1(beanScanner);
+        beanFactory1.initialize();
     }
 
     @Test
     public void di() {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        QnaController qnaController = beanFactory1.getBean(QnaController.class);
 
         assertNotNull(qnaController);
         assertNotNull(qnaController.getQnaService());
@@ -44,21 +44,21 @@ public class BeanFactoryTest {
 
     @Test
     public void diRepository() {
-        JdbcUserRepository repository = beanFactory.getBean(JdbcUserRepository.class);
+        JdbcUserRepository repository = beanFactory1.getBean(JdbcUserRepository.class);
         assertNotNull(repository);
     }
 
     @Test
     public void singleInstanceTest() {
-        MyQnaService qnaService = beanFactory.getBean(QnaController.class).getQnaService();
-        assertSame(qnaService, beanFactory.getBean(MyQnaService.class));
-        assertSame(qnaService.getQuestionRepository(), beanFactory.getBean(JdbcQuestionRepository.class));
-        assertSame(qnaService.getUserRepository(), beanFactory.getBean(JdbcUserRepository.class));
+        MyQnaService qnaService = beanFactory1.getBean(QnaController.class).getQnaService();
+        assertSame(qnaService, beanFactory1.getBean(MyQnaService.class));
+        assertSame(qnaService.getQuestionRepository(), beanFactory1.getBean(JdbcQuestionRepository.class));
+        assertSame(qnaService.getUserRepository(), beanFactory1.getBean(JdbcUserRepository.class));
     }
 
     @Test
     public void getControllersTest() {
-        Set<Class<?>> actual = beanFactory.getSupportedClassByAnnotation(Controller.class);
+        Set<Class<?>> actual = beanFactory1.getSupportedClassByAnnotation(Controller.class);
         assertThat(actual).contains(QnaController.class);
     }
 }

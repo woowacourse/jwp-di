@@ -1,35 +1,31 @@
 package nextstep.di.factory.domain;
 
-import com.google.common.collect.Sets;
 import nextstep.di.factory.support.Beans;
 import nextstep.di.factory.util.BeanFactoryUtils;
 import nextstep.di.factory.util.ReflectionUtils;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Set;
 
-public class BeanScanner {
-    private static final Logger logger = LoggerFactory.getLogger(BeanScanner.class);
-    private static final Collection<Class<? extends Annotation>> annotations =
-            Arrays.asList(Controller.class, Service.class, Repository.class);
+import static java.util.stream.Collectors.toSet;
 
-    private Beans beans;
-    private Reflections reflections;
+public class BeanFactory1 {
+    private static final Logger logger = LoggerFactory.getLogger(BeanFactory1.class);
+
     private Set<Class<?>> preInstantiateBeans;
+    private Beans beans;
 
-    public BeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
-        beans = new Beans();
-        preInstantiateBeans = scan();
+    public BeanFactory1(BeanScanner beanScanner) {
+        this.preInstantiateBeans = beanScanner.scan();
+        this.beans = new Beans();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getBean(Class<T> requiredType) {
+        return (T) beans.get(requiredType);
     }
 
     public void initialize() {
@@ -74,16 +70,10 @@ public class BeanScanner {
         return ReflectionUtils.newInstance(injectedConstructor, instances);
     }
 
-    public Set<Class<?>> scan() {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        logger.debug("Scan Beans Type : {}", beans);
-        return beans;
-    }
-
-    public void scanBeanFactory(BeanFactory beanFactory) {
-        beans.putAll(beanFactory);
+    public Set<Class<?>> getSupportedClassByAnnotation(Class<? extends Annotation> annotation) {
+        return beans.keySet().stream()
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
+                .collect(toSet());
     }
 }
+
