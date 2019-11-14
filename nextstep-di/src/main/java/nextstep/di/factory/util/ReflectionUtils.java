@@ -37,4 +37,13 @@ public class ReflectionUtils {
             throw new ReflectionUtilException(e.getMessage(), e);
         }
     }
+
+    public static Constructor<?> getDefaultConstructor(Class<?> clazz) {
+        try {
+            return clazz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            logger.error(e.getMessage(), e);
+            throw new ReflectionUtilException(e.getMessage(), e);
+        }
+    }
 }
