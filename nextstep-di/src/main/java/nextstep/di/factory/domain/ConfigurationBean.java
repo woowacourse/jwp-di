@@ -26,6 +26,11 @@ public class ConfigurationBean implements BeanDefinition {
 
     @Override
     public List<BeanDefinition> getParameters() {
-        return null;
+        return parameters;
+    }
+
+    @Override
+    public Class<?> getBeanType() {
+        return method.getReturnType();
     }
 }

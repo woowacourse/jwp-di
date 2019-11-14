@@ -28,4 +28,9 @@ public class ConstructorBean implements BeanDefinition {
     public List<BeanDefinition> getParameters() {
         return parameters;
     }
+
+    @Override
+    public Class<?> getBeanType() {
+        return clazz;
+    }
 }
