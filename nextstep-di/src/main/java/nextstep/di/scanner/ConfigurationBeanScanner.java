@@ -39,7 +39,7 @@ public class ConfigurationBeanScanner {
             configMethods.put(method.getReturnType(), method);
         }
 
-        beanFactory.register(configMethods);
+        beanFactory.registerBean(configMethods);
     }
 
     @SuppressWarnings("unchecked")
