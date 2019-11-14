@@ -20,17 +20,16 @@ public class ApplicationContext {
 
     public void initialize() {
         configurationBeanScanner.register(configurations);
-        classpathBeanScanner.doScan(getPackages());
+        classpathBeanScanner.doScan(getBasePackages());
         beanFactory.initialize();
     }
 
-    private Object[] getPackages() {
-        Object[] objects = Arrays.stream(configurations)
+    private Object[] getBasePackages() {
+        return Arrays.stream(configurations)
                 .filter(clazz -> clazz.isAnnotationPresent(ComponentScan.class))
                 .map(clazz -> clazz.getAnnotation(ComponentScan.class).value())
                 .flatMap(Arrays::stream)
                 .toArray();
-        return objects;
     }
 
     public <T> T getBean(Class<T> requiredType)  {
