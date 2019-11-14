@@ -1,4 +1,4 @@
-package nextstep.exception;
+package nextstep.exception.wrapper;
 
 @FunctionalInterface
 public interface ConsumerWithException<T, E extends Exception> {

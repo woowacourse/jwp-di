@@ -1,7 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.exception.ExceptionUtils;
+import nextstep.exception.wrapper.ExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class BeanFactory {
     }
 
     protected void addBeans(Set<Class<?>> preInstantiateBeans) {
-        preInstantiateBeans.forEach(ExceptionUtils.consumerWrapper(bean -> {
+        preInstantiateBeans.forEach(ExceptionWrapper.consumerWrapper(bean -> {
             logger.debug(bean.getName());
 
             if (!beans.containsKey(bean)) {
