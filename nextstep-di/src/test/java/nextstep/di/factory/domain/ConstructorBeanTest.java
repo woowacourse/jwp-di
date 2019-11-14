@@ -24,42 +24,42 @@ public class ConstructorBeanTest {
             JdbcQuestionRepository.class,
             JdbcUserRepository.class
     ));
-
-    @Test
-    public void BeanHasParameters() {
-        Class<?> clazz = MyQnaService.class;
-        ConstructorBean constructorBean = makeConstructorBean(clazz);
-        MyQnaService instance = (MyQnaService) makeInstance(constructorBean);
-        assertThat(instance).isInstanceOf(MyQnaService.class);
-        assertThat(instance.getUserRepository()).isInstanceOf(JdbcUserRepository.class);
-        assertThat(instance.getQuestionRepository()).isInstanceOf(JdbcQuestionRepository.class);
-    }
-
-    private Object makeInstance(ConstructorBean bean) {
-        if (bean.hasParameter()) {
-            Object[] object = bean.getParameters().stream()
-                    .map(beanDefinition -> beanDefinition.makeInstance())
-                    .toArray();
-            return bean.makeInstance(object);
-        }
-        return bean.makeInstance();
-    }
-
-    private ConstructorBean makeConstructorBean(Class<?> clazz) {
-        clazz = BeanFactoryUtils.findConcreteClass(clazz, PRE);
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        if (constructor == null) {
-            return new ConstructorBean(clazz, ReflectionUtils.getDefaultConstructor(clazz), Lists.emptyList());
-        }
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        if (parameterTypes.length == 0) {
-            return new ConstructorBean(clazz, constructor, Lists.emptyList());
-        }
-
-        List<BeanDefinition> parameters = Stream.of(parameterTypes)
-                .map(classType -> makeConstructorBean(classType))
-                .collect(Collectors.toList());
-
-        return new ConstructorBean(clazz, constructor, parameters);
-    }
+//
+//    @Test
+//    public void BeanHasParameters() {
+//        Class<?> clazz = MyQnaService.class;
+//        ConstructorBean constructorBean = makeConstructorBean(clazz);
+//        MyQnaService instance = (MyQnaService) makeInstance(constructorBean);
+//        assertThat(instance).isInstanceOf(MyQnaService.class);
+//        assertThat(instance.getUserRepository()).isInstanceOf(JdbcUserRepository.class);
+//        assertThat(instance.getQuestionRepository()).isInstanceOf(JdbcQuestionRepository.class);
+//    }
+//
+//    private Object makeInstance(ConstructorBean bean) {
+//        if (bean.hasParameter()) {
+//            Object[] object = bean.getParameters().stream()
+//                    .map(beanDefinition -> beanDefinition.makeInstance())
+//                    .toArray();
+//            return bean.makeInstance(object);
+//        }
+//        return bean.makeInstance();
+//    }
+//
+//    private ConstructorBean makeConstructorBean(Class<?> clazz) {
+//        clazz = BeanFactoryUtils.findConcreteClass(clazz, PRE);
+//        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+//        if (constructor == null) {
+//            return new ConstructorBean(clazz, ReflectionUtils.getDefaultConstructor(clazz), Lists.emptyList());
+//        }
+//        Class<?>[] parameterTypes = constructor.getParameterTypes();
+//        if (parameterTypes.length == 0) {
+//            return new ConstructorBean(clazz, constructor, Lists.emptyList());
+//        }
+//
+//        List<BeanDefinition> parameters = Stream.of(parameterTypes)
+//                .map(classType -> makeConstructorBean(classType))
+//                .collect(Collectors.toList());
+//
+//        return new ConstructorBean(clazz, constructor, parameters);
+//    }
 }

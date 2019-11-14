@@ -12,7 +12,7 @@ public class AnnotationScannerTest {
 
     @Test
     public void classPathScan() {
-        BeanFactory beanFactory = new BeanFactory2();
+        BeanFactory beanFactory = new BeanFactoryImpl();
         annotationScanner = new AnnotationScanner(beanFactory);
         annotationScanner.scan("nextstep.di.factory.example");
         beanFactory.initialize();
@@ -29,7 +29,7 @@ public class AnnotationScannerTest {
 
     @Test
     public void singleInstanceTest() {
-        BeanFactory beanFactory = new BeanFactory2();
+        BeanFactory beanFactory = new BeanFactoryImpl();
         annotationScanner = new AnnotationScanner(beanFactory);
         annotationScanner.scan("nextstep.di.factory.example");
         beanFactory.initialize();

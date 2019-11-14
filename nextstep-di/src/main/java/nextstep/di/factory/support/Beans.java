@@ -2,10 +2,8 @@ package nextstep.di.factory.support;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.domain.BeanFactory;
-import nextstep.di.factory.domain.BeanFactory2;
 import nextstep.di.factory.exception.BeanNotExistException;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -29,10 +27,8 @@ public class Beans {
         }
     }
 
-    public void putAll(BeanFactory beanFactory) {
-        for (Class<?> clazz : beans.keySet()) {
-            beanFactory.addBean(clazz, beans.get(clazz));
-        }
+    public boolean contains(Class<?> clazz) {
+        return beans.containsKey(clazz);
     }
 
     public Set<Class<?>> keySet() {

@@ -6,5 +6,5 @@ public interface BeanDefinition {
     boolean hasParameter();
     Object makeInstance(Object... parameters);
     Class<?> getBeanType();
-    List<BeanDefinition> getParameters();
+    List<Class<?>> getParameters();
 }

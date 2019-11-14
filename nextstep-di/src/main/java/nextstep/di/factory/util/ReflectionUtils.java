@@ -38,11 +38,20 @@ public class ReflectionUtils {
         }
     }
 
+    /**
+     * 생성자가 있으면 해당하는 생성자를 아니면 기본 생성자를 반환한다
+     */
     public static Constructor<?> getDefaultConstructor(Class<?> clazz) {
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+        for (Constructor<?> constructor : constructors) {
+            if (constructor.getParameterTypes().length > 0) {
+                return constructor;
+            }
+        }
+
         try {
-            return clazz.getConstructor();
+            return clazz.getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
-            logger.error(e.getMessage(), e);
             throw new ReflectionUtilException(e.getMessage(), e);
         }
     }

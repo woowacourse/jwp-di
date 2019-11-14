@@ -2,10 +2,13 @@ package nextstep.di.factory.domain;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
 public class ConfigurationScanner {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationScanner.class);
     private BeanFactory beanFactory;
 
     public ConfigurationScanner(BeanFactory beanFactory) {
@@ -14,9 +17,10 @@ public class ConfigurationScanner {
 
     public void register(Class<?> clazz) {
         if (clazz.isAnnotationPresent(Configuration.class)) {
-            for (Method method : clazz.getMethods()) {
+            Method[] methods = clazz.getMethods();
+            for (Method method : methods) {
                 if (method.isAnnotationPresent(Bean.class)) {
-                    BeanDefinition beanDefinition = new ConfigurationBean(method);
+                    BeanDefinition beanDefinition = new ConfigurationBeanDefinition(method);
                     beanFactory.addBeanDefinition(beanDefinition.getBeanType(), beanDefinition);
                 }
             }

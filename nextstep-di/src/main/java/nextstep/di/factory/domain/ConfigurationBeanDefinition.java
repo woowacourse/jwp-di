@@ -4,18 +4,17 @@ import nextstep.di.factory.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class ConfigurationBean implements BeanDefinition {
+public class ConfigurationBeanDefinition implements BeanDefinition {
     private Method method;
-    private List<BeanDefinition> parameters;
+    private List<Class<?>> parameters;
 
-    public ConfigurationBean(Method method) {
+    public ConfigurationBeanDefinition(Method method) {
         this.method = method;
         parameters = new ArrayList<>();
-        for (Class<?> clazz : method.getParameterTypes()) {
-            parameters.add(new ParameterBeanDefinition(clazz));
-        }
+        parameters.addAll(Arrays.asList(method.getParameterTypes()));
     }
 
     @Override
@@ -29,7 +28,7 @@ public class ConfigurationBean implements BeanDefinition {
     }
 
     @Override
-    public List<BeanDefinition> getParameters() {
+    public List<Class<?>> getParameters() {
         return parameters;
     }
 

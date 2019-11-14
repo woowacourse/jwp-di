@@ -15,10 +15,11 @@ public class AnnotationHandlerMappingTest {
 
     @BeforeEach
     public void setup() {
-        BeanFactory beanFactory = new BeanFactory2();
-        BeanScanner beanScanner = new BeanScanner("samples");
-        beanScanner.initialize();
-        beanScanner.scanBeanFactory(beanFactory);
+        BeanFactory beanFactory = new BeanFactoryImpl();
+        AnnotationScanner annotationScanner = new AnnotationScanner(beanFactory);
+        annotationScanner.scan("samples");
+        beanFactory.initialize();
+
         handlerMapping = new AnnotationHandlerMapping(beanFactory);
         handlerMapping.initialize();
     }

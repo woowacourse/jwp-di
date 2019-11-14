@@ -11,7 +11,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ConfigurationBeanTest {
+public class ConfigurationBeanDefinitionTest {
 
     @Test
     public void instanceHasNoParameters() {
@@ -24,8 +24,8 @@ public class ConfigurationBeanTest {
             }
         }
 
-        ConfigurationBean configurationBean = new ConfigurationBean(beanMethods.get(0));
-        Object instance = configurationBean.makeInstance();
+        ConfigurationBeanDefinition configurationBeanDefinition = new ConfigurationBeanDefinition(beanMethods.get(0));
+        Object instance = configurationBeanDefinition.makeInstance();
         assertThat(instance).isInstanceOf(BasicDataSource.class);
     }
 }

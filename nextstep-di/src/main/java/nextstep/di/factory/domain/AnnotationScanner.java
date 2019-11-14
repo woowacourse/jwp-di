@@ -1,6 +1,5 @@
 package nextstep.di.factory.domain;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import nextstep.di.factory.util.BeanFactoryUtils;
 import nextstep.di.factory.util.ReflectionUtils;
@@ -13,9 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 public class AnnotationScanner {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationScanner.class);
@@ -32,34 +33,39 @@ public class AnnotationScanner {
 
     public void scan(Object... basePackage) {
         reflections = new Reflections(basePackage);
-        preInstantiateBeans = scanClass();
+        preInstantiateBeans = scanAnnotations();
+        beanFactory.addInstantiateBeans(preInstantiateBeans);
 
-        for (Class<?> clazz : preInstantiateBeans) {
-            BeanDefinition beanDefinition = makeConstructorBean(clazz);
+        Set<Class<?>> instantiateBeans = preInstantiateBeans.stream()
+                .filter(this::checkAnnotation)
+                .collect(toSet());
+
+        for (Class<?> clazz : instantiateBeans) {
+            BeanDefinition beanDefinition = createBeanDefinition(clazz);
             beanFactory.addBeanDefinition(clazz, beanDefinition);
         }
     }
 
-    private ConstructorBean makeConstructorBean(Class<?> clazz) {
-        clazz = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
+    private BeanDefinition createBeanDefinition(Class<?> clazz) {
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
         if (constructor == null) {
-            return new ConstructorBean(clazz, ReflectionUtils.getDefaultConstructor(clazz), Collections.emptyList());
+            constructor = getDefaultConstructor(clazz);
         }
 
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        if (parameterTypes.length == 0) {
-            return new ConstructorBean(clazz, constructor, Collections.emptyList());
-        }
-
-        List<BeanDefinition> parameters = Stream.of(parameterTypes)
-                .map(classType -> makeConstructorBean(classType))
-                .collect(Collectors.toList());
-
-        return new ConstructorBean(clazz, constructor, parameters);
+        Class<?>[] parameters = constructor.getParameterTypes();
+        return new AnnotationBeanDefinition(clazz, constructor, parameters);
     }
 
-    private Set<Class<?>> scanClass() {
+    private Constructor<?> getDefaultConstructor(Class<?> clazz) {
+        return ReflectionUtils.getDefaultConstructor(clazz);
+    }
+
+    private boolean checkAnnotation(Class<?> clazz) {
+        return ANNOTATIONS.stream()
+                .anyMatch(clazz::isAnnotationPresent);
+    }
+
+    private Set<Class<?>> scanAnnotations() {
         Set<Class<?>> beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : ANNOTATIONS) {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
