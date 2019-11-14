@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.definition.BeanDefinition;
 import nextstep.exception.wrapper.ExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Set<BeanDefinition> beanDefinitions = new HashSet<>();
 
     protected BeanFactory() {
     }
@@ -37,6 +39,15 @@ public class BeanFactory {
                 instantiateBean(bean, preInstantiateBeans);
             }
         }));
+    }
+
+    public void registerBeanDefinitions(Set<BeanDefinition> beanDefinition) {
+        beanDefinitions.addAll(beanDefinition);
+    }
+
+    public void initialize() {
+        beanDefinitions.forEach(beanDefinition ->
+                beans.put(beanDefinition.getName(), beanDefinition.createBean()));
     }
 
     private void instantiateBean(Class<?> bean, Set<Class<?>> preInstantiateBeans) throws Exception {
