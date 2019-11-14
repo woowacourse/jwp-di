@@ -11,6 +11,9 @@ public class ClassBeanCreator implements BeanCreator {
     private final Constructor ctor;
 
     public ClassBeanCreator(Class<?> clazz) {
+        if (clazz.isInterface()) {
+            throw new InterfaceCannotInstantiatedException();
+        }
         this.ctor = getConstructor(clazz);
     }
 

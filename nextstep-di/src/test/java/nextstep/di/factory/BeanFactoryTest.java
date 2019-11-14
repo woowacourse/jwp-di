@@ -22,7 +22,7 @@ public class BeanFactoryTest {
 
     @Test
     public void di() {
-        beanFactory.initialize(BeanScanner.scan2(basePackages));
+        beanFactory.initialize(ClassBeanScanner.scan(basePackages));
 
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 

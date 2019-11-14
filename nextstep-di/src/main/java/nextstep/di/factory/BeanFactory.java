@@ -31,6 +31,14 @@ public enum BeanFactory {
         }
     }
 
+    public void initialize(Map<Class<?>, BeanCreator> beanCreators, Map<Class<?>, Object> initialBeans) {
+        beans = initialBeans;
+        this.beanCreators = beanCreators;
+        for (Class<?> clazz : beanCreators.keySet()) {
+            beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         validateInitialization();
@@ -49,10 +57,6 @@ public enum BeanFactory {
     }
 
     private Object instantiate(Class<?> clazz, Set<Class<?>> history) {
-        if (clazz.isInterface()) {
-            throw new InterfaceCannotInstantiatedException();
-        }
-
         BeanCreator bc = beanCreators.get(clazz);
         Object[] params = createParams(bc.getParams(), history);
         return bc.instantiate(params);
@@ -103,5 +107,9 @@ public enum BeanFactory {
                 .filter(interfaze::isAssignableFrom)
                 .findFirst()
                 .orElseThrow(ImplClassNotFoundException::new);
+    }
+
+    public Map<Class<?>, Object> getBeans() {
+        return beans;
     }
 }
