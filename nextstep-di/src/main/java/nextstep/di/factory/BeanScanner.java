@@ -18,22 +18,6 @@ public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     @SuppressWarnings("unchecked")
-    public static Set<Class<?>> scan(String basePackage) {
-        Reflections reflections = new Reflections(basePackage);
-        return getTypesAnnotatedWith(reflections, Controller.class, Service.class, Repository.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Set<Class<?>> getTypesAnnotatedWith(Reflections reflections, Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
-    }
-
-    @SuppressWarnings("unchecked")
     public static Set<Class<?>> scanConfiguration(String basePackage) {
         Reflections reflections = new Reflections(basePackage);
 
@@ -52,5 +36,21 @@ public class BeanScanner {
 
         scannedComponents.addAll(configurations);
         return scannedComponents;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Set<Class<?>> scan(String basePackage) {
+        Reflections reflections = new Reflections(basePackage);
+        return getTypesAnnotatedWith(reflections, Controller.class, Service.class, Repository.class, Configuration.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Set<Class<?>> getTypesAnnotatedWith(Reflections reflections, Class<? extends Annotation>... annotations) {
+        Set<Class<?>> beans = Sets.newHashSet();
+        for (Class<? extends Annotation> annotation : annotations) {
+            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
+        }
+        log.debug("Scan Beans Type : {}", beans);
+        return beans;
     }
 }
