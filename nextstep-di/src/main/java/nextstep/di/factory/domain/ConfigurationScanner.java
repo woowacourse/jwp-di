@@ -56,7 +56,7 @@ public class ConfigurationScanner {
         }
     }
 
-    public void scanBeanFactory(BeanFactory2 beanFactory) {
+    public void scanBeanFactory(BeanFactory beanFactory) {
         beans.putAll(beanFactory);
     }
 }
