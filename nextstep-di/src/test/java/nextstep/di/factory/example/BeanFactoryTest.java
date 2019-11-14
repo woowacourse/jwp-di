@@ -2,6 +2,9 @@ package nextstep.di.factory.example;
 
 import nextstep.di.BeanScanner;
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.example.controller.QnaController;
+import nextstep.di.factory.example.controller.TestQnaController;
+import nextstep.di.factory.example.service.MyQnaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
