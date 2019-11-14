@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanScannerTest {
     private BeanScanner beanScanner;
@@ -27,5 +28,22 @@ public class BeanScannerTest {
                 .contains(MyQnaService.class)
                 .contains(JdbcUserRepository.class)
                 .contains(JdbcQuestionRepository.class);
+    }
+
+    @Test
+    public void scanBeanFactory() {
+        final BeanFactory2 beanFactory = new BeanFactory2();
+        beanScanner.initialize();
+        beanScanner.scanBeanFactory(beanFactory);
+
+        QnaController qnaController = beanFactory.getBean(QnaController.class);
+
+        assertNotNull(qnaController);
+        assertNotNull(qnaController.getQnaService());
+
+        MyQnaService qnaService = qnaController.getQnaService();
+        assertNotNull(qnaService);
+        assertNotNull(qnaService.getUserRepository());
+        assertNotNull(qnaService.getQuestionRepository());
     }
 }

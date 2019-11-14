@@ -1,6 +1,7 @@
 package nextstep.di.factory.support;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.domain.BeanFactory2;
 import nextstep.di.factory.exception.BeanNotExistException;
 
 import java.util.Map;
@@ -22,6 +23,12 @@ public class Beans {
     public void put(Class<?> clazz, Supplier instanceSupplier) {
         if (!beans.containsKey(clazz)) {
             beans.put(clazz, instanceSupplier.get());
+        }
+    }
+
+    public void putAll(BeanFactory2 beanFactory) {
+        for (Class<?> clazz : beans.keySet()) {
+            beanFactory.addBean(beans.get(clazz));
         }
     }
 }
