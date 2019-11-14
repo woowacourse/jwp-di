@@ -8,8 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BeanFactoryTest {
     private BeanFactory beanFactory;
@@ -67,8 +66,8 @@ public class BeanFactoryTest {
 
     @Test
     public void interfaceExtendsInterfaceSuccess() {
-        beanFactory.initialize(
-                Maps.asMap(Sets.newHashSet(NoImplService.class, ImplIntermediateRepository.class), ClassBeanCreator::new));
+        assertDoesNotThrow(() -> beanFactory.initialize(
+                Maps.asMap(Sets.newHashSet(NoImplService.class, ImplIntermediateRepository.class), ClassBeanCreator::new)));
     }
 
     @Test
