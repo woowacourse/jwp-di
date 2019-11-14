@@ -26,7 +26,7 @@ public class ConfigurationScanner {
             }
             return;
         }
-        throw new IllegalArgumentException("클래스에 Configuration 어노테이션이 없습니다");
+        throw new IllegalArgumentException("Class doesn't have @Configuration Annotation");
     }
 
     private void addBeanDefinition(Method method) {
