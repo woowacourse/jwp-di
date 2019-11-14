@@ -20,14 +20,17 @@ public class ApplicationContext {
 
     public ApplicationContext(Class<?>... configurations) {
         Object[] basePackages = extractBasePackages(configurations);
+        this.beanFactory = new BeanFactory(getBeanDefinitions(basePackages));
+    }
+
+    private Set<BeanDefinition> getBeanDefinitions(Object[] basePackages) {
         Scanner classPathBeanScanner = new ClassPathBeanScanner(basePackages);
         Scanner configurationBeanScanner = new ConfigurationBeanScanner(basePackages);
 
-        Set<BeanDefinition> beanDefinitions = Stream.of(classPathBeanScanner.scan(), configurationBeanScanner.scan())
+        return Stream.of(classPathBeanScanner, configurationBeanScanner)
+                .map(Scanner::scan)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
-
-        this.beanFactory = new BeanFactory(beanDefinitions);
     }
 
     private Object[] extractBasePackages(Class<?>[] configurations) {
