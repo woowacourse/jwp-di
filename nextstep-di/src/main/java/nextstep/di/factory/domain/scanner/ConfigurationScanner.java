@@ -22,14 +22,18 @@ public class ConfigurationScanner {
         if (clazz.isAnnotationPresent(Configuration.class)) {
             Method[] methods = clazz.getMethods();
             for (Method method : methods) {
-                if (method.isAnnotationPresent(Bean.class)) {
-                    BeanDefinition beanDefinition = new ConfigurationBeanDefinition(method);
-                    beanFactory.addBeanDefinition(beanDefinition.getBeanType(), beanDefinition);
-                    logger.debug("add BeanDefinition {} of Method {}", beanDefinition, method);
-                }
+                addBeanDefinition(method);
             }
             return;
         }
         throw new IllegalArgumentException("클래스에 Configuration 어노테이션이 없습니다");
+    }
+
+    private void addBeanDefinition(Method method) {
+        if (method.isAnnotationPresent(Bean.class)) {
+            BeanDefinition beanDefinition = new ConfigurationBeanDefinition(method);
+            beanFactory.addBeanDefinition(beanDefinition.getBeanType(), beanDefinition);
+            logger.debug("add BeanDefinition {} of Method {}", beanDefinition, method);
+        }
     }
 }
