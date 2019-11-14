@@ -68,13 +68,22 @@ public class BeanFactoryTest {
     @DisplayName("특정 빈 가져오기 테스트")
     public void getBean() {
         Object bean1 = beanFactory.getBean(MyQnaService.class).getUserRepository();
-        Object bean2 = beanFactory.getBean(UserRepository.class);
+        Object bean2 = beanFactory.getBean(JdbcUserRepository.class);
 
         Object bean3 = beanFactory.getBean(MyQnaService.class).getQuestionRepository();
-        Object bean4 = beanFactory.getBean(QuestionRepository.class);
+        Object bean4 = beanFactory.getBean(JdbcQuestionRepository.class);
 
         assertThat(bean1).isEqualTo(bean2);
         assertThat(bean3).isEqualTo(bean4);
+    }
+
+    @Test
+    @DisplayName("싱글 인스턴스 테스트")
+    public void getSingleInstance() {
+        final MyQnaService myQnaService = beanFactory.getBean(MyQnaService.class);
+        final QuestionRepository actual = myQnaService.getQuestionRepository();
+        final QuestionRepository expected = beanFactory.getBean(JdbcQuestionRepository.class);
+        assertThat(actual).isEqualTo(expected);
     }
 
 
