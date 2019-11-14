@@ -1,7 +1,6 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import nextstep.annotation.ComponentScan;
 import nextstep.stereotype.Controller;
 
@@ -11,7 +10,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AnnotationConfigApplicationContext implements MvcApplicationContext {
+    private static final BeanFactory BEAN_FACTORY = BeanFactory.getInstance();
+
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+
+    public AnnotationConfigApplicationContext(Object... basePackages) {
+        Map<Class<?>, BeanCreator> componentsCreators = ClassBeanScanner.scan(basePackages);
+
+        BEAN_FACTORY.initialize(componentsCreators, beans);
+    }
 
     public AnnotationConfigApplicationContext(Class<?>... configClass) {
         Map<Class<?>, BeanCreator> componentsCreators = ClassBeanScanner.scan(Arrays.stream(configClass)
@@ -21,13 +28,12 @@ public class AnnotationConfigApplicationContext implements MvcApplicationContext
                 .flatMap(Set::stream)
                 .distinct()
                 .toArray());
-        BeanFactory bf = BeanFactory.getInstance();
 
         Map<Class<?>, BeanCreator> beansCreators = MethodBeanScanner.scan(configClass);
         Map<Class<?>, BeanCreator> creators = Maps.newHashMap();
         creators.putAll(componentsCreators);
         creators.putAll(beansCreators);
-        bf.initialize(creators, beans);
+        BEAN_FACTORY.initialize(creators, beans);
     }
 
     @Override

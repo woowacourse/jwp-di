@@ -2,6 +2,8 @@ package nextstep.di.factory;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.exception.InvalidConfigurationClassException;
+import nextstep.di.factory.exception.ObjectInstantiationFailException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

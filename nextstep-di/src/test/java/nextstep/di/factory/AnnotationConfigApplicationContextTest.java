@@ -1,6 +1,9 @@
 package nextstep.di.factory;
 
 import nextstep.di.factory.example.*;
+import nextstep.di.factory.example.BeanInjectedComponent;
+import nextstep.di.factory.example.component.MyJdbcTemplate;
+import nextstep.di.factory.example.component.QnaController;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;

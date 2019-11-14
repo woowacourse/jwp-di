@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.jdbc.ConnectionManager;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public class UserDao {
     private static final UserDao userDao = new UserDao();
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
     private UserDao() {
     }

@@ -23,6 +23,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
     private Object[] basePackage;
+    private Map<Class<?>, Object> controllers;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
@@ -30,10 +31,14 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         this.basePackage = basePackage;
     }
 
+    public AnnotationHandlerMapping(Map<Class<?>, Object> controllers) {
+        this.controllers = controllers;
+    }
+
     public void initialize() {
-        BeanFactory beanFactory = BeanFactory.getInstance();
-        beanFactory.initialize(ClassBeanScanner.scan(basePackage));
-        Map<Class<?>, Object> controllers = beanFactory.getControllers();
+//        BeanFactory beanFactory = BeanFactory.getInstance();
+//        beanFactory.initialize(ClassBeanScanner.scan(basePackage));
+//        Map<Class<?>, Object> controllers = beanFactory.getControllers();
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);

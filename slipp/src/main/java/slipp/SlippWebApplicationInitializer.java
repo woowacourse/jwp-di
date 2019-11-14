@@ -1,10 +1,14 @@
 package slipp;
 
+import nextstep.di.factory.AnnotationConfigApplicationContext;
+import nextstep.di.factory.ApplicationContext;
+import nextstep.di.factory.MvcApplicationContext;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import nextstep.web.WebApplicationInitializer;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +21,11 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
+        MvcApplicationContext context = new AnnotationConfigApplicationContext("slipp");
+
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
+//        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(context.getControllers()));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());

@@ -19,12 +19,6 @@ public class ClassBeanScanner {
         return Maps.asMap(types, ClassBeanCreator::new);
     }
 
-    public Map<Class<?>, BeanCreator> scan2(Object... basePackages) {
-        Reflections reflections = new Reflections(basePackages);
-        Set<Class<?>> types = getTypesAnnotatedWith(reflections, Controller.class, Service.class, Repository.class);
-        return Maps.asMap(types, ClassBeanCreator::new);
-    }
-
     @SuppressWarnings("unchecked")
     private static Set<Class<?>> getTypesAnnotatedWith(Reflections reflections, Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();

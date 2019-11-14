@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Lists;
+import nextstep.di.factory.exception.ObjectInstantiationFailException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
