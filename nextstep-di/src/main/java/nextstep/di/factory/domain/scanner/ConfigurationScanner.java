@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 
 public class ConfigurationScanner {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationScanner.class);
+
     private BeanFactory beanFactory;
 
     public ConfigurationScanner(BeanFactory beanFactory) {

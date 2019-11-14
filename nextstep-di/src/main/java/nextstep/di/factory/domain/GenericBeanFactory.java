@@ -13,9 +13,9 @@ import static java.util.stream.Collectors.toSet;
 
 public class GenericBeanFactory implements BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(GenericBeanFactory.class);
+
     private Map<Class<?>, BeanDefinition> beanDefinitions;
     private Set<Class<?>> preInstantiateBeans;
-
     private Beans beans;
 
     public GenericBeanFactory() {
