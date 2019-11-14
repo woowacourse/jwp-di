@@ -7,7 +7,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class DefaultBeanDefinition implements BeanDefinition {
-
     private final Class<?> beanClass;
     private final Constructor<?> constructor;
 

@@ -1,11 +1,13 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.annotation.Configuration;
+import nextstep.di.bean.BeanDefinitionRegistry;
+import nextstep.di.bean.DefaultBeanDefinitionRegistry;
 import nextstep.di.example.*;
+import nextstep.di.scanner.ClasspathBeanScanner;
+import nextstep.di.scanner.ComponentScanner;
+import nextstep.di.scanner.ConfigurationBeanScanner;
 import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
@@ -28,9 +30,15 @@ public class DefaultBeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        reflections = new Reflections("nextstep.di.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class, Configuration.class);
-        beanFactory = new DefaultBeanFactory(preInstanticateClazz);
+        final Object[] basePackages = new ComponentScanner(IntegrationConfig.class).getBasePackages();
+        BeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(basePackages);
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(basePackages);
+
+        registry.register(configurationBeanScanner.getBeanDefinitions());
+        registry.register(classpathBeanScanner.getBeanDefinitions());
+
+        beanFactory = new DefaultBeanFactory(registry);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import nextstep.di.context.ApplicationContext;
 import nextstep.di.example.IntegrationConfig;
 import nextstep.di.example.JdbcUserRepository;
 import nextstep.di.example.MyJdbcTemplate;

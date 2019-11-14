@@ -6,7 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class MethodBeanDefinition implements BeanDefinition {
-
     private final Object instance;
     private final Class<?> beanClass;
     private final Method method;

@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class ComponentScanner {
-
     private final Object[] basePackages;
 
     public ComponentScanner(final Class<?>... configurations) {
