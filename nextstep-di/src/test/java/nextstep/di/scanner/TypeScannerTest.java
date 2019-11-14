@@ -21,9 +21,8 @@ class TypeScannerTest {
         TypeScanner typeScanner = new TypeScanner("nextstep.di.factory.example");
         Set<Class<?>> types = typeScanner.scanAnnotatedWith(Controller.class);
 
-        assertThat(types.size()).isEqualTo(1);
-        for (Class<?> expectedType : expectedTypes) {
-            assertThat(types).contains(expectedType);
-        }
+        assertThat(types)
+                .hasSize(1)
+                .containsExactlyInAnyOrderElementsOf(expectedTypes);
     }
 }
