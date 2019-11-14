@@ -10,4 +10,6 @@ public abstract class BeanDefinition {
     public Class<?> getBeanClass() {
         return beanClass;
     }
+
+    public abstract Object instantiate(BeanFactory beanFactory);
 }
