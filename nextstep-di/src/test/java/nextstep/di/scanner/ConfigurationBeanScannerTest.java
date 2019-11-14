@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,7 +19,8 @@ class ConfigurationBeanScannerTest {
 
     @BeforeEach
     void setUp() {
-        scanner = new ConfigurationBeanScanner(ExampleConfig.class);
+        List<Object> basePackages = Collections.singletonList("nextstep.di.factory.example");
+        scanner = new ConfigurationBeanScanner(basePackages.toArray());
     }
 
     @Test

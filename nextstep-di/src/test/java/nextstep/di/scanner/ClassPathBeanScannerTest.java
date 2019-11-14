@@ -1,5 +1,6 @@
 package nextstep.di.scanner;
 
+import nextstep.annotation.ComponentScan;
 import nextstep.di.bean.BeanDefinition;
 import nextstep.di.factory.config.ExampleConfig;
 import nextstep.di.factory.example.*;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,7 +20,8 @@ class ClassPathBeanScannerTest {
 
     @BeforeEach
     void setUp() {
-        scanner = new ClassPathBeanScanner(ExampleConfig.class);
+        List<Object> basePackages = Collections.singletonList("nextstep.di.factory.example");
+        scanner = new ClassPathBeanScanner(basePackages.toArray());
     }
 
     @Test

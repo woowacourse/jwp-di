@@ -1,7 +1,6 @@
 package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
-import nextstep.annotation.ComponentScan;
 import nextstep.di.bean.BeanDefinition;
 import nextstep.di.bean.ClassPathBeanDefinition;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
@@ -11,7 +10,6 @@ import nextstep.stereotype.Service;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,19 +17,14 @@ public class ClassPathBeanScanner implements Scanner {
     private static final Class[] AVAILABLE_ANNOTATIONS = {Controller.class, Service.class, Repository.class};
 
     private Reflections reflections;
-    private Object[] basePackages;
 
-    public ClassPathBeanScanner(Class<?>... configurations) {
-        this.basePackages = Arrays.stream(configurations)
-                .map(clazz -> clazz.getAnnotation(ComponentScan.class))
-                .map(ComponentScan::basePackages)
-                .toArray();
+    public ClassPathBeanScanner(Object[] basePackages) {
+        this.reflections = new Reflections(basePackages);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Set<BeanDefinition> scan() {
-        reflections = new Reflections(basePackages);
         Set<BeanDefinition> beans = new HashSet<>();
         Set<Class<?>> annotatedClasses = getTypesAnnotatedWith(AVAILABLE_ANNOTATIONS);
         for (Class<?> target : annotatedClasses) {
