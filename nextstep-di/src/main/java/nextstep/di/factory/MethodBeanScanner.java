@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MethodBeanScanner {
+
     public static Map<Class<?>, BeanCreator> scan(Class<?>... configClass) {
         return Arrays.stream(configClass)
                 .map(MethodBeanScanner::scanSingleConfigClass)
