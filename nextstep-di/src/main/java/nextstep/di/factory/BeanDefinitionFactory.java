@@ -19,18 +19,17 @@ public class BeanDefinitionFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanDefinitionFactory.class);
 
     private final Set<Class<?>> preInstantiateClasses;
+    private Map<Class<?>, BeanDefinition> definitions = Maps.newHashMap();
 
     public BeanDefinitionFactory(Set<Class<?>> preInstantiateClasses) {
         this.preInstantiateClasses = preInstantiateClasses;
     }
 
     public Map<Class<?>, BeanDefinition> createBeanDefinition() {
-        Map<Class<?>, BeanDefinition> definitions = Maps.newHashMap();
-
         for (Class<?> preInstantiateClass : preInstantiateClasses) {
             Constructor<?> injectedConstructor = createInjectedConstructor(preInstantiateClass);
             definitions.put(preInstantiateClass, createBeanDefinition(preInstantiateClass, injectedConstructor));
-            createBeanDefinitionsOfConfiguration(definitions, preInstantiateClass);
+            createBeanDefinitionsOfConfiguration(preInstantiateClass);
         }
 
         return definitions;
@@ -52,12 +51,11 @@ public class BeanDefinitionFactory {
         }
     }
 
-    // TODO: 19. 11. 14. 메서드 매개변수로 선언된 definitions 리팩토링
-    private void createBeanDefinitionsOfConfiguration(Map<Class<?>, BeanDefinition> definitions, Class<?> clazz) {
+    private void createBeanDefinitionsOfConfiguration(Class<?> clazz) {
         if (clazz.isAnnotationPresent(Configuration.class)) {
             Method[] declaredMethods = clazz.getDeclaredMethods();
             List<Method> beanCreators = getBeanCreators(declaredMethods);
-            addBeanDefinition(definitions, beanCreators);
+            addBeanDefinition(beanCreators);
         }
     }
 
@@ -67,7 +65,7 @@ public class BeanDefinitionFactory {
                 .collect(Collectors.toList());
     }
 
-    private void addBeanDefinition(Map<Class<?>, BeanDefinition> definitions, List<Method> beanCreations) {
+    private void addBeanDefinition(List<Method> beanCreations) {
         for (Method beanCreation : beanCreations) {
             Class<?> beanType = beanCreation.getReturnType();
             Class<?> configType = beanCreation.getDeclaringClass();
