@@ -28,7 +28,7 @@ public class Beans {
 
     public void putAll(BeanFactory2 beanFactory) {
         for (Class<?> clazz : beans.keySet()) {
-            beanFactory.addBean(beans.get(clazz));
+            beanFactory.addBean(clazz, beans.get(clazz));
         }
     }
 }

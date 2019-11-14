@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class ReflectionUtils {
     private static final Logger logger = LoggerFactory.getLogger(ReflectionUtils.class);
@@ -23,6 +24,15 @@ public class ReflectionUtils {
         try {
             return constructor.newInstance(parameters);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            logger.error(e.getMessage(), e);
+            throw new ReflectionUtilException(e.getMessage(), e);
+        }
+    }
+
+    public static Object invoke(Method method, Class<?> owner, Object... objects) {
+        try {
+            return method.invoke(newInstance(owner), objects);
+        } catch (IllegalAccessException | InvocationTargetException e) {
             logger.error(e.getMessage(), e);
             throw new ReflectionUtilException(e.getMessage(), e);
         }
