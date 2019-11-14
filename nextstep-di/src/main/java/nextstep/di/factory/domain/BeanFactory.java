@@ -1,5 +1,7 @@
 package nextstep.di.factory.domain;
 
+import nextstep.di.factory.domain.beandefinition.BeanDefinition;
+
 import java.lang.annotation.Annotation;
 import java.util.Set;
 

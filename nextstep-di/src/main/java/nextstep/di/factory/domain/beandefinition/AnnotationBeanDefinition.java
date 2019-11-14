@@ -1,4 +1,4 @@
-package nextstep.di.factory.domain;
+package nextstep.di.factory.domain.beandefinition;
 
 import nextstep.di.factory.util.ReflectionUtils;
 import org.slf4j.Logger;
@@ -21,15 +21,18 @@ public class AnnotationBeanDefinition implements BeanDefinition {
         this.parameters = Arrays.asList(parameters);
     }
 
+    @Override
     public boolean hasParameter() {
-        return parameters.size() > 0;
+        return parameters.size() > ZERO;
     }
 
+    @Override
     public Object makeInstance(Object... parameters) {
         logger.debug("BeanDefinition {} 에서 생성한다. parameters : {}",clazz, parameters);
         return ReflectionUtils.newInstance(constructor, parameters);
     }
 
+    @Override
     public List<Class<?>> getParameters() {
         return parameters;
     }

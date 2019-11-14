@@ -1,9 +1,9 @@
 package slipp;
 
-import nextstep.di.factory.domain.AnnotationScanner;
 import nextstep.di.factory.domain.BeanFactory;
-import nextstep.di.factory.domain.BeanFactoryImpl;
-import nextstep.di.factory.domain.ConfigurationScanner;
+import nextstep.di.factory.domain.GenericBeanFactory;
+import nextstep.di.factory.domain.scanner.AnnotationScanner;
+import nextstep.di.factory.domain.scanner.ConfigurationScanner;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
@@ -11,7 +11,7 @@ import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import nextstep.web.WebApplicationInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import slipp.config.ConfigurationBean;
+import slipp.config.JdbcConfiguration;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -24,11 +24,12 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
     public void onStartup(ServletContext servletContext) throws ServletException {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
 
-        BeanFactory beanFactory = new BeanFactoryImpl();
+        BeanFactory beanFactory = new GenericBeanFactory();
         AnnotationScanner annotationScanner = new AnnotationScanner(beanFactory);
         annotationScanner.scan("slipp");
         ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
-        configurationScanner.register(ConfigurationBean.class);
+        configurationScanner.register(JdbcConfiguration.class);
+
         dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(beanFactory));
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());

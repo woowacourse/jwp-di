@@ -1,5 +1,7 @@
-package nextstep.di.factory.domain;
+package nextstep.di.factory.domain.scanner;
 
+import nextstep.di.factory.domain.BeanFactory;
+import nextstep.di.factory.domain.GenericBeanFactory;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import org.junit.jupiter.api.Test;
@@ -12,7 +14,7 @@ public class AnnotationScannerTest {
 
     @Test
     public void classPathScan() {
-        BeanFactory beanFactory = new BeanFactoryImpl();
+        BeanFactory beanFactory = new GenericBeanFactory();
         annotationScanner = new AnnotationScanner(beanFactory);
         annotationScanner.scan("nextstep.di.factory.example");
         beanFactory.initialize();
@@ -29,7 +31,7 @@ public class AnnotationScannerTest {
 
     @Test
     public void singleInstanceTest() {
-        BeanFactory beanFactory = new BeanFactoryImpl();
+        BeanFactory beanFactory = new GenericBeanFactory();
         annotationScanner = new AnnotationScanner(beanFactory);
         annotationScanner.scan("nextstep.di.factory.example");
         beanFactory.initialize();

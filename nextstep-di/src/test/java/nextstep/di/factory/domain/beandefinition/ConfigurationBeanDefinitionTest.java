@@ -1,4 +1,4 @@
-package nextstep.di.factory.domain;
+package nextstep.di.factory.domain.beandefinition;
 
 import nextstep.annotation.Bean;
 import nextstep.di.factory.example.ExampleConfig;

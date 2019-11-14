@@ -1,7 +1,10 @@
-package nextstep.di.factory.domain;
+package nextstep.di.factory.domain.scanner;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.domain.BeanFactory;
+import nextstep.di.factory.domain.beandefinition.BeanDefinition;
+import nextstep.di.factory.domain.beandefinition.ConfigurationBeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +25,7 @@ public class ConfigurationScanner {
                 if (method.isAnnotationPresent(Bean.class)) {
                     BeanDefinition beanDefinition = new ConfigurationBeanDefinition(method);
                     beanFactory.addBeanDefinition(beanDefinition.getBeanType(), beanDefinition);
+                    logger.debug("add BeanDefinition {} of Method {}", beanDefinition, method);
                 }
             }
             return;

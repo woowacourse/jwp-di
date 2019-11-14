@@ -1,5 +1,7 @@
-package nextstep.di.factory.domain;
+package nextstep.di.factory.domain.scanner;
 
+import nextstep.di.factory.domain.BeanFactory;
+import nextstep.di.factory.domain.GenericBeanFactory;
 import nextstep.di.factory.example.ExampleConfig;
 import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.MyJdbcTemplate;
@@ -14,7 +16,7 @@ public class ConfigurationScannerTest {
 
     @Test
     public void getDataSourceTest() {
-        BeanFactory beanFactory = new BeanFactoryImpl();
+        BeanFactory beanFactory = new GenericBeanFactory();
         ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
         configurationScanner.register(ExampleConfig.class);
         beanFactory.initialize();
@@ -25,7 +27,7 @@ public class ConfigurationScannerTest {
 
     @Test
     public void getMyJdbcTemplateTest() {
-        BeanFactory beanFactory = new BeanFactoryImpl();
+        BeanFactory beanFactory = new GenericBeanFactory();
         ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
         configurationScanner.register(IntegrationConfig.class);
         beanFactory.initialize();
@@ -36,17 +38,4 @@ public class ConfigurationScannerTest {
         assertThat(beanFactory.getBean(MyJdbcTemplate.class))
                 .isInstanceOf(MyJdbcTemplate.class);
     }
-    //@TODO 주석 제거
-//
-//    @Test
-//    public void singleInstanceTest() {
-//        BeanFactory beanFactory = new BeanFactoryImpl();
-//        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
-//        configurationScanner.register(IntegrationConfig.class);
-//        beanFactory.initialize();
-//
-//        MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
-//        assertThat(myJdbcTemplate.getDataSource())
-//                .isEqualTo(beanFactory.getBean(DataSource.class));
-//    }
 }

@@ -1,4 +1,4 @@
-package nextstep.di.factory.domain;
+package nextstep.di.factory.domain.beandefinition;
 
 import nextstep.di.factory.util.ReflectionUtils;
 
@@ -19,7 +19,7 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
 
     @Override
     public boolean hasParameter() {
-        return this.parameters.size() > 0;
+        return this.parameters.size() > ZERO;
     }
 
     @Override

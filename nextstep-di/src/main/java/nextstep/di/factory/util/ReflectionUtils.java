@@ -39,7 +39,7 @@ public class ReflectionUtils {
     }
 
     /**
-     * 생성자가 있으면 해당하는 생성자를 아니면 기본 생성자를 반환한다
+     * 클래스에 선언된 생성자가 있으면 반환한다. 아니면 기본생성자를 반환한다.
      */
     public static Constructor<?> getDefaultConstructor(Class<?> clazz) {
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();

@@ -1,5 +1,6 @@
 package nextstep.di.factory.domain;
 
+import nextstep.di.factory.domain.beandefinition.BeanDefinition;
 import nextstep.di.factory.support.Beans;
 import nextstep.di.factory.util.BeanFactoryUtils;
 import org.slf4j.Logger;
@@ -10,14 +11,14 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
-public class BeanFactoryImpl implements BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactoryImpl.class);
+public class GenericBeanFactory implements BeanFactory {
+    private static final Logger logger = LoggerFactory.getLogger(GenericBeanFactory.class);
     private Map<Class<?>, BeanDefinition> beanDefinitions;
     private Set<Class<?>> preInstantiateBeans;
 
     private Beans beans;
 
-    public BeanFactoryImpl() {
+    public GenericBeanFactory() {
         this.beans = new Beans();
         beanDefinitions = new HashMap<>();
         preInstantiateBeans = new HashSet<>();

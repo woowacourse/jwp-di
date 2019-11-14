@@ -1,6 +1,9 @@
 package slipp;
 
-import nextstep.di.factory.domain.*;
+import nextstep.di.factory.domain.BeanFactory;
+import nextstep.di.factory.domain.GenericBeanFactory;
+import nextstep.di.factory.domain.scanner.AnnotationScanner;
+import nextstep.di.factory.domain.scanner.ConfigurationScanner;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
@@ -13,7 +16,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import slipp.config.ConfigurationBean;
+import slipp.config.JdbcConfiguration;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
 
@@ -31,11 +34,11 @@ class DispatcherServletTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         dispatcher = new DispatcherServlet();
-        BeanFactory beanFactory = new BeanFactoryImpl();
+        BeanFactory beanFactory = new GenericBeanFactory();
         AnnotationScanner annotationScanner = new AnnotationScanner(beanFactory);
         annotationScanner.scan("slipp");
         ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
-        configurationScanner.register(ConfigurationBean.class);
+        configurationScanner.register(JdbcConfiguration.class);
         beanFactory.initialize();
 
         dispatcher.addHandlerMapping(new AnnotationHandlerMapping(beanFactory));

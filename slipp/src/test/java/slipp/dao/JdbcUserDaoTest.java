@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import slipp.config.ConfigurationBean;
+import slipp.config.JdbcConfiguration;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 
@@ -20,11 +20,11 @@ public class JdbcUserDaoTest {
 
     @BeforeEach
     public void setup() {
-        ConfigurationBean configurationBean = new ConfigurationBean();
+        JdbcConfiguration jdbcConfiguration = new JdbcConfiguration();
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-        jdbcTemplate = new JdbcTemplate(configurationBean.dataSource());
+        jdbcTemplate = new JdbcTemplate(jdbcConfiguration.dataSource());
     }
 
     @Test

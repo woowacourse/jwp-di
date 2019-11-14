@@ -1,6 +1,9 @@
-package nextstep.di.factory.domain;
+package nextstep.di.factory.domain.scanner;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.domain.BeanFactory;
+import nextstep.di.factory.domain.beandefinition.AnnotationBeanDefinition;
+import nextstep.di.factory.domain.beandefinition.BeanDefinition;
 import nextstep.di.factory.util.BeanFactoryUtils;
 import nextstep.di.factory.util.ReflectionUtils;
 import nextstep.stereotype.Controller;
@@ -16,15 +19,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toSet;
-
 public class AnnotationScanner {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationScanner.class);
     private static final Collection<Class<? extends Annotation>> ANNOTATIONS =
             Arrays.asList(Controller.class, Service.class, Repository.class);
 
     private Reflections reflections;
-    private Set<Class<?>> preInstantiateBeans;
     private BeanFactory beanFactory;
 
     public AnnotationScanner(BeanFactory beanFactory) {
@@ -33,36 +33,29 @@ public class AnnotationScanner {
 
     public void scan(Object... basePackage) {
         reflections = new Reflections(basePackage);
-        preInstantiateBeans = scanAnnotations();
+        Set<Class<?>> preInstantiateBeans = scanAnnotations();
         beanFactory.addInstantiateBeans(preInstantiateBeans);
 
-        Set<Class<?>> instantiateBeans = preInstantiateBeans.stream()
-                .filter(this::checkAnnotation)
-                .collect(toSet());
-
-        for (Class<?> clazz : instantiateBeans) {
+        for (Class<?> clazz : preInstantiateBeans) {
             BeanDefinition beanDefinition = createBeanDefinition(clazz);
             beanFactory.addBeanDefinition(clazz, beanDefinition);
+            logger.debug("add {} BeanDefinition", beanDefinition);
         }
     }
 
     private BeanDefinition createBeanDefinition(Class<?> clazz) {
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        if (constructor == null) {
-            constructor = getDefaultConstructor(clazz);
-        }
+        Constructor<?> constructor = getDefaultConstructor(clazz);
 
         Class<?>[] parameters = constructor.getParameterTypes();
         return new AnnotationBeanDefinition(clazz, constructor, parameters);
     }
 
     private Constructor<?> getDefaultConstructor(Class<?> clazz) {
-        return ReflectionUtils.getDefaultConstructor(clazz);
-    }
-
-    private boolean checkAnnotation(Class<?> clazz) {
-        return ANNOTATIONS.stream()
-                .anyMatch(clazz::isAnnotationPresent);
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+        if (injectedConstructor == null) {
+            return ReflectionUtils.getDefaultConstructor(clazz);
+        }
+        return injectedConstructor;
     }
 
     private Set<Class<?>> scanAnnotations() {
