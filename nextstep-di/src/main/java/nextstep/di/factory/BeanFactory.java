@@ -28,9 +28,11 @@ public class BeanFactory {
     }
 
     public Set<Class<?>> getControllers() {
-        return beans.keySet().stream()
+        return beans.keySet()
+                .stream()
                 .filter(bean -> bean.isAnnotationPresent(Controller.class))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet())
+                ;
     }
 
     public void initialize() {
@@ -45,6 +47,22 @@ public class BeanFactory {
         return instantiateBean(beanDefinition, parameters);
     }
 
+    private List<Object> getParameterBeans(BeanDefinition beanDefinition) {
+        List<Object> parameters = new ArrayList<>();
+
+        for (Class<?> parameter : beanDefinition.getParameters()) {
+            Object bean = beans.get(parameter);
+            if (!beans.containsKey(parameter)) {
+                BeanDefinition parameterBeanDefinition = BeanFactoryUtils.findBeanDefinition(parameter, definitions);
+                bean = createBean(parameterBeanDefinition);
+            }
+
+            parameters.add(bean);
+        }
+
+        return parameters;
+    }
+
     private Object instantiateBean(BeanDefinition beanDefinition, List<Object> parameters) {
         Class<?> configType = beanDefinition.getConfigType();
         Object configurationBean = createConfigurationBean(configType);
@@ -55,21 +73,6 @@ public class BeanFactory {
             logger.error(e.getMessage(), e);
             throw new BeanCreationFailException(e);
         }
-    }
-
-    private List<Object> getParameterBeans(BeanDefinition beanDefinition) {
-        List<Object> parameters = new ArrayList<>();
-
-        for (Class<?> parameter : beanDefinition.getParameters()) {
-            if (beans.containsKey(parameter)) {
-                parameters.add(beans.get(parameter));
-            } else {
-                BeanDefinition parameterBeanDefinition = BeanFactoryUtils.findBeanDefinition(parameter, definitions);
-                parameters.add(createBean(parameterBeanDefinition));
-            }
-        }
-
-        return parameters;
     }
 
     private Object createConfigurationBean(Class<?> configType) {
