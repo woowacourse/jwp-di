@@ -21,16 +21,22 @@ public class DefaultBeanDefinition extends BeanDefinition {
         if (beanClass.isInterface()) {
             return beanFactory.getBean(beanClass);
         }
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
+
         try {
-            if (injectedConstructor == null) {
-                return createInstance(beanClass.getDeclaredConstructor(), beanFactory);
-            }
-            return createInstance(injectedConstructor, beanFactory);
+            Constructor<?> constructor = getConstructor(beanClass);
+            return createInstance(constructor, beanFactory);
         } catch (Exception e) {
             log.error("Bean create Fail : ", e);
             throw new RuntimeException(e);
         }
+    }
+
+    private Constructor<?> getConstructor(Class<?> beanClass) throws NoSuchMethodException {
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
+        if (injectedConstructor == null) {
+            return beanClass.getDeclaredConstructor();
+        }
+        return injectedConstructor;
     }
 
     private Object createInstance(Constructor<?> constructor, BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, InstantiationException {
