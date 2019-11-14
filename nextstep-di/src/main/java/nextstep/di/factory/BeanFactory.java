@@ -27,7 +27,9 @@ public enum BeanFactory {
         beans = Maps.newHashMap();
         this.beanCreators = beanCreators;
         for (Class<?> clazz : beanCreators.keySet()) {
-            beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
+            if (!beans.containsKey(clazz)) {
+                beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
+            }
         }
     }
 
@@ -35,7 +37,9 @@ public enum BeanFactory {
         beans = initialBeans;
         this.beanCreators = beanCreators;
         for (Class<?> clazz : beanCreators.keySet()) {
-            beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
+            if (!beans.containsKey(clazz)) {
+                beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
+            }
         }
     }
 
@@ -71,8 +75,12 @@ public enum BeanFactory {
                 realParams.add(beans.get(param));
                 continue;
             }
-            param = param.isInterface() ? findImplClass(param) : param;
-            realParams.add(instantiate(param, createUpdatedHistory(history, param)));
+            param = !beanCreators.containsKey(param) && param.isInterface() ? findImplClass(param) : param;
+            Object instance = instantiate(param, createUpdatedHistory(history, param));
+            if (beanCreators.containsKey(param)) {
+                beans.put(param, instance);
+            }
+            realParams.add(instance);
         }
         return realParams.toArray();
     }
@@ -107,9 +115,5 @@ public enum BeanFactory {
                 .filter(interfaze::isAssignableFrom)
                 .findFirst()
                 .orElseThrow(ImplClassNotFoundException::new);
-    }
-
-    public Map<Class<?>, Object> getBeans() {
-        return beans;
     }
 }

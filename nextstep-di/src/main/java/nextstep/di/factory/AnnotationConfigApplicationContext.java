@@ -22,10 +22,12 @@ public class AnnotationConfigApplicationContext implements MvcApplicationContext
                 .distinct()
                 .toArray());
         BeanFactory bf = BeanFactory.getInstance();
-        bf.initialize(componentsCreators, beans);
 
         Map<Class<?>, BeanCreator> beansCreators = MethodBeanScanner.scan(configClass);
-        bf.initialize(beansCreators, beans);
+        Map<Class<?>, BeanCreator> creators = Maps.newHashMap();
+        creators.putAll(componentsCreators);
+        creators.putAll(beansCreators);
+        bf.initialize(creators, beans);
     }
 
     @Override
