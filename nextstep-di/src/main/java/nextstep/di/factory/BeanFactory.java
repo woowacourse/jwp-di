@@ -31,7 +31,9 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> preInstanticateBean : preInstanticateClazz.keySet()) {
-            injectInstantiateBean(preInstanticateBean);
+            if (preInstanticateClazz.get(preInstanticateBean) instanceof Method) {
+                injectInstantiateBean2(preInstanticateBean);
+            }
         }
     }
 
@@ -40,34 +42,18 @@ public class BeanFactory {
             return beans.get(methodReturnClazz);
         }
 
-        if (preInstanticateClazz.get(methodReturnClazz) instanceof Method) {
-            Method method = (Method) preInstanticateClazz.get(methodReturnClazz);
+        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(methodReturnClazz);
 
-            if (method.getParameterCount() == 0) {
-                try {
-                    Object instance = method.getDeclaringClass().newInstance();
-                    beans.put(methodReturnClazz, method.invoke(instance));
-                    logger.debug("config bean name : {}, instance : {}", methodReturnClazz, instance);
-                    return beans.get(methodReturnClazz);
-                } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            return putParameterizedConfigureObject(methodReturnClazz, method);
-        } else {
-            Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(methodReturnClazz);
-
-            if (Objects.isNull(injectedConstructor)) {
-                Object instance = BeanUtils.instantiateClass(methodReturnClazz);
-                beans.put(methodReturnClazz, instance);
-                logger.debug("bean name : {}, instance : {}", methodReturnClazz, instance);
-                return beans.get(methodReturnClazz);
-            }
-
-            return putParameterizedObject(methodReturnClazz, injectedConstructor);
+        if (Objects.isNull(injectedConstructor)) {
+            Object instance = BeanUtils.instantiateClass(methodReturnClazz);
+            beans.put(methodReturnClazz, instance);
+            logger.debug("bean name : {}, instance : {}", methodReturnClazz, instance);
+            return beans.get(methodReturnClazz);
         }
+
+        return putParameterizedObject(methodReturnClazz, injectedConstructor);
     }
+
 
     private Object[] getMethodParams(Method method) {
         Object[] params = new Object[method.getParameterCount()];
@@ -109,11 +95,38 @@ public class BeanFactory {
 
     public void addPreInstanticateClazz(Map<Class<?>, Constructor> beans) {
         preInstanticateClazz.putAll(beans);
-        initialize();
+
+        for (Class<?> preInstanticateBean : preInstanticateClazz.keySet()) {
+            if (preInstanticateClazz.get(preInstanticateBean) instanceof Constructor) {
+
+                injectInstantiateBean(preInstanticateBean);
+            }
+        }
     }
 
     public void registerBean(Map<Class<?>, Method> configs) {
         preInstanticateClazz.putAll(configs);
+    }
+
+    private Object injectInstantiateBean2(Class<?> methodReturnClazz) {
+        if (beans.containsKey(methodReturnClazz)) {
+            return beans.get(methodReturnClazz);
+        }
+
+        Method method = (Method) preInstanticateClazz.get(methodReturnClazz);
+
+        if (method.getParameterCount() == 0) {
+            try {
+                Object instance = method.getDeclaringClass().newInstance();
+                beans.put(methodReturnClazz, method.invoke(instance));
+                logger.debug("config bean name : {}, instance : {}", methodReturnClazz, instance);
+                return beans.get(methodReturnClazz);
+            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return putParameterizedConfigureObject(methodReturnClazz, method);
     }
 
     private Object putParameterizedConfigureObject(Class<?> preInstanticateConfig, Method method) {
