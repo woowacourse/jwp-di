@@ -13,19 +13,26 @@ public class ApplicationContext {
 
     private final BeanFactory beanFactory;
 
-    public ApplicationContext(Class<?> root) {
-        Object[] basePackages = getBasePackages(root);
+    public ApplicationContext(Class<?>... classes) {
+        Object[] basePackages = Arrays.stream(classes)
+                .map(this::getBasePackages)
+                .toArray();
+
         beanFactory = new BeanFactory(Arrays.asList(
                 new ConfigurationScanner(basePackages),
                 new ComponentScanner(basePackages)));
         beanFactory.initialize();
     }
 
-    private Object[] getBasePackages(Class<?> root) {
-        ComponentScan scan = root.getAnnotation(ComponentScan.class);
+    private Object[] getBasePackages(Class<?> clazz) {
+        ComponentScan scan = clazz.getAnnotation(ComponentScan.class);
         Object[] basePackages = scan.basePackages();
+;
+        return basePackages.length == 0 ? new Object[]{getPackageName(clazz)} : basePackages;
+    }
 
-        return basePackages.length == 0 ? new Object[]{root.getPackage().getName()} : basePackages;
+    private String getPackageName(Class<?> root) {
+        return root.getPackage().getName();
     }
 
     public <T> T getBean(Class<T> requiredType) {
