@@ -1,29 +1,33 @@
 package nextstep.di.factory;
 
+import nextstep.di.context.ApplicationBeanContext;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import nextstep.di.scanner.AnnotatedBeanScanner;
+import nextstep.di.scanner.BeanScanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class BeanFactoryTest {
+public class AnnotatedBeanFactoryTest {
 
-    private BeanFactory beanFactory;
+    private AnnotatedBeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        BeanFactoryInitializer.init(
-                new BasicBeanScannerConfig(Arrays.asList(Controller.class, Service.class, Repository.class),
-                "nextstep.di.factory.example"));
-        beanFactory = new BeanFactory();
+        BeanScanner beanScanner = new AnnotatedBeanScanner(new ApplicationBeanContext("nextstep.di.factory.example"),
+                Controller.class, Service.class, Repository.class);
+        beanFactory = new AnnotatedBeanFactory(new BeanRegistry(), beanScanner);
+
+        beanScanner.doScan();
+        beanFactory.initialize();
     }
 
     @Test
@@ -40,8 +44,8 @@ public class BeanFactoryTest {
 
     @Test
     void getAnnotatedBeans() {
-        Map<Class<?>, Object> annotatedBeans = beanFactory.getAnnotatedBeans(Controller.class);
+        Set<Class<?>> annotatedBeans = beanFactory.getTypes(Controller.class);
 
-        assertNotNull(annotatedBeans.get(QnaController.class));
+        assertNotNull(annotatedBeans.contains(QnaController.class));
     }
 }

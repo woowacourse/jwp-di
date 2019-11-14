@@ -1,16 +1,12 @@
 package nextstep.mvc.tobe;
 
 import nextstep.db.DataBase;
-import nextstep.di.factory.BasicBeanScannerConfig;
-import nextstep.di.factory.BeanFactoryInitializer;
-import nextstep.stereotype.Controller;
+import nextstep.di.context.ApplicationBeanContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import samples.User;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,8 +15,9 @@ public class AnnotationHandlerMappingTest {
 
     @BeforeEach
     public void setup() {
-        BeanFactoryInitializer.init(new BasicBeanScannerConfig(Arrays.asList(Controller.class), "samples"));
-        handlerMapping = new AnnotationHandlerMapping();
+        ApplicationBeanContext applicationBeanContext = new ApplicationBeanContext("sample");
+        handlerMapping = new AnnotationHandlerMapping(applicationBeanContext);
+
         handlerMapping.initialize();
     }
 
@@ -33,7 +30,7 @@ public class AnnotationHandlerMappingTest {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/users");
         request.setParameter("userId", user.getUserId());
         MockHttpServletResponse response = new MockHttpServletResponse();
-        HandlerExecution execution = (HandlerExecution)handlerMapping.getHandler(request);
+        HandlerExecution execution = (HandlerExecution) handlerMapping.getHandler(request);
         execution.handle(request, response);
 
         assertThat(request.getAttribute("user")).isEqualTo(user);
@@ -46,7 +43,7 @@ public class AnnotationHandlerMappingTest {
         request.setParameter("name", user.getName());
         request.setParameter("email", user.getEmail());
         MockHttpServletResponse response = new MockHttpServletResponse();
-        HandlerExecution execution = (HandlerExecution)handlerMapping.getHandler(request);
+        HandlerExecution execution = (HandlerExecution) handlerMapping.getHandler(request);
         execution.handle(request, response);
     }
 }
