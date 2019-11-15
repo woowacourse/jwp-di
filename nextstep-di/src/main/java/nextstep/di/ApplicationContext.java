@@ -18,9 +18,9 @@ public class ApplicationContext {
                 .map(this::getBasePackages)
                 .toArray();
 
-        beanFactory = new BeanFactory(Arrays.asList(
+        beanFactory = new BeanFactory(
                 new ConfigurationScanner(basePackages),
-                new ComponentScanner(basePackages)));
+                new ComponentScanner(basePackages));
         beanFactory.initialize();
     }
 

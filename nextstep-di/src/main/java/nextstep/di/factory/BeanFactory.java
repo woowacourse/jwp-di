@@ -21,9 +21,9 @@ public class BeanFactory {
     private Map<Class<?>, Object> beans = Maps.newHashMap();
     private Map<Class<?>, BeanConstructor> constructors;
 
-    public BeanFactory(List<BeanScanner> beanScanners) {
+    public BeanFactory(BeanScanner... beanScanners) {
         constructors = new HashMap<>();
-        beanScanners.stream()
+        Arrays.stream(beanScanners)
                 .flatMap(scanner -> scanner.getBeanConstructors().stream())
                 .forEach(ctor -> constructors.put(ctor.getReturnType(), ctor));
     }
