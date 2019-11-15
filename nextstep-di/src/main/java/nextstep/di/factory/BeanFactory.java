@@ -3,6 +3,7 @@ package nextstep.di.factory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.di.factory.scanner.ClasspathBeanScanner;
 import nextstep.exception.BeanCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
