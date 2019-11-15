@@ -78,7 +78,7 @@ public class BeanFactory {
     private Object createConfigurationBean(Class<?> configType) {
         if (configType != null && beans.get(configType) == null) {
             BeanDefinition beanDefinition = definitions.get(configType);
-            beans.put(beanDefinition.getType(), createBean(beanDefinition));
+            return createBean(beanDefinition);
         }
 
         return beans.get(configType);
