@@ -1,4 +1,4 @@
-package nextstep.di.factory.example;
+package nextstep.di.example;
 
 import nextstep.annotation.Inject;
 import nextstep.stereotype.Controller;
@@ -10,6 +10,10 @@ public class QnaController {
     @Inject
     public QnaController(MyQnaService qnaService) {
         this.qnaService = qnaService;
+    }
+
+    @TestMethodAnnotation
+    public void test() {
     }
 
     public MyQnaService getQnaService() {
