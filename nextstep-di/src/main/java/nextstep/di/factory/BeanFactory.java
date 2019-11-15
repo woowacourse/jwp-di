@@ -40,11 +40,11 @@ public class BeanFactory {
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
-        initBean(clazz, findBean(clazz));
+        initBean(clazz, findBeanDefinition(clazz));
         return beans.get(clazz);
     }
 
-    private BeanDefinition findBean(Class<?> clazz) {
+    private BeanDefinition findBeanDefinition(Class<?> clazz) {
         if (preBeans.containsKey(clazz)) {
             return preBeans.get(clazz);
         }
