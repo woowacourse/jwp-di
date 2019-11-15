@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-import static java.util.stream.Collectors.toSet;
-
 public class GenericBeanFactory implements BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(GenericBeanFactory.class);
 
@@ -71,9 +69,7 @@ public class GenericBeanFactory implements BeanFactory {
 
     @Override
     public Set<Class<?>> getSupportedClassByAnnotation(Class<? extends Annotation> annotation) {
-        return beans.keySet().stream()
-                .filter(clazz -> clazz.isAnnotationPresent(annotation))
-                .collect(toSet());
+        return beans.getSupportedClass(annotation);
     }
 
     @Override

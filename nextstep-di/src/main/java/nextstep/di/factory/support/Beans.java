@@ -3,10 +3,13 @@ package nextstep.di.factory.support;
 import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.BeanNotExistException;
 
+import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+
+import static java.util.stream.Collectors.toSet;
 
 public class Beans {
     private Map<Class<?>, Object> beans;
@@ -30,7 +33,10 @@ public class Beans {
         return beans.containsKey(clazz);
     }
 
-    public Set<Class<?>> keySet() {
-        return beans.keySet();
+    public Set<Class<?>> getSupportedClass(Class<? extends Annotation> annotation) {
+        return beans.keySet()
+                .stream()
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
+                .collect(toSet());
     }
 }

@@ -4,7 +4,6 @@ import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.domain.scanner.ClassPathScanner;
 import nextstep.di.factory.domain.scanner.ConfigurationScanner;
-import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
