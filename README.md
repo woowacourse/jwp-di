@@ -27,3 +27,15 @@
      - ``@Bean`` : 각 메소드에서 생성하는 인스턴스가 BeanFactory에 빈으로 등록하라는 설정
  * 설정 파일에서 ``@ComponentScan`` 으로 설정할 수 있도록 지원
  * ``@Configuration`` 설정 파일을 통해 등록한 빈과 BeanScanner를 통해 등록한 빈 간에도 DI가 가능
+ 
+ ### 추가 요구사항
+ 
+
+* ConfigurationBeanScanner와 ClasspathBeanScanner을 통합하는 클래스 추가
+    * ``ConfigurationBeanScanner``와 ``ClasspathBeanScanner`` 둘의 통합을 담당하는 새로운 클래스를 ``ApplicationContext``라는 이름으로 추가
+    
+    * ``ApplicationContext``에서는 설정 파일을 전달 받은 후 ``@ComponentScan`` 애노테이션의 경로 정보를 가져와 ClasspathBeanScanner을 초기화
+     
+        * 설정 파일의 @Bean 정보를 바탕으로 ConfigurationBeanScanner을 초기화하는 역할
+    
+    * ``ApplicationContext``를 초기화한 후 AnnotationHandlerMapping에서 ApplicationContext을 사용해 초기화가 가능하도록 통합
