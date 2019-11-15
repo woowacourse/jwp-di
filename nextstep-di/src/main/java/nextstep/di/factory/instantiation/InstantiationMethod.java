@@ -9,7 +9,8 @@ public interface InstantiationMethod {
     Object getInstance(BeanCreateMatcher matcher, Map<Class<?>, Object> beans);
 
     default Object getParameterBean(BeanCreateMatcher beanCreateMatcher, Map<Class<?>, Object> beans, Class<?> parameterType) {
-        Optional<Object> maybeParameterBean = Optional.ofNullable(beans.putIfAbsent(parameterType, beanCreateMatcher.get(parameterType).getInstance(beanCreateMatcher, beans)));
+        InstantiationMethod instantiationMethod = beanCreateMatcher.get(parameterType);
+        Optional<Object> maybeParameterBean = Optional.ofNullable(beans.putIfAbsent(parameterType, instantiationMethod.getInstance(beanCreateMatcher, beans)));
         return maybeParameterBean.orElseGet(() -> beans.get(parameterType));
     }
 }

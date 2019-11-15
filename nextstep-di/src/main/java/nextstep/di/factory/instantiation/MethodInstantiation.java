@@ -25,10 +25,10 @@ public class MethodInstantiation implements InstantiationMethod {
     public Object getInstance(BeanCreateMatcher beanCreateMatcher, Map<Class<?>, Object> beans) {
         try {
             Class<?>[] parameterTypes = method.getParameterTypes();
-            Object[] objects = Arrays.stream(parameterTypes)
+            Object[] parameterBeans = Arrays.stream(parameterTypes)
                 .map(parameterType -> getParameterBean(beanCreateMatcher, beans, parameterType))
                 .toArray();
-            return beans.getOrDefault(method.getReturnType(), method.invoke(instanceWithConfigureAnnotation, objects));
+            return beans.getOrDefault(method.getReturnType(), method.invoke(instanceWithConfigureAnnotation, parameterBeans));
         } catch (IllegalAccessException | InvocationTargetException e) {
             logger.error("error : ", e);
             throw new BeanCreateException(e);
