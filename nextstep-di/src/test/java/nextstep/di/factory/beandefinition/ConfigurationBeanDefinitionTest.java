@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigurationBeanDefinitionTest {
     private static final int NONE = 0;
+
     private ConfigurationBeanDefinition configurationBeanDefinition;
 
     @BeforeEach

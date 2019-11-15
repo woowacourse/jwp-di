@@ -29,7 +29,7 @@ public class ClasspathBeanDefinition implements BeanDefinition {
         if (constructor != null) {
             return constructor.getParameterTypes();
         }
-        return null;
+        throw new BeanCreationException("생성자를 찾을 수 없습니다.");
     }
 
     @Override
