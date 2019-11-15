@@ -13,19 +13,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ApplicationContext {
-    private final NewBeanFactory beanFactory;
+    private final BeanFactory beanFactory;
 
     public ApplicationContext(Class<?>... configurations) {
         ConfigurationBeanScanner configScanner = new ConfigurationBeanScanner(configurations);
         ClasspathBeanScanner classpathScanner = new ClasspathBeanScanner(getBasePackages(configurations));
         Map<Class<?>, BeanDefinition> beanDefinitions = scan(Sets.union(configScanner.scan(), classpathScanner.scan()));
-        beanFactory = new NewBeanFactory(beanDefinitions);
+        beanFactory = new BeanFactory(beanDefinitions);
     }
 
     public ApplicationContext(Object... basePackage) {
         ClasspathBeanScanner classpathScanner = new ClasspathBeanScanner(basePackage);
         Map<Class<?>, BeanDefinition> beanDefinitions = scan(classpathScanner.scan());
-        beanFactory = new NewBeanFactory(beanDefinitions);
+        beanFactory = new BeanFactory(beanDefinitions);
     }
 
     public void initialize() {

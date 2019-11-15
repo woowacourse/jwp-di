@@ -1,36 +1,35 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.beandefinition.BeanDefinition;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.example.QuestionRepository;
+import nextstep.di.factory.scanner.ClasspathBeanScanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactoryTest.class);
-
     private BeanFactory beanFactory;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void setup() {
-        beanFactory = new BeanFactory("nextstep.di.factory.example");
+        beanFactory = new BeanFactory(scan("nextstep.di.factory.example"));
         beanFactory.initialize();
     }
 
     @Test
-    public void di() throws Exception {
+    public void getBeanTest() {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -53,7 +52,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    @DisplayName("di된 객체와 BeanFactory가 가진 객체가 실제로 같은지 확인")
+    @DisplayName("DI된 객체와 BeanFactory가 가진 객체가 실제로 같은지 확인")
     public void beanTest() {
         MyQnaService myQnaService = beanFactory.getBean(MyQnaService.class);
 
@@ -61,5 +60,12 @@ public class BeanFactoryTest {
         QuestionRepository expected = beanFactory.getBean(JdbcQuestionRepository.class);
 
         assertThat(actual).isEqualTo(expected);
+    }
+
+    private Map<Class<?>, BeanDefinition> scan(Object... basePackage) {
+        ClasspathBeanScanner beanScanner = new ClasspathBeanScanner(basePackage);
+        Set<BeanDefinition> beanDefinitions = beanScanner.scan();
+        return beanDefinitions.stream()
+                .collect(Collectors.toMap(BeanDefinition::getClassType, definition -> definition));
     }
 }
