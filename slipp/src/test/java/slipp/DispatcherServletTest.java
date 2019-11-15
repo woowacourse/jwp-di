@@ -32,7 +32,7 @@ class DispatcherServletTest {
 
         BeanFactory beanFactory = new BeanFactory();
         ClasspathBeanScanner beanScanner = new ClasspathBeanScanner(beanFactory);
-        beanScanner.doScan("slipp");
+        beanScanner.register("slipp");
 
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMapping(new AnnotationHandlerMapping(beanFactory));

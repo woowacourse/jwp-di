@@ -16,6 +16,7 @@ import static org.reflections.ReflectionUtils.withAnnotation;
 public class BeanFactoryUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(BeanFactoryUtils.class);
+
     /**
      * 인자로 전달하는 클래스의 생성자 중 @Inject 애노테이션이 설정되어 있는 생성자를 반환
      *

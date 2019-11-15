@@ -28,23 +28,25 @@ public class ClasspathBeanScanner {
         this.beanFactory = beanFactory;
     }
 
-    public void doScan(Object... basePackage) {
-        reflections = new Reflections(basePackage);
-        beanFactory.addPreInstanticateClazz(getBeans());
-    }
-
     @SuppressWarnings("unchecked")
     private Map<Class<?>, Constructor> getBeans() {
         Set<Class<?>> typesAnnotatedWith = getTypesAnnotatedWith(COMPONENTS);
         Map<Class<?>, Constructor> beans = Maps.newHashMap();
+
         for (Class<?> clazz : typesAnnotatedWith) {
             beans.put(clazz, BeanFactoryUtils.getInjectedConstructor(clazz));
         }
+
         return beans;
     }
 
+    public void register(Object... basePackage) {
+        reflections = new Reflections(basePackage);
+        beanFactory.putComponentBean(getBeans());
+    }
+
     @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
+    public Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : annotations) {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));

@@ -29,7 +29,7 @@ public class BeanFactoryTest {
         beanFactory.initialize();
 
         ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
-        cbds.doScan(TEST_BASE_PACKAGE);
+        cbds.register(TEST_BASE_PACKAGE);
     }
 
     @Test

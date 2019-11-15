@@ -32,7 +32,7 @@ class ConfigurationBeanScannerTest {
         beanFactory.initialize();
 
         ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
-        cbds.doScan(TEST_BASE_PACKAGE);
+        cbds.register(TEST_BASE_PACKAGE);
 
         assertNotNull(beanFactory.getBean(DataSource.class));
 
