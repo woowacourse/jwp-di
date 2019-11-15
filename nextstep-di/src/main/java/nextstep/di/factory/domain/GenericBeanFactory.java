@@ -25,7 +25,6 @@ public class GenericBeanFactory implements BeanFactory {
     @Override
     public void initialize() {
         for (Class<?> clazz : beanDefinitions.keySet()) {
-            logger.debug("{} construct...", clazz);
             BeanDefinition beanDefinition = beanDefinitions.get(clazz);
             beans.put(clazz, () -> createInstance(beanDefinition));
         }
@@ -33,6 +32,7 @@ public class GenericBeanFactory implements BeanFactory {
 
     private Object createInstance(BeanDefinition beanDefinition) {
         Class<?> beanType = beanDefinition.getBeanType();
+        logger.debug("create {}...", beanType);
 
         if (beans.contains(beanType)) {
             return beans.get(beanType);
@@ -67,7 +67,7 @@ public class GenericBeanFactory implements BeanFactory {
 
     @Override
     public <T> T getBean(Class<T> clazz) {
-        return (T) beans.get(clazz);
+        return beans.get(clazz);
     }
 
     @Override

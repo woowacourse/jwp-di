@@ -18,8 +18,8 @@ public class Beans {
         this.beans = Maps.newHashMap();
     }
 
-    public Object get(Class<?> clazz) {
-        return Optional.ofNullable(beans.get(clazz))
+    public <T> T get(Class<T> clazz) {
+        return (T) Optional.ofNullable(beans.get(clazz))
                 .orElseThrow(BeanNotExistException::new);
     }
 
