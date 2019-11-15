@@ -1,7 +1,7 @@
-package nextstep.di.factory;
+package nextstep.di.bean;
 
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.QnaController;
+import nextstep.di.bean.example.MyQnaService;
+import nextstep.di.bean.example.QnaController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -13,13 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BeanFactoryTest {
     private static final Logger logger = LoggerFactory.getLogger( BeanFactoryTest.class );
 
-    private final BeanScanner beanScanner = (new BeanScanner("nextstep.di.factory.example"));
     private BeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        this.beanFactory = (new BeanFactory(this.beanScanner.getClasspathBeansToInstantiate())).initialize();
+        this.beanFactory = (new BeanFactory(new BeanScanner("nextstep.di.bean.example"))).initialize();
     }
 
     @Test

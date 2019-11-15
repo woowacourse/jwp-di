@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.bean;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
@@ -35,21 +35,19 @@ public class BeanScanner {
     @SuppressWarnings("unchecked")
     private Set<Class<?>> getTypesAnnotatedAs(Class<? extends Annotation>... annotations) {
         return Stream.of(annotations).flatMap(x ->
-                this.reflections.getTypesAnnotatedWith(x).stream()
+            this.reflections.getTypesAnnotatedWith(x).stream()
         ).collect(Collectors.toSet());
     }
 
     public Map<Class<?>, Method> getConfigBeansToInstantiate() {
-        return this.reflections.getTypesAnnotatedWith(Configuration.class).stream()
-                                                                            .map(Class::getDeclaredMethods)
-                                                                            .flatMap(Stream::of)
-                                                                            .filter(f ->
-                                                                                f.isAnnotationPresent(Bean.class)
-                                                                            ).collect(
-                                                                                    Collectors.toMap(
-                                                                                            Method::getReturnType,
-                                                                                            Function.identity()
-                                                                                    )
-                                                                            );
+        final Map<Class<?>, Method> beans = this.reflections.getTypesAnnotatedWith(
+                Configuration.class
+        ).stream()
+        .map(Class::getDeclaredMethods)
+        .flatMap(Stream::of)
+        .filter(f -> f.isAnnotationPresent(Bean.class))
+        .collect(Collectors.toMap(Method::getReturnType, Function.identity()));
+        logger.debug("Scanned Bean Types: {}", beans.keySet());
+        return beans;
     }
 }

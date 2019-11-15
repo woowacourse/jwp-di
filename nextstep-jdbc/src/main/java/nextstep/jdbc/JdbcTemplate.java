@@ -14,10 +14,20 @@ import java.util.List;
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger( JdbcTemplate.class );
 
+    private static final JdbcTemplate instance = new JdbcTemplate();
+
     private final DataSource dataSource;
+
+    public static JdbcTemplate getInstance() {
+        return instance;
+    }
 
     public JdbcTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    private JdbcTemplate() {
+        this.dataSource = ConnectionManager.getDataSource();
     }
 
     public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {

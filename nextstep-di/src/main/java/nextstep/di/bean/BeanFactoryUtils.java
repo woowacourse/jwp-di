@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.bean;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
