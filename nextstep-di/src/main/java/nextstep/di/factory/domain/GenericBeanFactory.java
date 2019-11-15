@@ -33,23 +33,26 @@ public class GenericBeanFactory implements BeanFactory {
 
     private Object createInstance(BeanDefinition beanDefinition) {
         Class<?> beanType = beanDefinition.getBeanType();
+
         if (beans.contains(beanType)) {
             return beans.get(beanType);
         }
 
         if (beanDefinition.hasParameter()) {
-            return beanDefinition.makeInstance(createParameter(beanDefinition));
+            beans.put(beanType, () -> beanDefinition.makeInstance(createParameter(beanDefinition)));
+            return beans.get(beanType);
         }
 
-        return beanDefinition.makeInstance();
+        beans.put(beanType, () -> beanDefinition.makeInstance());
+        return beans.get(beanType);
     }
 
     private Object[] createParameter(BeanDefinition beanDefinition) {
         List<Class<?>> parameters = beanDefinition.getParameters();
         Object[] objects = new Object[parameters.size()];
         for (int i = 0; i < parameters.size(); i++) {
-            objects[i] = createInstance(
-                    beanDefinitions.get(getConcreteClass(parameters.get(i))));
+            Class<?> concreteClass = getConcreteClass(parameters.get(i));
+            objects[i] = createInstance(beanDefinitions.get(concreteClass));
         }
         return objects;
     }

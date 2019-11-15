@@ -6,6 +6,7 @@ import nextstep.di.factory.example.ExampleConfig;
 import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.MyJdbcTemplate;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
@@ -13,11 +14,17 @@ import javax.sql.DataSource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigurationScannerTest {
+    private BeanFactory beanFactory;
+    private ConfigurationScanner configurationScanner;
+
+    @BeforeEach
+    public void setUp() {
+        beanFactory = new GenericBeanFactory();
+        configurationScanner = new ConfigurationScanner(beanFactory);
+    }
 
     @Test
     public void getDataSourceTest() {
-        BeanFactory beanFactory = new GenericBeanFactory();
-        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
         configurationScanner.register(ExampleConfig.class);
         beanFactory.initialize();
 
@@ -27,8 +34,6 @@ public class ConfigurationScannerTest {
 
     @Test
     public void getMyJdbcTemplateTest() {
-        BeanFactory beanFactory = new GenericBeanFactory();
-        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
         configurationScanner.register(IntegrationConfig.class);
         beanFactory.initialize();
 
@@ -37,5 +42,17 @@ public class ConfigurationScannerTest {
 
         assertThat(beanFactory.getBean(MyJdbcTemplate.class))
                 .isInstanceOf(MyJdbcTemplate.class);
+    }
+
+    @Test
+    public void singleInstanceTest() {
+        configurationScanner.register(IntegrationConfig.class);
+        beanFactory.initialize();
+
+        assertThat(beanFactory.getBean(DataSource.class))
+                .isEqualTo(beanFactory.getBean(DataSource.class));
+
+        assertThat(beanFactory.getBean(MyJdbcTemplate.class))
+                .isEqualTo(beanFactory.getBean(MyJdbcTemplate.class));
     }
 }

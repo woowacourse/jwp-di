@@ -3,6 +3,7 @@ package nextstep.di.factory.domain;
 import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
+import nextstep.di.factory.example.MyJdbcTemplate;
 import nextstep.stereotype.Repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,5 +30,11 @@ public class GenericApplicationContextTest {
         assertThat(applicationContext.getSupportedClassByAnnotation(Repository.class))
                 .contains(JdbcUserRepository.class)
                 .contains(JdbcQuestionRepository.class);
+    }
+
+    @Test
+    public void singleInstanceTest() {
+        assertThat(applicationContext.getBean(MyJdbcTemplate.class))
+                .isEqualTo(applicationContext.getBean(MyJdbcTemplate.class));
     }
 }
