@@ -20,7 +20,7 @@ class BeanScannerTest {
                     add(JdbcUserRepository.class);
                     add(MyQnaService.class);
                 }},
-                (new BeanScanner("nextstep.di.bean.example")).getClasspathBeansToInstantiate()
+                (new ClasspathBeanScanner("nextstep.di.bean.example")).getClasspathBeansToInstantiate()
         );
     }
 
@@ -38,7 +38,7 @@ class BeanScannerTest {
                         e.printStackTrace();
                     }
                 }},
-                (new BeanScanner("nextstep.di.bean.example")).getConfigBeansToInstantiate()
+                (new ConfigBeanScanner(IntegrationConfig.class)).getConfigBeansToInstantiate()
         );
     }
 }

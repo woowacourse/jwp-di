@@ -1,5 +1,6 @@
 package nextstep.di.bean;
 
+import nextstep.di.bean.example.IntegrationConfig;
 import nextstep.di.bean.example.MyQnaService;
 import nextstep.di.bean.example.QnaController;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,9 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        this.beanFactory = (new BeanFactory(new BeanScanner("nextstep.di.bean.example"))).initialize();
+        this.beanFactory = (new BeanFactory(
+                new ApplicationContext(IntegrationConfig.class))
+        ).initialize();
     }
 
     @Test

@@ -1,5 +1,7 @@
 package slipp;
 
+import nextstep.MyMyConfig;
+import nextstep.di.bean.ApplicationContext;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
@@ -29,7 +31,11 @@ class DispatcherServletTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcher.addHandlerMapping(
+                new AnnotationHandlerMapping(
+                        new ApplicationContext(MyMyConfig.class)
+                )
+        );
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());

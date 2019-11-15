@@ -15,14 +15,14 @@ import java.util.stream.Stream;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private final Set<Class<?>> classpathBeansToInstantiate;
     private final Map<Class<?>, Method> configBeansToInstantiate;
+    private final Set<Class<?>> classpathBeansToInstantiate;
     private final Map<Class<?>, Object> configBeanGenMethodContainers = new HashMap<>();
     private final Map<Class<?>, Object> beans = new ConcurrentHashMap<>();
 
-    public BeanFactory(BeanScanner beanScanner) {
-        this.classpathBeansToInstantiate = beanScanner.getClasspathBeansToInstantiate();
-        this.configBeansToInstantiate = beanScanner.getConfigBeansToInstantiate();
+    public BeanFactory(ApplicationContext applicationContext) {
+        this.configBeansToInstantiate = applicationContext.getConfigBeansToInstantiate();
+        this.classpathBeansToInstantiate = applicationContext.getClasspathBeansToInstantiate();
     }
 
     public BeanFactory initialize() {
