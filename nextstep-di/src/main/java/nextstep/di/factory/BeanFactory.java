@@ -18,12 +18,12 @@ public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
-    private Set<Class<?>> preInstantiateBeans = Sets.newHashSet();
+    private Set<Class<?>> preInstantiateBeans;
 
     private CircularReferenceDetector circularReferenceDetector;
 
     public BeanFactory() {
-        this.circularReferenceDetector = new CircularReferenceDetector();
+        this(Sets.newHashSet());
     }
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
@@ -40,6 +40,7 @@ public class BeanFactory {
         for (Class<?> preInstantiateBean : preInstantiateBeans) {
             beans.put(preInstantiateBean, createBean(preInstantiateBean));
         }
+        preInstantiateBeans = Sets.newHashSet();
     }
 
     private Object createBean(Class<?> preInstantiateBean) {
