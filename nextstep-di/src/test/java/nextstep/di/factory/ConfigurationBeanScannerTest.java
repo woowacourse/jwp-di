@@ -1,22 +1,29 @@
 package nextstep.di.factory;
 
 import nextstep.di.factory.example.ExampleConfig;
-import nextstep.di.factory.example.IntegrationConfig;
+import nextstep.di.factory.example.MyJdbcTemplate;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
 import java.util.Set;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigurationBeanScannerTest {
 
     @Test
     public void register_simple() {
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(ExampleConfig.class);
-        Set<Class<?>> configurations = cbs.scan();
+        Set<BeanRecipe> scan = cbs.scan();
 
-        assertThat(configurations).isNotNull();
-        assertThat(configurations.contains(ExampleConfig.class)).isTrue();
-        assertThat(configurations.contains(IntegrationConfig.class)).isTrue();
+        assertThat(scan.size()).isEqualTo(3);
+
+        assertThat(hasBeanType(scan, DataSource.class)).isTrue();
+        assertThat(hasBeanType(scan, MyJdbcTemplate.class)).isTrue();
+    }
+
+    private boolean hasBeanType(Set<BeanRecipe> beanRecipes, Class<?> type) {
+        return beanRecipes.stream()
+                .anyMatch(beanRecipe -> beanRecipe.getBeanType().equals(type));
     }
 }

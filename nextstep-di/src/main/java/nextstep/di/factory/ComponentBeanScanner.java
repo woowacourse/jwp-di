@@ -27,10 +27,11 @@ public class ComponentBeanScanner implements BeanScanner {
     }
 
     @Override
-    public Set<Class<?>> scan() {
+    public Set<BeanRecipe> scan() {
         return TARGET_ANNOTATIONS.stream()
                 .map(type -> reflections.getTypesAnnotatedWith(type))
                 .flatMap(Collection::stream)
+                .map(ConstructorBeanRecipe::new)
                 .collect(Collectors.toSet());
     }
 }

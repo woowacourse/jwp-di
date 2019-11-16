@@ -59,4 +59,19 @@ public class BeanFactoryUtils {
 
         throw new BeanCreateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
     }
+
+    public static Optional<Class<?>> findConcreteClass2(Class<?> injectedClazz, Set<Class<?>> preInstantiateBeans) {
+        if (!injectedClazz.isInterface()) {
+            return Optional.of(injectedClazz);
+        }
+
+        for (Class<?> clazz : preInstantiateBeans) {
+            Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
+            if (interfaces.contains(injectedClazz)) {
+                return Optional.of(clazz);
+            }
+        }
+
+        return Optional.empty();
+    }
 }

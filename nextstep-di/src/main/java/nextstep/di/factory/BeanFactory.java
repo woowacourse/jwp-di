@@ -1,15 +1,11 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,17 +14,10 @@ public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
-    private Set<Class<?>> preInstantiateBeans;
-
-    private CircularReferenceDetector circularReferenceDetector;
+    private Map<Class<?>, BeanRecipe> beanRecipes;
 
     public BeanFactory() {
-        this(Sets.newHashSet());
-    }
-
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
-        this.circularReferenceDetector = new CircularReferenceDetector();
+        this.beanRecipes = Maps.newHashMap();
     }
 
     @SuppressWarnings("unchecked")
@@ -37,34 +26,33 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> preInstantiateBean : preInstantiateBeans) {
-            beans.put(preInstantiateBean, createBean(preInstantiateBean));
-        }
-        preInstantiateBeans = Sets.newHashSet();
-    }
-
-    private Object createBean(Class<?> preInstantiateBean) {
-        if (beans.get(preInstantiateBean) != null) {
-            return beans.get(preInstantiateBean);
-        }
-        circularReferenceDetector.add(preInstantiateBean);
-        Class<?> concrete = BeanFactoryUtils.findConcreteClass(preInstantiateBean, preInstantiateBeans);
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(concrete).orElseThrow(BeanCreateException::new);
-        List<Object> params = getParams(constructor);
-        try {
-            Object result = constructor.newInstance(params.toArray());
-            circularReferenceDetector.remove();
-            return result;
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            logger.error(e.getMessage());
-            throw new BeanCreateException(e);
+        for (Class<?> type : beanRecipes.keySet()) {
+            beans.put(type, getOrBakeBean(type));
         }
     }
 
-    private List<Object> getParams(Constructor<?> constructor) {
-        return Arrays.stream(constructor.getParameterTypes())
-                .map(this::createBean)
-                .collect(Collectors.toList());
+    private Object getOrBakeBean(Class<?> type) {
+        if (beans.containsKey(type)) {
+            return beans.get(type);
+        }
+
+        beans.put(type, bakeBean(type));
+        return beans.get(type);
+    }
+
+    private Object bakeBean(Class<?> type) {
+        BeanRecipe beanRecipe = beanRecipes.get(type);
+        Object[] params = resolveParams(beanRecipe);
+        return beanRecipe.bakeBean(params);
+    }
+
+
+    private Object[] resolveParams(BeanRecipe recipe) {
+        return Arrays.stream(recipe.getBeanParamTypes())
+                .map(param -> BeanFactoryUtils.findConcreteClass2(param, beanRecipes.keySet()).orElse(param))
+                .map(this::getOrBakeBean)
+                .toArray();
+
     }
 
     public Map<Class<?>, Object> getBeansWithAnnotation(Class<? extends Annotation> annotation) {
@@ -74,14 +62,20 @@ public class BeanFactory {
     }
 
     public void addScanner(BeanScanner beanScanner) {
-        this.preInstantiateBeans.addAll(beanScanner.scan());
+        beanRecipes.putAll(beanScanner.scan().stream()
+                .collect(Collectors.toMap(recipe -> recipe.getBeanType(), recipe -> recipe)));
     }
 
-    public void addBeanType(Class<?> beanType) {
+    public void addBeanType(BeanRecipe beanRecipe) {
+        beanRecipes.put(beanRecipe.getBeanType(), beanRecipe);
 
+    }
+
+    public void addAllBeanType(Set<BeanRecipe> beanRecipes) {
+        beanRecipes.forEach(this::addBeanType);
     }
 
     public void addSingleton(Class<?> beanType, Object bean) {
-
+        beans.put(beanType, bean);
     }
 }
