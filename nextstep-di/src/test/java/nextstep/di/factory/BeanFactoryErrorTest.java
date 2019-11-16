@@ -42,8 +42,7 @@ public class BeanFactoryErrorTest {
     @Test
     void 여러_생성자_중_결정할_수_없는_경우() {
         Set<Class<?>> types = reflections.getTypesAnnotatedWith(BadBean.class);
-        beanFactory.addAllBeanType(toBeanRecipes(types));
-        assertThatThrownBy(() -> beanFactory.initialize()).isInstanceOf(BeanCreateException.class);
+        assertThatThrownBy(() -> beanFactory.addAllBeanType(toBeanRecipes(types)));
     }
 
     private Set<BeanRecipe> toBeanRecipes(Set<Class<?>> types) {

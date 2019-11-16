@@ -8,6 +8,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
@@ -16,8 +17,11 @@ public class BeanFactory {
     private Map<Class<?>, Object> beans = Maps.newHashMap();
     private Map<Class<?>, BeanRecipe> beanRecipes;
 
+    private CircularReferenceDetector circularReferenceDetector;
+
     public BeanFactory() {
         this.beanRecipes = Maps.newHashMap();
+        this.circularReferenceDetector = new CircularReferenceDetector();
     }
 
     @SuppressWarnings("unchecked")
@@ -49,9 +53,20 @@ public class BeanFactory {
 
     private Object[] resolveParams(BeanRecipe recipe) {
         return Arrays.stream(recipe.getBeanParamTypes())
+                .peek(addCircularReferenceDetector(circularReferenceDetector))
                 .map(param -> BeanFactoryUtils.findConcreteClass2(param, beanRecipes.keySet()).orElse(param))
                 .map(this::getOrBakeBean)
+                .peek(removeDetector(circularReferenceDetector))
                 .toArray();
+
+    }
+
+    private Consumer<? super Object> removeDetector(CircularReferenceDetector circularReferenceDetector) {
+        return clazz -> circularReferenceDetector.remove();
+    }
+
+    private Consumer<? super Class<?>> addCircularReferenceDetector(CircularReferenceDetector circularReferenceDetector) {
+        return clazz -> circularReferenceDetector.add(clazz);
 
     }
 
