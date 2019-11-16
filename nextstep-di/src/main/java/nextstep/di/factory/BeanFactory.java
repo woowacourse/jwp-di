@@ -3,7 +3,6 @@ package nextstep.di.factory;
 import com.google.common.collect.Maps;
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.exception.CycleReferenceException;
-import nextstep.di.factory.exception.InaccessibleConstructorException;
 import nextstep.di.factory.strategy.BeanCreationStrategies;
 import nextstep.di.factory.strategy.ConstructorBeanCreationStrategy;
 import nextstep.di.factory.strategy.MethodBeanCreationStrategy;
@@ -66,24 +65,24 @@ public class BeanFactory {
     }
 
     public void initialize() {
+//        checkCycleReference(preConstructInstantiateBeans);
         preConstructInstantiateBeans
                 .forEach(preConstructInstiateBean -> createBean(preConstructInstiateBean));
         preMethodInstantiateBeans
                 .forEach(preMethodInstantiateBean -> createBean(preMethodInstantiateBean));
     }
 
-    private void createBean(Class<?> preInstantiateBean) {
-        beanCreationStrategies.createBean(preInstantiateBean, beans);
-    }
-
-
     private void checkCycleReference(Set<Class<?>> preInstantiateBeans) {
         preInstantiateBeans.forEach(beanClass -> checkCycleReference(beanClass, new ArrayList<>()));
     }
 
     private void checkCycleReference(Class<?> beanClass, List<String> beanNames) {
+        if (beanClass.isInterface()) {
+            return;
+        }
+        log.debug("checking cycle reference: {}", beanClass);
         beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preConstructInstantiateBeans);
-        Constructor<?> constructor = getConstructor(beanClass);
+        Constructor<?> constructor = BeanFactoryUtils.getConstructor(beanClass, preConstructInstantiateBeans);
         if (beanNames.contains(constructor.getName())) {
             throw new CycleReferenceException();
         }
@@ -92,21 +91,25 @@ public class BeanFactory {
     }
 
 
-    private Constructor<?> getConstructor(Class<?> beanClass) {
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
-        if (constructor != null) {
-            return constructor;
-        }
-
-        Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-
-        constructor = BeanFactoryUtils
-                .findBeansConstructor(constructors, preConstructInstantiateBeans)
-                .or(() -> BeanFactoryUtils.findDefaultConstructor(constructors))
-                .orElseThrow(InaccessibleConstructorException::new);
-
-        return constructor;
+    private void createBean(Class<?> preInstantiateBean) {
+        beanCreationStrategies.createBean(preInstantiateBean, beans);
     }
+
+//    private Constructor<?> getConstructor(Class<?> beanClass) {
+//        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
+//        if (constructor != null) {
+//            return constructor;
+//        }
+//
+//        Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+//
+//        constructor = BeanFactoryUtils
+//                .findBeansConstructor(constructors, preConstructInstantiateBeans)
+//                .or(() -> BeanFactoryUtils.findDefaultConstructor(constructors))
+//                .orElseThrow(InaccessibleConstructorException::new);
+//
+//        return constructor;
+//    }
 
     public Map<Class<?>, Object> getBeans() {
         return Collections.unmodifiableMap(beans);

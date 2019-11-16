@@ -1,12 +1,17 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.annotation.Configuration;
 import nextstep.annotation.Inject;
+import nextstep.di.factory.exception.InaccessibleConstructorException;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
 import static org.reflections.ReflectionUtils.withAnnotation;
@@ -52,15 +57,51 @@ public class BeanFactoryUtils {
     }
 
     public static Optional<Constructor<?>> findBeansConstructor(Constructor<?>[] constructors, Set<Class<?>> preInstantiateBeans) {
-        return Arrays.stream(constructors).filter(constructor -> isEligibleBeansConstructor(constructor, preInstantiateBeans)).findAny();
+        return Arrays.stream(constructors)
+                .filter(constructor -> isEligibleBeansConstructor(constructor, preInstantiateBeans))
+                .findAny();
 
     }
 
     private static boolean isEligibleBeansConstructor(Constructor<?> constructor, Set<Class<?>> preInstantiateBeans) {
-        return Arrays.stream(constructor.getParameterTypes()).allMatch(parameter -> preInstantiateBeans.contains(parameter));
+        return Arrays.stream(constructor.getParameterTypes())
+                .allMatch(parameter -> preInstantiateBeans.contains(parameter));
     }
 
     public static Optional<Constructor<?>> findDefaultConstructor(Constructor<?>[] constructors) {
-        return Arrays.stream(constructors).filter(constructor -> constructor.getParameterCount() == 0).findAny();
+        return Arrays.stream(constructors)
+                .filter(constructor -> constructor.getParameterCount() == 0)
+                .findAny();
+    }
+
+    public static Constructor<?> getConstructor(Class<?> beanClass, Set<Class<?>> preConstructInstatiateBeans) {
+        Set<Class<?>> allPreInstantiateBeans = new HashSet<>(preConstructInstatiateBeans);
+        allPreInstantiateBeans.addAll(getMethodBeanClasses(preConstructInstatiateBeans));
+
+        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
+        if (constructor != null) {
+            return constructor;
+        }
+
+        Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+
+        constructor = BeanFactoryUtils
+                .findBeansConstructor(constructors, allPreInstantiateBeans)
+                .or(() -> BeanFactoryUtils.findDefaultConstructor(constructors))
+                .orElseThrow(InaccessibleConstructorException::new);
+
+        return constructor;
+    }
+
+    public static Set<Class<?>> getMethodBeanClasses(Set<Class<?>> preConstructorInstantiateBeans) {
+        Set<Class<?>> configurationBeans = preConstructorInstantiateBeans.stream()
+                .filter(key -> key.isAnnotationPresent(Configuration.class))
+                .collect(Collectors.toSet());
+
+        return configurationBeans.stream()
+                .map(Class::getDeclaredMethods)
+                .flatMap(Arrays::stream)
+                .map(Method::getReturnType)
+                .collect(Collectors.toSet());
     }
 }

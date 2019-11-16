@@ -2,7 +2,6 @@ package nextstep.di.factory.strategy;
 
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.BeanFactoryUtils;
-import nextstep.di.factory.exception.InaccessibleConstructorException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -17,12 +16,10 @@ public class ConstructorBeanCreationStrategy implements  BeanCreationStrategy{
     private final Set<Class<?>> preInstantiateBeans;
     private Set<Class<?>> preConstructorInstantiateBeans;
 
-
     public ConstructorBeanCreationStrategy(Set<Class<?>> preConstructorInstantiateBeans) {
         this.preConstructorInstantiateBeans = preConstructorInstantiateBeans;
         this.preInstantiateBeans = getMethodBeanClasses();
         preInstantiateBeans.addAll(preConstructorInstantiateBeans);
-
     }
 
     private Set<Class<?>> getMethodBeanClasses() {
@@ -35,9 +32,7 @@ public class ConstructorBeanCreationStrategy implements  BeanCreationStrategy{
                     .flatMap(Arrays::stream)
                     .map(Method::getReturnType)
                     .collect(Collectors.toSet());
-
     }
-
 
     @Override
     public boolean canHandle(Class<?> clazz) {
@@ -47,24 +42,8 @@ public class ConstructorBeanCreationStrategy implements  BeanCreationStrategy{
     @Override
     public List<Class<?>> getDependencyTypes(Class<?> clazz) {
         clazz = BeanFactoryUtils.findConcreteClass(clazz, preConstructorInstantiateBeans);
-        Constructor<?> constructor = getConstructor(clazz);
+        Constructor<?> constructor = BeanFactoryUtils.getConstructor(clazz, preConstructorInstantiateBeans);
         return Arrays.asList(constructor.getParameterTypes());
-    }
-
-    private Constructor<?> getConstructor(Class<?> beanClass) {
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
-        if (constructor != null) {
-            return constructor;
-        }
-
-        Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-
-        constructor = BeanFactoryUtils
-                .findBeansConstructor(constructors, preInstantiateBeans)
-                .or(() -> BeanFactoryUtils.findDefaultConstructor(constructors))
-                .orElseThrow(InaccessibleConstructorException::new);
-
-        return constructor;
     }
 
     @Override
@@ -74,7 +53,7 @@ public class ConstructorBeanCreationStrategy implements  BeanCreationStrategy{
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
-        Constructor<?> constructor = getConstructor(clazz);
+        Constructor<?> constructor = BeanFactoryUtils.getConstructor(clazz, preConstructorInstantiateBeans);
         Object instance = constructor.newInstance(parameterInstances.toArray());
 
         beans.put(clazz, instance);

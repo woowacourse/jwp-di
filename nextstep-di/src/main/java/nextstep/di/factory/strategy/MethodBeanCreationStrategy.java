@@ -1,6 +1,5 @@
 package nextstep.di.factory.strategy;
 
-import nextstep.annotation.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,32 +9,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class MethodBeanCreationStrategy implements  BeanCreationStrategy{
     private static final Logger log = LoggerFactory.getLogger(MethodBeanCreationStrategy.class);
     private final Set<Method> methods;
     private final Set<Class<?>> methodBeanClass;
 
-
-
     public MethodBeanCreationStrategy(Set<Method> methods, Set<Class<?>> methodBeanClass) {
         this.methods = methods;
         this.methodBeanClass = methodBeanClass;
         log.debug("method beans: {}", methods);
-    }
-
-    private Set<Method> getMethods(Set<Class<?>> preInstantiateBeans) {
-        Set<Class<?>> configurationBeans = preInstantiateBeans.stream()
-                .filter(key -> key.isAnnotationPresent(Configuration.class))
-                .collect(Collectors.toSet());
-
-        log.debug("configuration beans: {}", configurationBeans);
-
-        return configurationBeans.stream()
-                .map(Class::getDeclaredMethods)
-                .flatMap(Arrays::stream)
-                .collect(Collectors.toSet());
     }
 
     @Override

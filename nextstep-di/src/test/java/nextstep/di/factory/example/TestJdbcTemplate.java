@@ -4,16 +4,16 @@ import javax.sql.DataSource;
 
 public class TestJdbcTemplate {
     private DataSource dataSource;
-    private JdbcUserRepository jdbcUserRepository;
+    private TestService testServcie;
 
 
-    public TestJdbcTemplate(DataSource dataSource, JdbcUserRepository jdbcUserRepository) {
+    public TestJdbcTemplate(DataSource dataSource, TestService testService) {
         this.dataSource = dataSource;
-        this.jdbcUserRepository = jdbcUserRepository;
+        this.testServcie = testServcie;
     }
 
-    public JdbcUserRepository getJdbcUserRepository() {
-        return jdbcUserRepository;
+    public TestService getTestServcie() {
+        return testServcie;
     }
 
     public DataSource getDataSource() {
