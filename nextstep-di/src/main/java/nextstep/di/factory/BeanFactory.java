@@ -16,14 +16,14 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
+    private Set<Class<?>> preInstantiateBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     private CircularReferenceDetector circularReferenceDetector = new CircularReferenceDetector();
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
+        this.preInstantiateBeans = preInstantiateBeans;
     }
 
     @SuppressWarnings("unchecked")
@@ -32,17 +32,17 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            beans.put(preInstanticateBean, createBean(preInstanticateBean));
+        for (Class<?> preInstantiateBean : preInstantiateBeans) {
+            beans.put(preInstantiateBean, createBean(preInstantiateBean));
         }
     }
 
-    private Object createBean(Class<?> preInstanticateBean) {
-        if (beans.get(preInstanticateBean) != null) {
-            return beans.get(preInstanticateBean);
+    private Object createBean(Class<?> preInstantiateBean) {
+        if (beans.get(preInstantiateBean) != null) {
+            return beans.get(preInstantiateBean);
         }
-        circularReferenceDetector.add(preInstanticateBean);
-        Class<?> concrete = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans);
+        circularReferenceDetector.add(preInstantiateBean);
+        Class<?> concrete = BeanFactoryUtils.findConcreteClass(preInstantiateBean, preInstantiateBeans);
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(concrete).orElseThrow(BeanCreateException::new);
         List<Object> params = getParams(constructor);
         try {
