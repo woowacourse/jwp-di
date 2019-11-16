@@ -3,6 +3,7 @@ package nextstep.di.factory;
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.example.controller.QnaController;
 import nextstep.di.factory.example.controller.TestController;
+import nextstep.di.factory.example.controller.TestController2;
 import nextstep.di.factory.example.repository.JdbcQuestionRepository;
 import nextstep.di.factory.example.repository.QuestionRepository;
 import nextstep.di.factory.example.repository.TestJdbcTemplate;
@@ -98,11 +99,17 @@ public class BeanFactoryTest {
     public void configuration_injection_test() {
         TestJdbcTemplate testJdbcTemplate = beanFactory.getBean(TestJdbcTemplate.class);
         DataSource testDataSource = beanFactory.getBean(DataSource.class);
+        TestService testService = beanFactory.getBean(TestService.class);
+        TestController2 testController2 = beanFactory.getBean(TestController2.class);
 
+        assertNotNull(testService);
         assertNotNull(testJdbcTemplate);
         assertNotNull(testJdbcTemplate.getDataSource());
         assertNotNull(testDataSource);
+        assertNotNull(testController2);
 
         assertThat(testJdbcTemplate.getDataSource() == testDataSource).isTrue();
+        assertThat(testJdbcTemplate.getTestService() == testService).isTrue();
+        assertThat(testController2.getTestJdbcTemplate() == testJdbcTemplate).isTrue();
     }
 }
