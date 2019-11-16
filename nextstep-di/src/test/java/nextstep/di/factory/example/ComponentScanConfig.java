@@ -10,7 +10,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan(basePackages = "nextstep.di.factory.example")
+@ComponentScan(basePackages = "nextstep.di.factory.example.component")
 public class ComponentScanConfig {
     @Bean
     public QnaController qnaController(MyQnaService myQnaService) {

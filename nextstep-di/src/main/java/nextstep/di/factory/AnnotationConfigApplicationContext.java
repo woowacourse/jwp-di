@@ -5,31 +5,20 @@ import nextstep.annotation.ComponentScan;
 import nextstep.stereotype.Controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AnnotationConfigApplicationContext implements MvcApplicationContext {
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private List<BeanScanner> beanScanners = Arrays.asList(new ClassBeanScanner(), new MethodBeanScanner());
 
     public AnnotationConfigApplicationContext(Object... basePackages) {
-        Map<Class<?>, BeanCreator> componentsCreators = ClassBeanScanner.scan(basePackages);
-        beans = new BeanFactory(componentsCreators, beans).initializeBeans();
-    }
-
-    public AnnotationConfigApplicationContext(Class<?>... configClass) {
-        Map<Class<?>, BeanCreator> componentsCreators = ClassBeanScanner.scan(Arrays.stream(configClass)
-                .filter(clazz -> clazz.isAnnotationPresent(ComponentScan.class))
-                .map(clazz -> clazz.getAnnotation(ComponentScan.class).basePackages())
-                .map(Set::of)
-                .flatMap(Set::stream)
-                .distinct()
-                .toArray());
-
-        Map<Class<?>, BeanCreator> beansCreators = MethodBeanScanner.scan(configClass);
         Map<Class<?>, BeanCreator> creators = Maps.newHashMap();
-        creators.putAll(componentsCreators);
-        creators.putAll(beansCreators);
+        for (BeanScanner beanScanner : beanScanners) {
+            creators.putAll(beanScanner.scan(basePackages));
+        }
         beans = new BeanFactory(creators, beans).initializeBeans();
     }
 
