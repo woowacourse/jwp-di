@@ -1,5 +1,6 @@
-package nextstep.di.factory;
+package nextstep.di.factory.beans;
 
+import nextstep.di.factory.BeanCreateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

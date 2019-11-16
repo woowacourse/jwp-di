@@ -1,8 +1,11 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.context.BeanFactory;
 import nextstep.di.factory.example.ExampleConfig;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.scanner.ComponentBeanScanner;
+import nextstep.di.factory.scanner.ConfigurationBeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

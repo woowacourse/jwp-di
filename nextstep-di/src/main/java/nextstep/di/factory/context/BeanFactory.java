@@ -1,6 +1,8 @@
-package nextstep.di.factory;
+package nextstep.di.factory.context;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.beans.BeanRecipe;
+import nextstep.di.factory.scanner.BeanScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +56,7 @@ public class BeanFactory {
     private Object[] resolveParams(BeanRecipe recipe) {
         return Arrays.stream(recipe.getBeanParamTypes())
                 .peek(addCircularReferenceDetector(circularReferenceDetector))
-                .map(param -> BeanFactoryUtils.findConcreteClass2(param, beanRecipes.keySet()).orElse(param))
+                .map(param -> BeanFactoryUtils.findConcreteClass(param, beanRecipes.keySet()).orElse(param))
                 .map(this::getOrBakeBean)
                 .peek(removeDetector(circularReferenceDetector))
                 .toArray();

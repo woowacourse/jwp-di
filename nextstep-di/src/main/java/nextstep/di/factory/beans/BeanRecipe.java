@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.factory.beans;
 
 public interface BeanRecipe {
     Object bakeBean(Object... params);

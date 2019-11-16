@@ -1,5 +1,7 @@
-package nextstep.di.factory;
+package nextstep.di.factory.scanner;
 
+import nextstep.di.factory.beans.BeanRecipe;
+import nextstep.di.factory.beans.ConstructorBeanRecipe;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;

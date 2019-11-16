@@ -1,4 +1,6 @@
-package nextstep.di.factory;
+package nextstep.di.factory.context;
+
+import nextstep.di.factory.BeanCreateException;
 
 import java.util.Stack;
 

@@ -1,11 +1,17 @@
-package nextstep.di.factory;
+package nextstep.di.factory.beans;
 
+import nextstep.annotation.Inject;
+import nextstep.di.factory.BeanCreateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+
+import static org.reflections.ReflectionUtils.withAnnotation;
 
 public class ConstructorBeanRecipe implements BeanRecipe {
     private static final Logger log = LoggerFactory.getLogger(ConstructorBeanRecipe.class);
@@ -15,8 +21,20 @@ public class ConstructorBeanRecipe implements BeanRecipe {
 
     public ConstructorBeanRecipe(Class<?> beanType) {
         this.beanType = beanType;
-        this.constructor = BeanFactoryUtils.getInjectedConstructor(beanType).orElseThrow(BeanCreateException::new);
+        this.constructor = getInjectedConstructor(beanType);
         this.params = constructor.getParameterTypes();
+    }
+
+    private Constructor<?> getInjectedConstructor(Class<?> clazz) {
+        List<Constructor<?>> cons = Arrays.asList(clazz.getConstructors());
+        if (cons.size() == 1) {
+            return cons.get(0);
+        }
+
+        return cons.stream()
+                .filter(withAnnotation(Inject.class))
+                .findAny()
+                .orElseThrow(BeanCreateException::new);
     }
 
     @Override
