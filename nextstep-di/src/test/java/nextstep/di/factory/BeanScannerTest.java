@@ -8,6 +8,7 @@ import nextstep.di.factory.example.repository.JdbcQuestionRepository;
 import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.service.MyQnaService;
 import nextstep.di.factory.example.service.TestService;
+import nextstep.di.factory.outside.MultipleInjectedService;
 import nextstep.di.factory.outside.OutsideController;
 import nextstep.di.factory.outside.OutsideRepository;
 import nextstep.di.factory.outside.OutsideService;
@@ -26,13 +27,15 @@ public class BeanScannerTest {
         Set<Class<?>> preInstantiateClazz = BeanScanner.scanPackage("nextstep.di.factory.example");
 
         assertThat(preInstantiateClazz).contains(
+                ExampleConfig.class,
+                IntegrationConfig.class,
                 QnaController.class,
                 MyQnaService.class,
                 TestService.class,
                 JdbcQuestionRepository.class,
                 JdbcUserRepository.class
         );
-        assertThat(preInstantiateClazz.size()).isEqualTo(5);
+        assertThat(preInstantiateClazz.size()).isEqualTo(7);
     }
 
     @Test
@@ -70,5 +73,18 @@ public class BeanScannerTest {
                 JdbcUserRepository.class
         );
         assertThat(configurations.size()).isEqualTo(7);
+    }
+
+    @Test
+    @DisplayName("@Configuration에 @ComponentScan이 없는 경우 스캔이 이뤄지지 않는다.")
+    void notExistComponentScan() {
+        Set<Class<?>> configurations = BeanScanner.scan("nextstep.di.factory.outside");
+
+        assertThat(configurations).doesNotContain(
+                OutsideController.class,
+                OutsideService.class,
+                OutsideRepository.class,
+                MultipleInjectedService.class
+        );
     }
 }
