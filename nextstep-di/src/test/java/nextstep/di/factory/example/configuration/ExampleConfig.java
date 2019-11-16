@@ -1,4 +1,4 @@
-package nextstep.di.factory.example;
+package nextstep.di.factory.example.configuration;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
@@ -8,8 +8,8 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan(basePackages = {"nextstep.di.factory.example"})
-public class TestJdbcConfiguration {
+@ComponentScan(basePackages = {"nextstep.annotation"})
+public class ExampleConfig {
     @Bean
     public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
@@ -18,10 +18,5 @@ public class TestJdbcConfiguration {
         ds.setUsername("sa");
         ds.setPassword("");
         return ds;
-    }
-
-    @Bean
-    public TestJdbcTemplate jdbcTemplate(DataSource dataSource, TestService testService) {
-        return new TestJdbcTemplate(dataSource, testService);
     }
 }

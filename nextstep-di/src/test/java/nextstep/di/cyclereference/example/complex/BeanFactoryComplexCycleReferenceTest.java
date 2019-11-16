@@ -1,7 +1,7 @@
 package nextstep.di.cyclereference.example.complex;
 
-import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanScanner;
+import nextstep.di.factory.factory.BeanFactory;
+import nextstep.di.factory.factory.BeanScanner;
 import nextstep.di.factory.exception.CycleReferenceException;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;

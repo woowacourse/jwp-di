@@ -1,8 +1,8 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Bean;
-import nextstep.di.factory.example.JdbcUserRepository;
-import nextstep.di.factory.example.TestService;
+import nextstep.di.factory.example.repository.JdbcUserRepository;
+import nextstep.di.factory.example.service.TestService;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;

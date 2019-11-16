@@ -1,5 +1,7 @@
-package nextstep.di.factory.example;
+package nextstep.di.factory.example.controller;
 
+import nextstep.di.factory.example.repository.TestJdbcTemplate;
+import nextstep.di.factory.example.service.TestService;
 import nextstep.stereotype.Controller;
 
 @Controller

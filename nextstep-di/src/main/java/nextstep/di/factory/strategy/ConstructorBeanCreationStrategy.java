@@ -1,6 +1,6 @@
 package nextstep.di.factory.strategy;
 
-import nextstep.di.factory.BeanFactoryUtils;
+import nextstep.di.factory.factory.BeanFactoryUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.factory.factory;
 
 import nextstep.annotation.ComponentScan;
 import org.reflections.Reflections;

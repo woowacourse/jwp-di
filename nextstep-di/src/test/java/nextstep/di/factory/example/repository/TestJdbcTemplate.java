@@ -1,4 +1,6 @@
-package nextstep.di.factory.example;
+package nextstep.di.factory.example.repository;
+
+import nextstep.di.factory.example.service.TestService;
 
 import javax.sql.DataSource;
 
