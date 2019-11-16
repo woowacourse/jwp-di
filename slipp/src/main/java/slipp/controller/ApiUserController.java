@@ -1,6 +1,7 @@
 package slipp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nextstep.annotation.Inject;
 import nextstep.mvc.JsonView;
 import nextstep.mvc.ModelAndView;
 import nextstep.stereotype.Controller;
@@ -20,15 +21,19 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class ApiUserController {
     private static final Logger logger = LoggerFactory.getLogger( ApiUserController.class );
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final UserDao userDao;
 
-    private UserDao userDao = UserDao.getInstance();
+    @Inject
+    public ApiUserController(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
+        UserCreatedDto createdDto = OBJECT_MAPPER.readValue(request.getInputStream(), UserCreatedDto.class);
         logger.debug("Created User : {}", createdDto);
 
         userDao.insert(new User(
@@ -57,7 +62,7 @@ public class ApiUserController {
     public ModelAndView update(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userId = request.getParameter("userId");
         logger.debug("userId : {}", userId);
-        UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
+        UserUpdatedDto updateDto = OBJECT_MAPPER.readValue(request.getInputStream(), UserUpdatedDto.class);
         logger.debug("Updated User : {}", updateDto);
 
         User user = userDao.findByUserId(userId);
