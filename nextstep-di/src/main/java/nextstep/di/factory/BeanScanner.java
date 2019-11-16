@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
@@ -49,9 +50,14 @@ public class BeanScanner {
     private static List<String> getTargetPackages(Class<?> configuration) {
         ComponentScan componentScan = configuration.getAnnotation(ComponentScan.class);
 
-        return componentScan != null
-                ? Arrays.asList(componentScan.value())
-                : Arrays.asList(configuration.getPackage().getName());
+        if (componentScan == null) {
+            return Lists.newArrayList();
+        }
+
+        String[] targetPackages = componentScan.value();
+        return targetPackages.length == 0
+                ? Arrays.asList(configuration.getPackage().getName())
+                : Arrays.asList(targetPackages);
     }
 
     private static Set<Class<?>> scanComponents(List<String> targetPackages) {
