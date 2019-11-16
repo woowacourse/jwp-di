@@ -1,7 +1,6 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.annotation.Configuration;
 import nextstep.di.factory.exception.CycleReferenceException;
 import nextstep.di.factory.strategy.BeanCreationStrategies;
 import nextstep.di.factory.strategy.ConstructorBeanCreationStrategy;
@@ -10,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
@@ -35,20 +32,9 @@ public class BeanFactory {
         return BeanFactoryUtils.getMethodBeanClasses(preConstructInstantiateBeans);
     }
 
-    private Set<Method> getMethods(Set<Class<?>> preConstructInstantiateBeans) {
-        Set<Class<?>> configurationBeans = preConstructInstantiateBeans.stream()
-                .filter(key -> key.isAnnotationPresent(Configuration.class))
-                .collect(Collectors.toSet());
-
-        return configurationBeans.stream()
-                .map(Class::getDeclaredMethods)
-                .flatMap(Arrays::stream)
-                .collect(Collectors.toSet());
-    }
-
     private BeanCreationStrategies makeCreationStrategies() {
         BeanCreationStrategies beanCreationStrategies = new BeanCreationStrategies(
-                Arrays.asList(new ConstructorBeanCreationStrategy(preConstructInstantiateBeans), new MethodBeanCreationStrategy(getMethods(preConstructInstantiateBeans), preMethodInstantiateBeans)));
+                Arrays.asList(new ConstructorBeanCreationStrategy(preConstructInstantiateBeans), new MethodBeanCreationStrategy(BeanFactoryUtils.getMethods(preConstructInstantiateBeans), preMethodInstantiateBeans)));
 
         return beanCreationStrategies;
     }
@@ -88,7 +74,6 @@ public class BeanFactory {
                     checkCycleReference(paramterBeanClass, accumulatedBeanNames);
                 });
     }
-
 
     private void createBean(Class<?> preInstantiateBean) {
         beanCreationStrategies.createBean(preInstantiateBean, beans);

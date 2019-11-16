@@ -1,5 +1,6 @@
 package nextstep.di.factory.strategy;
 
+import nextstep.di.factory.exception.IllegalMethodBeanException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,6 @@ public class MethodBeanCreationStrategy implements  BeanCreationStrategy{
         return methods.stream()
                     .filter(beanMethod -> beanMethod.getReturnType() == clazz)
                     .findAny()
-                    .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(IllegalMethodBeanException::new);
     }
 }

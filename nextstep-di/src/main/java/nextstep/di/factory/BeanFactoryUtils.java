@@ -25,7 +25,7 @@ public class BeanFactoryUtils {
      * @Inject 애노테이션이 설정되어 있는 생성자는 클래스당 하나로 가정한다.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static Constructor<?> getInjectedConstructor(Class<?> clazz) {
+    private static Constructor<?> getInjectedConstructor(Class<?> clazz) {
         Set<Constructor> injectedConstructors = getAllConstructors(clazz, withAnnotation(Inject.class));
         if (injectedConstructors.isEmpty()) {
             return null;
@@ -56,7 +56,7 @@ public class BeanFactoryUtils {
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
     }
 
-    public static Optional<Constructor<?>> findBeansConstructor(Constructor<?>[] constructors, Set<Class<?>> preInstantiateBeans) {
+    private static Optional<Constructor<?>> findBeansConstructor(Constructor<?>[] constructors, Set<Class<?>> preInstantiateBeans) {
         return Arrays.stream(constructors)
                 .filter(constructor -> isEligibleBeansConstructor(constructor, preInstantiateBeans))
                 .findAny();
@@ -68,7 +68,7 @@ public class BeanFactoryUtils {
                 .allMatch(parameter -> preInstantiateBeans.contains(parameter));
     }
 
-    public static Optional<Constructor<?>> findDefaultConstructor(Constructor<?>[] constructors) {
+    private static Optional<Constructor<?>> findDefaultConstructor(Constructor<?>[] constructors) {
         return Arrays.stream(constructors)
                 .filter(constructor -> constructor.getParameterCount() == 0)
                 .findAny();
@@ -94,14 +94,20 @@ public class BeanFactoryUtils {
     }
 
     public static Set<Class<?>> getMethodBeanClasses(Set<Class<?>> preConstructorInstantiateBeans) {
-        Set<Class<?>> configurationBeans = preConstructorInstantiateBeans.stream()
+        return getMethods(preConstructorInstantiateBeans)
+                .stream()
+                .map(Method::getReturnType)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<Method> getMethods(Set<Class<?>> preConstructInstantiateBeans) {
+        Set<Class<?>> configurationBeans = preConstructInstantiateBeans.stream()
                 .filter(key -> key.isAnnotationPresent(Configuration.class))
                 .collect(Collectors.toSet());
 
         return configurationBeans.stream()
                 .map(Class::getDeclaredMethods)
                 .flatMap(Arrays::stream)
-                .map(Method::getReturnType)
                 .collect(Collectors.toSet());
     }
 }
