@@ -32,13 +32,7 @@ public class BeanFactory {
     }
 
     private Set<Class<?>> makePreMethodInstantiateBeans() {
-        return getMethodBeans(getMethods(preConstructInstantiateBeans));
-    }
-//
-    private Set<Class<?>> getMethodBeans(Set<Method> methods) {
-        return methods.stream()
-                .map(Method::getReturnType)
-                .collect(Collectors.toSet());
+        return BeanFactoryUtils.getMethodBeanClasses(preConstructInstantiateBeans);
     }
 
     private Set<Method> getMethods(Set<Class<?>> preConstructInstantiateBeans) {
@@ -94,22 +88,6 @@ public class BeanFactory {
     private void createBean(Class<?> preInstantiateBean) {
         beanCreationStrategies.createBean(preInstantiateBean, beans);
     }
-
-//    private Constructor<?> getConstructor(Class<?> beanClass) {
-//        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
-//        if (constructor != null) {
-//            return constructor;
-//        }
-//
-//        Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-//
-//        constructor = BeanFactoryUtils
-//                .findBeansConstructor(constructors, preConstructInstantiateBeans)
-//                .or(() -> BeanFactoryUtils.findDefaultConstructor(constructors))
-//                .orElseThrow(InaccessibleConstructorException::new);
-//
-//        return constructor;
-//    }
 
     public Map<Class<?>, Object> getBeans() {
         return Collections.unmodifiableMap(beans);
