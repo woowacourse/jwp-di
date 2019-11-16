@@ -55,6 +55,7 @@ public class BeanFactory {
 
 
     private Object[] resolveParams(BeanRecipe recipe) {
+        logger.error(recipe.getBeanType().toString());
         return Arrays.stream(recipe.getBeanParamTypes())
                 .peek(addCircularReferenceDetector(circularReferenceDetector))
                 .map(param -> BeanFactoryUtils.findConcreteClass(param, beanRecipes.keySet()).orElse(param))
