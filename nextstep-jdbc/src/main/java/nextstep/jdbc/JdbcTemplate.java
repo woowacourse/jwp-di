@@ -11,15 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-    private static final Logger logger = LoggerFactory.getLogger( JdbcTemplate.class );
+    private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    private static JdbcTemplate jdbcTemplate = new JdbcTemplate();
-
-    private JdbcTemplate() {
-    }
-
-    public static JdbcTemplate getInstance() {
-        return jdbcTemplate;
+    public JdbcTemplate() {
     }
 
     public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {
@@ -76,7 +70,7 @@ public class JdbcTemplate {
     }
 
     private <T> List<T> mapResultSetToObject(RowMapper<T> rm, PreparedStatement pstmt) {
-        try(ResultSet rs = pstmt.executeQuery()) {
+        try (ResultSet rs = pstmt.executeQuery()) {
             List<T> list = new ArrayList<T>();
             while (rs.next()) {
                 list.add(rm.mapRow(rs));
