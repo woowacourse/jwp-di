@@ -1,9 +1,11 @@
-package nextstep.di.factory;
+package nextstep.di.factory.beanscanner;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.beancreator.BeanCreator;
+import nextstep.di.factory.beancreator.ClassBeanCreator;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
