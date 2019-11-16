@@ -1,6 +1,5 @@
 package nextstep.di.factory.beans;
 
-import nextstep.di.factory.BeanCreateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,7 @@ public class MethodBeanRecipe implements BeanRecipe {
             return method.invoke(instance, params);
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error(e.getMessage());
-            throw new BeanCreateException(e);
+            throw new FailToCreateBeanException(e);
         }
     }
 

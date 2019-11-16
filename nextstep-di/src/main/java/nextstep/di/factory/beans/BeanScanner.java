@@ -1,6 +1,4 @@
-package nextstep.di.factory.scanner;
-
-import nextstep.di.factory.beans.BeanRecipe;
+package nextstep.di.factory.beans;
 
 import java.util.Set;
 

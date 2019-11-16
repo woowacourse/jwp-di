@@ -1,9 +1,9 @@
 package nextstep.di.factory;
 
 import nextstep.di.factory.beans.BeanRecipe;
+import nextstep.di.factory.beans.ConfigurationBeanScanner;
 import nextstep.di.factory.example.ExampleConfig;
 import nextstep.di.factory.example.MyJdbcTemplate;
-import nextstep.di.factory.scanner.ConfigurationBeanScanner;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;

@@ -1,7 +1,6 @@
 package nextstep.di.factory.beans;
 
 import nextstep.annotation.Inject;
-import nextstep.di.factory.BeanCreateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,7 @@ public class ConstructorBeanRecipe implements BeanRecipe {
         return cons.stream()
                 .filter(withAnnotation(Inject.class))
                 .findAny()
-                .orElseThrow(BeanCreateException::new);
+                .orElseThrow(() -> new IllegalBeanException("@Inject 애너테이션이 둘 이상 존재합니다."));
     }
 
     @Override
@@ -43,7 +42,7 @@ public class ConstructorBeanRecipe implements BeanRecipe {
             return constructor.newInstance(params);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             log.error(e.getMessage());
-            throw new BeanCreateException(e);
+            throw new FailToCreateBeanException(e);
         }
     }
 

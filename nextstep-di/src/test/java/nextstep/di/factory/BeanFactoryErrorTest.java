@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import nextstep.di.factory.beans.BeanRecipe;
 import nextstep.di.factory.beans.ConstructorBeanRecipe;
+import nextstep.di.factory.context.BeanCreateException;
 import nextstep.di.factory.context.BeanFactory;
 import nextstep.di.factory.error.BadBean;
 import nextstep.di.factory.error.Circular;

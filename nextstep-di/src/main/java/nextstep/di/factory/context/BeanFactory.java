@@ -2,7 +2,7 @@ package nextstep.di.factory.context;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.beans.BeanRecipe;
-import nextstep.di.factory.scanner.BeanScanner;
+import nextstep.di.factory.beans.BeanScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

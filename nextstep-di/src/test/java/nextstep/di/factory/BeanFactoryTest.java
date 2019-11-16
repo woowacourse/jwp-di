@@ -1,11 +1,11 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.beans.BeanScanner;
+import nextstep.di.factory.beans.ComponentBeanScanner;
+import nextstep.di.factory.beans.ConfigurationBeanScanner;
 import nextstep.di.factory.beans.ConstructorBeanRecipe;
 import nextstep.di.factory.context.BeanFactory;
 import nextstep.di.factory.example.*;
-import nextstep.di.factory.scanner.BeanScanner;
-import nextstep.di.factory.scanner.ComponentBeanScanner;
-import nextstep.di.factory.scanner.ConfigurationBeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,13 +56,13 @@ public class BeanFactoryTest {
 
     @Test
     void 빈_인스턴스_수동_등록() {
-        PlainBean manual = new PlainBean("POJO");
-        beanFactory.addSingleton(PlainBean.class, manual);
-        PlainBean plainBean = beanFactory.getBean(PlainBean.class);
+        PlainBeanExample manual = new PlainBeanExample("POJO");
+        beanFactory.addSingleton(PlainBeanExample.class, manual);
+        PlainBeanExample plainBeanExample = beanFactory.getBean(PlainBeanExample.class);
 
-        assertThat(plainBean).isNotNull();
-        assertThat(plainBean).isEqualTo(manual);
-        assertThat(plainBean.getName()).isEqualTo("POJO");
+        assertThat(plainBeanExample).isNotNull();
+        assertThat(plainBeanExample).isEqualTo(manual);
+        assertThat(plainBeanExample.getName()).isEqualTo("POJO");
     }
 
     @Test

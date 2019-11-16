@@ -1,10 +1,7 @@
-package nextstep.di.factory.scanner;
+package nextstep.di.factory.beans;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
-import nextstep.di.factory.BeanCreateException;
-import nextstep.di.factory.beans.BeanRecipe;
-import nextstep.di.factory.beans.MethodBeanRecipe;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +48,7 @@ public class ConfigurationBeanScanner implements BeanScanner {
                 instances.put(clazz, clazz.getDeclaredConstructor().newInstance());
             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 log.error(e.getMessage());
-                throw new BeanCreateException(e);
+                throw new IllegalBeanException(e);
             }
         };
     }

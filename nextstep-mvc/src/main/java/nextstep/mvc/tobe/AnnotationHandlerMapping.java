@@ -2,8 +2,8 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.di.factory.beans.ComponentBeanScanner;
 import nextstep.di.factory.context.BeanFactory;
-import nextstep.di.factory.scanner.ComponentBeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
