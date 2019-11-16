@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ConstructorBeanCreationStrategy implements  BeanCreationStrategy{
+public class ConstructorBeanCreationStrategy implements BeanCreationStrategy {
     private final Set<Class<?>> preInstantiateBeans;
     private Set<Class<?>> preConstructorInstantiateBeans;
 
@@ -32,7 +32,7 @@ public class ConstructorBeanCreationStrategy implements  BeanCreationStrategy{
     }
 
     @Override
-    public Object createBean(Class<?> clazz, List<Object> parameterInstances,  Map<Class<?>, Object> beans) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Object createBean(Class<?> clazz, List<Object> parameterInstances, Map<Class<?>, Object> beans) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         clazz = BeanFactoryUtils.findConcreteClass(clazz, preConstructorInstantiateBeans);
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);

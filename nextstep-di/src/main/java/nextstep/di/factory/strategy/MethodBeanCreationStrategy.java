@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class MethodBeanCreationStrategy implements  BeanCreationStrategy{
+public class MethodBeanCreationStrategy implements BeanCreationStrategy {
     private static final Logger log = LoggerFactory.getLogger(MethodBeanCreationStrategy.class);
     private final Set<Method> methods;
     private final Set<Class<?>> methodBeanClass;
@@ -34,7 +34,7 @@ public class MethodBeanCreationStrategy implements  BeanCreationStrategy{
     }
 
     @Override
-    public Object createBean(Class<?> clazz, List<Object> parameterInstances,  Map<Class<?>, Object> beans) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Object createBean(Class<?> clazz, List<Object> parameterInstances, Map<Class<?>, Object> beans) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
@@ -49,8 +49,8 @@ public class MethodBeanCreationStrategy implements  BeanCreationStrategy{
 
     private Method getMethod(Class<?> clazz) {
         return methods.stream()
-                    .filter(beanMethod -> beanMethod.getReturnType() == clazz)
-                    .findAny()
+                .filter(beanMethod -> beanMethod.getReturnType() == clazz)
+                .findAny()
                 .orElseThrow(IllegalMethodBeanException::new);
     }
 }

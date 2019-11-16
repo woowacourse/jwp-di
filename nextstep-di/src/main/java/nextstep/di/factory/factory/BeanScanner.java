@@ -1,7 +1,6 @@
 package nextstep.di.factory.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.annotation.ComponentScan;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

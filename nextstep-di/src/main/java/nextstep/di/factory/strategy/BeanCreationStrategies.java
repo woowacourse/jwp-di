@@ -8,7 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class BeanCreationStrategies {
     private static final Logger log = LoggerFactory.getLogger(BeanCreationStrategies.class);
@@ -18,7 +17,7 @@ public class BeanCreationStrategies {
         this.strategies = strategies;
     }
 
-    public Object createBean(Class<?> clazz, Map<Class<?>, Object> beans){
+    public Object createBean(Class<?> clazz, Map<Class<?>, Object> beans) {
         log.debug("creating bean... {}", clazz);
 
         BeanCreationStrategy beanCreationStrategy = strategies.stream()
@@ -33,7 +32,7 @@ public class BeanCreationStrategies {
             parameterInstances.add(createBean(parameter, beans));
         }
         try {
-            Object instance =  beanCreationStrategy.createBean(clazz, parameterInstances, beans);
+            Object instance = beanCreationStrategy.createBean(clazz, parameterInstances, beans);
             return instance;
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
             throw new CreateBeanException(e);
