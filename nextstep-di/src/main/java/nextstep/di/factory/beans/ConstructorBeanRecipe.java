@@ -21,11 +21,11 @@ public class ConstructorBeanRecipe implements BeanRecipe {
 
     public ConstructorBeanRecipe(Class<?> beanType) {
         this.beanType = beanType;
-        this.constructor = getInjectedConstructor(beanType);
+        this.constructor = resolveConstructor(beanType);
         this.params = constructor.getParameterTypes();
     }
 
-    private Constructor<?> getInjectedConstructor(Class<?> clazz) {
+    private Constructor<?> resolveConstructor(Class<?> clazz) {
         List<Constructor<?>> cons = Arrays.asList(clazz.getConstructors());
         if (cons.size() == 1) {
             return cons.get(0);

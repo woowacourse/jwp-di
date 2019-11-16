@@ -35,6 +35,7 @@ public class BeanFactory {
         for (Class<?> type : beanRecipes.keySet()) {
             beans.put(type, getOrBakeBean(type));
         }
+        beanRecipes = Maps.newHashMap();
     }
 
     private Object getOrBakeBean(Class<?> type) {
