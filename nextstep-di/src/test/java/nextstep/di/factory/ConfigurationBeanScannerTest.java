@@ -16,7 +16,7 @@ public class ConfigurationBeanScannerTest {
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(ExampleConfig.class);
         Set<BeanRecipe> scan = cbs.scan();
 
-        assertThat(scan.size()).isEqualTo(3);
+        assertThat(scan.size()).isEqualTo(2);
 
         assertThat(hasBeanType(scan, DataSource.class)).isTrue();
         assertThat(hasBeanType(scan, MyJdbcTemplate.class)).isTrue();

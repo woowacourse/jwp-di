@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
 public class ConstructorBeanRecipe implements BeanRecipe {
     private static final Logger log = LoggerFactory.getLogger(ConstructorBeanRecipe.class);
@@ -36,5 +37,18 @@ public class ConstructorBeanRecipe implements BeanRecipe {
     @Override
     public Class<?>[] getBeanParamTypes() {
         return params;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConstructorBeanRecipe that = (ConstructorBeanRecipe) o;
+        return Objects.equals(beanType, that.beanType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(beanType);
     }
 }
