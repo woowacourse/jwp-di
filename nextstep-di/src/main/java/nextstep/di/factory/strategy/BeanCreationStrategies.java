@@ -19,7 +19,6 @@ public class BeanCreationStrategies {
     }
 
     public Object createBean(Class<?> clazz, Map<Class<?>, Object> beans){
-
         log.debug("creating bean... {}", clazz);
 
         BeanCreationStrategy beanCreationStrategy = strategies.stream()
