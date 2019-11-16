@@ -20,7 +20,7 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scanConfiguration("slipp"));
+        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scan("slipp"));
         BeanFactory beanFactory = new BeanFactory(beanDefinitionFactory.createBeanDefinition());
         beanFactory.initialize();
 

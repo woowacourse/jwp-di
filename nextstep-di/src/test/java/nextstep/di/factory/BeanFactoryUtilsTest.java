@@ -44,7 +44,7 @@ class BeanFactoryUtilsTest {
     @Test
     @DisplayName("인터페이스에 대한 BeanDefinition을 찾아준다.")
     void findConcreteDefinitionOfInterface() {
-        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scanConfiguration("nextstep.di.factory.example"));
+        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scan("nextstep.di.factory.example"));
         Map<Class<?>, BeanDefinition> definitions = beanDefinitionFactory.createBeanDefinition();
 
         BeanDefinition beanDefinition = BeanFactoryUtils.findBeanDefinition(UserRepository.class, definitions);
@@ -54,7 +54,7 @@ class BeanFactoryUtilsTest {
     @Test
     @DisplayName("해당하는 클래스에 대한 BeanDefinition을 찾아준다.")
     void findConcreteDefinitionOfClass() {
-        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scanConfiguration("nextstep.di.factory.example"));
+        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scan("nextstep.di.factory.example"));
         Map<Class<?>, BeanDefinition> definitions = beanDefinitionFactory.createBeanDefinition();
 
         BeanDefinition beanDefinition = BeanFactoryUtils.findBeanDefinition(MyQnaService.class, definitions);
@@ -64,7 +64,7 @@ class BeanFactoryUtilsTest {
     @Test
     @DisplayName("존재하지 않는 BeanDefinition을 찾는 경우 예외를 던진다.")
     void failToFindDefinition() {
-        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scanConfiguration("nextstep.di.factory.example"));
+        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scan("nextstep.di.factory.example"));
         Map<Class<?>, BeanDefinition> definitions = beanDefinitionFactory.createBeanDefinition();
 
         assertThatThrownBy(() -> BeanFactoryUtils.findBeanDefinition(OutsideService.class, definitions))
