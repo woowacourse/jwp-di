@@ -1,5 +1,9 @@
 package slipp;
 
+import nextstep.di.factory.AnnotationConfigApplicationContext;
+import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.ClassBeanScanner;
+import nextstep.di.factory.MvcApplicationContext;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
@@ -12,6 +16,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import slipp.config.SlippConfig;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
 
@@ -28,8 +33,10 @@ class DispatcherServletTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
+        MvcApplicationContext context = new AnnotationConfigApplicationContext(SlippConfig.class);
+
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcher.addHandlerMapping(new AnnotationHandlerMapping(context.getControllers()));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());

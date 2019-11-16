@@ -5,6 +5,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.time.Duration;
 
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
@@ -21,6 +22,7 @@ public class NsWebTestClient {
         this.testClientBuilder = WebTestClient
                 .bindToServer()
                 .baseUrl(baseUrl + ":" + port);
+        this.testClientBuilder.responseTimeout(Duration.ofMillis(20000));
     }
 
     public NsWebTestClient basicAuth(String username, String password) {
