@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,14 +17,18 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Set<Class<?>> preInstantiateBeans = Sets.newHashSet();
 
-    private CircularReferenceDetector circularReferenceDetector = new CircularReferenceDetector();
+    private CircularReferenceDetector circularReferenceDetector;
+
+    public BeanFactory() {
+        this.circularReferenceDetector = new CircularReferenceDetector();
+    }
 
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
+        this.circularReferenceDetector = new CircularReferenceDetector();
     }
 
     @SuppressWarnings("unchecked")
@@ -65,5 +70,17 @@ public class BeanFactory {
         return beans.keySet().stream()
                 .filter(key -> key.isAnnotationPresent(annotation))
                 .collect(Collectors.toMap(key -> key, key -> beans.get(key)));
+    }
+
+    public void addScanner(BeanScanner beanScanner) {
+        this.preInstantiateBeans.addAll(beanScanner.scan());
+    }
+
+    public void addBeanType(Class<?> beanType) {
+
+    }
+
+    public void addSingleton(Class<?> beanType, Object bean) {
+
     }
 }
