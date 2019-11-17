@@ -6,7 +6,8 @@ public class Car {
     private String color;
     private String type;
 
-    private Car() {}
+    private Car() {
+    }
 
     public Car(String color, String type) {
         this.color = color;
@@ -27,7 +28,7 @@ public class Car {
         if (o == null || getClass() != o.getClass()) return false;
         Car car = (Car) o;
         return color.equals(car.color) &&
-                type.equals(car.type);
+            type.equals(car.type);
     }
 
     @Override
@@ -38,8 +39,8 @@ public class Car {
     @Override
     public String toString() {
         return "Car{" +
-                "color='" + color + '\'' +
-                ", type='" + type + '\'' +
-                '}';
+            "color='" + color + '\'' +
+            ", type='" + type + '\'' +
+            '}';
     }
 }
