@@ -34,6 +34,7 @@ public class BeanFactory {
 
     public void initialize() {
         preInstantiatedBeans.forEach(this::instantiateClass);
+        logger.info("Initialized BeanFactory!");
     }
 
     private Object instantiateClass(Class<?> clazz) {
@@ -52,6 +53,7 @@ public class BeanFactory {
     private Object instantiateConstructorWithInject(Constructor<?> constructor) {
         Class<?> clazz = constructor.getDeclaringClass();
         Object bean = BeanUtils.instantiateClass(constructor, getParametersOfConstructor(constructor));
+        logger.debug("Instantiate Bean with Inject Annotation : {}", clazz.getSimpleName());
         beans.put(clazz, bean);
         return bean;
     }
@@ -79,6 +81,7 @@ public class BeanFactory {
             Constructor<?> constructor = clazz.getDeclaredConstructor();
             Object bean = BeanUtils.instantiateClass(constructor);
             beans.put(clazz, bean);
+            logger.debug("Instantiate Bean with Default Constructor: {}", clazz.getSimpleName());
             return bean;
         } catch (NoSuchMethodException e) {
             throw new DefaultConstructorFindFailException();
