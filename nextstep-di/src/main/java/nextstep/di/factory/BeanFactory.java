@@ -1,9 +1,7 @@
 package nextstep.di.factory;
 
 import java.lang.reflect.Constructor;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
@@ -41,9 +39,12 @@ public class BeanFactory {
             return beans.get(concreteClass);
         }
 
-        return BeanFactoryUtils.getInjectedConstructor(concreteClass)
-                .map(this::instantiateConstructor)
-                .orElseGet(() -> createBeanDefaultConstructor(concreteClass));
+        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
+        if(Objects.nonNull(constructor)) {
+            return instantiateConstructor(constructor);
+        }
+
+        return createBeanDefaultConstructor(concreteClass);
     }
 
     private Object instantiateConstructor(Constructor<?> constructor) {
