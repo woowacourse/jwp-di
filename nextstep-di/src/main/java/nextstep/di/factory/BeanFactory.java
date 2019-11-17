@@ -69,7 +69,7 @@ public class BeanFactory {
     }
 
     private void confirmCircularReference(Constructor<?> constructor, Class<?> concreteClass) {
-        if(isSameClassType(constructor, concreteClass)) {
+        if (isSameClassType(constructor, concreteClass)) {
             throw new CircularReferenceException();
         }
     }
