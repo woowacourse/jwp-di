@@ -2,28 +2,41 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import nextstep.di.exception.NotFoundConstructorException;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
-
-import static org.reflections.ReflectionUtils.getAllConstructors;
-import static org.reflections.ReflectionUtils.withAnnotation;
+import java.util.stream.Collectors;
 
 public class BeanFactoryUtils {
+    private static final int ONE = 1;
+    private static final int ZERO = 0;
+
     /**
      * 인자로 전달하는 클래스의 생성자 중 @Inject 애노테이션이 설정되어 있는 생성자를 반환
      *
      * @param clazz
      * @return
-     * @Inject 애노테이션이 설정되어 있는 생성자는 클래스당 하나로 가정한다.
+     * @Inject 애노테이션이 설정되지 않았을 경우, 생성자는 하나로 가정한다.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static Constructor<?> getInjectedConstructor(Class<?> clazz) {
-        Set<Constructor> injectedConstructors = getAllConstructors(clazz, withAnnotation(Inject.class));
-        if (injectedConstructors.isEmpty()) {
-            return null;
+        List<Constructor<?>> constructors = Arrays.asList(clazz.getConstructors());
+        if (constructors.size() == ONE) {
+            return constructors.get(ZERO);
         }
-        return injectedConstructors.iterator().next();
+
+        List<Constructor> injectedConstructors = constructors.stream()
+                .filter(constructor -> constructor.isAnnotationPresent(Inject.class))
+                .collect(Collectors.toList());
+
+        if (injectedConstructors.size() == ONE) {
+            return injectedConstructors.get(ZERO);
+        }
+
+        throw new NotFoundConstructorException("올바른 생성자를 찾을 수 없습니다.");
     }
 
     /**
