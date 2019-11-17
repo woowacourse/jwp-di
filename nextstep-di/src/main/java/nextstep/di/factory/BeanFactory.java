@@ -1,7 +1,10 @@
 package nextstep.di.factory;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
@@ -40,36 +43,38 @@ public class BeanFactory {
         }
 
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
-        if(Objects.nonNull(constructor)) {
-            return instantiateConstructor(constructor);
+        if (Objects.nonNull(constructor)) {
+            return instantiateConstructorWithInject(constructor);
         }
-
-        return createBeanDefaultConstructor(concreteClass);
+        return instantiateDefaultConstructor(concreteClass);
     }
 
-    private Object instantiateConstructor(Constructor<?> constructor) {
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        List<Object> parameterObject = Lists.newArrayList();
-
-        for (Class<?> parameterType : parameterTypes) {
-            parameterObject.add(instantiateParameter(parameterType));
-        }
-
+    private Object instantiateConstructorWithInject(Constructor<?> constructor) {
         Class<?> clazz = constructor.getDeclaringClass();
-        Object bean = BeanUtils.instantiateClass(constructor, parameterObject.toArray());
+        Object bean = BeanUtils.instantiateClass(constructor, getParametersOfConstructor(constructor));
         beans.put(clazz, bean);
         return bean;
     }
 
-    private Object instantiateParameter(Class<?> aClass) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(aClass, preInstantiatedBeans);
+    private Object[] getParametersOfConstructor(Constructor<?> constructor) {
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
+        List<Object> parameterObject = Lists.newArrayList();
+
+        for (Class<?> parameterType : parameterTypes) {
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiatedBeans);
+            parameterObject.add(getParameterOfConstructor(parameterType, concreteClass));
+        }
+        return parameterObject.toArray();
+    }
+
+    private Object getParameterOfConstructor(Class<?> parameterType, Class<?> concreteClass) {
         if (beans.containsKey(concreteClass)) {
             return beans.get(concreteClass);
         }
-        return instantiateClass(aClass);
+        return instantiateClass(parameterType);
     }
 
-    private Object createBeanDefaultConstructor(Class<?> clazz) {
+    private Object instantiateDefaultConstructor(Class<?> clazz) {
         try {
             Constructor<?> constructor = clazz.getDeclaredConstructor();
             Object bean = BeanUtils.instantiateClass(constructor);
