@@ -20,7 +20,7 @@ public class BeanScanner {
         reflections = new Reflections(basePackage);
     }
 
-    public Set<Class<?>> getPreInstanticateClass() {
+    public Set<Class<?>> scanBeans() {
         return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
     }
 

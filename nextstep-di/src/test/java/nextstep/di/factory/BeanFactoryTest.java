@@ -6,7 +6,6 @@ import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +21,8 @@ public class BeanFactoryTest {
     public void setup() {
         final String basePackage = "nextstep.di.factory.example";
         BeanScanner beanScanner = new BeanScanner(basePackage);
-        Set<Class<?>> preInstanticateClazz = beanScanner.getPreInstanticateClass();
-        beanFactory = new BeanFactory(preInstanticateClazz);
+        Set<Class<?>> preInstantiatedClazz = beanScanner.scanBeans();
+        beanFactory = new BeanFactory(preInstantiatedClazz);
         beanFactory.initialize();
     }
 

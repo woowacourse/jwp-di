@@ -32,9 +32,11 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     public void initialize() {
         BeanScanner beanScanner = new BeanScanner(basePackage);
-        Set<Class<?>> preInstanticateClazz = beanScanner.getPreInstanticateClass();
-        BeanFactory beanFactory = new BeanFactory(preInstanticateClazz);
+        Set<Class<?>> preInstantiatedBeans = beanScanner.scanBeans();
+
+        BeanFactory beanFactory = new BeanFactory(preInstantiatedBeans);
         beanFactory.initialize();
+
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
         for (Method method : methods) {

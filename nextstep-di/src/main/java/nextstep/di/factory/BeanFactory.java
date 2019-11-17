@@ -18,12 +18,12 @@ import org.springframework.beans.BeanUtils;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
+    private Set<Class<?>> preInstantiatedBeans;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
+    public BeanFactory(Set<Class<?>> preInstantiatedBeans) {
+        this.preInstantiatedBeans = preInstantiatedBeans;
     }
 
     @SuppressWarnings("unchecked")
@@ -32,18 +32,18 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstanticateBeans.forEach(this::instantiateClass);
+        preInstantiatedBeans.forEach(this::instantiateClass);
     }
 
     private Object instantiateClass(Class<?> clazz) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstanticateBeans);
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
         if (beans.containsKey(concreteClass)) {
             return beans.get(concreteClass);
         }
 
         return BeanFactoryUtils.getInjectedConstructor(concreteClass)
-            .map(this::instantiateConstructor)
-            .orElseGet(() -> createBeanDefaultConstructor(concreteClass));
+                .map(this::instantiateConstructor)
+                .orElseGet(() -> createBeanDefaultConstructor(concreteClass));
     }
 
     private Object instantiateConstructor(Constructor<?> constructor) {
@@ -61,7 +61,7 @@ public class BeanFactory {
     }
 
     private Object instantiateParameter(Class<?> aClass) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(aClass, preInstanticateBeans);
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(aClass, preInstantiatedBeans);
         if (beans.containsKey(concreteClass)) {
             return beans.get(concreteClass);
         }
