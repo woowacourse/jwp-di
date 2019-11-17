@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.annotation.Configuration;
 import nextstep.exception.BeanNotFoundException;
 import nextstep.exception.CircularReferenceException;
 import nextstep.exception.DefaultConstructorFindFailException;
@@ -13,11 +14,15 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
     private Set<Class<?>> preInstantiateBeans;
+    private ComponentFactory componentFactory;
+    private ConfigurationBeanFactory configurationBeanFactory;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
@@ -34,83 +39,37 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstantiateBeans.forEach(this::instantiateClass);
+        //configurationBeanFactory = new ConfigurationBeanFactory(preInstantiateBeans);
+        componentFactory = new ComponentFactory(preInstantiateBeans);
+
+        initializeConfigurationBean();
+        initializeComponent();
+
+        Map<Class<?>, Object> components = this.componentFactory.getComponents();
+        //Map<Class<?>, Object> configurationBeans = this.configurationBeanFactory.getConfigurationBeans();
+
+        // addBean(components, configurationBeans);
     }
 
-    private Object instantiateClass(Class<?> clazz) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
-        if (beans.containsKey(concreteClass)) {
-            return beans.get(concreteClass);
-        }
-
-        return BeanFactoryUtils.getInjectedConstructor(concreteClass)
-            .map(this::instantiateConstructor)
-            .orElseGet(() -> createBeanDefaultConstructor(concreteClass));
+    private void initializeComponent() {
+        preInstantiateBeans.stream()
+            .filter(this::isConfiguration)
+            .forEach(this.configurationBeanFactory::initialize);
     }
 
-    private Object instantiateConstructor(Constructor<?> ownerConstructor) {
-        Class<?>[] parameterTypes = ownerConstructor.getParameterTypes();
-        List<Object> parameterObject = instantiateParameter(ownerConstructor, parameterTypes);
-        Class<?> clazz = ownerConstructor.getDeclaringClass();
-        Object bean = BeanUtils.instantiateClass(ownerConstructor, parameterObject.toArray());
-        beans.put(clazz, bean);
-        return bean;
+    private void initializeConfigurationBean() {
+        preInstantiateBeans.stream()
+            .filter(Predicate.not(this::isConfiguration)) // isComponent
+            .forEach(this.componentFactory::instantiateComponent);
     }
 
-    private List<Object> instantiateParameter(Constructor<?> ownerConstructor, Class<?>[] parameterTypes) {
-        return Arrays.stream(parameterTypes)
-            .map(parameterType -> {
-                checkParameterIsBean(ownerConstructor, parameterType);
-                Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
-                return getParameter(concreteClass, parameterType);
-            })
-            .collect(Collectors.toList());
+    private void addBean(Map<Class<?>, Object> components, Map<Class<?>, Object> configurationBeans) {
+        beans.putAll(components);
+        beans.putAll(configurationBeans);
     }
 
-    private void checkParameterIsBean(Constructor<?> ownerConstructor, Class<?> parameterType) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans);
-        if (preInstantiateBeans.contains(concreteClass)) {
-            instantiateBean(ownerConstructor, concreteClass);
-            return;
-        }
-        throw new ParameterIsNotBeanException();
-    }
-
-    private void instantiateBean(Constructor<?> ownerConstructor, Class<?> parameterType) {
-        BeanFactoryUtils.getInjectedConstructor(parameterType)
-            .ifPresentOrElse((injectConstructor) -> checkCircularReference(ownerConstructor, injectConstructor),
-                () -> createBeanDefaultConstructor(parameterType));
-    }
-
-    private void checkCircularReference(Constructor<?> ownerConstructor, Constructor<?> againstOwnerConstructor) {
-        Parameter[] parameters = againstOwnerConstructor.getParameters();
-        for (Parameter parameter : parameters) {
-            checkSameClass(ownerConstructor, parameter);
-        }
-    }
-
-    private void checkSameClass(Constructor<?> ownerConstructor, Parameter parameter) {
-        if (parameter.getType().getName() == ownerConstructor.getName()) {
-            throw new CircularReferenceException();
-        }
-    }
-
-    public Object getParameter(Class<?> concreteClass, Class<?> parameterType) {
-        if (beans.containsKey(concreteClass)) {
-            return beans.get(concreteClass);
-        }
-        return instantiateClass(parameterType);
-    }
-
-    private Object createBeanDefaultConstructor(Class<?> clazz) {
-        try {
-            Constructor<?> constructor = clazz.getDeclaredConstructor();
-            Object bean = BeanUtils.instantiateClass(constructor);
-            beans.put(clazz, bean);
-            return bean;
-        } catch (NoSuchMethodException e) {
-            throw new DefaultConstructorFindFailException();
-        }
+    private boolean isConfiguration(Class<?> preInstantiateBean) {
+        return preInstantiateBean.isAnnotationPresent(Configuration.class);
     }
 
     public Map<Class<?>, Object> getControllers() {
