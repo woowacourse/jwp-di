@@ -62,11 +62,12 @@ public class BeanFactory {
             return;
         }
         log.debug("==>checking cycleReference bean: {}, beanNames: {}", beanClass, beanNames);
-        beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preConstructInstantiateBeans);
+
         Constructor<?> constructor = BeanFactoryUtils.getConstructor(beanClass, preConstructInstantiateBeans);
         if (beanNames.contains(constructor.getName())) {
             throw new CycleReferenceException();
         }
+
         beanNames.add(constructor.getName());
         Arrays.stream(constructor.getParameterTypes())
                 .forEach(paramterBeanClass -> {
