@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import nextstep.exception.CircularReferenceException;
 import nextstep.exception.DefaultConstructorFindFailException;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
@@ -23,16 +24,13 @@ public class BeanFactory {
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstantiatedBeans) {
-        this.preInstantiatedBeans = preInstantiatedBeans;
-    }
-
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() {
+    public void initialize(Set<Class<?>> preInstantiatedBeans) {
+        this.preInstantiatedBeans = preInstantiatedBeans;
         preInstantiatedBeans.forEach(this::instantiateClass);
         logger.info("Initialized BeanFactory!");
     }
@@ -64,9 +62,20 @@ public class BeanFactory {
 
         for (Class<?> parameterType : parameterTypes) {
             Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiatedBeans);
+            confirmCircularReference(constructor, concreteClass);
             parameterObject.add(getParameterOfConstructor(parameterType, concreteClass));
         }
         return parameterObject.toArray();
+    }
+
+    private void confirmCircularReference(Constructor<?> constructor, Class<?> concreteClass) {
+        if(isSameClassType(constructor, concreteClass)) {
+            throw new CircularReferenceException();
+        }
+    }
+
+    private boolean isSameClassType(Constructor<?> constructor, Class<?> concreteClass) {
+        return constructor.getDeclaringClass().equals(concreteClass);
     }
 
     private Object getParameterOfConstructor(Class<?> parameterType, Class<?> concreteClass) {
