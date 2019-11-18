@@ -1,11 +1,10 @@
 package nextstep.di.factory;
 
+import java.lang.reflect.Constructor;
+import java.util.Set;
+
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
-
-import java.lang.reflect.Constructor;
-import java.util.Optional;
-import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
 import static org.reflections.ReflectionUtils.withAnnotation;
@@ -19,12 +18,12 @@ public class BeanFactoryUtils {
      * @Inject 애노테이션이 설정되어 있는 생성자는 클래스당 하나로 가정한다.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static Optional<Constructor<?>> getInjectedConstructor(Class<?> clazz) {
+    public static Constructor<?> getInjectedConstructor(Class<?> clazz) {
         Set<Constructor> injectedConstructors = getAllConstructors(clazz, withAnnotation(Inject.class));
         if (injectedConstructors.isEmpty()) {
-            return Optional.empty();
+            return null;
         }
-        return Optional.of(injectedConstructors.iterator().next());
+        return injectedConstructors.iterator().next();
     }
 
     /**
@@ -32,15 +31,15 @@ public class BeanFactoryUtils {
      * 인터페이스인 경우 BeanFactory가 관리하는 모든 클래스 중에 인터페이스를 구현하는 클래스를 찾아 반환
      *
      * @param injectedClazz
-     * @param preInstanticateBeans
+     * @param preInstantiatedBeans
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
+    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstantiatedBeans) {
         if (!injectedClazz.isInterface()) {
             return injectedClazz;
         }
 
-        for (Class<?> clazz : preInstanticateBeans) {
+        for (Class<?> clazz : preInstantiatedBeans) {
             Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
             if (interfaces.contains(injectedClazz)) {
                 return clazz;

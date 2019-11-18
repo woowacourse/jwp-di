@@ -20,7 +20,7 @@ class BeanScannerTest {
 
         Set<Class<?>> expected = new HashSet<>(Arrays.asList(QnaController.class, MyQnaService.class,
                 JdbcQuestionRepository.class, JdbcUserRepository.class));
-        Set<Class<?>> actual = beanScanner.getPreInstanticateClass();
+        Set<Class<?>> actual = beanScanner.scanBeans();
 
         assertThat(expected).isEqualTo(actual);
     }
