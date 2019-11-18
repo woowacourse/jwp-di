@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import nextstep.exception.BeanCreateFailException;
 import nextstep.exception.CircularReferenceException;
 import nextstep.exception.DefaultConstructorFindFailException;
 import nextstep.stereotype.Controller;
@@ -37,6 +38,10 @@ public class BeanFactory {
 
     private Object instantiateClass(Class<?> clazz) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
+        if(isNotBean(clazz)) {
+            throw new BeanCreateFailException();
+        }
+
         if (beans.containsKey(concreteClass)) {
             return beans.get(concreteClass);
         }
@@ -46,6 +51,10 @@ public class BeanFactory {
             return instantiateConstructorWithInject(constructor);
         }
         return instantiateDefaultConstructor(concreteClass);
+    }
+
+    private boolean isNotBean(Class<?> clazz) {
+        return !preInstantiatedBeans.contains(clazz);
     }
 
     private Object instantiateConstructorWithInject(Constructor<?> constructor) {

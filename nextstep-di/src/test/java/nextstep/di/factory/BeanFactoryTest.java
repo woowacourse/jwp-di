@@ -3,10 +3,8 @@ package nextstep.di.factory;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.NoDefaultConstructorController;
-import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.example.RecursiveController;
+import nextstep.di.factory.example.*;
+import nextstep.exception.BeanCreateFailException;
 import nextstep.exception.CircularReferenceException;
 import nextstep.exception.DefaultConstructorFindFailException;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,5 +66,11 @@ public class BeanFactoryTest {
     void throwExceptionWhenCircularReference() {
         assertThrows(CircularReferenceException.class,
                 () -> beanFactory.initialize(Sets.newHashSet(RecursiveController.class)));
+    }
+
+    @Test
+    void throwExceptionWhenNotBean() {
+        assertThrows(BeanCreateFailException.class,
+                () -> beanFactory.initialize(Sets.newHashSet(InjectNotBean.class)));
     }
 }
