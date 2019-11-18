@@ -1,6 +1,7 @@
 package nextstep.di;
 
 import nextstep.annotation.Bean;
+import nextstep.di.factory.BeanFactory;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -12,7 +13,7 @@ class ConfigurationScannerTest {
 
     @Test
     void findPackagesInComponentScan() {
-        ConfigurationScanner configurationScanner = new ConfigurationScanner();
+        ConfigurationScanner configurationScanner = new ConfigurationScanner(new BeanFactory());
         configurationScanner.scan();
 
         List<String> basePackages = configurationScanner.findPackagesInComponentScan();
@@ -25,7 +26,7 @@ class ConfigurationScannerTest {
 
     @Test
     void findMethodsWithAnnotation() {
-        ConfigurationScanner configurationScanner = new ConfigurationScanner();
+        ConfigurationScanner configurationScanner = new ConfigurationScanner(new BeanFactory());
         configurationScanner.scan();
 
         List<Method> methods = configurationScanner.findMethodsWithAnnotation(Bean.class);

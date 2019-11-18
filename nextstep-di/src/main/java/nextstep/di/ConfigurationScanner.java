@@ -3,6 +3,7 @@ package nextstep.di;
 import com.google.common.collect.Sets;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.BeanFactory;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,12 @@ public class ConfigurationScanner {
 
     @SuppressWarnings("unchecked")
     private static final Class<? extends Annotation>[] CONFIG_ANNOTATIONS = new Class[]{Configuration.class};
+    private final BeanFactory beanFactory;
     private final Reflections reflections;
     private Set<Class<?>> configClasses;
 
-    public ConfigurationScanner() {
+    public ConfigurationScanner(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
         reflections = new Reflections("");
     }
 
