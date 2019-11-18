@@ -21,7 +21,7 @@ public class ConfigurationBeanScanner implements BeanScanner {
     private Reflections reflections;
 
     public ConfigurationBeanScanner(Class<?> initPoint) {
-        this.reflections = new Reflections(initPoint.getPackageName());
+        this.reflections = new Reflections(initPoint.getPackage().getName());
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ConfigurationBeanScanner implements BeanScanner {
         Map<Class<?>, Object> instances = new HashMap<>();
         return reflections.getTypesAnnotatedWith(Configuration.class).stream()
                 .peek(putInstances(instances))
-                .flatMap(clazz -> getAnnotatedMethods(clazz))
+                .flatMap(this::getAnnotatedMethods)
                 .map(method -> new MethodBeanRecipe(method, instances.get(method.getDeclaringClass())))
                 .collect(Collectors.toSet());
     }
