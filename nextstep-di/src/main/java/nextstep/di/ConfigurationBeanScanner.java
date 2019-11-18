@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ConfigurationScanner {
+public class ConfigurationBeanScanner {
 
-    private static final Logger log = LoggerFactory.getLogger(ConfigurationScanner.class);
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanScanner.class);
 
     @SuppressWarnings("unchecked")
     private static final Class<? extends Annotation>[] CONFIG_ANNOTATIONS = new Class[]{Configuration.class};
@@ -27,7 +27,7 @@ public class ConfigurationScanner {
     private final Reflections reflections;
     private Set<Class<?>> configClasses;
 
-    public ConfigurationScanner(BeanFactory beanFactory) {
+    public ConfigurationBeanScanner(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
         reflections = new Reflections("");
     }

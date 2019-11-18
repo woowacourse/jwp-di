@@ -10,13 +10,13 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Set;
 
-public class BeanScanner {
-    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+public class ClassPathBeanScanner {
+    private static final Logger log = LoggerFactory.getLogger(ClassPathBeanScanner.class);
 
     private BeanFactory beanFactory;
     private Reflections reflections;
 
-    public BeanScanner(BeanFactory beanFactory) {
+    public ClassPathBeanScanner(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 

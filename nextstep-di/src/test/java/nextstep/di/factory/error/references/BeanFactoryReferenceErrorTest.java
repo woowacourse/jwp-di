@@ -1,6 +1,6 @@
 package nextstep.di.factory.error.references;
 
-import nextstep.di.BeanScanner;
+import nextstep.di.ClassPathBeanScanner;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.exception.CircularReferenceException;
 import org.junit.jupiter.api.DisplayName;
@@ -17,8 +17,8 @@ class BeanFactoryReferenceErrorTest {
     void initialize() {
         beanFactory = new BeanFactory();
 
-        BeanScanner beanScanner = new BeanScanner(beanFactory);
-        beanScanner.scan("nextstep.di.factory.error.references");
+        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(beanFactory);
+        classPathBeanScanner.scan("nextstep.di.factory.error.references");
 
         assertThrows(CircularReferenceException.class, () -> beanFactory.initialize());
     }

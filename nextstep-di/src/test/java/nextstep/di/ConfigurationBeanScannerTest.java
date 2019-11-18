@@ -9,14 +9,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ConfigurationScannerTest {
+class ConfigurationBeanScannerTest {
 
     @Test
     void findPackagesInComponentScan() {
-        ConfigurationScanner configurationScanner = new ConfigurationScanner(new BeanFactory());
-        configurationScanner.scan();
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(new BeanFactory());
+        configurationBeanScanner.scan();
 
-        List<String> basePackages = configurationScanner.findPackagesInComponentScan();
+        List<String> basePackages = configurationBeanScanner.findPackagesInComponentScan();
 
         assertThat(basePackages.size()).isEqualTo(3);
         assertThat(basePackages.contains("nextstep.di.factory.example.controller")).isTrue();
@@ -26,10 +26,10 @@ class ConfigurationScannerTest {
 
     @Test
     void findMethodsWithAnnotation() {
-        ConfigurationScanner configurationScanner = new ConfigurationScanner(new BeanFactory());
-        configurationScanner.scan();
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(new BeanFactory());
+        configurationBeanScanner.scan();
 
-        List<Method> methods = configurationScanner.findMethodsWithAnnotation(Bean.class);
+        List<Method> methods = configurationBeanScanner.findMethodsWithAnnotation(Bean.class);
 
         assertThat(methods.size()).isEqualTo(3);
     }

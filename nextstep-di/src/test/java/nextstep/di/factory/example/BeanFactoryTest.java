@@ -1,7 +1,7 @@
 package nextstep.di.factory.example;
 
-import nextstep.di.BeanScanner;
-import nextstep.di.ConfigurationScanner;
+import nextstep.di.ClassPathBeanScanner;
+import nextstep.di.ConfigurationBeanScanner;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.example.config.MyJdbcTemplate;
 import nextstep.di.factory.example.controller.QnaController;
@@ -26,13 +26,13 @@ class BeanFactoryTest {
     void setup() {
         beanFactory = new BeanFactory();
 
-        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
-        configurationScanner.scan();
-        configurationScanner.registerBeans();
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
+        configurationBeanScanner.scan();
+        configurationBeanScanner.registerBeans();
 
-        List<String> componentScanPackages = configurationScanner.findPackagesInComponentScan();
-        BeanScanner beanScanner = new BeanScanner(beanFactory);
-        beanScanner.scan(componentScanPackages);
+        List<String> componentScanPackages = configurationBeanScanner.findPackagesInComponentScan();
+        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(beanFactory);
+        classPathBeanScanner.scan(componentScanPackages);
 
         beanFactory.initialize();
     }

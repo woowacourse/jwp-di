@@ -2,8 +2,8 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import nextstep.di.BeanScanner;
-import nextstep.di.ConfigurationScanner;
+import nextstep.di.ClassPathBeanScanner;
+import nextstep.di.ConfigurationBeanScanner;
 import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
@@ -30,13 +30,13 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     public void initialize() {
         beanFactory = new BeanFactory();
 
-        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
-        configurationScanner.scan();
-        configurationScanner.registerBeans();
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
+        configurationBeanScanner.scan();
+        configurationBeanScanner.registerBeans();
 
-        List<String> componentScanPackages = configurationScanner.findPackagesInComponentScan();
-        BeanScanner beanScanner = new BeanScanner(beanFactory);
-        beanScanner.scan(componentScanPackages);
+        List<String> componentScanPackages = configurationBeanScanner.findPackagesInComponentScan();
+        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(beanFactory);
+        classPathBeanScanner.scan(componentScanPackages);
 
         beanFactory.initialize();
 
