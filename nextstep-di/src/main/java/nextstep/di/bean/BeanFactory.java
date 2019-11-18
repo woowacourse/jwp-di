@@ -17,7 +17,7 @@ public class BeanFactory {
 
     private final Map<Class<?>, Method> configBeansToInstantiate;
     private final Set<Class<?>> classpathBeansToInstantiate;
-    private final Map<Class<?>, Object> configBeanGenMethodContainers = new HashMap<>();
+    private final Map<Class<?>, Object> configBeanGenMethodsContainers = new HashMap<>();
     private final Map<Class<?>, Object> beans = new ConcurrentHashMap<>();
 
     public BeanFactory(ApplicationContext applicationContext) {
@@ -26,60 +26,71 @@ public class BeanFactory {
     }
 
     public BeanFactory initialize() {
-        this.configBeansToInstantiate.values().stream().map(Method::getDeclaringClass)
-                                                        .distinct()
-                                                        .forEach(clazz -> {
-                                                            try {
-                                                                this.configBeanGenMethodContainers.put(
-                                                                        clazz,
-                                                                        clazz.getDeclaredConstructor().newInstance()
-                                                                );
-                                                            } catch (Exception e) {
-                                                                logger.error(e.getMessage());
-                                                            }
-                                                        });
+        prepareConfigBeanGenMethodsContainersDependency();
         Stream.of(
                 this.classpathBeansToInstantiate,
                 this.configBeansToInstantiate.keySet()
         ).flatMap(Collection::stream)
-        .forEach(clazz -> {
-            logger.debug("{}", clazz);
-            storeAndRetrieveBean(clazz);
+        .forEach(type -> {
+            logger.debug("{}", type);
+            storeAndRetrieveBean(type);
         });
-        this.configBeanGenMethodContainers.clear();
+        this.configBeanGenMethodsContainers.clear();
         return this;
+    }
+
+    private void prepareConfigBeanGenMethodsContainersDependency() {
+        this.configBeansToInstantiate.values().stream().map(Method::getDeclaringClass)
+                                                        .distinct()
+                                                        .forEach(type -> {
+                                                            try {
+                                                                this.configBeanGenMethodsContainers.put(
+                                                                        type,
+                                                                        type.getDeclaredConstructor().newInstance()
+                                                                );
+                                                            } catch (Exception e) {
+                                                                logger.error(e.getMessage());
+                                                                throw new BeanFactoryInitFailedException(e);
+                                                            }
+                                                        });
     }
 
     private Object storeAndRetrieveBean(Class<?> clazz) {
         return Optional.ofNullable(this.beans.get(clazz)).orElseGet(() ->
-            this.beans.computeIfAbsent(clazz, key -> instantiateBean(clazz))
+            this.beans.computeIfAbsent(clazz, this::instantiateBean)
         );
     }
 
-    private Object instantiateBean(Class<?> clazz) {
-        return Optional.ofNullable(this.configBeansToInstantiate.get(clazz)).map(f -> {
+    private Object instantiateBean(Class<?> type) {
+        return Optional.ofNullable(this.configBeansToInstantiate.get(type))
+                        .map(this::instantiateConfigBean)
+                        .orElseGet(() -> instantiateClasspathBean(type));
+    }
+
+    private Object instantiateConfigBean(Method f) {
+        try {
+            return f.invoke(
+                    this.configBeanGenMethodsContainers.get(f.getDeclaringClass()),
+                    convertParamsToArgsWithBean(f)
+            );
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new BeanFactoryInitFailedException(e);
+        }
+    }
+
+    private Object instantiateClasspathBean(Class<?> type) {
+        final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(
+                type,
+                this.classpathBeansToInstantiate
+        );
+        return BeanFactoryUtils.getInjectedConstructor(concreteClass).map(this::runConstructor).orElseGet(() -> {
             try {
-                return f.invoke(
-                        this.configBeanGenMethodContainers.get(f.getDeclaringClass()),
-                        convertParamsToArgsWithBean(f)
-                );
+                return concreteClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 logger.error(e.getMessage());
-                return null;
+                throw new BeanFactoryInitFailedException(e);
             }
-        }).orElseGet(() -> {
-            final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(
-                    clazz,
-                    this.classpathBeansToInstantiate
-            );
-            return BeanFactoryUtils.getInjectedConstructor(concreteClass).map(this::runConstructor).orElseGet(() -> {
-                try {
-                    return concreteClass.getDeclaredConstructor().newInstance();
-                } catch (Exception e) {
-                    logger.error(e.getMessage());
-                    return null;
-                }
-            });
         });
     }
 

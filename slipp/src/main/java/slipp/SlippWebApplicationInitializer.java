@@ -1,6 +1,6 @@
 package slipp;
 
-import nextstep.MyMyConfig;
+import nextstep.SlippConfiguration;
 import nextstep.di.bean.ApplicationContext;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
@@ -20,11 +20,8 @@ public class SlippWebApplicationInitializer implements WebApplicationInitializer
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         final DispatcherServlet dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMapping(
-                new AnnotationHandlerMapping(
-                        new ApplicationContext(MyMyConfig.class)
-                )
-        );
+        final ApplicationContext applicationContext = new ApplicationContext(SlippConfiguration.class);
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());

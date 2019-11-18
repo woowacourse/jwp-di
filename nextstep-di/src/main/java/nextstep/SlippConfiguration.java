@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(basePackages = { "slipp.controller" })
-public class MyMyConfig {
+public class SlippConfiguration {
     private static final String DB_DRIVER = "org.h2.Driver";
     private static final String DB_URL = "jdbc:h2:~/jwp-framework;MVCC=TRUE;DB_CLOSE_ON_EXIT=FALSE";
     private static final String DB_USERNAME = "sa";

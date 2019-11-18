@@ -1,31 +1,19 @@
 package nextstep.di.bean;
 
-import nextstep.di.bean.example.*;
+import nextstep.di.bean.example.IntegrationConfig;
+import nextstep.di.bean.example.MyJdbcTemplate;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class BeanScannerTest {
-    @Test
-    void getClasspathBeansToInstantiateTest() {
-        assertEquals(
-                new HashSet<Class<?>>() {{
-                    add(JdbcQuestionRepository.class);
-                    add(QnaController.class);
-                    add(JdbcUserRepository.class);
-                    add(MyQnaService.class);
-                }},
-                (new ClasspathBeanScanner("nextstep.di.bean.example")).getClasspathBeansToInstantiate()
-        );
-    }
-
+class ConfigBeanScannerTest {
     @Test
     void getConfigBeansToInstantiateTest() {
+        final ConfigBeanScanner configBeanScanner = new ConfigBeanScanner(IntegrationConfig.class);
         assertEquals(
                 new HashMap<Class<?>, Method>() {{
                     try {
@@ -38,7 +26,7 @@ class BeanScannerTest {
                         e.printStackTrace();
                     }
                 }},
-                (new ConfigBeanScanner(IntegrationConfig.class)).getConfigBeansToInstantiate()
+                configBeanScanner.getConfigBeansToInstantiate()
         );
     }
 }

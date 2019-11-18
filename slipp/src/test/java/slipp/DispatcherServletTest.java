@@ -1,6 +1,6 @@
 package slipp;
 
-import nextstep.MyMyConfig;
+import nextstep.SlippConfiguration;
 import nextstep.di.bean.ApplicationContext;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
@@ -33,7 +33,7 @@ class DispatcherServletTest {
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMapping(
                 new AnnotationHandlerMapping(
-                        new ApplicationContext(MyMyConfig.class)
+                        new ApplicationContext(SlippConfiguration.class)
                 )
         );
 
