@@ -1,6 +1,7 @@
 package nextstep.di;
 
 import com.google.common.collect.Sets;
+import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.BeanFactory;
@@ -41,17 +42,9 @@ public class ConfigurationScanner {
         this.configClasses = configurations;
     }
 
-    public List<String> findPackagesInComponentScan() {
-        List<String> basePackages = new ArrayList<>();
-        configClasses.forEach(clazz -> appendBasePackagesFromComponentScan(clazz, basePackages));
-
-        return basePackages;
-    }
-
-    private void appendBasePackagesFromComponentScan(final Class<?> clazz, final List<String> basePackages) {
-        ComponentScan annotation = clazz.getAnnotation(ComponentScan.class);
-        basePackages.addAll(Arrays.asList(annotation.basePackages()));
-        basePackages.addAll(Arrays.asList(annotation.value()));
+    public void registerBeans() {
+        List<Method> methodsWithBeanAnnotation = findMethodsWithAnnotation(Bean.class);
+        this.beanFactory.appendPreInstantiateBeanMethods(methodsWithBeanAnnotation);
     }
 
     public List<Method> findMethodsWithAnnotation(Class<? extends Annotation> annotation) {
@@ -70,5 +63,18 @@ public class ConfigurationScanner {
         return Arrays.stream(declaredMethods)
                 .filter(declaredMethod -> declaredMethod.isAnnotationPresent(annotation))
                 .collect(Collectors.toList());
+    }
+
+    public List<String> findPackagesInComponentScan() {
+        List<String> basePackages = new ArrayList<>();
+        configClasses.forEach(clazz -> appendBasePackagesFromComponentScan(clazz, basePackages));
+
+        return basePackages;
+    }
+
+    private void appendBasePackagesFromComponentScan(final Class<?> clazz, final List<String> basePackages) {
+        ComponentScan annotation = clazz.getAnnotation(ComponentScan.class);
+        basePackages.addAll(Arrays.asList(annotation.basePackages()));
+        basePackages.addAll(Arrays.asList(annotation.value()));
     }
 }

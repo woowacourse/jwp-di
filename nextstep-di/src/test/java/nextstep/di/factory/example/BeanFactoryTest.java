@@ -1,7 +1,9 @@
 package nextstep.di.factory.example;
 
 import nextstep.di.BeanScanner;
+import nextstep.di.ConfigurationScanner;
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.example.config.MyJdbcTemplate;
 import nextstep.di.factory.example.controller.QnaController;
 import nextstep.di.factory.example.controller.TestQnaController;
 import nextstep.di.factory.example.service.MyQnaService;
@@ -9,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +31,10 @@ class BeanFactoryTest {
         beanFactory = new BeanFactory();
         beanFactory.appendPreInstantiateBeans(preInstantiateClazz);
 
+        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
+        configurationScanner.scan();
+        configurationScanner.registerBeans();
+
         beanFactory.initialize();
     }
 
@@ -41,6 +48,16 @@ class BeanFactoryTest {
         MyQnaService qnaService = qnaController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
+    }
+
+    @Test
+    void getBean_BeanAnnotationInConfig() {
+        DataSource dataSource = beanFactory.getBean(DataSource.class);
+        assertNotNull(dataSource);
+
+        MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        assertNotNull(myJdbcTemplate);
+        assertNotNull(myJdbcTemplate.getDataSource());
     }
 
     @Test
