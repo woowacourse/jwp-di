@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BeanFactoryTest {
-    final String basePackage = "nextstep.di.factory.example";
+    private static final String BASE_PACKAGE = "nextstep.di.factory.example";
     private BeanFactory beanFactory;
 
     @BeforeEach
@@ -27,7 +27,7 @@ public class BeanFactoryTest {
 
     @Test
     public void di() {
-        beanFactory.initialize(new BeanScanner(basePackage).scanBeans());
+        beanFactory.initialize(new BeanScanner(BASE_PACKAGE).scanBeans());
 
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
@@ -41,7 +41,7 @@ public class BeanFactoryTest {
 
     @Test
     void getControllers() {
-        beanFactory.initialize(new BeanScanner(basePackage).scanBeans());
+        beanFactory.initialize(new BeanScanner(BASE_PACKAGE).scanBeans());
         assertThat(beanFactory.getControllers().size()).isEqualTo(1);
     }
 
@@ -53,7 +53,7 @@ public class BeanFactoryTest {
 
     @Test
     void confirmSingleton() {
-        Set<Class<?>> preInstantiatedBeans = new BeanScanner(basePackage).scanBeans();
+        Set<Class<?>> preInstantiatedBeans = new BeanScanner(BASE_PACKAGE).scanBeans();
 
         beanFactory.initialize(preInstantiatedBeans);
         Object originController = beanFactory.getBean(QnaController.class);
