@@ -34,7 +34,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void 스캐너_통() {
+    public void 스캐너_통합() {
         BeanScanner configScanner = new ConfigurationBeanScanner(IntegrationConfig.class);
         beanFactory.addScanner(configScanner);
 
