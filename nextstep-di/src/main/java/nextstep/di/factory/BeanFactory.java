@@ -38,7 +38,7 @@ public class BeanFactory {
 
     private Object instantiateClass(Class<?> clazz) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
-        if(isNotBean(clazz)) {
+        if(isNotBean(concreteClass)) {
             throw new BeanCreateFailException();
         }
 
