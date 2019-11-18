@@ -1,6 +1,5 @@
 package nextstep.di.factory;
 
-import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -14,8 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BeanFactoryTest {
     final String basePackage = "nextstep.di.factory.example";
@@ -58,10 +56,12 @@ public class BeanFactoryTest {
         Set<Class<?>> preInstantiatedBeans = new BeanScanner(basePackage).scanBeans();
 
         beanFactory.initialize(preInstantiatedBeans);
-        Map<Class<?>, Object> originController = beanFactory.getControllers();
+        Object originController = beanFactory.getBean(QnaController.class);
 
         beanFactory.initialize(preInstantiatedBeans);
-        assertThat(originController).isEqualTo(beanFactory.getControllers());
+        Object expectedController = beanFactory.getBean(QnaController.class);
+
+        assertSame(originController, expectedController);
     }
 
     @Test
