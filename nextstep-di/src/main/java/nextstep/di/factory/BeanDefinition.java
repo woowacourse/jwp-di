@@ -11,5 +11,7 @@ public abstract class BeanDefinition {
         return beanClass;
     }
 
-    public abstract Object instantiate(BeanFactory beanFactory);
+    public abstract Object instantiate(Object... parameterBeans);
+
+    public abstract Class<?>[] getParameterTypes();
 }

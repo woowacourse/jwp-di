@@ -4,9 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DefaultBeanDefinition extends BeanDefinition {
     private static final Logger log = LoggerFactory.getLogger(DefaultBeanDefinition.class);
@@ -16,17 +13,22 @@ public class DefaultBeanDefinition extends BeanDefinition {
     }
 
     @Override
-    public Object instantiate(BeanFactory beanFactory) {
-        Class<?> beanClass = getBeanClass();
-        if (beanClass.isInterface()) {
-            return beanFactory.getBean(beanClass);
-        }
-
+    public Object instantiate(Object... parameterBeans) {
         try {
-            Constructor<?> constructor = getConstructor(beanClass);
-            return createInstance(constructor, beanFactory);
+            Constructor<?> constructor = getConstructor(getBeanClass());
+            return constructor.newInstance(parameterBeans);
         } catch (Exception e) {
             log.error("Bean create Fail : ", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Class<?>[] getParameterTypes() {
+        try {
+            return getConstructor(getBeanClass()).getParameterTypes();
+        } catch (Exception e) {
+            log.error("생성자를 찾을 수 없습니다. : ", e);
             throw new RuntimeException(e);
         }
     }
@@ -37,14 +39,5 @@ public class DefaultBeanDefinition extends BeanDefinition {
             return beanClass.getDeclaredConstructor();
         }
         return injectedConstructor;
-    }
-
-    private Object createInstance(Constructor<?> constructor, BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        List<Object> parameters = new ArrayList<>();
-        for (Class<?> parameterType : parameterTypes) {
-            parameters.add(beanFactory.getBean(parameterType));
-        }
-        return constructor.newInstance(parameters.toArray());
     }
 }

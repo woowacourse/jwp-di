@@ -2,7 +2,6 @@ package nextstep.di.factory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 public class MethodBeanDefinition extends BeanDefinition {
     private Object implementation;
@@ -23,10 +22,12 @@ public class MethodBeanDefinition extends BeanDefinition {
     }
 
     @Override
-    public Object instantiate(BeanFactory beanFactory) {
-        Object[] parameterBeans = Arrays.stream(method.getParameterTypes())
-                .map(beanFactory::getBean)
-                .toArray();
+    public Class<?>[] getParameterTypes() {
+        return method.getParameterTypes();
+    }
+
+    @Override
+    public Object instantiate(Object... parameterBeans) {
         try {
             return method.invoke(implementation, parameterBeans);
         } catch (IllegalAccessException | InvocationTargetException e) {

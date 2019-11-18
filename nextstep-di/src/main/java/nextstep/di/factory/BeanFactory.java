@@ -6,6 +6,7 @@ import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,7 +37,10 @@ public class BeanFactory {
             return;
         }
         Class<?> beanClass = beanDefinition.getBeanClass();
-        beans.put(beanClass, beanDefinition.instantiate(this));
+        Object[] parameters = Arrays.stream(beanDefinition.getParameterTypes())
+                .map(this::getBean)
+                .toArray();
+        beans.put(beanClass, beanDefinition.instantiate(parameters));
     }
 
     private void registerBean(Class<?> preInstanticateBean) {
