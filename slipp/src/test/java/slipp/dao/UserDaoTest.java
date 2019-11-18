@@ -23,7 +23,6 @@ public class UserDaoTest {
     @BeforeEach
     public void setup() {
         context = new ApplicationContext(SlippConfig.class);
-        context.initialize();
 
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));

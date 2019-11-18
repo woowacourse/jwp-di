@@ -14,7 +14,6 @@ class ApplicationContextTest {
     @Test
     void 컨텍스트_초기화() {
         context = new ApplicationContext(ExampleConfig.class);
-        context.initialize();
 
         MyJdbcTemplate bean = context.getBean(MyJdbcTemplate.class);
         assertThat(bean).isNotNull();
