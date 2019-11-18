@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,17 +46,19 @@ public class BeanFactory {
     }
 
     private BeanDefinition findBeanDefinition(Class<?> concreteClass) {
-        Optional<BeanDefinition> maybeBeanDefinition = this.beanDefinitions.stream()
-                .filter(beanDefinition -> beanDefinition.getBeanClass().equals(concreteClass))
-                .findAny();
-        if (maybeBeanDefinition.isPresent()) {
-            return maybeBeanDefinition.get();
-        }
-
-        if (concreteClass.isInterface()) {
+        if (concreteClass.isInterface() && notExistBeanDefinition(concreteClass)) {
             return findBeanDefinition(findConcreteClass(concreteClass));
         }
-        throw new RuntimeException();
+
+        return this.beanDefinitions.stream()
+                .filter(beanDefinition -> beanDefinition.getBeanClass().equals(concreteClass))
+                .findAny()
+                .orElseThrow(RuntimeException::new);
+    }
+
+    private boolean notExistBeanDefinition(Class<?> concreteClass) {
+        return this.beanDefinitions.stream()
+                .noneMatch(beanDefinition -> beanDefinition.getBeanClass().equals(concreteClass));
     }
 
     private Class<?> findConcreteClass(Class<?> preInstanticateBean) {
