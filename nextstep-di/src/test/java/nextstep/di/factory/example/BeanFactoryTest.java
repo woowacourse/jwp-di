@@ -12,8 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,17 +23,16 @@ class BeanFactoryTest {
     private BeanFactory beanFactory;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
-    public void setup() {
-        BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.example");
-        Set<Class<?>> preInstantiateClazz = beanScanner.scan();
-
+    void setup() {
         beanFactory = new BeanFactory();
-        beanFactory.appendPreInstantiateBeans(preInstantiateClazz);
 
         ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
         configurationScanner.scan();
         configurationScanner.registerBeans();
+
+        List<String> componentScanPackages = configurationScanner.findPackagesInComponentScan();
+        BeanScanner beanScanner = new BeanScanner(beanFactory);
+        beanScanner.scan(componentScanPackages);
 
         beanFactory.initialize();
     }

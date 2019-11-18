@@ -1,6 +1,7 @@
 package nextstep.di;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,18 +13,23 @@ import java.util.Set;
 public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
+    private BeanFactory beanFactory;
     private Reflections reflections;
 
-    public BeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
+    public BeanScanner(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     @SuppressWarnings("unchecked")
-    public Set<Class<?>> scan() {
+    public void scan(Object... basePackage) {
+        reflections = new Reflections(basePackage);
+
         Class[] beanTypes = Arrays.stream(BeanType.values())
                 .map(BeanType::getType)
                 .toArray(Class[]::new);
-        return scanBeansAnnotatedWith(beanTypes);
+        Set<Class<?>> beans = scanBeansAnnotatedWith(beanTypes);
+
+        beanFactory.appendPreInstantiateBeans(beans);
     }
 
     @SuppressWarnings("unchecked")
@@ -32,6 +38,7 @@ public class BeanScanner {
         for (Class<? extends Annotation> annotation : annotations) {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
+
         log.debug("Scan Beans Type : {}", beans);
         return beans;
     }

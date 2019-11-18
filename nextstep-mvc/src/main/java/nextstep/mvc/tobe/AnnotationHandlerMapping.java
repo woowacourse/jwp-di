@@ -3,6 +3,7 @@ package nextstep.mvc.tobe;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.di.BeanScanner;
+import nextstep.di.ConfigurationScanner;
 import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
@@ -22,21 +23,20 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackage;
     private BeanFactory beanFactory;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackage) {
-        this.basePackage = basePackage;
-    }
-
     public void initialize() {
-        BeanScanner beanScanner = new BeanScanner(basePackage);
-        Set<Class<?>> beanClasses = beanScanner.scan();
-
         beanFactory = new BeanFactory();
-        beanFactory.appendPreInstantiateBeans(beanClasses);
+
+        ConfigurationScanner configurationScanner = new ConfigurationScanner(beanFactory);
+        configurationScanner.scan();
+        configurationScanner.registerBeans();
+
+        List<String> componentScanPackages = configurationScanner.findPackagesInComponentScan();
+        BeanScanner beanScanner = new BeanScanner(beanFactory);
+        beanScanner.scan(componentScanPackages);
 
         beanFactory.initialize();
 
