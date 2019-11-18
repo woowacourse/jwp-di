@@ -21,15 +21,19 @@ public class ConfigurationScanner {
 
     @SuppressWarnings("unchecked")
     private static final Class<? extends Annotation>[] CONFIG_ANNOTATIONS = new Class[]{Configuration.class};
+    private final Reflections reflections;
     private Set<Class<?>> configClasses;
 
     public ConfigurationScanner() {
-        Reflections reflections = new Reflections("");
+        reflections = new Reflections("");
+    }
 
+    public void scan() {
         Set<Class<?>> configurations = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : CONFIG_ANNOTATIONS) {
             configurations.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
+
         log.debug("Scan Configuration Type : {}", configurations);
         this.configClasses = configurations;
     }

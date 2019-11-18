@@ -13,6 +13,8 @@ class ConfigurationScannerTest {
     @Test
     void findPackagesInComponentScan() {
         ConfigurationScanner configurationScanner = new ConfigurationScanner();
+        configurationScanner.scan();
+
         List<String> basePackages = configurationScanner.findPackagesInComponentScan();
 
         assertThat(basePackages.size()).isEqualTo(3);
@@ -24,6 +26,8 @@ class ConfigurationScannerTest {
     @Test
     void findMethodsWithAnnotation() {
         ConfigurationScanner configurationScanner = new ConfigurationScanner();
+        configurationScanner.scan();
+
         List<Method> methods = configurationScanner.findMethodsWithAnnotation(Bean.class);
 
         assertThat(methods.size()).isEqualTo(3);
