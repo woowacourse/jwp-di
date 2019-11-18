@@ -3,7 +3,9 @@ package nextstep.di.factory;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.circularreference.CircularReferenceController;
 import nextstep.di.factory.example.*;
+import nextstep.di.factory.notbean.InjectNotBean;
 import nextstep.exception.BeanCreateFailException;
 import nextstep.exception.CircularReferenceException;
 import nextstep.exception.DefaultConstructorFindFailException;
@@ -65,7 +67,7 @@ public class BeanFactoryTest {
     @Test
     void throwExceptionWhenCircularReference() {
         assertThrows(CircularReferenceException.class,
-                () -> beanFactory.initialize(Sets.newHashSet(RecursiveController.class)));
+                () -> beanFactory.initialize(Sets.newHashSet(CircularReferenceController.class)));
     }
 
     @Test
