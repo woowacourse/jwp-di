@@ -31,11 +31,13 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         this.basePackage = basePackage;
     }
 
-    @SuppressWarnings("unchecked")
     public void initialize() {
         BeanScanner beanScanner = new BeanScanner(basePackage);
         Set<Class<?>> beanClasses = beanScanner.scan();
-        beanFactory = new BeanFactory(beanClasses);
+
+        beanFactory = new BeanFactory();
+        beanFactory.appendPreInstantiateBeans(beanClasses);
+
         beanFactory.initialize();
 
         registerHandlerMethods();
@@ -56,7 +58,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     private void addHandlerExecutions(Map<Class<?>, Object> controllers, Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(controllers.get(method.getDeclaringClass()), method));
+            HandlerExecution execution = new HandlerExecution(controllers.get(method.getDeclaringClass()), method);
+            handlerExecutions.put(handlerKey, execution);
         });
     }
 

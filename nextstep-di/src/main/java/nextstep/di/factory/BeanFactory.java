@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import nextstep.di.validation.BeanValidationExecutor;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
@@ -16,12 +17,17 @@ public class BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
 
     private Set<Class<?>> preInstantiateBeans;
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, Object> beans;
     private Deque<Class<?>> beanRegisterHistory = new ArrayDeque<>();
     private BeanValidationExecutor beanValidationExecutor = new BeanValidationExecutor();
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory() {
+        this.preInstantiateBeans = Sets.newHashSet();
+        this.beans = Maps.newHashMap();
+    }
+
+    public void appendPreInstantiateBeans(Set<Class<?>> preInstantiateBeans) {
+        this.preInstantiateBeans.addAll(preInstantiateBeans);
     }
 
     public void initialize() {

@@ -15,7 +15,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class BeanFactoryTest {
+class BeanFactoryTest {
 
     private BeanFactory beanFactory;
 
@@ -24,12 +24,15 @@ public class BeanFactoryTest {
     public void setup() {
         BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.example");
         Set<Class<?>> preInstantiateClazz = beanScanner.scan();
-        beanFactory = new BeanFactory(preInstantiateClazz);
+
+        beanFactory = new BeanFactory();
+        beanFactory.appendPreInstantiateBeans(preInstantiateClazz);
+
         beanFactory.initialize();
     }
 
     @Test
-    public void getBean() {
+    void getBean() {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
