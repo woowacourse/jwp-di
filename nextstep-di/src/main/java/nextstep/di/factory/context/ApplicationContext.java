@@ -25,10 +25,6 @@ public class ApplicationContext {
                 .collect(Collectors.toList());
     }
 
-    public void addScanner(BeanScanner beanScanner) {
-        this.beanScanners.add(beanScanner);
-    }
-
     public void initialize() {
         for (BeanScanner beanScanner : beanScanners) {
             beanFactory.addScanner(beanScanner);

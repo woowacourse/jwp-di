@@ -3,8 +3,6 @@ package nextstep.di.factory.context;
 import com.google.common.collect.Maps;
 import nextstep.di.factory.beans.BeanRecipe;
 import nextstep.di.factory.beans.BeanScanner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
@@ -14,14 +12,12 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, Object> beans;
     private Map<Class<?>, BeanRecipe> beanRecipes;
-
     private CircularReferenceDetector circularReferenceDetector;
 
     public BeanFactory() {
+        this.beans = Maps.newHashMap();
         this.beanRecipes = Maps.newHashMap();
         this.circularReferenceDetector = new CircularReferenceDetector();
     }
@@ -35,7 +31,7 @@ public class BeanFactory {
         for (Class<?> type : beanRecipes.keySet()) {
             beans.put(type, getOrBakeBean(type));
         }
-        beanRecipes = Maps.newHashMap();
+        beanRecipes.clear();
     }
 
     private Object getOrBakeBean(Class<?> type) {
@@ -55,22 +51,20 @@ public class BeanFactory {
 
 
     private Object[] resolveParams(BeanRecipe recipe) {
-        logger.error(recipe.getBeanType().toString());
         return Arrays.stream(recipe.getBeanParamTypes())
-                .peek(addCircularReferenceDetector(circularReferenceDetector))
+                .peek(registerDetector(circularReferenceDetector))
                 .map(param -> BeanFactoryUtils.findConcreteClass(param, beanRecipes.keySet()).orElse(param))
                 .map(this::getOrBakeBean)
                 .peek(removeDetector(circularReferenceDetector))
                 .toArray();
-
     }
 
     private Consumer<? super Object> removeDetector(CircularReferenceDetector circularReferenceDetector) {
         return clazz -> circularReferenceDetector.remove();
     }
 
-    private Consumer<? super Class<?>> addCircularReferenceDetector(CircularReferenceDetector circularReferenceDetector) {
-        return clazz -> circularReferenceDetector.add(clazz);
+    private Consumer<? super Class<?>> registerDetector(CircularReferenceDetector circularReferenceDetector) {
+        return circularReferenceDetector::add;
 
     }
 
@@ -82,7 +76,7 @@ public class BeanFactory {
 
     public void addScanner(BeanScanner beanScanner) {
         beanRecipes.putAll(beanScanner.scan().stream()
-                .collect(Collectors.toMap(recipe -> recipe.getBeanType(), recipe -> recipe)));
+                .collect(Collectors.toMap(BeanRecipe::getBeanType, recipe -> recipe)));
     }
 
     public void addBeanType(BeanRecipe beanRecipe) {
