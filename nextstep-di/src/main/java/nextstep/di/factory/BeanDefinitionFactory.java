@@ -52,7 +52,6 @@ public class BeanDefinitionFactory {
         }
     }
 
-    // TODO: 19. 11. 14. 메서드 매개변수로 선언된 definitions 리팩토링
     private void createBeanDefinitionsOfConfiguration(Map<Class<?>, BeanDefinition> definitions, Class<?> clazz) {
         if (clazz.isAnnotationPresent(Configuration.class)) {
             Method[] declaredMethods = clazz.getDeclaredMethods();
