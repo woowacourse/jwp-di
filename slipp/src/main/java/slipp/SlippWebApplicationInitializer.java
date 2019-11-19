@@ -20,7 +20,6 @@ public class SlippWebApplicationInitializer implements WebApplicationInitializer
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         ApplicationBeanContext applicationBeanContext = new ApplicationBeanContext(MyConfiguration.class);
-        applicationBeanContext.initialize();
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(applicationBeanContext));
