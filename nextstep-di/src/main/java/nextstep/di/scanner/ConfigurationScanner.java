@@ -2,6 +2,7 @@ package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Configuration;
+import nextstep.di.MethodBeanDefinition;
 import nextstep.di.context.ApplicationBeanContext;
 import nextstep.di.exception.BeanDefinitionException;
 import nextstep.di.factory.BeanFactoryUtils;
@@ -31,7 +32,7 @@ public class ConfigurationScanner {
         for (Class<?> clazz : reflections.getTypesAnnotatedWith(Configuration.class)) {
             try {
                 Object declaredObject = clazz.newInstance();
-                beans.addAll(BeanFactoryUtils.getConfigurationBeanDefinitions(clazz, declaredObject));
+                beans.addAll(BeanFactoryUtils.getMethodBeanDefinitions(clazz, declaredObject));
             } catch (InstantiationException | IllegalAccessException e) {
                 logger.error("{} clazz instance fail. error message : {}", clazz, e.getMessage());
                 throw new BeanDefinitionException(e);
