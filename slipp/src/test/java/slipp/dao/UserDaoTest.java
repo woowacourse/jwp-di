@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import slipp.configuration.MyConfiguration;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 
@@ -14,10 +15,13 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
-    private UserDao userDao = new UserDao();
+    private UserDao userDao;
 
     @BeforeEach
     public void setup() {
+        MyConfiguration myConfiguration = new MyConfiguration();
+        userDao = new UserDao(myConfiguration.jdbcTemplate(myConfiguration.dataSource()));
+
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
