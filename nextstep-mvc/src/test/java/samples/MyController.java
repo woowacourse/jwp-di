@@ -1,5 +1,6 @@
 package samples;
 
+import nextstep.annotation.Inject;
 import nextstep.db.DataBase;
 import nextstep.mvc.ModelAndView;
 import nextstep.stereotype.Controller;
@@ -14,6 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class MyController {
     private static final Logger logger = LoggerFactory.getLogger(MyController.class);
+
+    @Inject
+    public MyController() {
+    }
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public ModelAndView findUserId(HttpServletRequest request, HttpServletResponse response) {
