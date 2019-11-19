@@ -1,4 +1,4 @@
-package nextstep.di.factory.example;
+package nextstep.di.example;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
