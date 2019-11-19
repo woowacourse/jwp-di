@@ -1,16 +1,15 @@
 package nextstep.di.context;
 
-import nextstep.di.factory.AnnotatedBeanFactory;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.BeanRegistry;
+import nextstep.di.factory.SingleBeanFactory;
 import nextstep.di.scanner.AnnotatedBeanScanner;
 import nextstep.di.scanner.BeanScanner;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ApplicationBeanContext implements BeanFactory {
 
@@ -24,8 +23,8 @@ public class ApplicationBeanContext implements BeanFactory {
 
     @Override
     public void initialize() {
-        BeanScanner beanScanner = new AnnotatedBeanScanner(this, Controller.class, Service.class, Repository.class);
-        BeanFactory beanFactory = new AnnotatedBeanFactory(beanRegistry, beanScanner);
+        BeanScanner beanScanner = new AnnotatedBeanScanner(this);
+        BeanFactory beanFactory = new SingleBeanFactory(beanRegistry, beanScanner);
 
         beanScanner.doScan();
         beanFactory.initialize();
@@ -38,7 +37,9 @@ public class ApplicationBeanContext implements BeanFactory {
 
     @Override
     public Set<Class<?>> getTypes(Class<? extends Annotation> annotation) {
-        return new AnnotatedBeanScanner(this, annotation).doScan();
+        return Collections.unmodifiableSet(beanRegistry.keySet().stream()
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
+                .collect(Collectors.toSet()));
     }
 
     public Object[] getRoot() {
