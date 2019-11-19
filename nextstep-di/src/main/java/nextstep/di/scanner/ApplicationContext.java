@@ -1,6 +1,9 @@
 package nextstep.di.scanner;
 
 import nextstep.di.factory.BeanFactory;
+import nextstep.stereotype.Controller;
+
+import java.util.Map;
 
 public class ApplicationContext {
     private ClasspathBeanScanner cpbs;
@@ -22,5 +25,9 @@ public class ApplicationContext {
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         return beanFactory.getBean(requiredType);
+    }
+
+    public Map<Class<?>, Object> getController() {
+        return beanFactory.getController();
     }
 }
