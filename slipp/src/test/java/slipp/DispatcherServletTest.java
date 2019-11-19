@@ -30,7 +30,6 @@ class DispatcherServletTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         ApplicationBeanContext applicationBeanContext = new ApplicationBeanContext(SlippWebApplicationInitializer.class);
-        applicationBeanContext.initialize();
 
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMpping(new AnnotationHandlerMapping(applicationBeanContext));
