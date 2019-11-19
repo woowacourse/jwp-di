@@ -3,6 +3,7 @@ package nextstep.di.factory;
 import nextstep.di.BeanDefinition;
 import nextstep.di.exception.BeanFactoryInitializeException;
 import nextstep.di.exception.NotFoundBeanDefinition;
+import nextstep.di.registry.BeanRegistry;
 import nextstep.di.scanner.BeanScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,8 +1,8 @@
 package nextstep.di.context;
 
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanRegistry;
 import nextstep.di.factory.SingleBeanFactory;
+import nextstep.di.registry.BeanRegistry;
 import nextstep.di.scanner.AnnotatedBeanScanner;
 import nextstep.di.scanner.BeanScanner;
 

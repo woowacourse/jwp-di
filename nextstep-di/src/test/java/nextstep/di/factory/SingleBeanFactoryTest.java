@@ -3,6 +3,7 @@ package nextstep.di.factory;
 import nextstep.di.context.ApplicationBeanContext;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import nextstep.di.registry.BeanRegistry;
 import nextstep.di.scanner.AnnotatedBeanScanner;
 import nextstep.di.scanner.BeanScanner;
 import nextstep.stereotype.Controller;
