@@ -31,6 +31,8 @@ public class BeanFactory {
                 injectConfigurationBean(preInstanticateBean);
             }
         }
+
+        logger.debug("configuration beans:{}", beans);
     }
 
     public void putComponentBean(Map<Class<?>, Constructor> beans) {
@@ -41,6 +43,8 @@ public class BeanFactory {
                 injectInstantiateBean(preInstanticateBean);
             }
         }
+
+        logger.debug("component beans:{}", beans);
     }
 
     public void registerBean(Map<Class<?>, Method> configs) {
