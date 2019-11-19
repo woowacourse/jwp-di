@@ -4,7 +4,7 @@ import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.SingleBeanFactory;
 import nextstep.di.registry.BeanRegistry;
 import nextstep.di.scanner.AnnotatedBeanScanner;
-import nextstep.di.scanner.BeanScanner;
+import nextstep.di.scanner.ConfigurationScanner;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;
@@ -23,10 +23,12 @@ public class ApplicationBeanContext implements BeanFactory {
 
     @Override
     public void initialize() {
-        BeanScanner beanScanner = new AnnotatedBeanScanner(this);
-        BeanFactory beanFactory = new SingleBeanFactory(beanRegistry, beanScanner);
+        BeanFactory beanFactory = new SingleBeanFactory(
+                beanRegistry,
+                new ConfigurationScanner(this),
+                new AnnotatedBeanScanner(this)
+        );
 
-        beanScanner.doScan();
         beanFactory.initialize();
     }
 
