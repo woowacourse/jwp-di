@@ -1,8 +1,10 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.annotation.Bean;
 import nextstep.annotation.Inject;
 import nextstep.di.exception.NotFoundConstructorException;
+import nextstep.di.scanner.MethodBeanDefinition;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -60,5 +62,12 @@ public class BeanFactoryUtils {
         }
 
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+    }
+
+    public static Set<MethodBeanDefinition> getConfigurationBeanDefinitions(Class<?> clazz, Object declaredObject) {
+        return Arrays.stream(clazz.getMethods())
+                .filter(method -> method.isAnnotationPresent(Bean.class))
+                .map(method -> new MethodBeanDefinition(declaredObject, method))
+                .collect(Collectors.toSet());
     }
 }
