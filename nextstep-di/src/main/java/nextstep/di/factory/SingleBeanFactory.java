@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AnnotatedBeanFactory implements BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(AnnotatedBeanFactory.class);
+public class SingleBeanFactory implements BeanFactory {
+    private static final Logger logger = LoggerFactory.getLogger(SingleBeanFactory.class);
 
     private BeanRegistry beanRegistry;
     private BeanScanner beanScanner;
 
-    public AnnotatedBeanFactory(BeanRegistry beanRegistry, BeanScanner beanScanner) {
+    public SingleBeanFactory(BeanRegistry beanRegistry, BeanScanner beanScanner) {
         this.beanRegistry = beanRegistry;
         this.beanScanner = beanScanner;
     }

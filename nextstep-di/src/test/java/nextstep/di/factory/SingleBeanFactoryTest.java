@@ -6,8 +6,6 @@ import nextstep.di.factory.example.QnaController;
 import nextstep.di.scanner.AnnotatedBeanScanner;
 import nextstep.di.scanner.BeanScanner;
 import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,16 +13,15 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class AnnotatedBeanFactoryTest {
+public class SingleBeanFactoryTest {
 
-    private AnnotatedBeanFactory beanFactory;
+    private SingleBeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        BeanScanner beanScanner = new AnnotatedBeanScanner(new ApplicationBeanContext("nextstep.di.factory.example"),
-                Controller.class, Service.class, Repository.class);
-        beanFactory = new AnnotatedBeanFactory(new BeanRegistry(), beanScanner);
+        BeanScanner beanScanner = new AnnotatedBeanScanner(new ApplicationBeanContext("nextstep.di.factory.example"));
+        beanFactory = new SingleBeanFactory(new BeanRegistry(), beanScanner);
 
         beanScanner.doScan();
         beanFactory.initialize();
