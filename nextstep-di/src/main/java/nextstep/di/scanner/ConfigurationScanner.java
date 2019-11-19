@@ -2,7 +2,7 @@ package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Configuration;
-import nextstep.di.MethodBeanDefinition;
+import nextstep.di.BeanDefinition;
 import nextstep.di.context.ApplicationBeanContext;
 import nextstep.di.exception.BeanDefinitionException;
 import nextstep.di.factory.BeanFactoryUtils;
@@ -13,17 +13,18 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
-public class ConfigurationScanner {
+public class ConfigurationScanner implements BeanScanner {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationScanner.class);
 
     private Reflections reflections;
-    private Set<MethodBeanDefinition> beans;
+    private Set<BeanDefinition> beans;
 
     public ConfigurationScanner(ApplicationBeanContext applicationBeanContext) {
         this.reflections = new Reflections(applicationBeanContext.getRoot());
     }
 
-    public Set<MethodBeanDefinition> doScan() {
+    @Override
+    public Set<BeanDefinition> doScan() {
         if (beans != null) {
             return beans;
         }

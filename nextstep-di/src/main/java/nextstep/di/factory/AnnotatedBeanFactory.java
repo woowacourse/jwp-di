@@ -1,12 +1,13 @@
 package nextstep.di.factory;
 
+import nextstep.di.BeanDefinition;
 import nextstep.di.exception.BeanFactoryInitializeException;
+import nextstep.di.exception.NotFoundBeanDefinition;
 import nextstep.di.scanner.BeanScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,13 +27,37 @@ public class AnnotatedBeanFactory implements BeanFactory {
 
     @Override
     public void initialize() {
-        beanScanner.doScan().forEach(bean -> {
+        beanScanner.doScan().forEach(beanDefinition -> {
             try {
-                registerBean(bean, bean);
+                checkAndCreateBean(beanDefinition);
             } catch (Exception e) {
                 throw new BeanFactoryInitializeException(e);
             }
         });
+    }
+
+    private void checkAndCreateBean(BeanDefinition beanDefinition) throws Exception {
+        if (!beanRegistry.isEnrolled(beanDefinition.getType())) {
+            createBean(beanDefinition);
+        }
+    }
+
+    private void createBean(BeanDefinition beanDefinition) throws Exception {
+        List<Object> params = new ArrayList<>();
+
+        for (Class parameterType : beanDefinition.getParameterTypes()) {
+            checkAndCreateBean(searchBeanDefinition(parameterType));
+            params.add(beanRegistry.get(searchBeanDefinition(parameterType).getType()));
+        }
+        logger.debug("{} create Bean: {}", beanDefinition.getType(), params.toArray());
+        beanRegistry.put(beanDefinition.getType(), beanDefinition.createBean(params.toArray()));
+    }
+
+    private BeanDefinition searchBeanDefinition(Class<?> type) {
+        return beanScanner.doScan().stream()
+                .filter(beanDefinition -> beanDefinition.isType(type))
+                .findAny()
+                .orElseThrow(NotFoundBeanDefinition::new);
     }
 
     @Override
@@ -46,30 +71,5 @@ public class AnnotatedBeanFactory implements BeanFactory {
         return Collections.unmodifiableSet(beanRegistry.keySet().stream()
                 .filter(clazz -> clazz.isAnnotationPresent(annotation))
                 .collect(Collectors.toSet()));
-    }
-
-    private void registerBean(Class<?> bean, Class concreteClass) throws Exception {
-        if (!beanRegistry.isEnrolled(bean)) {
-            createBean(concreteClass);
-        }
-    }
-
-    private void createBean(Class<?> clazz) throws Exception {
-        Constructor constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        List<Object> params = createParams(clazz, constructor);
-
-        beanRegistry.put(clazz, constructor.newInstance(params.toArray()));
-    }
-
-    private List<Object> createParams(Class<?> bean, Constructor constructor) throws Exception {
-        List<Object> params = new ArrayList<>();
-
-        for (Class parameterType : constructor.getParameterTypes()) {
-            Class concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, beanScanner.doScan());
-            registerBean(bean, concreteClass);
-            params.add(beanRegistry.get(concreteClass));
-        }
-
-        return params;
     }
 }
