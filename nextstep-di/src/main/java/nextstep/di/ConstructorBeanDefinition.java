@@ -1,11 +1,13 @@
 package nextstep.di;
 
+import com.google.common.collect.Sets;
 import nextstep.di.exception.CreateBeanException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Set;
 
 public class ConstructorBeanDefinition implements BeanDefinition {
     private static final Logger logger = LoggerFactory.getLogger(ConstructorBeanDefinition.class);
@@ -30,7 +32,12 @@ public class ConstructorBeanDefinition implements BeanDefinition {
 
     @Override
     public boolean isType(Class<?> type) {
-        return getType().equals(type);
+        if (!type.isInterface()) {
+            return clazz.equals(type);
+        }
+
+        Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
+        return interfaces.contains(type);
     }
 
     @Override
