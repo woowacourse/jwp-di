@@ -27,21 +27,21 @@ public class BeanFactory {
 
     public void initialize() {
         for (Class<?> preInstanticateBean : preInstanticateClazz.keySet()) {
-            if (preInstanticateClazz.get(preInstanticateBean) instanceof Method) {
-                injectConfigurationBean(preInstanticateBean);
-            }
+            isMethod(preInstanticateBean);
         }
 
         logger.debug("configuration beans:{}", beans);
+    }
+
+    public Map<Class<?>, Object> getController() {
+        return getAnnotatedWith(Controller.class);
     }
 
     public void putComponentBean(Map<Class<?>, Constructor> beans) {
         preInstanticateClazz.putAll(beans);
 
         for (Class<?> preInstanticateBean : preInstanticateClazz.keySet()) {
-            if (preInstanticateClazz.get(preInstanticateBean) instanceof Constructor) {
-                injectInstantiateBean(preInstanticateBean);
-            }
+            isConstructor(preInstanticateBean);
         }
 
         logger.debug("component beans:{}", beans);
@@ -49,6 +49,18 @@ public class BeanFactory {
 
     public void registerBean(Map<Class<?>, Method> configs) {
         preInstanticateClazz.putAll(configs);
+    }
+
+    private void isConstructor(Class<?> preInstanticateBean) {
+        if (preInstanticateClazz.get(preInstanticateBean) instanceof Constructor) {
+            injectInstantiateBean(preInstanticateBean);
+        }
+    }
+
+    private void isMethod(Class<?> preInstanticateBean) {
+        if (preInstanticateClazz.get(preInstanticateBean) instanceof Method) {
+            injectConfigurationBean(preInstanticateBean);
+        }
     }
 
     private Object injectInstantiateBean(Class<?> clazz) {
@@ -127,10 +139,6 @@ public class BeanFactory {
             params[i] = injectConfigurationBean(parameterType);
         }
         return params;
-    }
-
-    public Map<Class<?>, Object> getController() {
-        return getAnnotatedWith(Controller.class);
     }
 
     private Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {

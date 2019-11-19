@@ -1,7 +1,6 @@
 package nextstep.di.scanner;
 
 import nextstep.di.factory.BeanFactory;
-import nextstep.stereotype.Controller;
 
 import java.util.Map;
 
@@ -14,6 +13,10 @@ public class ApplicationContext {
         this.beanFactory = new BeanFactory();
         this.cpbs = new ClasspathBeanScanner(beanFactory);
         this.cbs = new ConfigurationBeanScanner(beanFactory);
+        init(configClazz);
+    }
+
+    private void init(Class<?> configClazz) {
         cbs.register(configClazz);
         beanFactory.initialize();
     }
