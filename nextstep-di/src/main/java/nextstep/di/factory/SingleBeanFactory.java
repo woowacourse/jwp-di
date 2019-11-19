@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Sets;
 import nextstep.di.BeanDefinition;
 import nextstep.di.exception.BeanFactoryInitializeException;
 import nextstep.di.exception.NotFoundBeanDefinition;
@@ -19,16 +20,24 @@ public class SingleBeanFactory implements BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(SingleBeanFactory.class);
 
     private BeanRegistry beanRegistry;
-    private BeanScanner beanScanner;
+    private Set<BeanDefinition> beanDefinitions;
 
-    public SingleBeanFactory(BeanRegistry beanRegistry, BeanScanner beanScanner) {
+    public SingleBeanFactory(BeanRegistry beanRegistry, BeanScanner... beanScanners) {
         this.beanRegistry = beanRegistry;
-        this.beanScanner = beanScanner;
+        initializeBeanDefinitions(beanScanners);
+    }
+
+    public Set<BeanDefinition> initializeBeanDefinitions(BeanScanner... beanScanners) {
+        beanDefinitions = Sets.newHashSet();
+        for (BeanScanner beanScanner : beanScanners) {
+            beanDefinitions.addAll(beanScanner.doScan());
+        }
+        return beanDefinitions;
     }
 
     @Override
     public void initialize() {
-        beanScanner.doScan().forEach(beanDefinition -> {
+        beanDefinitions.forEach(beanDefinition -> {
             try {
                 checkAndCreateBean(beanDefinition);
             } catch (Exception e) {
@@ -39,6 +48,7 @@ public class SingleBeanFactory implements BeanFactory {
 
     private void checkAndCreateBean(BeanDefinition beanDefinition) throws Exception {
         if (!beanRegistry.isEnrolled(beanDefinition.getType())) {
+            logger.debug("needed Bean: {}", beanDefinition.getType());
             createBean(beanDefinition);
         }
     }
@@ -47,15 +57,17 @@ public class SingleBeanFactory implements BeanFactory {
         List<Object> params = new ArrayList<>();
 
         for (Class parameterType : beanDefinition.getParameterTypes()) {
-            checkAndCreateBean(searchBeanDefinition(parameterType));
-            params.add(beanRegistry.get(searchBeanDefinition(parameterType).getType()));
+            BeanDefinition selectedBeanDefinition = searchBeanDefinition(parameterType);
+
+            checkAndCreateBean(selectedBeanDefinition);
+            params.add(beanRegistry.get(selectedBeanDefinition.getType()));
         }
         logger.debug("{} create Bean: {}", beanDefinition.getType(), params.toArray());
         beanRegistry.put(beanDefinition.getType(), beanDefinition.createBean(params.toArray()));
     }
 
     private BeanDefinition searchBeanDefinition(Class<?> type) {
-        return beanScanner.doScan().stream()
+        return beanDefinitions.stream()
                 .filter(beanDefinition -> beanDefinition.isType(type))
                 .findAny()
                 .orElseThrow(NotFoundBeanDefinition::new);
