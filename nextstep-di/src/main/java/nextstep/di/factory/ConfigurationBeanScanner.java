@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Bean;
+import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.definition.BeanDefinition;
 import nextstep.di.factory.definition.FactoryMethodBeanDefinition;
@@ -24,8 +25,22 @@ public class ConfigurationBeanScanner {
 
     public void registerConfigurationClass(Object... basePackage) {
         Reflections reflections = new Reflections(basePackage);
-        reflections.getTypesAnnotatedWith(Configuration.class)
-                .forEach(this::register);
+        Set<Class<?>> configurationClasses = reflections.getTypesAnnotatedWith(Configuration.class);
+
+        registerComponentScan(configurationClasses);
+        configurationClasses.forEach(this::register);
+    }
+
+    private void registerComponentScan(Set<Class<?>> classes) {
+        classes.stream()
+                .filter(clazz -> clazz.isAnnotationPresent(ComponentScan.class))
+                .map(clazz -> clazz.getAnnotation(ComponentScan.class))
+                .forEach(this::doScan);
+    }
+
+    private void doScan(ComponentScan componentScan) {
+        ClassPathBeanScanner beanScanner = new ClassPathBeanScanner(beanFactory);
+        beanScanner.doScan(componentScan.basePackages());
     }
 
     public void register(Class<?> clazz) {

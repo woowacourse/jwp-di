@@ -28,10 +28,6 @@ class ConfigurationClassPathBeanScannerTest {
         cbs.registerConfigurationClass("nextstep.di.factory.example");
         beanFactory.initialize();
 
-        ClassPathBeanScanner cbds = new ClassPathBeanScanner(beanFactory);
-        cbds.doScan("nextstep.di.factory.example");
-        beanFactory.initialize();
-
         assertNotNull(beanFactory.getBean(DataSource.class));
 
         JdbcUserRepository userRepository = beanFactory.getBean(JdbcUserRepository.class);
