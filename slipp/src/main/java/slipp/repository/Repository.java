@@ -1,18 +1,16 @@
 package slipp.repository;
 
-import slipp.domain.User;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public interface Repository {
+public interface Repository<T> {
 
-    void insert(User user);
+    void insert(T user);
 
-    Optional<User> findUserById(String userId);
+    Optional<T> findById(String userId);
 
-    void update(User user);
+    void update(T user);
 
-    List<User> findAll() throws SQLException;
+    List<T> findAll() throws SQLException;
 }

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @nextstep.stereotype.Repository
-public class UserDao implements Repository {
+public class UserDao implements Repository<User> {
     private static final UserDao userDao = new UserDao();
     private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
 
@@ -28,7 +28,7 @@ public class UserDao implements Repository {
     }
 
     @Override
-    public Optional<User> findUserById(String userId) {
+    public Optional<User> findById(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
         RowMapper<User> rm = rs -> new User(rs.getString("userId"), rs.getString("password"),

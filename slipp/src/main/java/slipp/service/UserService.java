@@ -11,10 +11,10 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private Repository userDao;
+    private Repository<User> userDao;
 
     @Inject
-    public UserService(Repository userRepository) {
+    public UserService(Repository<User> userRepository) {
         this.userDao = userRepository;
     }
 
@@ -23,7 +23,7 @@ public class UserService {
     }
 
     public User findByUserId(String userId) {
-        return userDao.findUserById(userId)
+        return userDao.findById(userId)
                 .orElseThrow(() -> new NotFoundUserException("유저를 찾을 수 없습니다."));
     }
 
