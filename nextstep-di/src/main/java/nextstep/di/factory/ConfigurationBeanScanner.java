@@ -25,6 +25,7 @@ public class ConfigurationBeanScanner {
             Object instance = clazz.newInstance();
             Method[] methods = clazz.getDeclaredMethods();
             Set<BeanDefinition> beanDefinitions = methodsToBeanDefinitions(methods, instance);
+
             beanFactory.registerBeanDefinitions(beanDefinitions);
         } catch (Exception e) {
             log.debug("ConfigurationBeanScanner Register Exception", e);

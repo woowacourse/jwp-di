@@ -1,27 +1,25 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
+import nextstep.di.factory.definition.BeanDefinition;
+import nextstep.di.factory.definition.ConstructorBeanDefinition;
 import nextstep.stereotype.Component;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class BeanScanner {
-    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
-
-    private Reflections reflections;
+public class ClassPathBeanScanner {
+    private BeanFactory beanFactory;
     private Set<Class<? extends Annotation>> annotations;
 
-    public BeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
+    public ClassPathBeanScanner(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
         annotations = new HashSet<>(
                 Arrays.asList(Component.class, Controller.class, Repository.class, Service.class));
     }
@@ -30,12 +28,15 @@ public class BeanScanner {
         this.annotations.addAll(Arrays.asList(annotations));
     }
 
-    public Set<Class<?>> scanBeans() {
-        Set<Class<?>> beans = Sets.newHashSet();
+    public void doScan(Object... basePackage) {
+        Reflections reflections = new Reflections(basePackage);
         for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
+            Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(annotation);
+            Set<BeanDefinition> definitions = annotatedClasses.stream()
+                    .map(ConstructorBeanDefinition::new)
+                    .collect(Collectors.toSet());
+
+            beanFactory.registerBeanDefinitions(definitions);
         }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
     }
 }
