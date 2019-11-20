@@ -30,10 +30,10 @@ class ConfigurationBeanScannerTest {
         BeanFactory beanFactory = new BeanFactory();
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
         cbs.register(IntegrationConfig.class);
-        beanFactory.initialize();
 
         ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
         cbds.doScan(TEST_BASE_PACKAGE);
+        beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));
 
