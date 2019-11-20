@@ -18,11 +18,6 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public boolean hasParameter() {
-        return this.parameters.size() > ZERO;
-    }
-
-    @Override
     public Object makeInstance(Object... parameters) {
         return ReflectionUtils.invoke(method, method.getDeclaringClass(), parameters);
     }

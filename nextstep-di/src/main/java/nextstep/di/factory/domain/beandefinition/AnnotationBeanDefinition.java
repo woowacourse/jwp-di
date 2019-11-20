@@ -22,11 +22,6 @@ public class AnnotationBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public boolean hasParameter() {
-        return parameters.size() > ZERO;
-    }
-
-    @Override
     public Object makeInstance(Object... parameters) {
         logger.debug("BeanDefinition {} 에서 생성한다. parameters : {}",clazz, parameters);
         return ReflectionUtils.newInstance(constructor, parameters);
