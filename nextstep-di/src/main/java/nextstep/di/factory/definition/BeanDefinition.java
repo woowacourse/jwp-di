@@ -4,5 +4,9 @@ public interface BeanDefinition {
 
     Class<?> getName();
 
-    Object createBean();
+    Class<?>[] getParams();
+
+    Object createBean(Object... initArgs) throws Exception;
+
+    boolean matchClass(Class<?> clazz);
 }

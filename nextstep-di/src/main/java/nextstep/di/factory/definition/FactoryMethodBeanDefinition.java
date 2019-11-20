@@ -1,18 +1,14 @@
 package nextstep.di.factory.definition;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Method;
 
 public class FactoryMethodBeanDefinition implements BeanDefinition {
-    private static final Logger log = LoggerFactory.getLogger(FactoryMethodBeanDefinition.class);
 
-    private Object instance;
+    private Object declaredClassInstance;
     private Method factoryMethod;
 
-    public FactoryMethodBeanDefinition(Object instance, Method factoryMethod) {
-        this.instance = instance;
+    public FactoryMethodBeanDefinition(Object declaredClassInstance, Method factoryMethod) {
+        this.declaredClassInstance = declaredClassInstance;
         this.factoryMethod = factoryMethod;
     }
 
@@ -22,12 +18,24 @@ public class FactoryMethodBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public Object createBean() {
-        try {
-            return factoryMethod.invoke(instance);
-        } catch (Exception e) {
-            log.debug("Bean Creation Exception : ", e);
-            throw new RuntimeException(e);
-        }
+    public Class<?>[] getParams() {
+        return factoryMethod.getParameterTypes();
+    }
+
+    @Override
+    public Object createBean(Object... initArgs) throws Exception {
+        return factoryMethod.invoke(declaredClassInstance, initArgs);
+    }
+
+    @Override
+    public boolean matchClass(Class<?> clazz) {
+        return factoryMethod.getReturnType().equals(clazz);
+    }
+
+    @Override
+    public String toString() {
+        return "FactoryMethodBeanDefinition{" +
+                "factoryMethod=" + factoryMethod +
+                '}';
     }
 }
