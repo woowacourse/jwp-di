@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.di.context.ApplicationContext;
 import nextstep.jdbc.ConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,14 +10,21 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 import slipp.service.NotFoundUserException;
+import slipp.support.db.MyConfiguration;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+
     @BeforeEach
     public void setup() {
+        ApplicationContext ac = new ApplicationContext();
+        ac.configurations(MyConfiguration.class);
+        ac.lookUpContext("slipp");
+        ac.initialize();
+
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
