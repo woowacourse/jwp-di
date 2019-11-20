@@ -1,7 +1,6 @@
 package nextstep.di.scanner;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
@@ -10,33 +9,32 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
-public class ConfigurationBeanScanner {
+public class ConfigurationBeanScanner extends AbstractBeanScanner {
     private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
     private static final Class[] COMPONENT_SCAN = {ComponentScan.class};
 
-    private Reflections reflections;
-    private BeanFactory beanFactory;
-
     public ConfigurationBeanScanner(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+        super(beanFactory);
     }
 
+    @Override
     public void register(Class<?> clazz) {
-        beanFactory.registerBean(findBeanMethods(clazz));
+        beanFactory.registerConfigBean(findBeanMethods(clazz));
     }
 
+    @Override
     public void doScan(Object... basePackage) {
         reflections = new Reflections(basePackage);
-        beanFactory.registerBean(getComponentScan());
+        beanFactory.registerConfigBean(getBeans());
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    private Map<Class<?>, Method> getComponentScan() {
+    protected Map<Class<?>, Method> getBeans() {
         Set<Class<?>> typesAnnotatedWith = getTypesAnnotatedWith(COMPONENT_SCAN);
         Map<Class<?>, Method> configs = Maps.newHashMap();
         for (Class<?> annotatedClass : typesAnnotatedWith) {
@@ -62,15 +60,5 @@ public class ConfigurationBeanScanner {
         }
 
         return configs;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
     }
 }

@@ -18,7 +18,7 @@ class ConfigurationBeanScannerTest {
     @Test
     public void register_simple() {
         BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
+        BeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
         cbs.register(ExampleConfig.class);
         beanFactory.initialize();
 
@@ -28,10 +28,10 @@ class ConfigurationBeanScannerTest {
     @Test
     public void register_classpathBeanScanner_통합() {
         BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
+        BeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
         cbs.register(IntegrationConfig.class);
 
-        ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
+        BeanScanner cbds = new ClasspathBeanScanner(beanFactory);
         cbds.doScan(TEST_BASE_PACKAGE);
         beanFactory.initialize();
 

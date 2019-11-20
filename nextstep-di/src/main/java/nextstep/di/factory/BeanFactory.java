@@ -18,11 +18,11 @@ public class BeanFactory {
     private Map<Class<?>, Object> beans = Maps.newHashMap();
     private Map<Class<?>, Object> preInstanticateClazz = Maps.newHashMap();
 
-    public void addPreInstanticateClazz(Map<Class<?>, Constructor> beans) {
+    public void registerBean(Map<Class<?>, Constructor> beans) {
         preInstanticateClazz.putAll(beans);
     }
 
-    public void registerBean(Map<Class<?>, Method> configs) {
+    public void registerConfigBean(Map<Class<?>, Method> configs) {
         preInstanticateClazz.putAll(configs);
     }
 

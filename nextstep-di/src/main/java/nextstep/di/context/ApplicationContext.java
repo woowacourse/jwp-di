@@ -1,6 +1,7 @@
 package nextstep.di.context;
 
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.scanner.BeanScanner;
 import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.di.scanner.ConfigurationBeanScanner;
 
@@ -20,7 +21,7 @@ public class ApplicationContext {
     }
 
     public void configurations(Class<?> configurationClass) {
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
+        BeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
         cbs.register(configurationClass);
     }
 
@@ -34,12 +35,12 @@ public class ApplicationContext {
     }
 
     private void configurations(Object... basePackage) {
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
+        BeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
         cbs.doScan(basePackage);
     }
 
     private void components(Object... basePackage) {
-        ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
+        BeanScanner cbds = new ClasspathBeanScanner(beanFactory);
         cbds.doScan(basePackage);
     }
 

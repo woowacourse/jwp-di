@@ -1,19 +1,16 @@
 package nextstep.di.factory;
 
 import nextstep.di.factory.example.*;
+import nextstep.di.scanner.BeanScanner;
 import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.di.scanner.ConfigurationBeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
-
     private static final String TEST_BASE_PACKAGE = "nextstep.di.factory.example";
     private BeanFactory beanFactory;
 
@@ -21,10 +18,10 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
+        BeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
         cbs.register(IntegrationConfig.class);
 
-        ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
+        BeanScanner cbds = new ClasspathBeanScanner(beanFactory);
         cbds.doScan(TEST_BASE_PACKAGE);
         beanFactory.initialize();
     }
