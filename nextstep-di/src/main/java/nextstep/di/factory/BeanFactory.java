@@ -15,17 +15,20 @@ import java.util.Objects;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Map<Class<?>, Object> integratedBeans;
-    private Map<Class<?>, Object> preInstanticateClazz;
+    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, Object> preInstanticateClazz = Maps.newHashMap();
 
-    public BeanFactory() {
-        integratedBeans = Maps.newHashMap();
-        preInstanticateClazz = Maps.newHashMap();
+    public void addPreInstanticateClazz(Map<Class<?>, Constructor> beans) {
+        preInstanticateClazz.putAll(beans);
+    }
+
+    public void registerBean(Map<Class<?>, Method> configs) {
+        preInstanticateClazz.putAll(configs);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
-        return (T) integratedBeans.get(requiredType);
+        return (T) beans.get(requiredType);
     }
 
     public void initialize() {
@@ -35,8 +38,8 @@ public class BeanFactory {
     }
 
     private Object scanBean(Class<?> preInstanticateBean) {
-        if (integratedBeans.containsKey(preInstanticateBean)) {
-            return integratedBeans.get(preInstanticateBean);
+        if (beans.containsKey(preInstanticateBean)) {
+            return beans.get(preInstanticateBean);
         }
 
         if (preInstanticateClazz.get(preInstanticateBean) instanceof Method) {
@@ -45,9 +48,9 @@ public class BeanFactory {
             if (method.getParameterCount() == 0) {
                 try {
                     Object instance = method.getDeclaringClass().newInstance();
-                    integratedBeans.put(preInstanticateBean, method.invoke(instance));
+                    beans.put(preInstanticateBean, method.invoke(instance));
                     logger.debug("config bean name : {}, instance : {}", preInstanticateBean, instance);
-                    return integratedBeans.get(preInstanticateBean);
+                    return beans.get(preInstanticateBean);
                 } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
                     e.printStackTrace();
                 }
@@ -59,9 +62,9 @@ public class BeanFactory {
 
             if (Objects.isNull(injectedConstructor)) {
                 Object instance = BeanUtils.instantiateClass(preInstanticateBean);
-                integratedBeans.put(preInstanticateBean, instance);
+                beans.put(preInstanticateBean, instance);
                 logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
-                return integratedBeans.get(preInstanticateBean);
+                return beans.get(preInstanticateBean);
             }
 
             return putParameterizedObject(preInstanticateBean, injectedConstructor);
@@ -72,8 +75,8 @@ public class BeanFactory {
         try {
             Object[] params = getMethodParams(method);
             Object instance = method.getDeclaringClass().newInstance();
-            integratedBeans.put(preInstanticateConfig, method.invoke(instance, params));
-            return integratedBeans.get(preInstanticateConfig);
+            beans.put(preInstanticateConfig, method.invoke(instance, params));
+            return beans.get(preInstanticateConfig);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             throw new IllegalArgumentException("메서드 초기화 실패");
         }
@@ -91,7 +94,7 @@ public class BeanFactory {
     private Object putParameterizedObject(Class<?> preInstanticateBean, Constructor<?> constructor) {
         Object[] params = getConstructorParams(constructor);
         Object instance = BeanUtils.instantiateClass(constructor, params);
-        integratedBeans.put(preInstanticateBean, instance);
+        beans.put(preInstanticateBean, instance);
         logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
         return instance;
     }
@@ -108,21 +111,12 @@ public class BeanFactory {
 
     public Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
         Map<Class<?>, Object> annotatedClass = Maps.newHashMap();
-        for (Class<?> clazz : integratedBeans.keySet()) {
+        for (Class<?> clazz : beans.keySet()) {
             if (clazz.isAnnotationPresent(annotation)) {
-                annotatedClass.put(clazz, integratedBeans.get(clazz));
+                annotatedClass.put(clazz, beans.get(clazz));
             }
         }
         return annotatedClass;
-    }
-
-    public void addPreInstanticateClazz(Map<Class<?>, Constructor> beans) {
-        preInstanticateClazz.putAll(beans);
-        initialize();
-    }
-
-    public void registerBean(Map<Class<?>, Method> configs) {
-        preInstanticateClazz.putAll(configs);
     }
 }
 
