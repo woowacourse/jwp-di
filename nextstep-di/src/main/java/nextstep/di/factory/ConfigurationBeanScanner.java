@@ -1,8 +1,10 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Bean;
+import nextstep.annotation.Configuration;
 import nextstep.di.factory.definition.BeanDefinition;
 import nextstep.di.factory.definition.FactoryMethodBeanDefinition;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,12 @@ public class ConfigurationBeanScanner {
 
     public ConfigurationBeanScanner(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
+    }
+
+    public void registerConfigurationClass(Object... basePackage) {
+        Reflections reflections = new Reflections(basePackage);
+        reflections.getTypesAnnotatedWith(Configuration.class)
+                .forEach(this::register);
     }
 
     public void register(Class<?> clazz) {
