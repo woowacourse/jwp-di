@@ -14,7 +14,12 @@ public class GenericApplicationContext implements ApplicationContext {
 
     public GenericApplicationContext(Class<?> configuration) {
         this.configuration = configuration;
-        beanFactory = new GenericBeanFactory();
+        this.beanFactory = new GenericBeanFactory();
+    }
+
+    public GenericApplicationContext(Class<?> configuration, BeanFactory beanFactory) {
+        this.configuration = configuration;
+        this.beanFactory = beanFactory;
     }
 
     @Override

@@ -15,7 +15,7 @@ public class GenericApplicationContextTest {
 
     @BeforeEach
     public void setUp() {
-        applicationContext = new GenericApplicationContext(IntegrationConfig.class);
+        applicationContext = new GenericApplicationContext(IntegrationConfig.class, new GenericBeanFactory());
         applicationContext.initialize();
     }
 
