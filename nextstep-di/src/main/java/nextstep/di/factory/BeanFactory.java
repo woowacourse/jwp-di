@@ -36,9 +36,11 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        beanDefinitions.forEach(bean -> logger.debug("{}", bean));
-
-        beanDefinitions.forEach(ExceptionWrapper.consumerWrapper(this::instantiateBean));
+        beanDefinitions.forEach(ExceptionWrapper.consumerWrapper(beanDefinition -> {
+            if (!beans.containsKey(beanDefinition.getName())){
+                instantiateBean(beanDefinition);
+            }
+        }));
     }
 
     private void instantiateBean(BeanDefinition beanDefinition) throws Exception {
@@ -53,7 +55,7 @@ public class BeanFactory {
             parameterInstances.add(beans.get(collectClass));
         }
 
-        logger.debug("create bean : {}", beanDefinition.getName());
+        logger.debug("Instantiate Bean : {}", beanDefinition.getName());
         beans.put(beanDefinition.getName(), beanDefinition.createBean(parameterInstances.toArray()));
     }
 
