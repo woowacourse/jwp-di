@@ -2,8 +2,7 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.ClassPathBeanScanner;
+import nextstep.di.ApplicationContext;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
@@ -32,33 +31,30 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        BeanFactory beanFactory = new BeanFactory();
-        ClassPathBeanScanner scanner = new ClassPathBeanScanner(beanFactory);
-        scanner.doScan(basePackage);
-        beanFactory.initialize();
+        ApplicationContext applicationContext = new ApplicationContext(basePackage);
 
-        Set<Class<?>> controllers = beanFactory.getAnnotatedClasses(Controller.class);
+        Set<Class<?>> controllers = applicationContext.getAnnotatedClasses(Controller.class);
         Set<Method> methods = getRequestMappingMethods(controllers);
-        mapToHandlerExecutions(beanFactory, methods);
+        mapToHandlerExecutions(applicationContext, methods);
 
         logger.info("Initialized AnnotationHandlerMapping!");
     }
 
-    private void mapToHandlerExecutions(BeanFactory beanFactory, Set<Method> methods) {
+    private void mapToHandlerExecutions(ApplicationContext applicationContext, Set<Method> methods) {
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                     rm.value(), rm.method(), method);
-            addHandlerExecutions(beanFactory, method, rm);
+            addHandlerExecutions(applicationContext, method, rm);
         }
     }
 
-    private void addHandlerExecutions(BeanFactory beanFactory, Method method, RequestMapping rm) {
+    private void addHandlerExecutions(ApplicationContext applicationContext, Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey ->
                 handlerExecutions.put(
                         handlerKey,
-                        new HandlerExecution(beanFactory.getBean(method.getDeclaringClass()), method)
+                        new HandlerExecution(applicationContext.getBean(method.getDeclaringClass()), method)
                 )
         );
     }

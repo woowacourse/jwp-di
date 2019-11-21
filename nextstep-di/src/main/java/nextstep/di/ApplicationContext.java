@@ -9,6 +9,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.util.Set;
 
 public class ApplicationContext {
@@ -47,5 +48,9 @@ public class ApplicationContext {
 
     public <T> T getBean(Class<T> requiredType) {
         return beanFactory.getBean(requiredType);
+    }
+
+    public Set<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotation) {
+        return beanFactory.getAnnotatedClasses(annotation);
     }
 }

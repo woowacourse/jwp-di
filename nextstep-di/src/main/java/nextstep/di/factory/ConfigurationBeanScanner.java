@@ -1,11 +1,8 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Bean;
-import nextstep.annotation.ComponentScan;
-import nextstep.annotation.Configuration;
 import nextstep.di.factory.definition.BeanDefinition;
 import nextstep.di.factory.definition.FactoryMethodBeanDefinition;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
