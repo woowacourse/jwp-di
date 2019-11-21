@@ -13,8 +13,11 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import slipp.config.AppConfig;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
+
+import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,13 +28,14 @@ class DispatcherServletTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        ApplicationContext applicationContext = new ApplicationContext(AppConfig.class);
+
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        DatabasePopulatorUtils.execute(populator, applicationContext.getBean(DataSource.class));
 
         dispatcher = new DispatcherServlet();
 
-        ApplicationContext applicationContext = new ApplicationContext("slipp");
         dispatcher.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
