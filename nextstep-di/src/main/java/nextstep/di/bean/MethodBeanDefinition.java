@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.bean;
 
 import nextstep.exception.MethodBeanDefinitionException;
 import org.slf4j.Logger;
@@ -14,10 +14,15 @@ public class MethodBeanDefinition implements BeanDefinition {
     private final Class<?> returnType;
     private final Object instance;
 
-    public MethodBeanDefinition(Method method, Class<?> returnType, Object instance) {
+    public MethodBeanDefinition(Method method) {
         this.method = method;
-        this.returnType = returnType;
-        this.instance = instance;
+        this.returnType = method.getReturnType();
+        try {
+            this.instance = method.getDeclaringClass().getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            logger.error(e.getMessage());
+            throw new MethodBeanDefinitionException(e);
+        }
     }
 
     @Override

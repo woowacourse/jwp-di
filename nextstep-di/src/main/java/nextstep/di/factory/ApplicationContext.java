@@ -1,5 +1,8 @@
 package nextstep.di.factory;
 
+import nextstep.di.bean.BeanDefinition;
+import nextstep.di.scanner.*;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -11,14 +14,19 @@ public class ApplicationContext implements BeanFactory{
     private final DefaultBeanFactory beanFactory;
 
     public ApplicationContext(Class<?>... configurations) {
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(configurations);
-        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(configurationBeanScanner.getBasePackages());
+        ComponentScanner componentScanner = new ComponentScanner(configurations);
+        Object[] basePackages = componentScanner.getBasePackages();
 
-        Set<Class<?>> classTypes = Stream.of(configurationBeanScanner.getClassTypes(), classpathBeanScanner.getClassTypes())
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(basePackages);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(basePackages);
+        MethodBeanScanner methodBeanScanner = new MethodBeanScanner(configurationBeanScanner.getBeanDefinitions());
+
+        Set<BeanDefinition> beanDefinitions = Stream.of(classpathBeanScanner, configurationBeanScanner, methodBeanScanner)
+                .map(BeanScanner::getBeanDefinitions)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        this.beanFactory = new DefaultBeanFactory(classTypes);
+        this.beanFactory = new DefaultBeanFactory(beanDefinitions);
     }
 
     @Override

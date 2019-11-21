@@ -1,7 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.annotation.Bean;
+import nextstep.di.bean.BeanDefinition;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DefaultBeanFactory implements BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(DefaultBeanFactory.class);
@@ -18,28 +17,13 @@ public class DefaultBeanFactory implements BeanFactory {
     private Map<Class<?>, Object> beans = Maps.newHashMap();
     private Map<Class<?>, BeanDefinition> beanDefinitions = new HashMap<>();
 
-    public DefaultBeanFactory(Set<Class<?>> preInstantiatedBeans) {
-        initBeanDefinitions(preInstantiatedBeans);
+    public DefaultBeanFactory(Collection<BeanDefinition> beanDefinitions) {
+        initBeanDefinitions(beanDefinitions);
         initBeans();
     }
 
-    private void initBeanDefinitions(Set<Class<?>> preInstantiatedBeans) {
-        preInstantiatedBeans.forEach(clazz -> {
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
-            DefaultBeanDefinition defaultBeanDefinition = new DefaultBeanDefinition(concreteClass);
-            beanDefinitions.put(concreteClass, defaultBeanDefinition);
-
-            registerMethodDefinitions(defaultBeanDefinition);
-        });
-    }
-
-    private void registerMethodDefinitions(DefaultBeanDefinition defaultBeanDefinition) {
-        Stream.of(defaultBeanDefinition.getBeanClass().getMethods())
-                .filter(method -> method.isAnnotationPresent(Bean.class))
-                .forEach(method -> {
-                    MethodBeanDefinition methodBeanDefinition = new MethodBeanDefinition(method, method.getReturnType(), createBean(defaultBeanDefinition));
-                    beanDefinitions.put(defaultBeanDefinition.getBeanClass(), methodBeanDefinition);
-                });
+    private void initBeanDefinitions(Collection<BeanDefinition> beanDefinitions) {
+        beanDefinitions.forEach(beanDefinition -> this.beanDefinitions.put(beanDefinition.getBeanClass(), beanDefinition));
     }
 
     private Object createBean(BeanDefinition beanDefinition) {

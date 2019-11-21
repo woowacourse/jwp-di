@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.bean;
 
 public interface BeanDefinition {
     Class<?> getBeanClass();
