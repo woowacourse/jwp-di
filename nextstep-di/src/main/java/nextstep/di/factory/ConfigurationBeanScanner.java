@@ -20,6 +20,10 @@ public class ConfigurationBeanScanner {
         this.beanFactory = beanFactory;
     }
 
+    public void register(Set<Class<?>> classes) {
+        classes.forEach(this::register);
+    }
+
     public void register(Class<?> clazz) {
         try {
             Object instance = clazz.newInstance();

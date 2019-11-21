@@ -1,5 +1,6 @@
 package nextstep.di;
 
+import com.google.common.collect.Sets;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.BeanFactory;
@@ -19,20 +20,30 @@ public class ApplicationContext {
     private ConfigurationBeanScanner configurationBeanScanner;
     private ClassPathBeanScanner classPathBeanScanner;
 
-    public ApplicationContext(Object... basePackage) {
+    private ApplicationContext() {
         beanFactory = new BeanFactory();
         configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
         classPathBeanScanner = new ClassPathBeanScanner(beanFactory);
-
-        initialize(basePackage);
     }
 
-    private void initialize(Object... basePackage) {
+    public ApplicationContext(Class<?> configurationClass) {
+        this();
+
+        initialize(Sets.newHashSet(configurationClass));
+    }
+
+    public ApplicationContext(Object... basePackage) {
+        this();
+
         Reflections reflections = new Reflections(basePackage);
         Set<Class<?>> configurationClasses = reflections.getTypesAnnotatedWith(Configuration.class);
 
+        initialize(configurationClasses);
+    }
+
+    private void initialize(Set<Class<?>> configurationClasses) {
         registerComponentScan(configurationClasses);
-        configurationClasses.forEach(configurationBeanScanner::register);
+        configurationBeanScanner.register(configurationClasses);
 
         beanFactory.initialize();
 
