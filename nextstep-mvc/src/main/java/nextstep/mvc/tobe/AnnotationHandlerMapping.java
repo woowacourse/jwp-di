@@ -24,32 +24,34 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    private Object[] basePackage;
+    private ApplicationContext applicationContext;
+
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     public AnnotationHandlerMapping(Object... basePackage) {
-        this.basePackage = basePackage;
+        applicationContext = new ApplicationContext(basePackage);
     }
 
     public void initialize() {
-        ApplicationContext applicationContext = new ApplicationContext(basePackage);
-
         Set<Class<?>> controllers = applicationContext.getAnnotatedClasses(Controller.class);
         Set<Method> methods = getRequestMappingMethods(controllers);
-        mapToHandlerExecutions(applicationContext, methods);
+        mapToHandlerExecutions(methods);
 
         logger.info("Initialized AnnotationHandlerMapping!");
     }
 
-    private void mapToHandlerExecutions(ApplicationContext applicationContext, Set<Method> methods) {
+    private void mapToHandlerExecutions(Set<Method> methods) {
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                     rm.value(), rm.method(), method);
-            addHandlerExecutions(applicationContext, method, rm);
+            addHandlerExecutions(method, rm);
         }
     }
 
-    private void addHandlerExecutions(ApplicationContext applicationContext, Method method, RequestMapping rm) {
+    private void addHandlerExecutions(Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey ->
                 handlerExecutions.put(
