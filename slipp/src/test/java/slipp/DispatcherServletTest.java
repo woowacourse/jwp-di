@@ -44,7 +44,7 @@ class DispatcherServletTest {
         beanFactory.initialize();
 
         Map<Class<?>, Object> beans = beanFactory.getBeans();
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping(beans));
+        dispatcher.addHandlerMpping(new AnnotationHandlerMapping(beanFactory));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());

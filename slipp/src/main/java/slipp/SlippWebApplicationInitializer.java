@@ -22,14 +22,10 @@ import java.util.Set;
 public class SlippWebApplicationInitializer  implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
     public static final String BASE_DIR = "slipp.controller";
-
-
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        Map<Class<?>, Object> beans = createBeans(BASE_DIR);
-
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(beans));
+        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(new BeanFactory(BASE_DIR)));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
@@ -39,13 +35,5 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
         dispatcher.addMapping("/");
 
         log.info("Start MyWebApplication Initializer");
-    }
-
-    private Map<Class<?>, Object> createBeans(String baseDir) {
-        BeanScanner beanScanner = new BeanScanner(baseDir);
-        Set<Class<?>> preInstantiatedClazz = beanScanner.getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        BeanFactory beanFactory = new BeanFactory(preInstantiatedClazz);
-        beanFactory.initialize();
-        return beanFactory.getBeans();
     }
 }

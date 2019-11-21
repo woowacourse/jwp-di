@@ -5,6 +5,9 @@ import nextstep.di.factory.exception.CycleReferenceException;
 import nextstep.di.factory.strategy.BeanCreationStrategies;
 import nextstep.di.factory.strategy.ComponentBeanCreationStrategy;
 import nextstep.di.factory.strategy.ConfigurationBeanCreationStrategy;
+import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +22,12 @@ public class BeanFactory {
 
     private BeanCreationStrategies beanCreationStrategies;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+
+    public BeanFactory(String baseDirectory) {
+        BeanScanner beanScanner = new BeanScanner(baseDirectory);
+        this.preComponentInstantiateBeans = beanScanner.getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        this.initialize();
+    }
 
     public BeanFactory(Set<Class<?>> preComponentInstantiateBeans) {
         this.preComponentInstantiateBeans = Collections.unmodifiableSet(preComponentInstantiateBeans);
