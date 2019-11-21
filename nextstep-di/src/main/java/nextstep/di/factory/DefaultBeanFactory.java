@@ -3,6 +3,8 @@ package nextstep.di.factory;
 import com.google.common.collect.Maps;
 import nextstep.annotation.Bean;
 import org.reflections.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -11,6 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DefaultBeanFactory implements BeanFactory {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultBeanFactory.class);
+
     private Map<Class<?>, Object> beans = Maps.newHashMap();
     private Map<Class<?>, BeanDefinition> beanDefinitions = new HashMap<>();
 
@@ -42,6 +46,7 @@ public class DefaultBeanFactory implements BeanFactory {
         if (beans.containsKey(beanDefinition.getBeanClass())) {
             return beans.get(beanDefinition.getBeanClass());
         }
+        logger.debug("create class : {}", beanDefinition.getBeanClass());
 
         Object[] parameters = createParameters(beanDefinition);
         Object bean = beanDefinition.createBean(parameters);

@@ -29,7 +29,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-
         Set<Method> methods = applicationContext.findMethodsByAnnotation(RequestMapping.class, Controller.class);
         createHandlerExecution(applicationContext, methods);
 
@@ -47,9 +46,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private void addHandlerExecutions(ApplicationContext applicationContext, Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
-        handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(applicationContext.getBean(method.getDeclaringClass()), method));
-        });
+        handlerKeys.forEach(handlerKey -> handlerExecutions.put(handlerKey,
+                new HandlerExecution(applicationContext.getBean(method.getDeclaringClass()), method)));
     }
 
     private List<HandlerKey> mapHandlerKeys(final String value, final RequestMethod[] originalMethods) {
