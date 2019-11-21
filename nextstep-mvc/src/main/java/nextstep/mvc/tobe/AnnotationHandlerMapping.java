@@ -30,10 +30,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         this.applicationContext = applicationContext;
     }
 
-    public AnnotationHandlerMapping(Object... basePackage) {
-        applicationContext = new ApplicationContext(basePackage);
-    }
-
     public void initialize() {
         Set<Class<?>> controllers = applicationContext.getAnnotatedClasses(Controller.class);
         Set<Method> methods = getRequestMappingMethods(controllers);
