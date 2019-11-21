@@ -9,35 +9,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ConstructorBeanCreationStrategy implements BeanCreationStrategy {
+public class ComponentBeanCreationStrategy implements BeanCreationStrategy {
     private final Set<Class<?>> preInstantiateBeans;
-    private Set<Class<?>> preConstructorInstantiateBeans;
+    private Set<Class<?>> preComponentInstantiateBeans;
 
-    public ConstructorBeanCreationStrategy(Set<Class<?>> preConstructorInstantiateBeans) {
-        this.preConstructorInstantiateBeans = preConstructorInstantiateBeans;
-        this.preInstantiateBeans = BeanFactoryUtils.getMethodBeanClasses(preConstructorInstantiateBeans);
-        preInstantiateBeans.addAll(preConstructorInstantiateBeans);
+    public ComponentBeanCreationStrategy(Set<Class<?>> preComponentInstantiateBeans) {
+        this.preComponentInstantiateBeans = preComponentInstantiateBeans;
+        this.preInstantiateBeans = BeanFactoryUtils.getConfigurationBeanClasses(preComponentInstantiateBeans);
+        preInstantiateBeans.addAll(preComponentInstantiateBeans);
     }
 
     @Override
     public boolean canHandle(Class<?> clazz) {
-        return preConstructorInstantiateBeans.contains(clazz);
+        return preComponentInstantiateBeans.contains(clazz);
     }
 
     @Override
     public List<Class<?>> getDependencyTypes(Class<?> clazz) {
-        clazz = BeanFactoryUtils.findConcreteClass(clazz, preConstructorInstantiateBeans);
-        Constructor<?> constructor = BeanFactoryUtils.getConstructor(clazz, preConstructorInstantiateBeans);
+        clazz = BeanFactoryUtils.findConcreteClass(clazz, preComponentInstantiateBeans);
+        Constructor<?> constructor = BeanFactoryUtils.getConstructor(clazz, preComponentInstantiateBeans);
         return Arrays.asList(constructor.getParameterTypes());
     }
 
     @Override
     public Object createBean(Class<?> clazz, List<Object> parameterInstances, Map<Class<?>, Object> beans) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        clazz = BeanFactoryUtils.findConcreteClass(clazz, preConstructorInstantiateBeans);
+        clazz = BeanFactoryUtils.findConcreteClass(clazz, preComponentInstantiateBeans);
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
-        Constructor<?> constructor = BeanFactoryUtils.getConstructor(clazz, preConstructorInstantiateBeans);
+        Constructor<?> constructor = BeanFactoryUtils.getConstructor(clazz, preComponentInstantiateBeans);
         Object instance = constructor.newInstance(parameterInstances.toArray());
 
         beans.put(clazz, instance);

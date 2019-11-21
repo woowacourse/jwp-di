@@ -11,20 +11,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class MethodBeanCreationStrategy implements BeanCreationStrategy {
-    private static final Logger log = LoggerFactory.getLogger(MethodBeanCreationStrategy.class);
+public class ConfigurationBeanCreationStrategy implements BeanCreationStrategy {
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanCreationStrategy.class);
     private final Set<Method> methods;
-    private final Set<Class<?>> methodBeanClass;
+    private final Set<Class<?>> configurationBeanClass;
 
-    public MethodBeanCreationStrategy(Set<Method> methods, Set<Class<?>> methodBeanClass) {
+    public ConfigurationBeanCreationStrategy(Set<Method> methods, Set<Class<?>> configurationBeanClass) {
         this.methods = methods;
-        this.methodBeanClass = methodBeanClass;
+        this.configurationBeanClass = configurationBeanClass;
         log.debug("method beans: {}", methods);
     }
 
     @Override
     public boolean canHandle(Class<?> clazz) {
-        return methodBeanClass.contains(clazz);
+        return configurationBeanClass.contains(clazz);
     }
 
     @Override

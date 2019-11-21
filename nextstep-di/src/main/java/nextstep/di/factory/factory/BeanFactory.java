@@ -3,8 +3,8 @@ package nextstep.di.factory.factory;
 import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.CycleReferenceException;
 import nextstep.di.factory.strategy.BeanCreationStrategies;
-import nextstep.di.factory.strategy.ConstructorBeanCreationStrategy;
-import nextstep.di.factory.strategy.MethodBeanCreationStrategy;
+import nextstep.di.factory.strategy.ComponentBeanCreationStrategy;
+import nextstep.di.factory.strategy.ConfigurationBeanCreationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,29 +14,27 @@ import java.util.*;
 public class BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preConstructInstantiateBeans;
-    private Set<Class<?>> preMethodInstantiateBeans;
+    private Set<Class<?>> preComponentInstantiateBeans;
+    private Set<Class<?>> preConfigurationInstantiateBeans;
 
     private BeanCreationStrategies beanCreationStrategies;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preConstructInstantiateBeans) {
-        this.preConstructInstantiateBeans = Collections.unmodifiableSet(preConstructInstantiateBeans);
-        log.debug("pre construction beans: {}", preConstructInstantiateBeans);
-        this.preMethodInstantiateBeans = Collections.unmodifiableSet(makePreMethodInstantiateBeans());
-        log.debug("pre method beans: {}", preMethodInstantiateBeans);
+    public BeanFactory(Set<Class<?>> preComponentInstantiateBeans) {
+        this.preComponentInstantiateBeans = Collections.unmodifiableSet(preComponentInstantiateBeans);
+        log.debug("pre construction beans: {}", preComponentInstantiateBeans);
+        this.preConfigurationInstantiateBeans = Collections.unmodifiableSet(makePreComponentInstantiateBeans());
+        log.debug("pre method beans: {}", preConfigurationInstantiateBeans);
         this.beanCreationStrategies = makeCreationStrategies();
     }
 
-    private Set<Class<?>> makePreMethodInstantiateBeans() {
-        return BeanFactoryUtils.getMethodBeanClasses(preConstructInstantiateBeans);
+    private Set<Class<?>> makePreComponentInstantiateBeans() {
+        return BeanFactoryUtils.getConfigurationBeanClasses(preComponentInstantiateBeans);
     }
 
     private BeanCreationStrategies makeCreationStrategies() {
-        BeanCreationStrategies beanCreationStrategies = new BeanCreationStrategies(
-                Arrays.asList(new ConstructorBeanCreationStrategy(preConstructInstantiateBeans), new MethodBeanCreationStrategy(BeanFactoryUtils.getMethods(preConstructInstantiateBeans), preMethodInstantiateBeans)));
-
-        return beanCreationStrategies;
+        return new BeanCreationStrategies(
+                Arrays.asList(new ComponentBeanCreationStrategy(preComponentInstantiateBeans), new ConfigurationBeanCreationStrategy(BeanFactoryUtils.getMethods(preComponentInstantiateBeans), preConfigurationInstantiateBeans)));
     }
 
     @SuppressWarnings("unchecked")
@@ -45,11 +43,11 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        checkCycleReference(preConstructInstantiateBeans);
-        preConstructInstantiateBeans
-                .forEach(preConstructInstiateBean -> createBean(preConstructInstiateBean));
-        preMethodInstantiateBeans
-                .forEach(preMethodInstantiateBean -> createBean(preMethodInstantiateBean));
+        checkCycleReference(preComponentInstantiateBeans);
+        preComponentInstantiateBeans
+                .forEach(this::createBean);
+        preConfigurationInstantiateBeans
+                .forEach(this::createBean);
     }
 
     private void checkCycleReference(Set<Class<?>> preInstantiateBeans) {
@@ -62,8 +60,8 @@ public class BeanFactory {
             return;
         }
         log.debug("==>checking cycleReference bean: {}, beanNames: {}", beanClass, beanNames);
-        beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preConstructInstantiateBeans);
-        Constructor<?> constructor = BeanFactoryUtils.getConstructor(beanClass, preConstructInstantiateBeans);
+        beanClass = BeanFactoryUtils.findConcreteClass(beanClass, preComponentInstantiateBeans);
+        Constructor<?> constructor = BeanFactoryUtils.getConstructor(beanClass, preComponentInstantiateBeans);
         if (beanNames.contains(constructor.getName())) {
             throw new CycleReferenceException();
         }

@@ -76,7 +76,7 @@ public class BeanFactoryUtils {
 
     public static Constructor<?> getConstructor(Class<?> beanClass, Set<Class<?>> preConstructInstatiateBeans) {
         Set<Class<?>> allPreInstantiateBeans = new HashSet<>(preConstructInstatiateBeans);
-        allPreInstantiateBeans.addAll(getMethodBeanClasses(preConstructInstatiateBeans));
+        allPreInstantiateBeans.addAll(getConfigurationBeanClasses(preConstructInstatiateBeans));
 
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(beanClass);
         if (constructor != null) {
@@ -93,7 +93,7 @@ public class BeanFactoryUtils {
         return constructor;
     }
 
-    public static Set<Class<?>> getMethodBeanClasses(Set<Class<?>> preConstructorInstantiateBeans) {
+    public static Set<Class<?>> getConfigurationBeanClasses(Set<Class<?>> preConstructorInstantiateBeans) {
         return getMethods(preConstructorInstantiateBeans)
                 .stream()
                 .map(Method::getReturnType)
