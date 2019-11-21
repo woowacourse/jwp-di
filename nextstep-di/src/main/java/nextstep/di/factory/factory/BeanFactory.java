@@ -67,9 +67,9 @@ public class BeanFactory {
         }
         beanNames.add(constructor.getName());
         Arrays.stream(constructor.getParameterTypes())
-                .forEach(paramterBeanClass -> {
+                .forEach(parameterBeanClass -> {
                     List<String> accumulatedBeanNames = new ArrayList<>(beanNames);
-                    checkCycleReference(paramterBeanClass, accumulatedBeanNames);
+                    checkCycleReference(parameterBeanClass, accumulatedBeanNames);
                 });
     }
 
