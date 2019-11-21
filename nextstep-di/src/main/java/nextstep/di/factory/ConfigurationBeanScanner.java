@@ -23,26 +23,6 @@ public class ConfigurationBeanScanner {
         this.beanFactory = beanFactory;
     }
 
-    public void registerConfigurationClass(Object... basePackage) {
-        Reflections reflections = new Reflections(basePackage);
-        Set<Class<?>> configurationClasses = reflections.getTypesAnnotatedWith(Configuration.class);
-
-        registerComponentScan(configurationClasses);
-        configurationClasses.forEach(this::register);
-    }
-
-    private void registerComponentScan(Set<Class<?>> classes) {
-        classes.stream()
-                .filter(clazz -> clazz.isAnnotationPresent(ComponentScan.class))
-                .map(clazz -> clazz.getAnnotation(ComponentScan.class))
-                .forEach(this::doScan);
-    }
-
-    private void doScan(ComponentScan componentScan) {
-        ClassPathBeanScanner beanScanner = new ClassPathBeanScanner(beanFactory);
-        beanScanner.doScan(componentScan.basePackages());
-    }
-
     public void register(Class<?> clazz) {
         try {
             Object instance = clazz.newInstance();

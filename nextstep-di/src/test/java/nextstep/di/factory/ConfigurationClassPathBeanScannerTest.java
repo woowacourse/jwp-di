@@ -25,7 +25,11 @@ class ConfigurationClassPathBeanScannerTest {
     public void register_classpathBeanScanner_통합() {
         BeanFactory beanFactory = new BeanFactory();
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.registerConfigurationClass("nextstep.di.factory.example");
+        cbs.register(IntegrationConfig.class);
+        beanFactory.initialize();
+
+        ClassPathBeanScanner cbds = new ClassPathBeanScanner(beanFactory);
+        cbds.doScan("nextstep.di.factory.example");
         beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));

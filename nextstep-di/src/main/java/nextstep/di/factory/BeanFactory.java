@@ -31,16 +31,18 @@ public class BeanFactory {
                 .collect(Collectors.toSet());
     }
 
-    public void registerBeanDefinitions(Set<BeanDefinition> beanDefinition) {
-        beanDefinitions.addAll(beanDefinition);
+    public void registerBeanDefinitions(Set<BeanDefinition> beanDefinitions) {
+        this.beanDefinitions.addAll(beanDefinitions);
     }
 
     public void initialize() {
-        beanDefinitions.forEach(ExceptionWrapper.consumerWrapper(beanDefinition -> {
-            if (!beans.containsKey(beanDefinition.getName())){
-                instantiateBean(beanDefinition);
-            }
-        }));
+        beanDefinitions.forEach(ExceptionWrapper.consumerWrapper(this::instantiateBeanIfAbsent));
+    }
+
+    private void instantiateBeanIfAbsent(BeanDefinition beanDefinition) throws Exception {
+        if (!beans.containsKey(beanDefinition.getName())) {
+            instantiateBean(beanDefinition);
+        }
     }
 
     private void instantiateBean(BeanDefinition beanDefinition) throws Exception {

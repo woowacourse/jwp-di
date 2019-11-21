@@ -1,6 +1,7 @@
 package nextstep.di.factory.definition;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 public class FactoryMethodBeanDefinition implements BeanDefinition {
 
@@ -30,6 +31,20 @@ public class FactoryMethodBeanDefinition implements BeanDefinition {
     @Override
     public boolean matchClass(Class<?> clazz) {
         return factoryMethod.getReturnType().equals(clazz);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FactoryMethodBeanDefinition that = (FactoryMethodBeanDefinition) o;
+        return Objects.equals(declaredClassInstance, that.declaredClassInstance) &&
+                Objects.equals(factoryMethod, that.factoryMethod);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(declaredClassInstance, factoryMethod);
     }
 
     @Override

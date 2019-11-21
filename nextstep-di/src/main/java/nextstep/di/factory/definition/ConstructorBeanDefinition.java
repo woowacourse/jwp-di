@@ -3,6 +3,7 @@ package nextstep.di.factory.definition;
 import nextstep.di.factory.BeanFactoryUtils;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 public class ConstructorBeanDefinition implements BeanDefinition {
 
@@ -30,6 +31,19 @@ public class ConstructorBeanDefinition implements BeanDefinition {
     @Override
     public boolean matchClass(Class<?> clazz) {
         return constructor.getDeclaringClass().equals(clazz);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConstructorBeanDefinition that = (ConstructorBeanDefinition) o;
+        return Objects.equals(constructor, that.constructor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(constructor);
     }
 
     @Override
