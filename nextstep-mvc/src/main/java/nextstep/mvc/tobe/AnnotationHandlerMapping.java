@@ -1,7 +1,7 @@
 package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
-import nextstep.di.factory.ApplicationContext;
+import nextstep.di.context.ApplicationContext;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;

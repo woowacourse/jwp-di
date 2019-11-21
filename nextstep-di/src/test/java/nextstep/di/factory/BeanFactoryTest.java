@@ -1,17 +1,18 @@
 package nextstep.di.factory;
 
-import nextstep.di.bean.BeanDefinition;
+import nextstep.di.bean.BeanDefinitionRegistry;
+import nextstep.di.bean.DefaultBeanDefinitionRegistry;
 import nextstep.di.factory.example.*;
-import nextstep.di.scanner.*;
+import nextstep.di.scanner.ClasspathBeanScanner;
+import nextstep.di.scanner.ComponentScanner;
+import nextstep.di.scanner.ConfigurationBeanScanner;
+import nextstep.di.scanner.MethodBeanScanner;
 import nextstep.stereotype.Controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,16 +25,16 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         Object[] basePackages = new ComponentScanner(IntegrationConfig.class).getBasePackages();
+        BeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
         ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(basePackages);
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(basePackages);
         MethodBeanScanner methodBeanScanner = new MethodBeanScanner(configurationBeanScanner.getBeanDefinitions());
 
-        Set<BeanDefinition> beanDefinitions = Stream.of(classpathBeanScanner, configurationBeanScanner, methodBeanScanner)
-                .map(BeanScanner::getBeanDefinitions)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+        registry.register(configurationBeanScanner.getBeanDefinitions());
+        registry.register(classpathBeanScanner.getBeanDefinitions());
+        registry.register(methodBeanScanner.getBeanDefinitions());
 
-        beanFactory = new DefaultBeanFactory(beanDefinitions);
+        beanFactory = new DefaultBeanFactory(registry);
     }
 
     @Test

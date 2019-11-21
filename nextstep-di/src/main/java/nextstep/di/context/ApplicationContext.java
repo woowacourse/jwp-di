@@ -1,16 +1,17 @@
-package nextstep.di.factory;
+package nextstep.di.context;
 
-import nextstep.di.bean.BeanDefinition;
+import nextstep.di.bean.BeanDefinitionRegistry;
+import nextstep.di.bean.DefaultBeanDefinitionRegistry;
+import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.DefaultBeanFactory;
 import nextstep.di.scanner.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ApplicationContext implements BeanFactory{
+public class ApplicationContext implements BeanFactory {
     private final DefaultBeanFactory beanFactory;
 
     public ApplicationContext(Class<?>... configurations) {
@@ -21,12 +22,17 @@ public class ApplicationContext implements BeanFactory{
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(basePackages);
         MethodBeanScanner methodBeanScanner = new MethodBeanScanner(configurationBeanScanner.getBeanDefinitions());
 
-        Set<BeanDefinition> beanDefinitions = Stream.of(classpathBeanScanner, configurationBeanScanner, methodBeanScanner)
-                .map(BeanScanner::getBeanDefinitions)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+        BeanDefinitionRegistry beanDefinitionRegistry = registerBeanDefinitionRegistry(classpathBeanScanner, configurationBeanScanner, methodBeanScanner);
 
-        this.beanFactory = new DefaultBeanFactory(beanDefinitions);
+        this.beanFactory = new DefaultBeanFactory(beanDefinitionRegistry);
+    }
+
+    private BeanDefinitionRegistry registerBeanDefinitionRegistry(BeanScanner... beanScanners) {
+        BeanDefinitionRegistry beanDefinitionRegistry = new DefaultBeanDefinitionRegistry();
+        Stream.of(beanScanners)
+                .map(BeanScanner::getBeanDefinitions)
+                .forEach(beanDefinitionRegistry::register);
+        return beanDefinitionRegistry;
     }
 
     @Override

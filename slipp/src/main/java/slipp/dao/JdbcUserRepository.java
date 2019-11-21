@@ -3,10 +3,12 @@ package slipp.dao;
 import nextstep.annotation.Inject;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
+import nextstep.stereotype.Repository;
 import slipp.domain.User;
 
 import java.util.List;
 
+@Repository
 public class JdbcUserRepository implements UserRepository {
     private final JdbcTemplate jdbcTemplate;
 

@@ -1,29 +1,33 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Maps;
 import nextstep.di.bean.BeanDefinition;
+import nextstep.di.bean.BeanDefinitionRegistry;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DefaultBeanFactory implements BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(DefaultBeanFactory.class);
 
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
-    private Map<Class<?>, BeanDefinition> beanDefinitions = new HashMap<>();
+    private final BeanDefinitionRegistry beanDefinitionRegistry;
+    private Map<Class<?>, Object> beans = new HashMap<>();
 
-    public DefaultBeanFactory(Collection<BeanDefinition> beanDefinitions) {
-        initBeanDefinitions(beanDefinitions);
-        initBeans();
+    public DefaultBeanFactory(BeanDefinitionRegistry beanDefinitionRegistry) {
+        this.beanDefinitionRegistry = beanDefinitionRegistry;
+        initBeans(beanDefinitionRegistry.getBeanDefinitions());
     }
 
-    private void initBeanDefinitions(Collection<BeanDefinition> beanDefinitions) {
-        beanDefinitions.forEach(beanDefinition -> this.beanDefinitions.put(beanDefinition.getBeanClass(), beanDefinition));
+    private void initBeans(Collection<BeanDefinition> beanDefinitions) {
+        beanDefinitions.forEach(this::createBean);
     }
 
     private Object createBean(BeanDefinition beanDefinition) {
@@ -40,25 +44,16 @@ public class DefaultBeanFactory implements BeanFactory {
     }
 
     private Object[] createParameters(BeanDefinition beanDefinition) {
-        return Arrays.stream(beanDefinition.getParameterTypes())
-                .map(parameter -> BeanFactoryUtils.findConcreteClassByBeanDefinition(parameter, beanDefinitions.values()))
-                .map(clazz -> getOrCreateBean(beanDefinitions.get(clazz)))
+        return Stream.of(beanDefinition.getParameterTypes())
+                .map(this::getBean)
                 .toArray();
-    }
-
-    private Object getOrCreateBean(BeanDefinition beanDefinition) {
-        return beans.getOrDefault(beanDefinition.getBeanClass(), createBean(beanDefinition));
-    }
-
-    private void initBeans() {
-        beanDefinitions.values().forEach(this::createBean);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(requiredType, beans.keySet());
-        return (T) beans.get(concreteClass);
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClassByBeanDefinition(requiredType, beanDefinitionRegistry.getBeanDefinitions());
+        return (T) beans.getOrDefault(concreteClass, createBean(beanDefinitionRegistry.get(concreteClass)));
     }
 
     @Override
