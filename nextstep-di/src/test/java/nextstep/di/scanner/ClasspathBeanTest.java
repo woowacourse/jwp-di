@@ -4,7 +4,6 @@ import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -15,12 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ClasspathBeanTest {
     private static final Logger log = LoggerFactory.getLogger(ClasspathBeanTest.class);
 
-    private ClasspathBean classpathBean;
-
-    @BeforeEach
-    void setUp() {
-        classpathBean = new ClasspathBean(MyQnaService.class);
-    }
+    private ClasspathBean classpathBean = new ClasspathBean(MyQnaService.class);
 
     @Test
     @DisplayName("파라미터가 있는 생성자의 파라미터 수")

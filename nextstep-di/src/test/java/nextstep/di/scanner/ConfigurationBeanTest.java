@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,11 +20,14 @@ class ConfigurationBeanTest {
     @Test
     @DisplayName("파라미터가 있는 메소드의 파라미터")
     void getParameterTypes() {
-        ConfigurationBean configurationBean = setIntegrationConfig();
-
-        Class[] parameterType = configurationBean.getParameterTypes();
-        log.debug("parameterTypes:{}", (Object) parameterType);
-        assertThat(parameterType.length).isEqualTo(1);
+        try {
+            ConfigurationBean configurationBean = setIntegrationConfig();
+            Class[] parameterType = configurationBean.getParameterTypes();
+            log.debug("parameterTypes:{}", (Object) parameterType);
+            assertThat(parameterType.length).isEqualTo(1);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -49,19 +54,23 @@ class ConfigurationBeanTest {
     @Test
     @DisplayName("파라미터가 있는 메소드 invoke")
     void getInstance() {
-        ConfigurationBean configurationBean = setIntegrationConfig();
-
-        Object[] objects = {new BasicDataSource()};
-        Object instance = configurationBean.getInstance(objects);
-        log.debug("invokeClazz:{}", instance);
-        assertThat(instance).isNotNull();
+        try {
+            ConfigurationBean configurationBean = setIntegrationConfig();
+            Object[] objects = {new BasicDataSource()};
+            Object instance = Objects.requireNonNull(configurationBean).getInstance(objects);
+            log.debug("invokeClazz:{}", instance);
+            assertThat(instance).isNotNull();
+        } catch (NoSuchMethodException e) {
+            e.getMessage();
+        }
     }
 
-    private ConfigurationBean setIntegrationConfig() {
+    @SuppressWarnings("unchecked")
+    private ConfigurationBean setIntegrationConfig() throws NoSuchMethodException {
         Class clazz = IntegrationConfig.class;
-        Method[] methods = clazz.getMethods();
-        log.debug("methods:{}", (Object) methods);
-        return new ConfigurationBean(new IntegrationConfig(), methods[1]);
+        Method method = clazz.getMethod("jdbcTemplate", DataSource.class);
+        log.debug("methods:{}", method);
+        return new ConfigurationBean(new IntegrationConfig(), method);
     }
 
     private ConfigurationBean setExampleConfig() {
