@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +21,7 @@ public class ApplicationBeanContext implements BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationBeanContext.class);
 
     private BeanRegistry beanRegistry = new BeanRegistry();
+    private BeanFactory beanFactory;
     private Object[] basePackages;
 
     public ApplicationBeanContext(String... basePackageNames) {
@@ -53,7 +53,7 @@ public class ApplicationBeanContext implements BeanFactory {
 
     @Override
     public void initialize() {
-        BeanFactory beanFactory = new SingleBeanFactory(
+        beanFactory = new SingleBeanFactory(
                 beanRegistry,
                 new ConfigurationScanner(basePackages),
                 new AnnotatedBeanScanner(basePackages)
@@ -64,17 +64,11 @@ public class ApplicationBeanContext implements BeanFactory {
 
     @Override
     public <T> T getBean(Class<T> requiredType) {
-        return beanRegistry.get(requiredType);
+        return beanFactory.getBean(requiredType);
     }
 
     @Override
     public Set<Class<?>> getTypes(Class<? extends Annotation> annotation) {
-        return Collections.unmodifiableSet(beanRegistry.keySet().stream()
-                .filter(clazz -> clazz.isAnnotationPresent(annotation))
-                .collect(Collectors.toSet()));
-    }
-
-    public Object[] getBasePackages() {
-        return basePackages;
+        return beanFactory.getTypes(annotation);
     }
 }
