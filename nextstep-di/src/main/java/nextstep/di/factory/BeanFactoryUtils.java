@@ -2,11 +2,12 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import nextstep.di.scanner.BeanDefinition;
+import nextstep.di.scanner.ConfigurationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,24 +39,22 @@ public class BeanFactoryUtils {
      * 인터페이스인 경우 BeanFactory가 관리하는 모든 클래스 중에 인터페이스를 구현하는 클래스를 찾아 반환
      *
      * @param injectedClazz
-     * @param preInstanticateBeans
+     * @param beanDefinitions
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Map<Class<?>, Object> preInstanticateBeans) {
+    public static Class<?> findConcreteClass2(Class<?> injectedClazz, Map<Class<?>, BeanDefinition> beanDefinitions) {
         if (!injectedClazz.isInterface()) {
-            logger.debug("{} isn't interface", injectedClazz);
             return injectedClazz;
         }
 
-        for (Class<?> clazz : preInstanticateBeans.keySet()) {
+        for (Class<?> clazz : beanDefinitions.keySet()) {
             Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
             if (interfaces.contains(injectedClazz)) {
-                logger.debug("{} is interface", injectedClazz);
                 return clazz;
             }
         }
 
-        if (preInstanticateBeans.get(injectedClazz) instanceof Method) {
+        if (beanDefinitions.get(injectedClazz) instanceof ConfigurationBean) {
             logger.debug("{} is configuration bean", injectedClazz);
             return injectedClazz;
         }
