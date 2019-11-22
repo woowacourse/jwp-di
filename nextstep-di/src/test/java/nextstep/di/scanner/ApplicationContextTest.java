@@ -1,6 +1,5 @@
 package nextstep.di.scanner;
 
-import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyJdbcTemplate;
 import org.junit.jupiter.api.Test;
@@ -14,8 +13,7 @@ class ApplicationContextTest {
 
     @Test
     public void ApplicationContextTest() {
-        ApplicationContext ac = new ApplicationContext(IntegrationConfig.class);
-        ac.register(TEST_BASE_PACKAGE);
+        ApplicationContext ac = new ApplicationContext(TEST_BASE_PACKAGE);
 
         assertNotNull(ac.getBean(DataSource.class));
 

@@ -9,20 +9,12 @@ public class ApplicationContext {
     private ConfigurationBeanScanner cbs;
     private BeanFactory beanFactory;
 
-    public ApplicationContext(Class<?> configClazz) {
+    public ApplicationContext(Object... basePackage) {
         this.beanFactory = new BeanFactory();
         this.cpbs = new ClasspathBeanScanner(beanFactory);
         this.cbs = new ConfigurationBeanScanner(beanFactory);
-        init(configClazz);
-    }
-
-    private void init(Class<?> configClazz) {
-        cbs.register(configClazz);
-        beanFactory.initialize();
-    }
-
-    public void register(Object... basePackage) {
-        cpbs.register(basePackage);
+        register(basePackage);
+        initialize();
     }
 
     @SuppressWarnings("unchecked")
@@ -32,5 +24,16 @@ public class ApplicationContext {
 
     public Map<Class<?>, Object> getController() {
         return beanFactory.getController();
+    }
+
+    private void register(Object... basePackage) {
+        cpbs.registerPackage(basePackage);
+        cbs.registerPackage(basePackage);
+        cpbs.registerBeanInfo();
+        cbs.registerBeanInfo();
+    }
+
+    private void initialize() {
+        beanFactory.initialize();
     }
 }
