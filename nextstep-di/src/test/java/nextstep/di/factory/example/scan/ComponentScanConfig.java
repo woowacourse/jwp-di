@@ -1,4 +1,4 @@
-package nextstep.di.factory.scan;
+package nextstep.di.factory.example.scan;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
@@ -9,7 +9,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan(basePackages = {"nextstep.di.factory.scan", "nextstep.di.factory.example"})
+@ComponentScan(basePackages = {"nextstep.di.factory.example.scan", "nextstep.di.factory.example"})
 public class ComponentScanConfig {
 
     @Bean

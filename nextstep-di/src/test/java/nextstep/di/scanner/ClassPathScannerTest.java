@@ -1,7 +1,7 @@
 package nextstep.di.scanner;
 
 import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.scan.ComponentScanConfig;
+import nextstep.di.factory.example.scan.ComponentScanConfig;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,7 +12,7 @@ class ClassPathScannerTest {
     void getBasePackages() {
         ClassPathScanner scanner = new ClassPathScanner(ComponentScanConfig.class);
         assertThat(scanner.getPackages())
-                .contains("nextstep.di.factory.scan")
+                .contains("nextstep.di.factory.example.scan")
                 .contains("nextstep.di.factory.example");
     }
 
