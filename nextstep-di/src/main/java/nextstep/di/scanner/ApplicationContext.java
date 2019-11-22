@@ -2,17 +2,19 @@ package nextstep.di.scanner;
 
 import nextstep.di.factory.BeanFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class ApplicationContext {
-    private ClasspathBeanScanner cpbs;
-    private ConfigurationBeanScanner cbs;
+    private List<Scanner> scanners;
     private BeanFactory beanFactory;
 
     public ApplicationContext(Object... basePackage) {
+        scanners = new ArrayList<>();
         this.beanFactory = new BeanFactory();
-        this.cpbs = new ClasspathBeanScanner(beanFactory);
-        this.cbs = new ConfigurationBeanScanner(beanFactory);
+        scanners.add(new ClasspathBeanScanner(beanFactory));
+        scanners.add(new ConfigurationBeanScanner(beanFactory));
         register(basePackage);
         initialize();
     }
@@ -27,10 +29,10 @@ public class ApplicationContext {
     }
 
     private void register(Object... basePackage) {
-        cpbs.registerPackage(basePackage);
-        cbs.registerPackage(basePackage);
-        cpbs.registerBeanInfo();
-        cbs.registerBeanInfo();
+        for (Scanner scanner : scanners) {
+            scanner.registerPackage(basePackage);
+            scanner.registerBeanInfo();
+        }
     }
 
     private void initialize() {

@@ -41,9 +41,8 @@ public class ConfigurationBeanScanner implements Scanner {
         return ScannerUtils.getTypesAnnotateWith(reflections, Configuration.class);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    public void initializeDefinitions() {
+    private void initializeDefinitions() {
         Set<Class<?>> typesAnnotatedWith = ScannerUtils.getTypesAnnotateWith(reflections, Configuration.class);
 
         for (Class<?> clazz : typesAnnotatedWith) {

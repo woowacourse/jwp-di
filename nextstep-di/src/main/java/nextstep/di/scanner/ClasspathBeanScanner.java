@@ -36,9 +36,8 @@ public class ClasspathBeanScanner implements Scanner {
         beanFactory.register(beans);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    public void initializeDefinitions() {
+    private void initializeDefinitions() {
         Set<Class<?>> typesAnnotatedWith = ScannerUtils.getTypesAnnotateWith(reflections, COMPONENTS);
 
         for (Class<?> clazz : typesAnnotatedWith) {
