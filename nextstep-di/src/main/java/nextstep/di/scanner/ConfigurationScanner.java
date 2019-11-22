@@ -9,14 +9,12 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.Set;
 
 public class ConfigurationScanner implements BeanScanner {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationScanner.class);
 
     private Reflections reflections;
-    private Set<BeanDefinition> beans;
 
     public ConfigurationScanner(Object... basePackages) {
         this.reflections = new Reflections(basePackages);
@@ -24,11 +22,8 @@ public class ConfigurationScanner implements BeanScanner {
 
     @Override
     public Set<BeanDefinition> doScan() {
-        if (beans != null) {
-            return beans;
-        }
+        Set<BeanDefinition> beans = Sets.newHashSet();
 
-        beans = Sets.newHashSet();
         for (Class<?> clazz : reflections.getTypesAnnotatedWith(Configuration.class)) {
             try {
                 Object declaredObject = clazz.newInstance();
@@ -38,7 +33,6 @@ public class ConfigurationScanner implements BeanScanner {
                 throw new BeanDefinitionException(e);
             }
         }
-        beans = Collections.unmodifiableSet(beans);
 
         return beans;
     }

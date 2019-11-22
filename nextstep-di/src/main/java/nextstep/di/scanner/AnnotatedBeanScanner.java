@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,7 +20,6 @@ public class AnnotatedBeanScanner implements BeanScanner {
     private static final Class[] ANNOTATIONS = new Class[]{Controller.class, Service.class, Repository.class};
 
     private Reflections reflections;
-    private Set<BeanDefinition> beans;
 
     public AnnotatedBeanScanner(Object... basePackages) {
         this.reflections = new Reflections(basePackages);
@@ -29,11 +27,8 @@ public class AnnotatedBeanScanner implements BeanScanner {
 
     @Override
     public Set<BeanDefinition> doScan() {
-        if (beans != null) {
-            return beans;
-        }
+        Set<BeanDefinition> beans = Sets.newHashSet();
 
-        beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : ANNOTATIONS) {
             beans.addAll(
                     reflections.getTypesAnnotatedWith(annotation).stream()
@@ -41,7 +36,6 @@ public class AnnotatedBeanScanner implements BeanScanner {
                             .collect(Collectors.toSet())
             );
         }
-        beans = Collections.unmodifiableSet(beans);
 
         return beans;
     }
