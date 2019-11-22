@@ -12,7 +12,7 @@ class BeanDefinitionConstructorTest {
     @DisplayName("생성자 파라미터 받아오는 테스트")
     void getParametersTest() throws NoSuchMethodException {
         BeanDefinitionConstructor beanDefinitionConstructor = new BeanDefinitionConstructor(SummerIsKingEmperor.class.getConstructor(String.class));
-        assertThat(beanDefinitionConstructor.getParameters()).isEqualTo(new Class<?>[]{String.class});
+        assertThat(beanDefinitionConstructor.getParameterTypes()).isEqualTo(new Class<?>[]{String.class});
     }
 
     @Test

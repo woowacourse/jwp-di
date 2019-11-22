@@ -1,7 +1,7 @@
 package nextstep.di.factory.definition;
 
 public interface BeanDefinition {
-    Class<?>[] getParameters();
+    Class<?>[] getParameterTypes();
 
     Object createBean(Object... objects);
 }

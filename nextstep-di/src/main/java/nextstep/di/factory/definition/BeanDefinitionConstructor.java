@@ -11,7 +11,7 @@ public class BeanDefinitionConstructor implements BeanDefinition {
     }
 
     @Override
-    public Class<?>[] getParameters() {
+    public Class<?>[] getParameterTypes() {
         return constructor.getParameterTypes();
     }
 

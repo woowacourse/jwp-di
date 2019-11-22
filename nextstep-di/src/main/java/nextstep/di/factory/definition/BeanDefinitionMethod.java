@@ -15,7 +15,7 @@ public class BeanDefinitionMethod implements BeanDefinition {
     }
 
     @Override
-    public Class<?>[] getParameters() {
+    public Class<?>[] getParameterTypes() {
         List<Class<?>> classes = Lists.newArrayList(method.getDeclaringClass());
         classes.addAll(Lists.newArrayList(method.getParameterTypes()));
 

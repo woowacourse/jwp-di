@@ -12,14 +12,14 @@ class BeanDefinitionMethodTest {
     @DisplayName("파라미터가 없는 메서드의 getParameters() 테스트")
     void getParametersTest() throws NoSuchMethodException {
         BeanDefinitionMethod beanDefinitionMethod = new BeanDefinitionMethod(KingbbodeIsRealKingGodGeneralEmperor.class.getMethod("hiSummer"));
-        assertThat(beanDefinitionMethod.getParameters()).isEqualTo(new Class[]{KingbbodeIsRealKingGodGeneralEmperor.class});
+        assertThat(beanDefinitionMethod.getParameterTypes()).isEqualTo(new Class[]{KingbbodeIsRealKingGodGeneralEmperor.class});
     }
 
     @Test
     @DisplayName("파라미터가 있는 메서드의 getParameters() 테스트")
     void getParametersTest2() throws NoSuchMethodException {
         BeanDefinitionMethod beanDefinitionMethod = new BeanDefinitionMethod(KingbbodeIsRealKingGodGeneralEmperor.class.getMethod("hiSummerWithParams", String.class));
-        assertThat(beanDefinitionMethod.getParameters()).isEqualTo(new Class[]{KingbbodeIsRealKingGodGeneralEmperor.class, String.class});
+        assertThat(beanDefinitionMethod.getParameterTypes()).isEqualTo(new Class[]{KingbbodeIsRealKingGodGeneralEmperor.class, String.class});
     }
 
     @Test
