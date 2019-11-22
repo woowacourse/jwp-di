@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 import java.util.Set;
 
 public class ConstructorBeanDefinition implements BeanDefinition {
@@ -48,5 +49,25 @@ public class ConstructorBeanDefinition implements BeanDefinition {
             logger.error("{} Bean instance fail. error message : {}", getType(), e.getMessage());
             throw new CreateBeanException(e);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConstructorBeanDefinition that = (ConstructorBeanDefinition) o;
+        return Objects.equals(clazz, that.clazz);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(clazz);
+    }
+
+    @Override
+    public String toString() {
+        return "ConstructorBeanDefinition{" +
+                "clazz=" + clazz +
+                '}';
     }
 }
