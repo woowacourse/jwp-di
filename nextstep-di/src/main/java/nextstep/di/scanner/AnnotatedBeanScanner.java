@@ -3,7 +3,6 @@ package nextstep.di.scanner;
 import com.google.common.collect.Sets;
 import nextstep.di.BeanDefinition;
 import nextstep.di.ConstructorBeanDefinition;
-import nextstep.di.context.ApplicationBeanContext;
 import nextstep.di.factory.BeanFactoryUtils;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -19,13 +18,13 @@ import java.util.stream.Collectors;
 
 public class AnnotatedBeanScanner implements BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(AnnotatedBeanScanner.class);
-    private static final Class[] ANNOTATIONS = new Class[] {Controller.class, Service.class, Repository.class};
+    private static final Class[] ANNOTATIONS = new Class[]{Controller.class, Service.class, Repository.class};
 
     private Reflections reflections;
     private Set<BeanDefinition> beans;
 
-    public AnnotatedBeanScanner(ApplicationBeanContext applicationBeanContext) {
-        this.reflections = new Reflections(applicationBeanContext.getRoot());
+    public AnnotatedBeanScanner(Object... basePackages) {
+        this.reflections = new Reflections(basePackages);
     }
 
     @Override

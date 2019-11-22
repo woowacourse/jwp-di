@@ -1,8 +1,5 @@
 package nextstep.di.scanner;
 
-import nextstep.di.context.ApplicationBeanContext;
-import nextstep.di.example.ExampleConfig;
-import nextstep.di.example.IntegrationConfig;
 import nextstep.di.example.JdbcUserRepository;
 import nextstep.di.example.MyJdbcTemplate;
 import nextstep.di.factory.BeanFactory;
@@ -19,8 +16,9 @@ class ConfigurationScannerTest {
 
     @Test
     public void register_simple() {
-        BeanScanner beanScanner = new ConfigurationScanner(new ApplicationBeanContext(ExampleConfig.class));
-        beanFactory = new SingleBeanFactory(new BeanRegistry(), beanScanner);
+        beanFactory = new SingleBeanFactory(new BeanRegistry(),
+                new ConfigurationScanner("nextstep.di.example"));
+
         beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));
@@ -28,10 +26,9 @@ class ConfigurationScannerTest {
 
     @Test
     public void register_classpathBeanScanner_통합() {
-        BeanRegistry beanRegistry = new BeanRegistry();
-        beanFactory = new SingleBeanFactory(beanRegistry,
-                new ConfigurationScanner(new ApplicationBeanContext(IntegrationConfig.class)),
-                new AnnotatedBeanScanner(new ApplicationBeanContext("nextstep.di.example")));
+        beanFactory = new SingleBeanFactory(new BeanRegistry(),
+                new ConfigurationScanner("nextstep.di.example"),
+                new AnnotatedBeanScanner("nextstep.di.example"));
         beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));

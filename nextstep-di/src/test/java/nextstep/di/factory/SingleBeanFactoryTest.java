@@ -1,7 +1,5 @@
 package nextstep.di.factory;
 
-import nextstep.di.context.ApplicationBeanContext;
-import nextstep.di.example.IntegrationConfig;
 import nextstep.di.example.MyQnaService;
 import nextstep.di.example.QnaController;
 import nextstep.di.registry.BeanRegistry;
@@ -23,8 +21,8 @@ public class SingleBeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         beanFactory = new SingleBeanFactory(new BeanRegistry(),
-                new ConfigurationScanner(new ApplicationBeanContext(IntegrationConfig.class)),
-                new AnnotatedBeanScanner(new ApplicationBeanContext("nextstep.di.example")));
+                new ConfigurationScanner("nextstep.di.example"),
+                new AnnotatedBeanScanner("nextstep.di.example"));
 
         beanFactory.initialize();
     }

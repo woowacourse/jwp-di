@@ -3,7 +3,6 @@ package nextstep.di.scanner;
 import com.google.common.collect.Sets;
 import nextstep.annotation.Configuration;
 import nextstep.di.BeanDefinition;
-import nextstep.di.context.ApplicationBeanContext;
 import nextstep.di.exception.BeanDefinitionException;
 import nextstep.di.factory.BeanFactoryUtils;
 import org.reflections.Reflections;
@@ -19,8 +18,8 @@ public class ConfigurationScanner implements BeanScanner {
     private Reflections reflections;
     private Set<BeanDefinition> beans;
 
-    public ConfigurationScanner(ApplicationBeanContext applicationBeanContext) {
-        this.reflections = new Reflections(applicationBeanContext.getRoot());
+    public ConfigurationScanner(Object... basePackages) {
+        this.reflections = new Reflections(basePackages);
     }
 
     @Override
