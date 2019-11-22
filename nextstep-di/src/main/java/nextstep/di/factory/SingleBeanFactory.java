@@ -3,6 +3,7 @@ package nextstep.di.factory;
 import com.google.common.collect.Sets;
 import nextstep.di.BeanDefinition;
 import nextstep.di.exception.BeanFactoryInitializeException;
+import nextstep.di.exception.DuplicatedBeanDefinition;
 import nextstep.di.exception.NotFoundBeanDefinition;
 import nextstep.di.registry.BeanRegistry;
 import nextstep.di.scanner.BeanScanner;
@@ -27,12 +28,24 @@ public class SingleBeanFactory implements BeanFactory {
         initializeBeanDefinitions(beanScanners);
     }
 
-    public Set<BeanDefinition> initializeBeanDefinitions(BeanScanner... beanScanners) {
+    private Set<BeanDefinition> initializeBeanDefinitions(BeanScanner... beanScanners) {
         beanDefinitions = Sets.newHashSet();
+
         for (BeanScanner beanScanner : beanScanners) {
-            beanDefinitions.addAll(beanScanner.doScan());
+            Set<BeanDefinition> addedBeanDefinition = beanScanner.doScan();
+            if (isDuplicated(addedBeanDefinition)) {
+                logger.debug("Duplicated BeanDefinition: {}, {}", beanDefinitions, addedBeanDefinition);
+                throw new DuplicatedBeanDefinition();
+            }
+            beanDefinitions.addAll(addedBeanDefinition);
         }
         return beanDefinitions;
+    }
+
+    private boolean isDuplicated(Set<BeanDefinition> addedBeanDefinition) {
+        return addedBeanDefinition.stream()
+                .anyMatch(beanDefinition -> beanDefinitions.contains(beanDefinition))
+                ;
     }
 
     @Override
