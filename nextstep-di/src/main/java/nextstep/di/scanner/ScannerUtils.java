@@ -18,7 +18,6 @@ public class ScannerUtils {
         for (Class<? extends Annotation> annotation : annotations) {
             annotationBeans.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
-
         log.debug("Scan Beans Type : {}", annotationBeans);
         return annotationBeans;
     }
