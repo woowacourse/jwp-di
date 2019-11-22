@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,7 +64,7 @@ public class BeanFactoryUtils {
     public static Constructor<?> getBeanConstructor(Class<?> type) {
         log.debug("type: {}", type.toString());
 
-        return Optional.ofNullable(getInjectedConstructor(type))
-                .orElse((Constructor) type.getConstructors()[0]);
+        Constructor<?> constructor = getInjectedConstructor(type);
+        return constructor != null ? constructor : type.getConstructors()[0];
     }
 }
