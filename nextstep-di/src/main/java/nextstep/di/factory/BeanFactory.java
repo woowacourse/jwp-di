@@ -1,28 +1,24 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.definition.BeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static nextstep.di.factory.BeanFactoryUtils.findConcreteClass;
-import static nextstep.di.factory.BeanFactoryUtils.getInjectedConstructor;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
     private static final String TAG = "BeanFactory";
 
-    private static final int DEFAULT_CONSTRUCTOR_PARAMETER_NUMBER = 0;
-
-    private final Set<Class<?>> preInstanticateBeans;
+    private final Map<Class<?>, BeanDefinition> preInstanticateBeans;
     private final Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
+    public BeanFactory(Map<Class<?>, BeanDefinition> preInstanticateBeans) {
         this.preInstanticateBeans = preInstanticateBeans;
     }
 
@@ -38,21 +34,22 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        this.preInstanticateBeans.forEach(clazz -> {
+        this.preInstanticateBeans.keySet().forEach(clazz -> {
             Set<Class<?>> waitingForInitializationBeans = new HashSet<>();
             initBean(clazz, waitingForInitializationBeans);
         });
     }
 
     private void initBean(Class<?> clazz, Set<Class<?>> waitingForInitializationBeans) {
-        Class<?> concreteClass = findConcreteClass(clazz, preInstanticateBeans);
-        if (isAlreadyInitializedBean(concreteClass)) {
+        Class<?> clazz2 = getConcreteClassOr(clazz);
+
+        if (isAlreadyInitializedBean(clazz2)) {
             return;
         }
 
-        validateInitialization(waitingForInitializationBeans, concreteClass);
+        validateInitialization(waitingForInitializationBeans, clazz2);
 
-        beans.put(concreteClass, createBean(concreteClass, waitingForInitializationBeans));
+        beans.put(clazz2, createBean(preInstanticateBeans.get(clazz2), waitingForInitializationBeans));
     }
 
     private boolean isAlreadyInitializedBean(Class<?> concreteClass) {
@@ -66,7 +63,7 @@ public class BeanFactory {
     }
 
     private void validateBean(Class<?> concreteClass) {
-        if (!preInstanticateBeans.contains(concreteClass)) {
+        if (!preInstanticateBeans.containsKey(concreteClass)) {
             throw new IllegalStateException("해당 객체가 빈으로 등록되지 않았습니다.");
         }
     }
@@ -77,38 +74,15 @@ public class BeanFactory {
         }
     }
 
-    private Object createBean(Class<?> concreteClass, Set<Class<?>> waitingForInitializationBeans) {
-        logger.info("{}.createBean() >> {}", TAG, concreteClass);
+    private Object createBean(BeanDefinition beanDefinition, Set<Class<?>> waitingForInitializationBeans) {
+        logger.info("{}.createBean() >> {}", TAG, beanDefinition);
 
-        Constructor<?> constructor = getConstructor(concreteClass);
-        List<Object> parameters = getParameterizedBeans(constructor, waitingForInitializationBeans);
-
-        return createInstance(constructor, parameters);
+        List<Object> parameterizedBeans = getParameterizedBeans(beanDefinition, waitingForInitializationBeans);
+        return beanDefinition.createBean(parameterizedBeans.toArray());
     }
 
-    private Constructor<?> getConstructor(Class<?> concreteClass) {
-        Constructor<?> constructor = getInjectedConstructor(concreteClass);
-
-        if (Objects.isNull(constructor)) {
-            constructor = getDefaultConstructor(concreteClass);
-        }
-
-        return constructor;
-    }
-
-    private Constructor<?> getDefaultConstructor(Class<?> concreteClass) {
-        return Arrays.stream(concreteClass.getConstructors())
-                .filter(this::isDefaultConstructor)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("기본 생성자가 존재하지 않습니다."));
-    }
-
-    private boolean isDefaultConstructor(Constructor<?> beanConstructor) {
-        return beanConstructor.getParameterCount() == DEFAULT_CONSTRUCTOR_PARAMETER_NUMBER;
-    }
-
-    private List<Object> getParameterizedBeans(Constructor<?> constructor, Set<Class<?>> waitingForInitializationBeans) {
-        Class<?>[] parameterTypes = Objects.requireNonNull(constructor).getParameterTypes();
+    private List<Object> getParameterizedBeans(BeanDefinition beanDefinition, Set<Class<?>> waitingForInitializationBeans) {
+        Class<?>[] parameterTypes = beanDefinition.getParameterTypes();
 
         return Arrays.stream(parameterTypes)
                 .map(type -> getParameterizedBean(type, waitingForInitializationBeans))
@@ -124,16 +98,15 @@ public class BeanFactory {
     }
 
     private Object getBeanInternal(Class<?> type) {
-        return beans.get(findConcreteClass(type, preInstanticateBeans));
+        return beans.get(getConcreteClassOr(type));
     }
 
-    private Object createInstance(Constructor<?> constructor, List<Object> parameters) {
-        try {
-            return constructor.newInstance(parameters.toArray());
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalArgumentException(e);
+    //TODO 뭔가,,,
+    private Class<?> getConcreteClassOr(Class<?> type) {
+        if (preInstanticateBeans.containsKey(type)) {
+            return type;
         }
+
+        return findConcreteClass(type, preInstanticateBeans.keySet());
     }
-
-
 }

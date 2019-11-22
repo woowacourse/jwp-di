@@ -34,15 +34,26 @@ public class BeanScanner {
     public Map<Class<?>, BeanDefinition> getPreInstanticateBeanClasses() {
         Map<Class<?>, BeanDefinition> beanDefinitions = Maps.newHashMap();
         Set<Class<?>> classes = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class, Configuration.class);
-        beanDefinitions.putAll(classes.stream()
-                .collect(Collectors.toMap(aClass -> aClass, aClass -> new BeanDefinitionConstructor(getConstructor(aClass)))));
-        beanDefinitions.putAll(getTypesAnnotatedWith(Configuration.class).stream()
+
+        beanDefinitions.putAll(getAllBeanDefinitionConstructorsFrom(classes));
+        beanDefinitions.putAll(getAllBeanDefinitionMethodsFrom(classes.stream()
+                .filter(clazz -> clazz.isAnnotationPresent(Configuration.class))
+                .collect(Collectors.toSet())));
+
+        return beanDefinitions;
+    }
+
+    private Map<? extends Class<?>, BeanDefinitionMethod> getAllBeanDefinitionMethodsFrom(Set<Class<?>> classes) {
+        return classes.stream()
                 .map(Class::getMethods)
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(Bean.class))
-                .collect(Collectors.toMap(Method::getReturnType, BeanDefinitionMethod::new)));
+                .collect(Collectors.toMap(Method::getReturnType, BeanDefinitionMethod::new));
+    }
 
-        return beanDefinitions;
+    private Map<? extends Class<?>, BeanDefinitionConstructor> getAllBeanDefinitionConstructorsFrom(Set<Class<?>> classes) {
+        return classes.stream()
+                .collect(Collectors.toMap(aClass -> aClass, aClass -> new BeanDefinitionConstructor(getConstructor(aClass))));
     }
 
 
@@ -65,20 +76,6 @@ public class BeanScanner {
 
     private boolean isDefaultConstructor(Constructor<?> beanConstructor) {
         return beanConstructor.getParameterCount() == DEFAULT_CONSTRUCTOR_PARAMETER_NUMBER;
-    }
-
-    /*public Set<Class<?>> getPreInstanticateBeanClasses() {
-        return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class, Configuration.class);
-    }*/
-
-    public Set<Method> getPreInstanticateBeanMethods() {
-        Set<Class<?>> typesAnnotatedWith = getTypesAnnotatedWith(Configuration.class);
-
-        return typesAnnotatedWith.stream()
-                .map(Class::getMethods)
-                .flatMap(Arrays::stream)
-                .filter(method -> method.isAnnotationPresent(Bean.class))
-                .collect(Collectors.toSet());
     }
 
     private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
