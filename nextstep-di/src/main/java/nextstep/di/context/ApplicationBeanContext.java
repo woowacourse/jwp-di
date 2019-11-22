@@ -1,5 +1,6 @@
 package nextstep.di.context;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import nextstep.annotation.ComponentScan;
 import nextstep.di.factory.BeanFactory;
@@ -11,7 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ApplicationBeanContext implements BeanFactory {
@@ -20,32 +24,31 @@ public class ApplicationBeanContext implements BeanFactory {
     private BeanRegistry beanRegistry = new BeanRegistry();
     private Object[] basePackages;
 
-    public ApplicationBeanContext(Object... basePackages) {
-        this.basePackages = initializeBasePackages(basePackages);
+    public ApplicationBeanContext(String... basePackageNames) {
+        this.basePackages = initializePackageName(basePackageNames);
         initialize();
     }
 
-    private Object[] initializeBasePackages(Object... basePackages) {
-        List<Object> packages = new ArrayList<>();
-        packages.addAll(initializePackageName(basePackages));
-        packages.addAll(initializeComponentScan(basePackages));
-
-        return packages.toArray();
+    public ApplicationBeanContext(Class<?>... configurations) {
+        this.basePackages = initializeComponentScan(configurations);
+        initialize();
     }
 
-    private List<Object> initializePackageName(Object... basePackages) {
-        return Sets.newHashSet(basePackages).stream()
-                .filter(basePackage -> basePackage instanceof String)
-                .collect(Collectors.toList());
+    private Object[] initializePackageName(String... basePackageNames) {
+        return Sets.newHashSet(basePackageNames).stream()
+                .filter(basePackageName -> !Strings.isNullOrEmpty(basePackageName))
+                .collect(Collectors.toList())
+                .toArray()
+                ;
     }
 
-    private List<String> initializeComponentScan(Object... basePackages) {
-        return Sets.newHashSet(basePackages).stream()
-                .filter(configuration -> configuration instanceof Class<?>)
-                .map(configuration -> (Class<?>) configuration)
+    private Object[] initializeComponentScan(Class<?>... configurations) {
+        return Sets.newHashSet(configurations).stream()
                 .filter(configuration -> Objects.nonNull(configuration.getAnnotation(ComponentScan.class)))
                 .flatMap(configuration -> Arrays.stream(configuration.getAnnotation(ComponentScan.class).value()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+                .toArray()
+                ;
     }
 
     @Override
