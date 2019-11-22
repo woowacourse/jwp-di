@@ -1,7 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.scanner.BeanDefinition;
+import nextstep.di.bean.BeanDefinition;
 import nextstep.stereotype.Controller;
 
 import java.lang.annotation.Annotation;

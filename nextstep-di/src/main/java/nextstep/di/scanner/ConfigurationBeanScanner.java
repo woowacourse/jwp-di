@@ -3,6 +3,8 @@ package nextstep.di.scanner;
 import com.google.common.collect.Maps;
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
+import nextstep.di.bean.BeanDefinition;
+import nextstep.di.bean.ConfigurationBean;
 import nextstep.di.factory.BeanFactory;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;

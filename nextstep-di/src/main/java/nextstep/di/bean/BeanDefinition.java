@@ -1,4 +1,4 @@
-package nextstep.di.scanner;
+package nextstep.di.bean;
 
 public interface BeanDefinition {
     Object getInstance(Object[] params);

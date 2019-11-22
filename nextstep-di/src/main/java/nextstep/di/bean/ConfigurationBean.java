@@ -1,4 +1,4 @@
-package nextstep.di.scanner;
+package nextstep.di.bean;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

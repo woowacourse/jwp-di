@@ -1,4 +1,4 @@
-package nextstep.di.scanner;
+package nextstep.di.bean;
 
 import nextstep.di.factory.BeanFactoryUtils;
 import org.springframework.beans.BeanUtils;

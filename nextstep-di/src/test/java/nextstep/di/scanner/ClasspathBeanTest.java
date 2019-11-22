@@ -1,5 +1,6 @@
 package nextstep.di.scanner;
 
+import nextstep.di.bean.ClasspathBean;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;

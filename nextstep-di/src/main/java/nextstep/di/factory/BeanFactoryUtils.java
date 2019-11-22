@@ -2,8 +2,8 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
-import nextstep.di.scanner.BeanDefinition;
-import nextstep.di.scanner.ConfigurationBean;
+import nextstep.di.bean.BeanDefinition;
+import nextstep.di.bean.ConfigurationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

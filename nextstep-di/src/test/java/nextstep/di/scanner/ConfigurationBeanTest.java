@@ -1,5 +1,6 @@
 package nextstep.di.scanner;
 
+import nextstep.di.bean.ConfigurationBean;
 import nextstep.di.factory.example.ExampleConfig;
 import nextstep.di.factory.example.IntegrationConfig;
 import org.apache.commons.dbcp2.BasicDataSource;
