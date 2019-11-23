@@ -11,6 +11,8 @@ import static org.reflections.ReflectionUtils.getAllConstructors;
 import static org.reflections.ReflectionUtils.withAnnotation;
 
 public class BeanFactoryUtils {
+    private static final int LIMIT_NUMBER_OF_INJECTED_CONSTRUCTOR = 1;
+
     /**
      * 인자로 전달하는 클래스의 생성자 중 @Inject 애노테이션이 설정되어 있는 생성자를 반환
      *
@@ -27,7 +29,7 @@ public class BeanFactoryUtils {
     }
 
     private static void validateMultipleInjectedConstructor(Set<Constructor> injectedConstructors) {
-        if (injectedConstructors.size() > 1) {
+        if (injectedConstructors.size() > LIMIT_NUMBER_OF_INJECTED_CONSTRUCTOR) {
             throw new DoesNotAllowMultipleInjectedConstructorException();
         }
     }
