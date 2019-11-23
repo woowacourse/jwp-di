@@ -30,9 +30,11 @@ public class BeanScannerTest {
                 MyQnaService.class,
                 TestService.class,
                 JdbcQuestionRepository.class,
-                JdbcUserRepository.class
+                JdbcUserRepository.class,
+                ExampleConfig.class,
+                IntegrationConfig.class
         );
-        assertThat(preInstantiateClazz.size()).isEqualTo(5);
+        assertThat(preInstantiateClazz.size()).isEqualTo(7);
     }
 
     @Test
