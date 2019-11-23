@@ -52,7 +52,7 @@ public class BeanFactory {
                     logger.debug("config bean name : {}, instance : {}", preInstanticateBean, instance);
                     return beans.get(preInstanticateBean);
                 } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
 
