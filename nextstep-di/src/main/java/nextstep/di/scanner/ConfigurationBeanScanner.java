@@ -2,7 +2,6 @@ package nextstep.di.scanner;
 
 import com.google.common.collect.Maps;
 import nextstep.annotation.Bean;
-import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
 import nextstep.di.factory.BeanFactory;
 import org.reflections.Reflections;
@@ -15,7 +14,7 @@ import java.util.Set;
 
 public class ConfigurationBeanScanner extends AbstractBeanScanner {
     private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
-    private static final Class[] COMPONENT_SCAN = {ComponentScan.class};
+    private static final Class[] COMPONENT_SCAN = {Configuration.class};
 
     public ConfigurationBeanScanner(BeanFactory beanFactory) {
         super(beanFactory);

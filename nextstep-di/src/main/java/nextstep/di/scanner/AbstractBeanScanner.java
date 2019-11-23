@@ -23,7 +23,6 @@ public abstract class AbstractBeanScanner implements BeanScanner {
 
     public abstract void doScan(Object... basePackage);
 
-    @SuppressWarnings("unchecked")
     protected abstract <T> Map<Class<?>, T> getBeans();
 
     @SuppressWarnings("unchecked")
