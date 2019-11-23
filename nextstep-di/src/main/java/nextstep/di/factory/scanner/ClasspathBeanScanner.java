@@ -1,29 +1,34 @@
-package nextstep.di.factory;
+package nextstep.di.factory.scanner;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.beandefinition.BeanDefinition;
+import nextstep.di.factory.beandefinition.ClasspathBeanDefinition;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class BeanScanner {
-    private static final Logger logger = LoggerFactory.getLogger(BeanScanner.class);
+public class ClasspathBeanScanner {
+    private final Reflections reflections;
+    private final List<Class<? extends Annotation>> annotations;
 
-    private Reflections reflections;
-    private List<Class<? extends Annotation>> annotations;
-
-    public BeanScanner(Object... basePackage) {
+    public ClasspathBeanScanner(Object... basePackage) {
         reflections = new Reflections(basePackage);
         annotations = Arrays.asList(
                 Controller.class, Service.class, Repository.class
         );
+    }
+
+    public Set<BeanDefinition> scan() {
+        return getAnnotatedTypes().stream()
+                .map(ClasspathBeanDefinition::new)
+                .collect(Collectors.toSet());
     }
 
     public Set<Class<?>> getAnnotatedTypes() {
@@ -31,7 +36,6 @@ public class BeanScanner {
         for (Class<? extends Annotation> annotation : annotations) {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
-        logger.debug("Scan Beans Type : {}", beans);
         return beans;
     }
 }
