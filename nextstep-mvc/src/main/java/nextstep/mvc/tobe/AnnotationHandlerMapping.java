@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class AnnotationHandlerMapping implements HandlerMapping {
@@ -42,11 +43,30 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         logger.info("Initialized AnnotationHandlerMapping!");
     }
 
+    @SuppressWarnings("unchecked")
+    private Set<Method> getRequestMappingMethods(Set<Class<?>> controllers) {
+        Set<Method> requestMappingMethods = Sets.newHashSet();
+        Predicate<Method> methodPredicate = ReflectionUtils.withAnnotation(RequestMapping.class)::apply;
+
+        for (Class<?> clazz : controllers) {
+            requestMappingMethods.addAll(ReflectionUtils.getAllMethods(clazz, methodPredicate::test));
+        }
+        return requestMappingMethods;
+    }
+
     private void addHandlerExecutions(Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
+
         handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(beanFactory.getBean(method.getDeclaringClass()), method));
+            handlerExecutions.put(handlerKey, createHandlerExecution(method));
         });
+    }
+
+    private HandlerExecution createHandlerExecution(Method method) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        Object declaredObject = beanFactory.getBean(declaringClass);
+
+        return new HandlerExecution(declaredObject, method);
     }
 
     private List<HandlerKey> mapHandlerKeys(final String value, final RequestMethod[] originalMethods) {
@@ -58,17 +78,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
                 .map(method -> new HandlerKey(value, method))
                 .collect(Collectors.toList());
     }
-
-    @SuppressWarnings("unchecked")
-    private Set<Method> getRequestMappingMethods(Set<Class<?>> controllers) {
-        Set<Method> requestMappingMethods = Sets.newHashSet();
-        for (Class<?> clazz : controllers) {
-            requestMappingMethods
-                    .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
-        }
-        return requestMappingMethods;
-    }
-
 
     public Object getHandler(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
