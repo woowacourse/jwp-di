@@ -5,10 +5,7 @@ import nextstep.di.factory.util.BeanFactoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
-
-import static java.util.stream.Collectors.toSet;
 
 public class BeanDefinitions {
     private static final Logger logger = LoggerFactory.getLogger(BeanDefinitions.class);
@@ -25,15 +22,8 @@ public class BeanDefinitions {
         beanDefinitions.put(clazz, beanDefinition);
     }
 
-    public void setPreInstantiateBeans(Set<Class<?>> preInstantiateBeans) {
+    public void addPreInstantiateBeans(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans.addAll(preInstantiateBeans);
-    }
-
-    public Set<Class<?>> getSupportedClass(Class<? extends Annotation> annotation) {
-        return beanDefinitions.keySet()
-                .stream()
-                .filter(clazz -> clazz.isAnnotationPresent(annotation))
-                .collect(toSet());
     }
 
     public <T> Object createSingleInstance(Class<T> clazz) {
