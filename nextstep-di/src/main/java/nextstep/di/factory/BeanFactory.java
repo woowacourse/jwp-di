@@ -2,8 +2,6 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.stereotype.Controller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -13,8 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
     private Map<Class<?>, BeanDefinition> definitions;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
@@ -52,7 +48,6 @@ public class BeanFactory {
         try {
             return beanDefinition.getBeanCreator().create(configurationBean, parameters.toArray());
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            logger.error(e.getMessage(), e);
             throw new BeanCreationFailException(e);
         }
     }

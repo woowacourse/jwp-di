@@ -3,8 +3,6 @@ package nextstep.di.factory;
 import com.google.common.collect.Maps;
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -16,8 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BeanDefinitionFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanDefinitionFactory.class);
-
     private final Set<Class<?>> preInstantiateClasses;
 
     public BeanDefinitionFactory(Set<Class<?>> preInstantiateClasses) {
@@ -47,7 +43,6 @@ public class BeanDefinitionFactory {
         try {
             return concreteClass.getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
-            logger.error(e.getMessage(), e);
             throw new BeanCreationFailException(e);
         }
     }
