@@ -22,4 +22,8 @@ public class SupportedClass {
     public void addSupportedClass(Class<?> clazz) {
         supportedClass.add(clazz);
     }
+
+    public void addSupportedClass(Set<Class<?>> preInstantiateBeans) {
+        supportedClass.addAll(preInstantiateBeans);
+    }
 }

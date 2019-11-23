@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import nextstep.di.factory.domain.BeanFactory;
 import nextstep.di.factory.domain.beandefinition.AnnotationBeanDefinition;
 import nextstep.di.factory.domain.beandefinition.BeanDefinition;
+import nextstep.di.factory.support.SupportedClass;
 import nextstep.di.factory.util.BeanFactoryUtils;
 import nextstep.di.factory.util.ReflectionUtils;
 import nextstep.stereotype.Controller;
@@ -25,14 +26,12 @@ public class ClassPathScanner {
             Arrays.asList(Controller.class, Service.class, Repository.class);
 
     private Reflections reflections;
-    private BeanFactory beanFactory;
 
-    public ClassPathScanner(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public ClassPathScanner(Object... basePackage) {
+        reflections = new Reflections(basePackage);
     }
 
-    public void scan(Object... basePackage) {
-        reflections = new Reflections(basePackage);
+    public void scan(BeanFactory beanFactory) {
         Set<Class<?>> preInstantiateBeans = scanAnnotations();
         beanFactory.addInstantiateBeans(preInstantiateBeans);
 
@@ -65,5 +64,11 @@ public class ClassPathScanner {
         }
         logger.debug("Scan Beans Type : {}", beans);
         return beans;
+    }
+
+    public void scan(SupportedClass supportedClass) {
+        Set<Class<?>> preInstantiateBeans = scanAnnotations();
+
+        supportedClass.addSupportedClass(preInstantiateBeans);
     }
 }
