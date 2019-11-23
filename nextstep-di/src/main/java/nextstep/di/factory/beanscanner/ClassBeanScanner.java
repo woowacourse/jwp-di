@@ -20,9 +20,12 @@ public class ClassBeanScanner implements BeanScanner {
 
     @Override
     public Map<Class<?>, BeanCreator> scan(Object... basePackages) {
-        Reflections reflections = new Reflections(basePackages);
-        Set<Class<?>> types = getTypesAnnotatedWith(reflections, Controller.class, Service.class, Repository.class, Configuration.class);
-        types.addAll(getTypesFromComponentScan(types));
+        Set<Class<?>> types = Sets.newHashSet();
+        Set<Class<?>> componentScans = getTypesAnnotatedWith(new Reflections(basePackages), ComponentScan.class);
+        for (Class<?> clazz : componentScans) {
+            String[] basePackage = clazz.getAnnotation(ComponentScan.class).basePackages();
+            types.addAll(getTypesAnnotatedWith(new Reflections(basePackage), Controller.class, Service.class, Repository.class));
+        }
         return Maps.asMap(types, ClassBeanCreator::new);
     }
 
@@ -33,14 +36,5 @@ public class ClassBeanScanner implements BeanScanner {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
         return beans;
-    }
-
-    private Set<Class<?>> getTypesFromComponentScan(Set<Class<?>> types) {
-        return types.stream()
-                .filter(type -> type.isAnnotationPresent(ComponentScan.class))
-                .map(type -> type.getAnnotation(ComponentScan.class).basePackages())
-                .map(packages -> getTypesAnnotatedWith(new Reflections(packages, Controller.class, Service.class, Repository.class)))
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
     }
 }

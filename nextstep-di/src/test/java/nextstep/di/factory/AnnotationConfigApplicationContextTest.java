@@ -1,6 +1,6 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.BeanInjectedComponent;
+import nextstep.di.factory.example.component.BeanInjectedComponent;
 import nextstep.di.factory.example.ComponentScanConfig;
 import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.component.AnnotatedController;
@@ -49,11 +49,12 @@ public class AnnotationConfigApplicationContextTest {
 
     @Test
     public void getControllers() {
-        String basePackages = "nextstep.di.factory.example.component";
+        String basePackages = "nextstep.di.factory.example";
         MvcApplicationContext context = new AnnotationConfigApplicationContext(basePackages);
 
-        assertThat(context.getControllers().size()).isEqualTo(2);
+        assertThat(context.getControllers().size()).isEqualTo(3);
         assertThat(context.getControllers().containsKey(AnnotatedController.class)).isTrue();
         assertThat(context.getControllers().containsKey(QnaController.class)).isTrue();
+        assertThat(context.getControllers().containsKey(BeanInjectedComponent.class)).isTrue();
     }
 }
