@@ -1,7 +1,7 @@
 package nextstep.di.factory.beancreator;
 
 import com.google.common.collect.Lists;
-import nextstep.di.factory.exception.ObjectInstantiationFailException;
+import nextstep.di.factory.exception.BeanInstantiationFailException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,7 +26,7 @@ public class MethodBeanCreator implements BeanCreator {
         try {
             return method.invoke(instance, params);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new ObjectInstantiationFailException(e);
+            throw new BeanInstantiationFailException(e);
         }
     }
 }

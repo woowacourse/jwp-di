@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import nextstep.annotation.Inject;
 import nextstep.di.factory.exception.InterfaceCannotInstantiatedException;
 import nextstep.di.factory.exception.NoDefaultConstructorException;
-import nextstep.di.factory.exception.ObjectInstantiationFailException;
+import nextstep.di.factory.exception.BeanInstantiationFailException;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class ClassBeanCreator implements BeanCreator {
         try {
             return ctor.newInstance(params);
         } catch (Exception e) {
-            throw new ObjectInstantiationFailException(e);
+            throw new BeanInstantiationFailException(e);
         }
     }
 

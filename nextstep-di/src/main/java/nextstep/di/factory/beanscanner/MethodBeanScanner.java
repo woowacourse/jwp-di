@@ -7,7 +7,7 @@ import nextstep.annotation.Configuration;
 import nextstep.di.factory.beancreator.BeanCreator;
 import nextstep.di.factory.beancreator.MethodBeanCreator;
 import nextstep.di.factory.exception.InvalidConfigurationClassException;
-import nextstep.di.factory.exception.ObjectInstantiationFailException;
+import nextstep.di.factory.exception.BeanInstantiationFailException;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
@@ -48,7 +48,7 @@ public class MethodBeanScanner implements BeanScanner {
         try {
             instance = configClass.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new ObjectInstantiationFailException(e);
+            throw new BeanInstantiationFailException(e);
         }
 
         return Arrays.stream(configClass.getDeclaredMethods())
