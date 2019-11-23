@@ -11,11 +11,11 @@ import java.util.Set;
 public class TopologySort<T> {
     private final Set<T> inputNodes;
     private final ToNodeGenerator<T> toNodeGenerator;
-    private final CycleErrorHandler cycleErrorHandler;
+    private final CycleErrorHandler<T> cycleErrorHandler;
 
     private List<T> orders;
 
-    public TopologySort(Set<T> inputNodes, ToNodeGenerator<T> toNodeGenerator, CycleErrorHandler cycleErrorHandler) {
+    public TopologySort(Set<T> inputNodes, ToNodeGenerator<T> toNodeGenerator, CycleErrorHandler<T> cycleErrorHandler) {
         this.inputNodes = inputNodes;
         this.toNodeGenerator = toNodeGenerator;
         this.cycleErrorHandler = cycleErrorHandler;
@@ -54,7 +54,7 @@ public class TopologySort<T> {
 
     private void handleIfCycleExist(T node, Set<T> visited, Set<T> finished) {
         if (visited.contains(node) && !finished.contains(node)) {
-            cycleErrorHandler.errorHandle();
+            cycleErrorHandler.errorHandle(node);
         }
     }
 

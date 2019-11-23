@@ -1,5 +1,5 @@
 package nextstep.supports;
 
-public interface CycleErrorHandler {
-    void errorHandle();
+public interface CycleErrorHandler<T> {
+    void errorHandle(T node);
 }

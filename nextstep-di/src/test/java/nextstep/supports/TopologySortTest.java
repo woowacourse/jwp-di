@@ -115,7 +115,7 @@ class TopologySortTest {
     }
 
     private CycleErrorHandler getErrorHandler() {
-        return () -> {
+        return (node) -> {
             throw new RuntimeException("빵");
         };
     }

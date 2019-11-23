@@ -2,6 +2,8 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import nextstep.di.exception.MultipleBeanImplementationException;
+import nextstep.di.exception.NotExistBeanException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,14 +47,23 @@ public class BeanFactoryUtils {
             return injectedClazz;
         }
 
-        for (Class<?> clazz : preInstantiatedBeans) {
-            Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
-            if (interfaces.contains(injectedClazz)) {
-                return clazz;
-            }
+        List<Class<?>> concreteclasses = preInstantiatedBeans.stream()
+                .filter(clazz -> isConcrete(clazz, injectedClazz))
+                .collect(Collectors.toList());
+
+        if (concreteclasses.isEmpty()) {
+            throw NotExistBeanException.from(injectedClazz);
+        }
+        if (2 <= concreteclasses.size()) {
+            throw MultipleBeanImplementationException.from(injectedClazz, concreteclasses);
         }
 
-        throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+        return concreteclasses.get(0);
+    }
+
+    private static boolean isConcrete(Class<?> clazz, Class<?> injectedInterface) {
+        return Sets.newHashSet(clazz.getInterfaces())
+                .contains(injectedInterface);
     }
 
     public static List<Class<?>> findConcreteClasses(List<Class<?>> classes, Set<Class<?>> preInstantiatedBeans) {
