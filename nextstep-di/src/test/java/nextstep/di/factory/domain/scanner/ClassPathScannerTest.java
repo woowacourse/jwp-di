@@ -1,7 +1,8 @@
 package nextstep.di.factory.domain.scanner;
 
-import nextstep.di.factory.domain.BeanFactory;
-import nextstep.di.factory.domain.GenericBeanFactory;
+import nextstep.di.domain.factory.BeanFactory;
+import nextstep.di.domain.factory.GenericBeanFactory;
+import nextstep.di.domain.scanner.ClassPathScanner;
 import nextstep.di.factory.example.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,12 +1,12 @@
-package nextstep.di.factory.domain.scanner;
+package nextstep.di.domain.scanner;
 
 import com.google.common.collect.Sets;
-import nextstep.di.factory.domain.BeanFactory;
-import nextstep.di.factory.domain.beandefinition.AnnotationBeanDefinition;
-import nextstep.di.factory.domain.beandefinition.BeanDefinition;
-import nextstep.di.factory.support.SupportedClass;
-import nextstep.di.factory.util.BeanFactoryUtils;
-import nextstep.di.factory.util.ReflectionUtils;
+import nextstep.di.domain.beandefinition.BeanDefinition;
+import nextstep.di.domain.factory.BeanFactory;
+import nextstep.di.domain.beandefinition.AnnotationBeanDefinition;
+import nextstep.di.support.SupportedClass;
+import nextstep.di.util.BeanFactoryUtils;
+import nextstep.di.util.ReflectionUtils;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;

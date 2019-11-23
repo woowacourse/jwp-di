@@ -1,7 +1,8 @@
 package nextstep.di.factory.domain.scanner;
 
-import nextstep.di.factory.domain.BeanFactory;
-import nextstep.di.factory.domain.GenericBeanFactory;
+import nextstep.di.domain.factory.BeanFactory;
+import nextstep.di.domain.factory.GenericBeanFactory;
+import nextstep.di.domain.scanner.ConfigurationScanner;
 import nextstep.di.factory.example.ExampleConfig;
 import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.MyJdbcTemplate;

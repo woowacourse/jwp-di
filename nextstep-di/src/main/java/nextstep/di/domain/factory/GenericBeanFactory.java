@@ -1,8 +1,7 @@
-package nextstep.di.factory.domain;
+package nextstep.di.domain.factory;
 
-import nextstep.di.factory.domain.beandefinition.BeanDefinition;
-import nextstep.di.factory.domain.beandefinition.SingleInstanceRegistry;
-import nextstep.di.factory.support.Beans;
+import nextstep.di.domain.beandefinition.BeanDefinition;
+import nextstep.di.support.Beans;
 
 import java.util.Set;
 

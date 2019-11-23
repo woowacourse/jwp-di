@@ -1,4 +1,4 @@
-package nextstep.di.factory.domain.beandefinition;
+package nextstep.di.domain.beandefinition;
 
 import java.util.List;
 

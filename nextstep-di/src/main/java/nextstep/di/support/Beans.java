@@ -1,7 +1,7 @@
-package nextstep.di.factory.support;
+package nextstep.di.support;
 
 import com.google.common.collect.Maps;
-import nextstep.di.factory.exception.BeanNotExistException;
+import nextstep.di.exception.BeanNotExistException;
 
 import java.util.Map;
 import java.util.Optional;

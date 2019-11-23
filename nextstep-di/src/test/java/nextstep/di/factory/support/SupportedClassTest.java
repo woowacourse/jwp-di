@@ -2,6 +2,7 @@ package nextstep.di.factory.support;
 
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
+import nextstep.di.support.SupportedClass;
 import nextstep.stereotype.Repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

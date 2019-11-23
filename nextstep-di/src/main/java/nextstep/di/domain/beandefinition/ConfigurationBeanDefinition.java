@@ -1,6 +1,6 @@
-package nextstep.di.factory.domain.beandefinition;
+package nextstep.di.domain.beandefinition;
 
-import nextstep.di.factory.util.ReflectionUtils;
+import nextstep.di.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

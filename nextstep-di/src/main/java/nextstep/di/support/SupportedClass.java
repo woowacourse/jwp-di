@@ -1,4 +1,4 @@
-package nextstep.di.factory.support;
+package nextstep.di.support;
 
 import java.lang.annotation.Annotation;
 import java.util.HashSet;

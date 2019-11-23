@@ -1,10 +1,10 @@
-package nextstep.di.factory.domain.scanner;
+package nextstep.di.domain.scanner;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
-import nextstep.di.factory.domain.BeanFactory;
-import nextstep.di.factory.domain.beandefinition.BeanDefinition;
-import nextstep.di.factory.domain.beandefinition.ConfigurationBeanDefinition;
+import nextstep.di.domain.beandefinition.BeanDefinition;
+import nextstep.di.domain.factory.BeanFactory;
+import nextstep.di.domain.beandefinition.ConfigurationBeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

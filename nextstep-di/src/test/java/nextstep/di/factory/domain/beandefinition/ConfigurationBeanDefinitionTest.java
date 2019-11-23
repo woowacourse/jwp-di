@@ -1,6 +1,7 @@
 package nextstep.di.factory.domain.beandefinition;
 
 import nextstep.annotation.Bean;
+import nextstep.di.domain.beandefinition.ConfigurationBeanDefinition;
 import nextstep.di.factory.example.ExampleConfig;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.Test;

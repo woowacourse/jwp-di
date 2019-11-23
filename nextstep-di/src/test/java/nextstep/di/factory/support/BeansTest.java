@@ -3,7 +3,8 @@ package nextstep.di.factory.support;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.exception.BeanNotExistException;
+import nextstep.di.exception.BeanNotExistException;
+import nextstep.di.support.Beans;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

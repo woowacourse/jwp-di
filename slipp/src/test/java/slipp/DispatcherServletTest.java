@@ -1,6 +1,6 @@
 package slipp;
 
-import nextstep.di.factory.domain.context.GenericApplicationContext;
+import nextstep.di.domain.context.GenericApplicationContext;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;

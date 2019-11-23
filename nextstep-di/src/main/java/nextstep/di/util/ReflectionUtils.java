@@ -1,6 +1,6 @@
-package nextstep.di.factory.util;
+package nextstep.di.util;
 
-import nextstep.di.factory.exception.ReflectionUtilException;
+import nextstep.di.exception.ReflectionUtilException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
