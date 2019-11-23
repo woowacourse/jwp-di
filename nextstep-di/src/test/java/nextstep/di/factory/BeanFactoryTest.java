@@ -3,6 +3,7 @@ package nextstep.di.factory;
 import nextstep.di.configuration.example.JdbcTemplateStub;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import nextstep.di.factory.exception.CircularReferenceException;
 import nextstep.di.scanner.BeanScanner;
 import nextstep.di.scanner.ComponentScanner;
 import nextstep.di.scanner.ConfigurationScanner;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
@@ -63,5 +65,12 @@ public class BeanFactoryTest {
 
         // when & then
         assertThat(beanFactory.getBeansWithAnnotation(Repository.class)).hasSize(2);
+    }
+
+    @Test
+    void fail_with_circular_reference() {
+        BeanScanner beanScanner = new ComponentScanner("nextstep.di.factory.failexample.circularreference");
+        BeanFactory beanFactory = new BeanFactory(beanScanner.getBeanDefinitions());
+        assertThrows(CircularReferenceException.class, () -> beanFactory.initialize());
     }
 }

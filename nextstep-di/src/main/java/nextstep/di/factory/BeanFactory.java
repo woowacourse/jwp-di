@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.BeanInitializationException;
+import nextstep.di.factory.exception.CircularReferenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +64,16 @@ public class BeanFactory {
     private Object[] resolveInstantiateParameters(BeanDefinition beanDefinition) {
         return Arrays.stream(beanDefinition.getParameterTypes())
                 .map(param -> BeanFactoryUtils.findConcreteClass(param, beanDefinitions.keySet()))
+                .peek(cls -> checkCircularReference(cls, beanDefinition))
                 .map(this::getOrInstantiate)
                 .toArray();
+    }
+
+    private void checkCircularReference(Class<?> clazz, BeanDefinition beanDefinition) {
+        BeanDefinition def2 = beanDefinitions.get(clazz);
+        if (def2.hasReference(beanDefinition)) {
+            throw new CircularReferenceException();
+        }
     }
 
     public Set<Object> getBeansWithAnnotation(Class<? extends Annotation> annotation) {
