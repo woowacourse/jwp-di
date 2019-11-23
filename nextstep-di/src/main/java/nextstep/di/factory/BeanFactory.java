@@ -1,7 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.factory.exception.BeanFactoryInitializeException;
+import nextstep.di.factory.exception.BeanInitializationException;
 import nextstep.di.scanner.BeanScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class BeanFactory {
             return instantiateBean(clazz);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             logger.error("Error while instantiate bean", e);
-            throw new BeanFactoryInitializeException(e);
+            throw new BeanInitializationException(e);
         }
     }
 

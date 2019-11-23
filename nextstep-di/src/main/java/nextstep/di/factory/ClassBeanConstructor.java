@@ -1,6 +1,6 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.exception.BeanFactoryInitializeException;
+import nextstep.di.factory.exception.BeanInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class ClassBeanConstructor implements BeanConstructor {
             return ctor;
         } catch (NoSuchMethodException e) {
             logger.error("Error while getting constructor", e);
-            throw new BeanFactoryInitializeException(e);
+            throw new BeanInitializationException(e);
         }
     }
 
