@@ -1,8 +1,6 @@
 package slipp;
 
 import nextstep.di.factory.ApplicationContext;
-import nextstep.di.factory.BeanFactory;
-import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
@@ -19,7 +17,6 @@ import slipp.domain.User;
 import slipp.support.MyConfiguration;
 
 import javax.sql.DataSource;
-import javax.xml.crypto.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +28,6 @@ class DispatcherServletTest {
     @BeforeEach
     void setUp() throws Exception {
         ApplicationContext applicationContext = new ApplicationContext(WebServerLauncher.class, MyConfiguration.class);
-        applicationContext.initialize();
 
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));

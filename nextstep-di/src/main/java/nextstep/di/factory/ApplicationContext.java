@@ -7,33 +7,28 @@ import java.util.Map;
 
 public class ApplicationContext {
     private BeanFactory beanFactory;
-    private ClasspathBeanScanner classpathBeanScanner;
-    private ConfigurationBeanScanner configurationBeanScanner;
-    private Class<?>[] configurations;
 
     public ApplicationContext(Class<?>... configurations) {
-        beanFactory = new BeanFactory();
-        classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
-        configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
-        this.configurations = configurations;
-    }
+        BeanFactory beanFactory = new BeanFactory();
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
 
-    public void initialize() {
         configurationBeanScanner.register(configurations);
-        classpathBeanScanner.doScan(getPackages());
+        classpathBeanScanner.doScan(getBasePackages(configurations));
         beanFactory.initialize();
+
+        this.beanFactory = beanFactory;
     }
 
-    private Object[] getPackages() {
-        Object[] objects = Arrays.stream(configurations)
+    private Object[] getBasePackages(Class<?>... configurations) {
+        return Arrays.stream(configurations)
                 .filter(clazz -> clazz.isAnnotationPresent(ComponentScan.class))
                 .map(clazz -> clazz.getAnnotation(ComponentScan.class).value())
                 .flatMap(Arrays::stream)
                 .toArray();
-        return objects;
     }
 
-    public <T> T getBean(Class<T> requiredType)  {
+    public <T> T getBean(Class<T> requiredType) {
         return beanFactory.getBean(requiredType);
     }
 
