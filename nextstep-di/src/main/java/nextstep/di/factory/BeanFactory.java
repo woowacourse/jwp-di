@@ -32,11 +32,7 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        try {
-            preInstantiateBeans.forEach(this::getInstantiateClass);
-        } catch (ScannerException | NotRegisteredBeanException e) {
-            throw new InstantiateBeansException(e.getMessage(), e.getCause());
-        }
+        preInstantiateBeans.forEach(this::registerInstantiatedBean);
     }
 
     private Object registerInstantiatedBean(Class<?> clazz) {
@@ -71,7 +67,7 @@ public class BeanFactory {
         List<Object> args = Lists.newArrayList();
 
         for (Class<?> clazz : parameterTypes) {
-            args.add(getInstantiateClass(clazz));
+            args.add(registerInstantiatedBean(clazz));
         }
         return BeanUtils.instantiateClass(constructor, args.toArray());
     }
