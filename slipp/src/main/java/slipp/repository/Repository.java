@@ -6,11 +6,11 @@ import java.util.Optional;
 
 public interface Repository<T> {
 
-    void insert(T user);
+    void insert(T object);
 
-    Optional<T> findById(String userId);
+    Optional<T> findById(String id);
 
-    void update(T user);
+    void update(T object);
 
     List<T> findAll() throws SQLException;
 }
