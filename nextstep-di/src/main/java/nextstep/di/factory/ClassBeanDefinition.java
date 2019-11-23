@@ -8,17 +8,17 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
-public class ClassBeanConstructor implements BeanConstructor {
-    private static final Logger logger = LoggerFactory.getLogger(ClassBeanConstructor.class);
+public class ClassBeanDefinition implements BeanDefinition {
+    private static final Logger logger = LoggerFactory.getLogger(ClassBeanDefinition.class);
 
     private final Constructor<?> constructor;
 
-    private ClassBeanConstructor(Constructor<?> constructor) {
+    private ClassBeanDefinition(Constructor<?> constructor) {
         this.constructor = constructor;
     }
 
-    public static ClassBeanConstructor of (Class<?> clazz) {
-        return new ClassBeanConstructor(getConstructor(clazz));
+    public static ClassBeanDefinition of(Class<?> clazz) {
+        return new ClassBeanDefinition(getConstructor(clazz));
     }
 
     private static Constructor<?> getConstructor(Class<?> clazz) {
@@ -45,7 +45,7 @@ public class ClassBeanConstructor implements BeanConstructor {
     }
 
     @Override
-    public Object construct(Object... parameters) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Object instantiate(Object... parameters) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         return constructor.newInstance(parameters);
     }
 }

@@ -17,12 +17,12 @@ public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
-    private Map<Class<?>, BeanConstructor> constructors;
+    private Map<Class<?>, BeanDefinition> beanDefinitions;
 
-    public BeanFactory(Set<BeanConstructor> beanConstructors) {
-        constructors = new HashMap<>();
-        beanConstructors.stream()
-                .forEach(ctor -> constructors.put(ctor.getReturnType(), ctor));
+    public BeanFactory(Set<BeanDefinition> beanDefinitions) {
+        this.beanDefinitions = new HashMap<>();
+        beanDefinitions.stream()
+                .forEach(def -> this.beanDefinitions.put(def.getReturnType(), def));
     }
 
     @SuppressWarnings("unchecked")
@@ -31,7 +31,7 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        constructors.keySet().forEach(this::getOrInstantiate);
+        beanDefinitions.keySet().forEach(this::getOrInstantiate);
     }
 
     private Object getOrInstantiate(Class<?> clazz) {
@@ -54,15 +54,15 @@ public class BeanFactory {
     }
 
     private Object instantiateBean(Class<?> clazz) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        BeanConstructor ctor = constructors.get(clazz);
-        Object[] params = resolveConstructorParameters(ctor);
+        BeanDefinition beanDefinition = beanDefinitions.get(clazz);
+        Object[] params = resolveInstantiateParameters(beanDefinition);
 
-        return ctor.construct(params);
+        return beanDefinition.instantiate(params);
     }
 
-    private Object[] resolveConstructorParameters(BeanConstructor ctor) {
-        return Arrays.stream(ctor.getParameterTypes())
-                .map(param -> BeanFactoryUtils.findConcreteClass(param, constructors.keySet())
+    private Object[] resolveInstantiateParameters(BeanDefinition beanDefinition) {
+        return Arrays.stream(beanDefinition.getParameterTypes())
+                .map(param -> BeanFactoryUtils.findConcreteClass(param, beanDefinitions.keySet())
                         .orElse(param))
                 .map(this::getOrInstantiate)
                 .toArray();

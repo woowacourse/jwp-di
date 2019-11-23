@@ -1,7 +1,7 @@
 package nextstep.di;
 
 import nextstep.annotation.ComponentScan;
-import nextstep.di.factory.BeanConstructor;
+import nextstep.di.factory.BeanDefinition;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.scanner.BeanScanner;
 import nextstep.di.scanner.ComponentScanner;
@@ -38,13 +38,13 @@ public class ApplicationContext {
         return root.getPackage().getName();
     }
 
-    private Set<BeanConstructor> getBeanConstructors(Object[] basePackages) {
+    private Set<BeanDefinition> getBeanConstructors(Object[] basePackages) {
         BeanScanner[] beanScanners = {
                 new ConfigurationScanner(basePackages),
                 new ComponentScanner(basePackages)};
 
         return Stream.of(beanScanners)
-                .map(BeanScanner::getBeanConstructors)
+                .map(BeanScanner::getBeanDefinitions)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }

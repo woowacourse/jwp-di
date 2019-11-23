@@ -1,7 +1,7 @@
 package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
-import nextstep.di.factory.BeanConstructor;
+import nextstep.di.factory.BeanDefinition;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,5 +28,5 @@ public abstract class BeanScanner {
         return beans;
     }
 
-    public abstract Set<BeanConstructor> getBeanConstructors();
+    public abstract Set<BeanDefinition> getBeanDefinitions();
 }

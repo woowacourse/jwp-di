@@ -24,7 +24,7 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         BeanScanner beanScanner = new ComponentScanner("nextstep.di.factory.example");
-        beanFactory = new BeanFactory(beanScanner.getBeanConstructors());
+        beanFactory = new BeanFactory(beanScanner.getBeanDefinitions());
         beanFactory.initialize();
     }
 
@@ -44,7 +44,7 @@ public class BeanFactoryTest {
     void configuration() {
         // given
         BeanScanner beanScanner = new ConfigurationScanner("nextstep.di.configuration.example");
-        BeanFactory beanFactory = new BeanFactory(beanScanner.getBeanConstructors());
+        BeanFactory beanFactory = new BeanFactory(beanScanner.getBeanDefinitions());
         beanFactory.initialize();
 
         // when
@@ -58,7 +58,7 @@ public class BeanFactoryTest {
     void get_bean_by_annotation() {
         // given
         BeanScanner beanScanner = new ComponentScanner("nextstep.di.factory.example");
-        BeanFactory beanFactory = new BeanFactory(beanScanner.getBeanConstructors());
+        BeanFactory beanFactory = new BeanFactory(beanScanner.getBeanDefinitions());
         beanFactory.initialize();
 
         // when & then

@@ -1,7 +1,7 @@
 package nextstep.di.scanner;
 
-import nextstep.di.factory.BeanConstructor;
-import nextstep.di.factory.ClassBeanConstructor;
+import nextstep.di.factory.BeanDefinition;
+import nextstep.di.factory.ClassBeanDefinition;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -16,9 +16,9 @@ public class ComponentScanner extends BeanScanner {
     }
 
     @Override
-    public Set<BeanConstructor> getBeanConstructors() {
+    public Set<BeanDefinition> getBeanDefinitions() {
         return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class).stream()
-                .map(ClassBeanConstructor::of)
+                .map(ClassBeanDefinition::of)
                 .collect(Collectors.toSet());
     }
 }
