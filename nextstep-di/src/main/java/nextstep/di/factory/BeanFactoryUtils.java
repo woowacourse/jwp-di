@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
@@ -39,19 +38,26 @@ public class BeanFactoryUtils {
      * @param preInstanticateBeans
      * @return
      */
-    public static Optional<Class<?>> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
+    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
         if (!injectedClazz.isInterface()) {
-            return Optional.of(injectedClazz);
+            return injectedClazz;
         }
 
         for (Class<?> clazz : preInstanticateBeans) {
-            Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
+            Set<Class<?>> interfaces = getInterfacesOf(clazz);
+
             if (interfaces.contains(injectedClazz)) {
-                return Optional.of(clazz);
+                return clazz;
             }
         }
 
-        return Optional.empty();
+        throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+    }
+
+    private static Set<Class<?>> getInterfacesOf(Class<?> clazz) {
+        Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
+        interfaces.add(clazz);
+        return interfaces;
     }
 
     public static Object instantiate(Class<?> clazz) {

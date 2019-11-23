@@ -62,8 +62,7 @@ public class BeanFactory {
 
     private Object[] resolveInstantiateParameters(BeanDefinition beanDefinition) {
         return Arrays.stream(beanDefinition.getParameterTypes())
-                .map(param -> BeanFactoryUtils.findConcreteClass(param, beanDefinitions.keySet())
-                        .orElse(param))
+                .map(param -> BeanFactoryUtils.findConcreteClass(param, beanDefinitions.keySet()))
                 .map(this::getOrInstantiate)
                 .toArray();
     }
