@@ -6,7 +6,7 @@ import slipp.domain.User;
 import java.util.Collection;
 import java.util.Map;
 
-public class DataBase {
+public class Database {
     private static Map<String, User> users = Maps.newHashMap();
 
     static {
