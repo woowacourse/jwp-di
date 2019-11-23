@@ -1,14 +1,11 @@
 package nextstep.di.factory.example;
 
-import nextstep.stereotype.Repository;
-
 import javax.sql.DataSource;
 
-@Repository
-public class JdbcUserRepository implements UserRepository {
+public class CustomJdbcTemplate {
     private DataSource dataSource;
 
-    public JdbcUserRepository(DataSource dataSource) {
+    public CustomJdbcTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 

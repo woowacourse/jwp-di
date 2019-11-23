@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.factory.context;
 
 public class BeanCreateException extends RuntimeException {
     public BeanCreateException() {

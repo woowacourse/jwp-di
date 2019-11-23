@@ -1,15 +1,17 @@
-package nextstep.di.factory.example;
+package slipp;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
+import nextstep.jdbc.JdbcTemplate;
 import org.apache.commons.dbcp2.BasicDataSource;
+import slipp.dao.UserDao;
 
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan(basePackages = "nextstep.di.factory.example")
-public class ExampleConfig {
+@ComponentScan(basePackages = "slipp.controller")
+public class SlippConfig {
     @Bean
     public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
@@ -18,5 +20,15 @@ public class ExampleConfig {
         ds.setUsername("sa");
         ds.setPassword("");
         return ds;
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    public UserDao userDao(JdbcTemplate jdbcTemplate) {
+        return new UserDao(jdbcTemplate);
     }
 }

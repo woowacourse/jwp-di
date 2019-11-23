@@ -106,9 +106,8 @@ public class UserController extends AbstractNewController {
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
             return jspView("redirect:/");
-        } else {
-            throw new IllegalStateException("비밀번호가 틀립니다.");
         }
+        throw new IllegalStateException("비밀번호가 틀립니다.");
     }
 
     @RequestMapping(value = "/users/logout", method = RequestMethod.GET)
