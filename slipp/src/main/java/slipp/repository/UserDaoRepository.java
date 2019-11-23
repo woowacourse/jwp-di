@@ -1,5 +1,7 @@
 package slipp.repository;
 
+import nextstep.jdbc.ConnectionManager;
+import nextstep.jdbc.JdbcTemplate;
 import nextstep.stereotype.Repository;
 import slipp.dao.UserDao;
 import slipp.domain.User;
@@ -10,7 +12,7 @@ import java.util.List;
 @Repository
 public class UserDaoRepository implements UserRepository {
 
-    private UserDao userDao = UserDao.getInstance();
+    private UserDao userDao = new UserDao(new JdbcTemplate(ConnectionManager.getDataSource()));
 
     public void insert(User user) {
         userDao.insert(user);
