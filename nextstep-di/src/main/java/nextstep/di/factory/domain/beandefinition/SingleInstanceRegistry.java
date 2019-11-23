@@ -7,14 +7,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class BeanDefinitions {
-    private static final Logger logger = LoggerFactory.getLogger(BeanDefinitions.class);
+public class SingleInstanceRegistry {
+    private static final Logger logger = LoggerFactory.getLogger(SingleInstanceRegistry.class);
 
     private Beans beans;
     private Map<Class<?>, BeanDefinition> beanDefinitions = new HashMap<>();
     private Set<Class<?>> preInstantiateBeans = new HashSet<>();
 
-    public BeanDefinitions(final Beans beans) {
+    public SingleInstanceRegistry(final Beans beans) {
         this.beans = beans;
     }
 
@@ -26,8 +26,8 @@ public class BeanDefinitions {
         this.preInstantiateBeans.addAll(preInstantiateBeans);
     }
 
-    public <T> Object createSingleInstance(Class<T> clazz) {
-        return createInstance(beanDefinitions.get(clazz));
+    public <T> T createSingleInstance(Class<T> clazz) {
+        return (T) createInstance(beanDefinitions.get(clazz));
     }
 
     private Object createInstance(BeanDefinition beanDefinition) {
