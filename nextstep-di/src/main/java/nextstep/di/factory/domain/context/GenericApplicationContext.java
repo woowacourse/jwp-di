@@ -1,7 +1,9 @@
-package nextstep.di.factory.domain;
+package nextstep.di.factory.domain.context;
 
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.domain.BeanFactory;
+import nextstep.di.factory.domain.GenericBeanFactory;
 import nextstep.di.factory.domain.scanner.ClassPathScanner;
 import nextstep.di.factory.domain.scanner.ConfigurationScanner;
 import nextstep.di.factory.support.SupportedClass;

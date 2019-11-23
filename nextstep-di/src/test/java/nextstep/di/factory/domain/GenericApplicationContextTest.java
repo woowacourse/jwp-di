@@ -1,5 +1,7 @@
 package nextstep.di.factory.domain;
 
+import nextstep.di.factory.domain.context.ApplicationContext;
+import nextstep.di.factory.domain.context.GenericApplicationContext;
 import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;

@@ -1,6 +1,6 @@
 package slipp;
 
-import nextstep.di.factory.domain.GenericApplicationContext;
+import nextstep.di.factory.domain.context.GenericApplicationContext;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;

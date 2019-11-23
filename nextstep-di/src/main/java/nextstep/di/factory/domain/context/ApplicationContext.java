@@ -1,4 +1,4 @@
-package nextstep.di.factory.domain;
+package nextstep.di.factory.domain.context;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
