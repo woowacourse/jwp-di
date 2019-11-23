@@ -6,17 +6,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import samples.MyConfiguration;
 import samples.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnnotationHandlerMappingTest {
-    private static String BASE_PACKAGE = "samples";
     private AnnotationHandlerMapping handlerMapping;
 
     @BeforeEach
     public void setup() {
-        ApplicationContext ac = new ApplicationContext(BASE_PACKAGE);
+        ApplicationContext ac = new ApplicationContext(MyConfiguration.class);
         handlerMapping = new AnnotationHandlerMapping(ac);
         handlerMapping.initialize();
     }

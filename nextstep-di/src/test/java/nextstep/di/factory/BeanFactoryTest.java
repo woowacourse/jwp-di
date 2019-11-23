@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.example.ExampleConfig;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.di.scanner.ApplicationContext;
@@ -8,9 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
-    private static final String TEST_BASE_PACKAGE = "nextstep.di.factory.example";
-
-    private ApplicationContext ac = new ApplicationContext(TEST_BASE_PACKAGE);
+    private ApplicationContext ac = new ApplicationContext(ExampleConfig.class);
 
     @Test
     public void di() {

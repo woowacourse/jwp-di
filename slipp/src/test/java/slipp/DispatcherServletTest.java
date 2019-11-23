@@ -15,6 +15,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
+import slipp.support.MyConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +30,7 @@ class DispatcherServletTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
-        ApplicationContext ac = new ApplicationContext("slipp");
+        ApplicationContext ac = new ApplicationContext(MyConfiguration.class);
 
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMapping(new AnnotationHandlerMapping(ac));

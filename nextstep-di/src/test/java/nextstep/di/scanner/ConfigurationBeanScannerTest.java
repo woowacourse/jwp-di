@@ -1,6 +1,7 @@
 package nextstep.di.scanner;
 
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.example.ExampleConfig;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
@@ -12,7 +13,7 @@ class ConfigurationBeanScannerTest {
 
     @Test
     public void register_simple() {
-        ApplicationContext ac = new ApplicationContext(TEST_BASE_PACKAGE);
+        ApplicationContext ac = new ApplicationContext(ExampleConfig.class);
         assertNotNull(ac.getBean(DataSource.class));
     }
 
