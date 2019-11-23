@@ -3,12 +3,12 @@ package nextstep.di.factory;
 import nextstep.di.configuration.example.JdbcTemplateStub;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import nextstep.di.scanner.BeanScanner;
 import nextstep.di.scanner.ComponentScanner;
 import nextstep.di.scanner.ConfigurationScanner;
 import nextstep.stereotype.Repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,8 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        beanFactory = new BeanFactory(new ComponentScanner("nextstep.di.factory.example"));
+        BeanScanner beanScanner = new ComponentScanner("nextstep.di.factory.example");
+        beanFactory = new BeanFactory(beanScanner.getBeanConstructors());
         beanFactory.initialize();
     }
 
@@ -42,7 +43,8 @@ public class BeanFactoryTest {
     @Test
     void configuration() {
         // given
-        BeanFactory beanFactory = new BeanFactory(new ConfigurationScanner("nextstep.di.configuration.example"));
+        BeanScanner beanScanner = new ConfigurationScanner("nextstep.di.configuration.example");
+        BeanFactory beanFactory = new BeanFactory(beanScanner.getBeanConstructors());
         beanFactory.initialize();
 
         // when
@@ -55,7 +57,8 @@ public class BeanFactoryTest {
     @Test
     void get_bean_by_annotation() {
         // given
-        BeanFactory beanFactory = new BeanFactory(new ComponentScanner("nextstep.di.factory.example"));
+        BeanScanner beanScanner = new ComponentScanner("nextstep.di.factory.example");
+        BeanFactory beanFactory = new BeanFactory(beanScanner.getBeanConstructors());
         beanFactory.initialize();
 
         // when & then

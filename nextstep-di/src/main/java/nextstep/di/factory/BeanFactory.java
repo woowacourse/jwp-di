@@ -2,7 +2,6 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.BeanInitializationException;
-import nextstep.di.scanner.BeanScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +9,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,10 +19,9 @@ public class BeanFactory {
     private Map<Class<?>, Object> beans = Maps.newHashMap();
     private Map<Class<?>, BeanConstructor> constructors;
 
-    public BeanFactory(BeanScanner... beanScanners) {
+    public BeanFactory(Set<BeanConstructor> beanConstructors) {
         constructors = new HashMap<>();
-        Arrays.stream(beanScanners)
-                .flatMap(scanner -> scanner.getBeanConstructors().stream())
+        beanConstructors.stream()
                 .forEach(ctor -> constructors.put(ctor.getReturnType(), ctor));
     }
 
