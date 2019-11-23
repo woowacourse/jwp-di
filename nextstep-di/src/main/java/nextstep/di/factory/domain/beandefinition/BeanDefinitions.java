@@ -1,5 +1,6 @@
 package nextstep.di.factory.domain.beandefinition;
 
+import nextstep.di.factory.support.Beans;
 import nextstep.di.factory.util.BeanFactoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,26 +13,48 @@ import static java.util.stream.Collectors.toSet;
 public class BeanDefinitions {
     private static final Logger logger = LoggerFactory.getLogger(BeanDefinitions.class);
 
+    private Beans beans;
     private Map<Class<?>, BeanDefinition> beanDefinitions = new HashMap<>();
     private Set<Class<?>> preInstantiateBeans = new HashSet<>();
+
+    public BeanDefinitions(final Beans beans) {
+        this.beans = beans;
+    }
 
     public void addBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
         beanDefinitions.put(clazz, beanDefinition);
     }
 
-    public <T> Object createInstance(Class<T> clazz) {
+    public void setPreInstantiateBeans(Set<Class<?>> preInstantiateBeans) {
+        this.preInstantiateBeans.addAll(preInstantiateBeans);
+    }
+
+    public Set<Class<?>> getSupportedClass(Class<? extends Annotation> annotation) {
+        return beanDefinitions.keySet()
+                .stream()
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
+                .collect(toSet());
+    }
+
+    public <T> Object createSingleInstance(Class<T> clazz) {
         return createInstance(beanDefinitions.get(clazz));
     }
 
-    public Object createInstance(BeanDefinition beanDefinition) {
+    private Object createInstance(BeanDefinition beanDefinition) {
         Class<?> beanType = beanDefinition.getBeanType();
         logger.debug("create {}...", beanType);
 
-        if (beanDefinition.hasParameter()) {
-            return beanDefinition.makeInstance(createParameter(beanDefinition));
+        if (beans.contains(beanType)) {
+            return beans.get(beanType);
         }
 
-        return beanDefinition.makeInstance();
+        if (beanDefinition.hasParameter()) {
+            beans.put(beanType, () -> beanDefinition.makeInstance(createParameter(beanDefinition)));
+            return beans.get(beanType);
+        }
+
+        beans.put(beanType, () -> beanDefinition.makeInstance());
+        return beans.get(beanType);
     }
 
     private Object[] createParameter(BeanDefinition beanDefinition) {
@@ -50,16 +73,5 @@ public class BeanDefinitions {
         } catch (IllegalStateException e) {
             return clazz;
         }
-    }
-
-    public void setPreInstantiateBeans(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans.addAll(preInstantiateBeans);
-    }
-
-    public Set<Class<?>> getSupportedClass(Class<? extends Annotation> annotation) {
-        return beanDefinitions.keySet()
-                .stream()
-                .filter(clazz -> clazz.isAnnotationPresent(annotation))
-                .collect(toSet());
     }
 }

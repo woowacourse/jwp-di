@@ -13,7 +13,7 @@ public class GenericBeanFactory implements BeanFactory {
 
     public GenericBeanFactory() {
         this.beans = new Beans();
-        this.beanDefinitions = new BeanDefinitions();
+        this.beanDefinitions = new BeanDefinitions(beans);
     }
 
     @Override
@@ -22,8 +22,7 @@ public class GenericBeanFactory implements BeanFactory {
             return beans.get(clazz);
         }
 
-        beans.put(clazz, () -> beanDefinitions.createInstance(clazz));
-        return beans.get(clazz);
+        return (T) beanDefinitions.createSingleInstance(clazz);
     }
 
     @Override
