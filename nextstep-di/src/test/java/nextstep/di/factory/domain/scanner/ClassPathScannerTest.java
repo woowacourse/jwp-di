@@ -22,7 +22,6 @@ public class ClassPathScannerTest {
     @Test
     public void classPathScan() {
         classPathScanner.scan("nextstep.di.factory.example");
-        beanFactory.initialize();
 
         QnaController qnaController = beanFactory.getBean(QnaController.class);
         assertNotNull(qnaController);
@@ -37,7 +36,6 @@ public class ClassPathScannerTest {
     @Test
     public void singleInstanceTest() {
         classPathScanner.scan("nextstep.di.factory.example");
-        beanFactory.initialize();
 
         QnaController qnaController = beanFactory.getBean(QnaController.class);
         assertThat(qnaController).isEqualTo(beanFactory.getBean(QnaController.class));

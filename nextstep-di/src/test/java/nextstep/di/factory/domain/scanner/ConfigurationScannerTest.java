@@ -26,7 +26,6 @@ public class ConfigurationScannerTest {
     @Test
     public void getDataSourceTest() {
         configurationScanner.register(ExampleConfig.class);
-        beanFactory.initialize();
 
         assertThat(beanFactory.getBean(DataSource.class))
                 .isInstanceOf(BasicDataSource.class);
@@ -35,7 +34,6 @@ public class ConfigurationScannerTest {
     @Test
     public void getMyJdbcTemplateTest() {
         configurationScanner.register(IntegrationConfig.class);
-        beanFactory.initialize();
 
         assertThat(beanFactory.getBean(DataSource.class))
                 .isInstanceOf(BasicDataSource.class);
@@ -47,7 +45,6 @@ public class ConfigurationScannerTest {
     @Test
     public void singleInstanceTest() {
         configurationScanner.register(IntegrationConfig.class);
-        beanFactory.initialize();
 
         assertThat(beanFactory.getBean(DataSource.class))
                 .isEqualTo(beanFactory.getBean(DataSource.class));

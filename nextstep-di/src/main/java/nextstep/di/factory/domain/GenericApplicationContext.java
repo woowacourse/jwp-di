@@ -35,8 +35,6 @@ public class GenericApplicationContext implements ApplicationContext {
         if (configuration.isAnnotationPresent(Configuration.class)) {
             configurationScanner.register(configuration);
         }
-
-        beanFactory.initialize();
     }
 
     @Override
