@@ -52,7 +52,6 @@ public class ApplicationContext {
     public void initialize(Object... basePackage) {
         cbs.doScan(basePackage);
         cbds.doScan(basePackage);
-        basePackages.forEach(aBasePackage -> cbds.doScan(aBasePackage));
         this.beanFactory.initialize();
     }
 
