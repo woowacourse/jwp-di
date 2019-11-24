@@ -1,6 +1,6 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 import nextstep.di.BeanDefinition;
 import nextstep.di.exception.BeanFactoryInitializeException;
 import nextstep.di.exception.DuplicatedBeanDefinition;
@@ -11,52 +11,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SingleBeanFactory implements BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(SingleBeanFactory.class);
 
     private BeanRegistry beanRegistry;
-    private Set<BeanDefinition> beanDefinitions;
+    private Map<Class<?>, BeanDefinition> beanDefinitions = Maps.newLinkedHashMap();
 
     public SingleBeanFactory(BeanScanner... beanScanners) {
         this.beanRegistry = new BeanRegistry();
         initializeBeanDefinitions(beanScanners);
     }
 
-    private Set<BeanDefinition> initializeBeanDefinitions(BeanScanner... beanScanners) {
-        beanDefinitions = Sets.newHashSet();
-
+    private Map<Class<?>, BeanDefinition> initializeBeanDefinitions(BeanScanner... beanScanners) {
         for (BeanScanner beanScanner : beanScanners) {
-            Set<BeanDefinition> addedBeanDefinition = beanScanner.doScan();
-            checkDuplicateAndException(addedBeanDefinition);
-            beanDefinitions.addAll(addedBeanDefinition);
+            putBeanDefinition(beanScanner);
         }
+
         return beanDefinitions;
     }
 
-    private void checkDuplicateAndException(Set<BeanDefinition> addedBeanDefinition) {
-        if (isDuplicated(addedBeanDefinition)) {
-            logger.error("Duplicated BeanDefinition: {}, {}", beanDefinitions, addedBeanDefinition);
+    private void putBeanDefinition(BeanScanner beanScanner) {
+        for (BeanDefinition beanDefinition : beanScanner.doScan()) {
+            checkDuplicate(beanDefinition);
+            beanDefinitions.put(beanDefinition.getType(), beanDefinition);
+        }
+    }
+
+    private void checkDuplicate(BeanDefinition beanDefinition) {
+        if (beanDefinitions.containsKey(beanDefinition.getType())) {
+            logger.error("Duplicated BeanDefinition: {}", beanDefinition.getType());
             throw new DuplicatedBeanDefinition();
         }
     }
 
-    private boolean isDuplicated(Set<BeanDefinition> addedBeanDefinitions) {
-        return addedBeanDefinitions.stream()
-                .anyMatch(addedBeanDefinition -> beanDefinitions.contains(addedBeanDefinition))
-                ;
-    }
-
     @Override
     public void initialize() {
-        beanDefinitions.forEach(beanDefinition -> {
+        beanDefinitions.entrySet().forEach(beanDefinitionEntry -> {
             try {
-                checkAndCreateBean(beanDefinition);
+                checkAndCreateBean(beanDefinitionEntry.getValue());
             } catch (Exception e) {
                 throw new BeanFactoryInitializeException(e);
             }
@@ -84,10 +79,16 @@ public class SingleBeanFactory implements BeanFactory {
     }
 
     private BeanDefinition searchBeanDefinition(Class<?> type) {
-        return beanDefinitions.stream()
+        if (Objects.nonNull(beanDefinitions.get(type))) {
+            return beanDefinitions.get(type);
+        }
+
+        return beanDefinitions.entrySet().stream()
+                .map(beanDefinitionEntry -> beanDefinitionEntry.getValue())
                 .filter(beanDefinition -> beanDefinition.isType(type))
                 .findAny()
-                .orElseThrow(NotFoundBeanDefinition::new);
+                .orElseThrow(NotFoundBeanDefinition::new)
+                ;
     }
 
     @Override
