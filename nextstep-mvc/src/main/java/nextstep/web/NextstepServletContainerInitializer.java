@@ -20,7 +20,7 @@ public class NextstepServletContainerInitializer implements ServletContainerInit
                 try {
                     initializers.add((WebApplicationInitializer) waiClass.newInstance());
                 } catch (Throwable ex) {
-                    throw new ServletException("Failed to instantiate WebApplicationInitializer class", ex);
+                    throw new ServletException("Failed to initializeDefinitions WebApplicationInitializer class", ex);
                 }
             }
         }

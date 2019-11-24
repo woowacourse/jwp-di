@@ -1,13 +1,13 @@
 package nextstep.utils;
 
-import samples.Car;
 import org.junit.jupiter.api.Test;
+import samples.Car;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JsonUtilsTest {
     @Test
-    void toObject() throws Exception {
+    void toObject() {
         String json = "{ \"color\" : \"Black\", \"type\" : \"BMW\" }";
         Car car = JsonUtils.toObject(json, Car.class);
         assertThat(car.getColor()).isEqualTo("Black");

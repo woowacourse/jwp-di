@@ -1,81 +1,61 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
+import nextstep.di.bean.BeanDefinition;
+import nextstep.stereotype.Controller;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
-    private Set<Class<?>> preInstanticateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
-
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
-    }
+    private Map<Class<?>, BeanDefinition> beanDefinitions = Maps.newHashMap();
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         return (T) beans.get(requiredType);
     }
 
+    public void register(Map<Class<?>, BeanDefinition> maps) {
+        this.beanDefinitions.putAll(maps);
+    }
+
     public void initialize() {
-        for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            injectInstantiateBean(preInstanticateBean);
+        for (Class<?> clazz : beanDefinitions.keySet()) {
+            beans.put(clazz, instantiateBeans(clazz));
         }
     }
 
-    public Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
-        Map<Class<?>, Object> annotatedClass = Maps.newHashMap();
-
-        beans.keySet().stream()
-                .filter(clazz -> clazz.isAnnotationPresent(annotation))
-                .forEach(clazz -> annotatedClass.put(clazz, beans.get(clazz)));
-
-        return annotatedClass;
+    public Map<Class<?>, Object> getController() {
+        return getAnnotatedWith(Controller.class);
     }
 
-    private Object injectInstantiateBean(Class<?> preInstanticateBean) {
-        if (beans.containsKey(preInstanticateBean)) {
-            return beans.get(preInstanticateBean);
+    private Object instantiateBeans(Class<?> definitionClazz) {
+        if (beans.containsKey(definitionClazz)) {
+            return beans.get(definitionClazz);
         }
 
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
+        Class[] clazz = beanDefinitions.get(definitionClazz).getParameterTypes();
+        Object[] params = new Object[clazz.length];
 
-        if (Objects.isNull(injectedConstructor)) {
-            Object instance = BeanUtils.instantiateClass(preInstanticateBean);
-            beans.put(preInstanticateBean, instance);
-            logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
-            return instance;
-        }
+        instantiateParams(clazz, params);
 
-        return putParameterizedObject(preInstanticateBean, injectedConstructor);
+        beans.put(definitionClazz, beanDefinitions.get(definitionClazz).getInstance(params));
+        return beans.get(definitionClazz);
     }
 
-    private Object putParameterizedObject(Class<?> preInstanticateBean, Constructor<?> constructor) {
-        Object[] params = getConstructorParams(constructor);
-        Object instance = BeanUtils.instantiateClass(constructor, params);
-        beans.put(preInstanticateBean, instance);
-        logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
-        return instance;
-    }
-
-    private Object[] getConstructorParams(Constructor<?> constructor) {
-        Object[] params = new Object[constructor.getParameterCount()];
+    private void instantiateParams(Class[] clazz, Object[] params) {
         for (int i = 0; i < params.length; i++) {
-            Class<?> parameterType = constructor.getParameterTypes()[i];
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateBeans);
-            params[i] = injectInstantiateBean(concreteClass);
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass2(clazz[i], beanDefinitions);
+            params[i] = instantiateBeans(concreteClass);
         }
-        return params;
+    }
+
+    private Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
+        return beans.keySet().stream()
+                .filter(clazz -> clazz.isAnnotationPresent(annotation))
+                .collect(Collectors.toMap(clazz -> clazz, beans::get));
     }
 }
 
