@@ -5,5 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 @FunctionalInterface
 public interface BeanCreator {
 
-    Object create(Object concreteObject, Object... objects) throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    Object createBean(Object concreteObject, Object... parameters)
+            throws IllegalAccessException, InvocationTargetException, InstantiationException;
 }

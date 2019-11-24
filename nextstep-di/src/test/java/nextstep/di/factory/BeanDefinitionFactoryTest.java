@@ -15,8 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-// TODO: 2019-11-23 접근제어자
-public class BeanDefinitionFactoryTest {
+class BeanDefinitionFactoryTest {
     @Test
     @DisplayName("Scan한 클래스로부터 BeanDefinition을 생성한다.")
     void createBeanDefinition() {

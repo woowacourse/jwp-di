@@ -36,43 +36,45 @@ public class BeanFactory {
     }
 
     private Object createBean(BeanDefinition beanDefinition) {
+        Class<?> configType = beanDefinition.getConfigType();
+        Object configuration = createConfiguration(configType);
         List<Object> parameters = getParameterBeans(beanDefinition);
 
-        return instantiateBean(beanDefinition, parameters);
-    }
-
-    private Object instantiateBean(BeanDefinition beanDefinition, List<Object> parameters) {
-        Class<?> configType = beanDefinition.getConfigType();
-        Object configurationBean = createConfigurationBean(configType);
-
         try {
-            return beanDefinition.getBeanCreator().create(configurationBean, parameters.toArray());
+            BeanCreator beanCreator = beanDefinition.getBeanCreator();
+            return beanCreator.createBean(configuration, parameters.toArray());
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new BeanCreationFailException(e);
         }
     }
 
-    private List<Object> getParameterBeans(BeanDefinition beanDefinition) {
-        List<Object> parameters = new ArrayList<>();
-
-        for (Class<?> parameter : beanDefinition.getParameters()) {
-            if (beans.containsKey(parameter)) {
-                parameters.add(beans.get(parameter));
-            } else {
-                BeanDefinition parameterBeanDefinition = BeanFactoryUtils.findBeanDefinition(parameter, definitions);
-                parameters.add(createBean(parameterBeanDefinition));
-            }
-        }
-
-        return parameters;
-    }
-
-    private Object createConfigurationBean(Class<?> configType) {
-        if (configType != null && beans.get(configType) == null) {
-            BeanDefinition beanDefinition = definitions.get(configType);
+    private Object createConfiguration(Class<?> typeOfConfig) {
+        if (isNotInCreatedBeans(typeOfConfig)) {
+            BeanDefinition beanDefinition = definitions.get(typeOfConfig);
             beans.put(beanDefinition.getType(), createBean(beanDefinition));
         }
 
-        return beans.get(configType);
+        return beans.get(typeOfConfig);
+    }
+
+    private boolean isNotInCreatedBeans(Class<?> configType) {
+        return (configType != null) && (beans.get(configType) == null);
+    }
+
+    private List<Object> getParameterBeans(BeanDefinition beanDefinition) {
+        List<Object> parameters = new ArrayList<>();
+
+        beanDefinition.getParameters()
+                .forEach(parameter -> parameters.add(getParameterBean(parameter)));
+        return parameters;
+    }
+
+    private Object getParameterBean(Class<?> parameter) {
+        if (beans.containsKey(parameter)) {
+            return beans.get(parameter);
+        }
+
+        BeanDefinition beanDefinition = BeanFactoryUtils.findBeanDefinition(parameter, definitions);
+        return createBean(beanDefinition);
     }
 }

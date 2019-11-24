@@ -18,7 +18,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BeanScannerTest {
+class BeanScannerTest {
 
     @Test
     @DisplayName("scan메서드에 패키지명을 넣어주면 해당 패키지의 @Controller, @Service, @Repository 구현 클래스를 스캔한다.")
