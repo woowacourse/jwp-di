@@ -1,22 +1,29 @@
 package slipp.dao;
 
+import nextstep.annotation.Inject;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import nextstep.stereotype.Repository;
 import slipp.domain.User;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository
-public class UserDao {
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+public class JdbcUserRepository implements UserRepository {
+    private final JdbcTemplate jdbcTemplate;
 
+    @Inject
+    public JdbcUserRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
+    @Override
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
@@ -29,7 +36,8 @@ public class UserDao {
         return jdbcTemplate.queryForObject(sql, rm, userId);
     }
 
-    public List<User> findAll() throws SQLException {
+    @Override
+    public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
         RowMapper<User> rm = rs -> new User(
@@ -41,6 +49,7 @@ public class UserDao {
         return jdbcTemplate.query(sql, rm);
     }
 
+    @Override
     public void update(User user) {
         String sql = "UPDATE USERS set password = ?, name = ?, email = ? WHERE userId = ?";
         jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
