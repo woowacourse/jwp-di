@@ -12,18 +12,19 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class BeanFactoryUtilsTest {
     @Test
     @DisplayName("@Inject 애너테이션이 선언된 생성자를 반환한다.")
     void getInjectedConstructor() {
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(QnaController.class);
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
+        Set<Constructor> constructor = BeanFactoryUtils.getInjectedConstructors(QnaController.class);
+        Class<?>[] parameterTypes = constructor.iterator().next().getParameterTypes();
 
+        assertThat(constructor.size()).isEqualTo(1);
         assertThat(parameterTypes.length).isEqualTo(1);
         assertThat(parameterTypes).contains(MyQnaService.class);
     }
@@ -31,14 +32,15 @@ class BeanFactoryUtilsTest {
     @Test
     @DisplayName("@Inject 애너테이션이 여러개 선언 된 클래스인 경우 예외를 반환한다.")
     void getInjectedConstructor_amongManyInjectedConstructors_returnFirstConstructor() {
-        assertThatThrownBy(() -> BeanFactoryUtils.getInjectedConstructor(MultipleInjectedService.class))
+        assertThatThrownBy(() -> BeanFactoryUtils.getInjectedConstructors(MultipleInjectedService.class))
                 .isInstanceOf(DoesNotAllowMultipleInjectedConstructorException.class);
     }
 
     @Test
     @DisplayName("@Inject 애너테이션이 없는 경우에는 null을 반환한다.")
     void getInjectedConstructor_IfInjectedConstructorIsEmpty_returnNull() {
-        assertNull(BeanFactoryUtils.getInjectedConstructor(JdbcQuestionRepository.class));
+        Set<Constructor> injectedConstructors = BeanFactoryUtils.getInjectedConstructors(JdbcQuestionRepository.class);
+        assertThat(injectedConstructors).isEmpty();
     }
 
     @Test

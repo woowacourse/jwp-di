@@ -45,8 +45,10 @@ public class BeanDefinitionFactory {
     }
 
     private Constructor<?> createInjectedConstructor(Class concreteClass) {
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
-        return injectedConstructor == null ? getDefaultConstructor(concreteClass) : injectedConstructor;
+        Set<Constructor> injectedConstructor = BeanFactoryUtils.getInjectedConstructors(concreteClass);
+        return injectedConstructor.isEmpty()
+                ? getDefaultConstructor(concreteClass)
+                : injectedConstructor.iterator().next();
     }
 
     @SuppressWarnings("unchecked")

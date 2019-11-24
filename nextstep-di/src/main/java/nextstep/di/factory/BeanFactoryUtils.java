@@ -21,11 +21,11 @@ public class BeanFactoryUtils {
      * @Inject 애노테이션이 설정되어 있는 생성자는 클래스당 하나로 가정한다.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static Constructor<?> getInjectedConstructor(Class<?> clazz) {
+    public static Set<Constructor> getInjectedConstructors(Class<?> clazz) {
         Set<Constructor> injectedConstructors = getAllConstructors(clazz, withAnnotation(Inject.class));
         validateMultipleInjectedConstructor(injectedConstructors);
 
-        return injectedConstructors.isEmpty() ? null : injectedConstructors.iterator().next();
+        return injectedConstructors;
     }
 
     private static void validateMultipleInjectedConstructor(Set<Constructor> injectedConstructors) {
@@ -62,15 +62,13 @@ public class BeanFactoryUtils {
             return beanDefinitions.get(clazz);
         }
 
-        if (clazz.isInterface()) {
-            for (Class<?> beanDefinitionKey : beanDefinitions.keySet()) {
-                Set<Class<?>> interfaces = Sets.newHashSet(beanDefinitionKey.getInterfaces());
-                if (interfaces.contains(clazz)) {
-                    return beanDefinitions.get(beanDefinitionKey);
-                }
+        for (Class<?> beanDefinitionKey : beanDefinitions.keySet()) {
+            Set<Class<?>> interfaces = Sets.newHashSet(beanDefinitionKey.getInterfaces());
+            if (interfaces.contains(clazz)) {
+                return beanDefinitions.get(beanDefinitionKey);
             }
         }
 
-        throw new IllegalStateException(clazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+        throw new IllegalStateException(clazz + "에 대한 beanDefinition이 존재하지 않는다.");
     }
 }
