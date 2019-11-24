@@ -62,11 +62,11 @@ public class BeanDefinitionFactory {
                 .collect(Collectors.toList());
     }
 
-    private void addBeanDefinition(Map<Class<?>, BeanDefinition> definitions, List<Method> beanCreations) {
-        for (Method beanCreation : beanCreations) {
-            Class<?> beanType = beanCreation.getReturnType();
-            Class<?> configType = beanCreation.getDeclaringClass();
-            definitions.put(beanType, createBeanDefinition(beanType, configType, beanCreation));
+    private void addBeanDefinition(Map<Class<?>, BeanDefinition> definitions, List<Method> beanCreators) {
+        for (Method beanCreator : beanCreators) {
+            Class<?> beanType = beanCreator.getReturnType();
+            Class<?> configType = beanCreator.getDeclaringClass();
+            definitions.put(beanType, createBeanDefinition(beanType, configType, beanCreator));
         }
     }
 
@@ -79,12 +79,12 @@ public class BeanDefinitionFactory {
         );
     }
 
-    private BeanDefinition createBeanDefinition(Class<?> clazz, Class<?> configClass, Method beanCreation) {
+    private BeanDefinition createBeanDefinition(Class<?> clazz, Class<?> configClass, Method beanCreator) {
         return new BeanDefinition(
                 clazz,
                 configClass,
-                beanCreation::invoke,
-                Arrays.asList(beanCreation.getParameterTypes())
+                beanCreator::invoke,
+                Arrays.asList(beanCreator.getParameterTypes())
         );
     }
 }
