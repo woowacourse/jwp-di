@@ -1,4 +1,4 @@
-package nextstep.di.factory.exception;
+package nextstep.di.exception;
 
 public class BeanNotExistException extends RuntimeException {
     public BeanNotExistException() {

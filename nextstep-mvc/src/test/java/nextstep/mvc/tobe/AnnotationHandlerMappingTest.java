@@ -1,12 +1,12 @@
 package nextstep.mvc.tobe;
 
 import nextstep.db.DataBase;
-import nextstep.di.factory.BeanFactory;
-import nextstep.di.scanner.BeanScanner;
+import nextstep.di.domain.context.GenericApplicationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import samples.MvcConfiguration;
 import samples.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,9 +16,7 @@ public class AnnotationHandlerMappingTest {
 
     @BeforeEach
     public void setup() {
-        BeanScanner beanScanner = new BeanScanner("samples");
-        BeanFactory beanFactory = new BeanFactory(beanScanner);
-        handlerMapping = new AnnotationHandlerMapping(beanFactory);
+        handlerMapping = new AnnotationHandlerMapping(new GenericApplicationContext(MvcConfiguration.class));
         handlerMapping.initialize();
     }
 
@@ -31,7 +29,7 @@ public class AnnotationHandlerMappingTest {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/users");
         request.setParameter("userId", user.getUserId());
         MockHttpServletResponse response = new MockHttpServletResponse();
-        HandlerExecution execution = (HandlerExecution)handlerMapping.getHandler(request);
+        HandlerExecution execution = (HandlerExecution) handlerMapping.getHandler(request);
         execution.handle(request, response);
 
         assertThat(request.getAttribute("user")).isEqualTo(user);
@@ -44,7 +42,7 @@ public class AnnotationHandlerMappingTest {
         request.setParameter("name", user.getName());
         request.setParameter("email", user.getEmail());
         MockHttpServletResponse response = new MockHttpServletResponse();
-        HandlerExecution execution = (HandlerExecution)handlerMapping.getHandler(request);
+        HandlerExecution execution = (HandlerExecution) handlerMapping.getHandler(request);
         execution.handle(request, response);
     }
 }

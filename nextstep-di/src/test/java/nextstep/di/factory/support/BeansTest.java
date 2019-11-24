@@ -3,7 +3,8 @@ package nextstep.di.factory.support;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.exception.BeanNotExistException;
+import nextstep.di.exception.BeanNotExistException;
+import nextstep.di.support.Beans;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,11 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class BeansTest {
 
     private Beans beans;
+    private JdbcUserRepository jdbcUserRepository;
 
     @BeforeEach
     public void setUp() {
         beans = new Beans();
-        beans.put(JdbcUserRepository.class, new JdbcUserRepository());
+        jdbcUserRepository = new JdbcUserRepository();
+        beans.put(JdbcUserRepository.class, () -> jdbcUserRepository);
     }
 
     @Test
@@ -33,13 +36,13 @@ public class BeansTest {
 
     @Test
     public void instantiate() {
-        assertThat(beans.instantiate(JdbcUserRepository.class, JdbcUserRepository::new))
-                .isInstanceOf(JdbcUserRepository.class);
+        beans.put(JdbcUserRepository.class, JdbcUserRepository::new);
+        assertThat(beans.get(JdbcUserRepository.class)).isEqualTo(jdbcUserRepository);
     }
 
     @Test
     public void instantiateIfNotExist() {
-        assertThat(beans.instantiate(JdbcQuestionRepository.class, JdbcQuestionRepository::new))
-                .isInstanceOf(JdbcQuestionRepository.class);
+        beans.put(JdbcQuestionRepository.class, JdbcQuestionRepository::new);
+        assertThat(beans.get(JdbcQuestionRepository.class)).isInstanceOf(JdbcQuestionRepository.class);
     }
 }
