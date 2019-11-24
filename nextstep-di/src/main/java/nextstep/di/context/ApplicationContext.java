@@ -25,12 +25,9 @@ public class ApplicationContext {
         cbs.register(configurationClass);
     }
 
-    public void lookUpContext(Object... basePackage) {
+    public void initialize(Object... basePackage) {
         configurations(basePackage);
         components(basePackage);
-    }
-
-    public void initialize() {
         this.beanFactory.initialize();
     }
 

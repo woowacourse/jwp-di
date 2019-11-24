@@ -22,8 +22,7 @@ public class UserDaoTest {
     public void setup() {
         ApplicationContext ac = new ApplicationContext();
         ac.configurations(MyConfiguration.class);
-        ac.lookUpContext("slipp");
-        ac.initialize();
+        ac.initialize("slipp");
 
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));

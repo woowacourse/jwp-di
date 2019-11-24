@@ -34,8 +34,7 @@ class DispatcherServletTest {
 
         ApplicationContext ac = new ApplicationContext();
         ac.configurations(MyConfiguration.class);
-        ac.lookUpContext("slipp");
-        ac.initialize();
+        ac.initialize("slipp");
 
         dispatcher.addHandlerMapping(new AnnotationHandlerMapping(ac));
 

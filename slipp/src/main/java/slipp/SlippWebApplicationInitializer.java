@@ -25,8 +25,7 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
 
         ApplicationContext ac = new ApplicationContext();
         ac.configurations(MyConfiguration.class);
-        ac.lookUpContext(BASE_PACKAGE);
-        ac.initialize();
+        ac.initialize(BASE_PACKAGE);
 
         dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(ac));
 
