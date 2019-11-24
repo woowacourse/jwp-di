@@ -59,14 +59,16 @@ public class BeanFactory {
 
         if (!beanBox.hasParams()) {
             Object instance = beanBox.instantiate();
-            beans.put(preInstanticateBean, instance);
-            log.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
-            return beans.get(preInstanticateBean);
+            return putBean(preInstanticateBean, instance);
         }
 
         Object instance = beanBox.putParameterizedObject(preInstanticateBean, getParams(beanBox));
+        return putBean(preInstanticateBean, instance);
+    }
+
+    private Object putBean(Class<?> preInstanticateBean, Object instance) {
         beans.put(preInstanticateBean, instance);
-        log.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
+        log.debug("preInstanticateBean : {}, instance : {}", preInstanticateBean, instance);
         return beans.get(preInstanticateBean);
     }
 
