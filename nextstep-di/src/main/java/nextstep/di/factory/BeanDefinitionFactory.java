@@ -20,21 +20,32 @@ public class BeanDefinitionFactory {
         this.preInstantiateClasses = preInstantiateClasses;
     }
 
-    public Map<Class<?>, BeanDefinition> createBeanDefinition() {
+    public Map<Class<?>, BeanDefinition> createBeanDefinitions() {
         Map<Class<?>, BeanDefinition> definitions = Maps.newHashMap();
 
-        for (Class<?> preInstantiateClass : preInstantiateClasses) {
-            Constructor<?> injectedConstructor = createInjectedConstructor(preInstantiateClass);
-            definitions.put(preInstantiateClass, createBeanDefinition(preInstantiateClass, injectedConstructor));
-            createBeanDefinitionsOfConfiguration(definitions, preInstantiateClass);
+        for (Class<?> clazz : preInstantiateClasses) {
+            BeanDefinition definition = createBeanDefinition(clazz);
+            definitions.put(clazz, definition);
         }
-
+        preInstantiateClasses.stream()
+                .filter(clazz -> clazz.isAnnotationPresent(Configuration.class))
+                .forEach(configuration -> definitions.putAll(createBeanDefinitions(configuration)));
         return definitions;
+    }
+
+    private BeanDefinition createBeanDefinition(Class<?> clazz) {
+        Constructor<?> injectedConstructor = createInjectedConstructor(clazz);
+
+        return new BeanDefinition(
+                clazz,
+                null,
+                (concreteObject, parameters) -> injectedConstructor.newInstance(parameters),
+                Arrays.asList(injectedConstructor.getParameterTypes())
+        );
     }
 
     private Constructor<?> createInjectedConstructor(Class concreteClass) {
         Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
-
         return injectedConstructor == null ? getDefaultConstructor(concreteClass) : injectedConstructor;
     }
 
@@ -47,42 +58,32 @@ public class BeanDefinitionFactory {
         }
     }
 
-    // TODO: 19. 11. 14. 메서드 매개변수로 선언된 definitions 리팩토링
-    private void createBeanDefinitionsOfConfiguration(Map<Class<?>, BeanDefinition> definitions, Class<?> clazz) {
-        if (clazz.isAnnotationPresent(Configuration.class)) {
-            Method[] declaredMethods = clazz.getDeclaredMethods();
-            List<Method> beanCreators = getBeanCreators(declaredMethods);
-            addBeanDefinition(definitions, beanCreators);
+    private Map<Class<?>, BeanDefinition> createBeanDefinitions(Class<?> configuration) {
+        Map<Class<?>, BeanDefinition> definitions = Maps.newHashMap();
+        List<Method> beanCreators = getBeanCreators(configuration);
+
+        for (Method beanCreator : beanCreators) {
+            Class<?> beanType = beanCreator.getReturnType();
+            definitions.put(beanType, createBeanDefinition(beanCreator));
         }
+        return definitions;
     }
 
-    private List<Method> getBeanCreators(Method[] declaredMethods) {
+    private List<Method> getBeanCreators(Class<?> configuration) {
+        Method[] declaredMethods = configuration.getDeclaredMethods();
+
         return Stream.of(declaredMethods)
                 .filter(method -> method.isAnnotationPresent(Bean.class))
                 .collect(Collectors.toList());
     }
 
-    private void addBeanDefinition(Map<Class<?>, BeanDefinition> definitions, List<Method> beanCreators) {
-        for (Method beanCreator : beanCreators) {
-            Class<?> beanType = beanCreator.getReturnType();
-            Class<?> configType = beanCreator.getDeclaringClass();
-            definitions.put(beanType, createBeanDefinition(beanType, configType, beanCreator));
-        }
-    }
+    private BeanDefinition createBeanDefinition(Method beanCreator) {
+        Class<?> clazz = beanCreator.getReturnType();
+        Class<?> configType = beanCreator.getDeclaringClass();
 
-    private BeanDefinition createBeanDefinition(Class<?> clazz, Constructor<?> injectedConstructor) {
         return new BeanDefinition(
                 clazz,
-                null,
-                (concreteObject, parameters) -> injectedConstructor.newInstance(parameters),
-                Arrays.asList(injectedConstructor.getParameterTypes())
-        );
-    }
-
-    private BeanDefinition createBeanDefinition(Class<?> clazz, Class<?> configClass, Method beanCreator) {
-        return new BeanDefinition(
-                clazz,
-                configClass,
+                configType,
                 beanCreator::invoke,
                 Arrays.asList(beanCreator.getParameterTypes())
         );

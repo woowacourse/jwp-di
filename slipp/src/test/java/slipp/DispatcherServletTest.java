@@ -32,7 +32,7 @@ class DispatcherServletTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scanConfiguration("slipp"));
-        BeanFactory beanFactory = new BeanFactory(beanDefinitionFactory.createBeanDefinition());
+        BeanFactory beanFactory = new BeanFactory(beanDefinitionFactory.createBeanDefinitions());
         beanFactory.initialize();
 
         dispatcher = new DispatcherServlet();
