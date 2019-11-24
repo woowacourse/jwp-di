@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import nextstep.di.factory.definition.BeanDefinition;
 import nextstep.exception.NotFoundConstructorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,25 +61,31 @@ public class BeanFactoryUtils {
     }
 
     /**
-     * 인자로 전달되는 클래스의 구현 클래스. 만약 인자로 전달되는 Class가 인터페이스가 아니면 전달되는 인자가 구현 클래스,
-     * 인터페이스인 경우 BeanFactory가 관리하는 모든 클래스 중에 인터페이스를 구현하는 클래스를 찾아 반환
+     * 해당하는 클래스로 Bean이 등록되어 있으면 해당 클래스로 리턴한다. 인터페이스인 경우 인터페이스로 등록되어있으면 그 클래스를 반환하고 아닌 경우
+     * 실제 구현되어있는 클래스를 찾아 반환한다. 전부 해당되지 않는 경우 예외를 발생시킨다.
      *
      * @param injectedClazz
-     * @param preInstanticateBeans
+     * @param BeanDefinitions
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
+    public static Class<?> findCollectClass(Class<?> injectedClazz, Set<BeanDefinition> BeanDefinitions) {
         if (!injectedClazz.isInterface()) {
             return injectedClazz;
         }
 
-        for (Class<?> clazz : preInstanticateBeans) {
+        for (BeanDefinition beanDefinition : BeanDefinitions) {
+            Class<?> clazz = beanDefinition.getName();
+
+            if (clazz.equals(injectedClazz)) {
+                return injectedClazz;
+            }
+
             Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
             if (interfaces.contains(injectedClazz)) {
                 return clazz;
             }
         }
 
-        throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+        throw new IllegalStateException(injectedClazz + " 인터페이스를 구현하는 Bean이 존재하지 않는다.");
     }
 }

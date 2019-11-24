@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.stereotype.Controller;
@@ -18,7 +19,13 @@ public class BeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        beanFactory = BeanFactoryManager.createBeanFactory("nextstep.di.factory.example");
+        beanFactory = new BeanFactory();
+        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
+        cbs.register(IntegrationConfig.class);
+
+        ClassPathBeanScanner scanner = new ClassPathBeanScanner(beanFactory);
+        scanner.doScan("nextstep.di.factory.example");
+        beanFactory.initialize();
     }
 
     @Test

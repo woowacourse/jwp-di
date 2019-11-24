@@ -1,12 +1,13 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.exception.ExceptionUtils;
+import nextstep.di.factory.definition.BeanDefinition;
+import nextstep.exception.NotFoundBeanDefinitionException;
+import nextstep.exception.wrapper.ExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -14,8 +15,9 @@ public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Set<BeanDefinition> beanDefinitions = new HashSet<>();
 
-    protected BeanFactory() {
+    public BeanFactory() {
     }
 
     @SuppressWarnings("unchecked")
@@ -29,42 +31,40 @@ public class BeanFactory {
                 .collect(Collectors.toSet());
     }
 
-    protected void addBeans(Set<Class<?>> preInstantiateBeans) {
-        preInstantiateBeans.forEach(ExceptionUtils.consumerWrapper(bean -> {
-            logger.debug(bean.getName());
-
-            if (!beans.containsKey(bean)) {
-                instantiateBean(bean, preInstantiateBeans);
-            }
-        }));
+    public void registerBeanDefinitions(Set<BeanDefinition> beanDefinitions) {
+        this.beanDefinitions.addAll(beanDefinitions);
     }
 
-    private void instantiateBean(Class<?> bean, Set<Class<?>> preInstantiateBeans) throws Exception {
-        Constructor constructor = BeanFactoryUtils.findConstructor(bean);
-        List<Class<?>> parameterTypes = getConcreteParameterTypes(constructor, preInstantiateBeans);
-        List<Object> parameterInstances = getParameterInstances(parameterTypes, preInstantiateBeans);
-
-        logger.debug("Create : {}", bean.getName());
-        beans.put(bean, constructor.newInstance(parameterInstances.toArray()));
+    public void initialize() {
+        beanDefinitions.forEach(ExceptionWrapper.consumerWrapper(this::instantiateBeanIfAbsent));
     }
 
-    private List<Class<?>> getConcreteParameterTypes(Constructor constructor, Set<Class<?>> preInstantiateBeans) {
-        return Arrays.stream(constructor.getParameterTypes())
-                .map(paramType -> BeanFactoryUtils.findConcreteClass(paramType, preInstantiateBeans))
-                .collect(Collectors.toList());
-    }
-
-    private List<Object> getParameterInstances(List<Class<?>> parameterTypes, Set<Class<?>> preInstantiateBeans) throws Exception {
-        List<Object> params = new ArrayList<>();
-
-        for (Class parameterType : parameterTypes) {
-            logger.debug("ParameterType : {}", parameterType.getName());
-
-            if (!beans.containsKey(parameterType)) {
-                instantiateBean(parameterType, preInstantiateBeans);
-            }
-            params.add(beans.get(parameterType));
+    private void instantiateBeanIfAbsent(BeanDefinition beanDefinition) throws Exception {
+        if (!beans.containsKey(beanDefinition.getName())) {
+            instantiateBean(beanDefinition);
         }
-        return params;
+    }
+
+    private void instantiateBean(BeanDefinition beanDefinition) throws Exception {
+        List<Object> parameterInstances = new ArrayList<>();
+        for (Class<?> param : beanDefinition.getParams()) {
+            Class<?> collectClass = BeanFactoryUtils.findCollectClass(param, beanDefinitions);
+            if (!beans.containsKey(collectClass)) {
+                BeanDefinition paramDefinition = getBeanDefinition(collectClass);
+                instantiateBean(paramDefinition);
+            }
+
+            parameterInstances.add(beans.get(collectClass));
+        }
+
+        logger.debug("Instantiate Bean : {}", beanDefinition.getName());
+        beans.put(beanDefinition.getName(), beanDefinition.createBean(parameterInstances.toArray()));
+    }
+
+    private BeanDefinition getBeanDefinition(Class<?> clazz) {
+        return beanDefinitions.stream()
+                .filter(beanDefinition -> beanDefinition.matchClass(clazz))
+                .findFirst()
+                .orElseThrow(NotFoundBeanDefinitionException::new);
     }
 }
