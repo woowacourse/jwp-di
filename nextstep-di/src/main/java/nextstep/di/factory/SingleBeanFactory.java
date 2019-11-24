@@ -23,8 +23,8 @@ public class SingleBeanFactory implements BeanFactory {
     private BeanRegistry beanRegistry;
     private Set<BeanDefinition> beanDefinitions;
 
-    public SingleBeanFactory(BeanRegistry beanRegistry, BeanScanner... beanScanners) {
-        this.beanRegistry = beanRegistry;
+    public SingleBeanFactory(BeanScanner... beanScanners) {
+        this.beanRegistry = new BeanRegistry();
         initializeBeanDefinitions(beanScanners);
     }
 
@@ -42,9 +42,9 @@ public class SingleBeanFactory implements BeanFactory {
         return beanDefinitions;
     }
 
-    private boolean isDuplicated(Set<BeanDefinition> addedBeanDefinition) {
-        return addedBeanDefinition.stream()
-                .anyMatch(beanDefinition -> beanDefinitions.contains(beanDefinition))
+    private boolean isDuplicated(Set<BeanDefinition> addedBeanDefinitions) {
+        return addedBeanDefinitions.stream()
+                .anyMatch(addedBeanDefinition -> beanDefinitions.contains(addedBeanDefinition))
                 ;
     }
 

@@ -4,7 +4,6 @@ import nextstep.di.example.JdbcUserRepository;
 import nextstep.di.example.MyJdbcTemplate;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.SingleBeanFactory;
-import nextstep.di.registry.BeanRegistry;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
@@ -16,7 +15,7 @@ class ConfigurationScannerTest {
 
     @Test
     public void register_simple() {
-        beanFactory = new SingleBeanFactory(new BeanRegistry(),
+        beanFactory = new SingleBeanFactory(
                 new ConfigurationScanner("nextstep.di.example"));
 
         beanFactory.initialize();
@@ -26,7 +25,7 @@ class ConfigurationScannerTest {
 
     @Test
     public void register_classpathBeanScanner_통합() {
-        beanFactory = new SingleBeanFactory(new BeanRegistry(),
+        beanFactory = new SingleBeanFactory(
                 new ConfigurationScanner("nextstep.di.example"),
                 new AnnotatedBeanScanner("nextstep.di.example"));
         beanFactory.initialize();

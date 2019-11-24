@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import nextstep.annotation.ComponentScan;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.SingleBeanFactory;
-import nextstep.di.registry.BeanRegistry;
 import nextstep.di.scanner.AnnotatedBeanScanner;
 import nextstep.di.scanner.ConfigurationScanner;
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 public class ApplicationBeanContext implements BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationBeanContext.class);
 
-    private BeanRegistry beanRegistry = new BeanRegistry();
     private BeanFactory beanFactory;
     private Object[] basePackages;
 
@@ -54,7 +52,6 @@ public class ApplicationBeanContext implements BeanFactory {
     @Override
     public void initialize() {
         beanFactory = new SingleBeanFactory(
-                beanRegistry,
                 new ConfigurationScanner(basePackages),
                 new AnnotatedBeanScanner(basePackages)
         );
