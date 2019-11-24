@@ -14,33 +14,33 @@ class ConstructorBeanBoxTest {
 
     @Test
     void hasConstructorAndParams() {
-        ConstructorBeanBox constructorBeanBox = new ConstructorBeanBox(MyQnaService.class);
+        BeanBox constructorBeanBox = new ConstructorBeanBox(MyQnaService.class);
         assertTrue(constructorBeanBox.hasParams());
     }
 
     @Test
     void hasNoConstructor() {
-        ConstructorBeanBox constructorBeanBox = new ConstructorBeanBox(JdbcQuestionRepository.class);
+        BeanBox constructorBeanBox = new ConstructorBeanBox(JdbcQuestionRepository.class);
         assertFalse(constructorBeanBox.hasParams());
     }
 
     @Test
     void getInvokerHasConstructorAndParams() {
-        ConstructorBeanBox constructorBeanBox = new ConstructorBeanBox(MyQnaService.class);
+        BeanBox constructorBeanBox = new ConstructorBeanBox(MyQnaService.class);
         log.debug("Constructor : {}", constructorBeanBox.getInvoker());
         assertNotNull(constructorBeanBox.getInvoker());
     }
 
     @Test
     void getInvokerHasNoConstructor() {
-        ConstructorBeanBox constructorBeanBox = new ConstructorBeanBox(JdbcQuestionRepository.class);
+        BeanBox constructorBeanBox = new ConstructorBeanBox(JdbcQuestionRepository.class);
         log.debug("Constructor : {}", constructorBeanBox.getInvoker());
         assertNull(constructorBeanBox.getInvoker());
     }
 
     @Test
     void getParameterCountHasConstructorAndParams() {
-        ConstructorBeanBox constructorBeanBox = new ConstructorBeanBox(MyQnaService.class);
+        BeanBox constructorBeanBox = new ConstructorBeanBox(MyQnaService.class);
         assertEquals(constructorBeanBox.getParameterCount(), 2);
     }
 }
