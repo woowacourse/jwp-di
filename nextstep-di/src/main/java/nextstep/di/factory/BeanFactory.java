@@ -58,16 +58,16 @@ public class BeanFactory {
 
             return putParameterizedConfigureObject(preInstanticateBean, method);
         } else {
-            Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
+            Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
 
-            if (Objects.isNull(injectedConstructor)) {
+            if (Objects.isNull(constructor)) {
                 Object instance = BeanUtils.instantiateClass(preInstanticateBean);
                 beans.put(preInstanticateBean, instance);
                 logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
                 return beans.get(preInstanticateBean);
             }
 
-            return putParameterizedObject(preInstanticateBean, injectedConstructor);
+            return putParameterizedObject(preInstanticateBean, constructor);
         }
     }
 
@@ -82,6 +82,14 @@ public class BeanFactory {
         }
     }
 
+    private Object putParameterizedObject(Class<?> preInstanticateBean, Constructor<?> constructor) {
+        Object[] params = getConstructorParams(constructor);
+        Object instance = BeanUtils.instantiateClass(constructor, params);
+        beans.put(preInstanticateBean, instance);
+        logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
+        return instance;
+    }
+
     private Object[] getMethodParams(Method method) {
         Object[] params = new Object[method.getParameterCount()];
         for (int i = 0; i < params.length; i++) {
@@ -89,14 +97,6 @@ public class BeanFactory {
             params[i] = scanBean(parameterType);
         }
         return params;
-    }
-
-    private Object putParameterizedObject(Class<?> preInstanticateBean, Constructor<?> constructor) {
-        Object[] params = getConstructorParams(constructor);
-        Object instance = BeanUtils.instantiateClass(constructor, params);
-        beans.put(preInstanticateBean, instance);
-        logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
-        return instance;
     }
 
     private Object[] getConstructorParams(Constructor<?> constructor) {
