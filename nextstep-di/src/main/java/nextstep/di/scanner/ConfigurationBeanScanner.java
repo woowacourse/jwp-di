@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class ConfigurationBeanScanner extends AbstractBeanScanner {
     private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
-    private static final Class[] COMPONENT_SCAN = {Configuration.class};
+    private static final Class[] CONFIGURATION = {Configuration.class};
 
     public ConfigurationBeanScanner(BeanFactory beanFactory) {
         super(beanFactory);
@@ -34,7 +34,7 @@ public class ConfigurationBeanScanner extends AbstractBeanScanner {
     @Override
     @SuppressWarnings("unchecked")
     protected Map<Class<?>, Method> getBeans() {
-        Set<Class<?>> typesAnnotatedWith = getTypesAnnotatedWith(COMPONENT_SCAN);
+        Set<Class<?>> typesAnnotatedWith = getTypesAnnotatedWith(CONFIGURATION);
         Map<Class<?>, Method> configs = Maps.newHashMap();
         for (Class<?> annotatedClass : typesAnnotatedWith) {
             configs.putAll(findBeanMethods(annotatedClass));
