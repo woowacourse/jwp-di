@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +39,7 @@ public class BeanFactoryUtils {
      * @param preInstanticateBeans
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Map<Class<?>, Object> preInstanticateBeans) {
+    public static Class<?> findConcreteClass(Class<?> injectedClazz, Map<Class<?>, BeanBox> preInstanticateBeans) {
         if (!injectedClazz.isInterface()) {
             logger.debug("{} isn't interface", injectedClazz);
             return injectedClazz;
@@ -54,7 +53,7 @@ public class BeanFactoryUtils {
             }
         }
 
-        if (preInstanticateBeans.get(injectedClazz) instanceof Method) {
+        if (preInstanticateBeans.get(injectedClazz) instanceof MethodBeanBox) {
             logger.debug("{} is configuration bean", injectedClazz);
             return injectedClazz;
         }
