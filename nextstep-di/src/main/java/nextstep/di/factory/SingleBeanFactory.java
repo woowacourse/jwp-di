@@ -33,13 +33,17 @@ public class SingleBeanFactory implements BeanFactory {
 
         for (BeanScanner beanScanner : beanScanners) {
             Set<BeanDefinition> addedBeanDefinition = beanScanner.doScan();
-            if (isDuplicated(addedBeanDefinition)) {
-                logger.debug("Duplicated BeanDefinition: {}, {}", beanDefinitions, addedBeanDefinition);
-                throw new DuplicatedBeanDefinition();
-            }
+            checkDuplicateAndException(addedBeanDefinition);
             beanDefinitions.addAll(addedBeanDefinition);
         }
         return beanDefinitions;
+    }
+
+    private void checkDuplicateAndException(Set<BeanDefinition> addedBeanDefinition) {
+        if (isDuplicated(addedBeanDefinition)) {
+            logger.error("Duplicated BeanDefinition: {}, {}", beanDefinitions, addedBeanDefinition);
+            throw new DuplicatedBeanDefinition();
+        }
     }
 
     private boolean isDuplicated(Set<BeanDefinition> addedBeanDefinitions) {
