@@ -17,15 +17,13 @@ import javax.servlet.ServletRegistration;
 public class SlippWebApplicationInitializer  implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
 
-    private static final String BASE_PACKAGE = "slipp";
-
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
 
         ApplicationContext ac = new ApplicationContext();
         ac.configurations(MyConfiguration.class);
-        ac.initialize(BASE_PACKAGE);
+        ac.initialize();
 
         dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(ac));
 
