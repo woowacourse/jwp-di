@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.factory.factory;
 
 import com.google.common.collect.Sets;
 import org.reflections.Reflections;
@@ -15,7 +15,6 @@ public class BeanScanner {
     public BeanScanner(Object... basePackages) {
         reflections = new Reflections(basePackages);
     }
-
 
     public Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();

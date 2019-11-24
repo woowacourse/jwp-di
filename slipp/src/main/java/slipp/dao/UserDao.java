@@ -9,14 +9,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
-    private static final UserDao userDao = new UserDao();
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private JdbcTemplate jdbcTemplate;
 
-    private UserDao() {
-    }
-
-    public static UserDao getInstance() {
-        return userDao;
+    public UserDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public void insert(User user) {

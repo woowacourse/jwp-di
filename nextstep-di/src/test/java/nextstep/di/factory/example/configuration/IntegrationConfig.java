@@ -1,7 +1,8 @@
-package nextstep.di.factory.example;
+package nextstep.di.factory.example.configuration;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.example.repository.MyJdbcTemplate;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
