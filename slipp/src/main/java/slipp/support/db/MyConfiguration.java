@@ -9,7 +9,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan({"next", "core"})
+@ComponentScan({"slipp"})
 public class MyConfiguration {
     @Bean
     public DataSource dataSource() {
