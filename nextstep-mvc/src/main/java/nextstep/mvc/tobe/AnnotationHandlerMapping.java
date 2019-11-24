@@ -1,12 +1,10 @@
 package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
-import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class AnnotationHandlerMapping implements HandlerMapping {
@@ -32,7 +29,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     public void initialize() {
         Set<Class<?>> controllers = beanFactory.getControllers();
-        Set<Method> methods = getRequestMappingMethods(controllers);
+        Set<Method> methods = MethodScanner.scanAnnotatedMethods(controllers, RequestMapping.class);
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
@@ -41,17 +38,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         }
 
         logger.info("Initialized AnnotationHandlerMapping!");
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Method> getRequestMappingMethods(Set<Class<?>> controllers) {
-        Set<Method> requestMappingMethods = Sets.newHashSet();
-        Predicate<Method> methodPredicate = ReflectionUtils.withAnnotation(RequestMapping.class)::apply;
-
-        for (Class<?> clazz : controllers) {
-            requestMappingMethods.addAll(ReflectionUtils.getAllMethods(clazz, methodPredicate::test));
-        }
-        return requestMappingMethods;
     }
 
     private void addHandlerExecutions(Method method, RequestMapping rm) {
