@@ -13,6 +13,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import slipp.configuration.MyConfiguration;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
 
@@ -29,8 +30,7 @@ class DispatcherServletTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
-        ApplicationBeanContext applicationBeanContext = new ApplicationBeanContext(SlippWebApplicationInitializer.class);
-        applicationBeanContext.initialize();
+        ApplicationBeanContext applicationBeanContext = new ApplicationBeanContext(MyConfiguration.class);
 
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMpping(new AnnotationHandlerMapping(applicationBeanContext));
