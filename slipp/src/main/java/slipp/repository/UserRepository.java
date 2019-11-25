@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends Repository<User> {
-    Optional<User> findUserById(long id);
+    Optional<User> findByUserId(String id);
 
     @Override
     void insert(User object);
 
     @Override
-    Optional<User> findById(String id);
+    Optional<User> findById(long id);
 
     @Override
     void update(User object);

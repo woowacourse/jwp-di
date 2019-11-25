@@ -29,13 +29,13 @@ public class UserDao implements UserRepository {
     }
 
     @Override
-    public Optional<User> findUserById(long id) {
+    public Optional<User> findById(long id) {
         String userId = String.valueOf(id);
-        return findById(userId);
+        return findByUserId(userId);
     }
 
     @Override
-    public Optional<User> findById(String userId) {
+    public Optional<User> findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
         RowMapper<User> rm = rs -> new User(rs.getString("userId"), rs.getString("password"),

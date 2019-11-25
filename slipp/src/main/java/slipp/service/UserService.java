@@ -23,7 +23,7 @@ public class UserService {
     }
 
     public User findByUserId(String userId) {
-        return userDao.findById(userId)
+        return userDao.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundUserException("유저를 찾을 수 없습니다."));
     }
 

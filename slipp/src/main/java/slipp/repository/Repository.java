@@ -8,7 +8,7 @@ public interface Repository<T> {
 
     void insert(T object);
 
-    Optional<T> findById(String id);
+    Optional<T> findById(long id);
 
     void update(T object);
 
