@@ -15,24 +15,23 @@ import java.util.Set;
 
 public class BeanFactory {
     private Map<Class<?>, BeanCreator> beanCreators;
-    private Map<Class<?>, Object> beans;
+    private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Map<Class<?>, BeanCreator> beanCreators) {
-        this(beanCreators, Maps.newHashMap());
-    }
-
-    public BeanFactory(Map<Class<?>, BeanCreator> beanCreators, Map<Class<?>, Object> initialBeans) {
-        this.beans = initialBeans;
         this.beanCreators = beanCreators;
+        initializeBeans();
     }
 
-    public Map<Class<?>, Object> initializeBeans() {
+    public Map<Class<?>, Object> getBeans() {
+        return Collections.unmodifiableMap(beans);
+    }
+
+    private void initializeBeans() {
         for (Class<?> clazz : beanCreators.keySet()) {
             if (!beans.containsKey(clazz)) {
                 beans.put(clazz, instantiate(clazz, Sets.newHashSet(clazz)));
             }
         }
-        return Collections.unmodifiableMap(beans);
     }
 
     private Object instantiate(Class<?> clazz, Set<Class<?>> history) {

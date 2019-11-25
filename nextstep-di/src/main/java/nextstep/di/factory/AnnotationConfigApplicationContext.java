@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AnnotationConfigApplicationContext implements MvcApplicationContext {
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private final Map<Class<?>, Object> beans;
     private List<BeanScanner> beanScanners = Arrays.asList(new ClassBeanScanner(), new MethodBeanScanner());
 
     public AnnotationConfigApplicationContext(Object... basePackages) {
@@ -21,7 +21,7 @@ public class AnnotationConfigApplicationContext implements MvcApplicationContext
         for (BeanScanner beanScanner : beanScanners) {
             creators.putAll(beanScanner.scan(basePackages));
         }
-        beans = new BeanFactory(creators, beans).initializeBeans();
+        beans = new BeanFactory(creators).getBeans();
     }
 
     @Override
