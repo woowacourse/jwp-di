@@ -5,6 +5,8 @@ import nextstep.annotation.ComponentScan;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.di.scanner.ConfigurationBeanScanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;
@@ -12,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class ApplicationContext {
+
+    private static final Logger log = LoggerFactory.getLogger(ApplicationContext.class);
 
     private BeanFactory beanFactory;
     private ConfigurationBeanScanner cbs;
@@ -43,6 +47,7 @@ public class ApplicationContext {
 
     public void initialize() {
         basePackages.forEach(basePackage -> {
+            log.debug("now scanning basePackage : {}", basePackage);
             cbs.doScan(basePackage);
             cbds.doScan(basePackage);
         });
