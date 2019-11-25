@@ -14,4 +14,8 @@ public abstract class BeanDefinition {
     public boolean sameBeanClass(Class<?> beanClass) {
         return this.beanClass.equals(beanClass);
     }
+
+    public abstract Object instantiate(Object... parameterBeans);
+
+    public abstract Class<?>[] getParameterTypes();
 }
