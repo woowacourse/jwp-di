@@ -22,9 +22,6 @@ public class ConstructorBeanBox implements BeanBox<Constructor<?>> {
 
     @Override
     public Constructor<?> getInvoker() {
-        if (Objects.isNull(constructor)) {
-            return BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
-        }
         return constructor;
     }
 
