@@ -10,7 +10,6 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 import slipp.service.NotFoundUserException;
-import slipp.support.db.MyConfiguration;
 
 import java.util.List;
 
@@ -20,8 +19,7 @@ public class UserDaoTest {
 
     @BeforeEach
     public void setup() {
-        ApplicationContext ac = new ApplicationContext();
-        ac.configurations(MyConfiguration.class);
+        ApplicationContext ac = new ApplicationContext("slipp");
         ac.initialize();
 
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();

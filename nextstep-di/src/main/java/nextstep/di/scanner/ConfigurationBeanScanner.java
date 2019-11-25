@@ -33,7 +33,7 @@ public class ConfigurationBeanScanner extends AbstractBeanScanner {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Map<Class<?>, Method> getBeans() {
+    public Map<Class<?>, Method> getBeans() {
         Set<Class<?>> typesAnnotatedWith = getTypesAnnotatedWith(CONFIGURATION);
         Map<Class<?>, Method> configs = Maps.newHashMap();
         for (Class<?> annotatedClass : typesAnnotatedWith) {

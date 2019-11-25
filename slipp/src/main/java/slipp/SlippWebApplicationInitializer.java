@@ -8,7 +8,6 @@ import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import nextstep.web.WebApplicationInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import slipp.support.db.MyConfiguration;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -21,8 +20,7 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
     public void onStartup(ServletContext servletContext) throws ServletException {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
 
-        ApplicationContext ac = new ApplicationContext();
-        ac.configurations(MyConfiguration.class);
+        ApplicationContext ac = new ApplicationContext("slipp");
         ac.initialize();
 
         dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(ac));

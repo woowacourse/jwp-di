@@ -15,7 +15,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
-import slipp.support.db.MyConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,8 +31,7 @@ class DispatcherServletTest {
 
         dispatcher = new DispatcherServlet();
 
-        ApplicationContext ac = new ApplicationContext();
-        ac.configurations(MyConfiguration.class);
+        ApplicationContext ac = new ApplicationContext("slipp");
         ac.initialize();
 
         dispatcher.addHandlerMapping(new AnnotationHandlerMapping(ac));

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -22,18 +23,52 @@ public class ApplicationContext {
     private ClasspathBeanScanner cbds;
     private Set<Object> basePackages;
 
-    public ApplicationContext() {
+    private ApplicationContext() {
         this.beanFactory = new BeanFactory();
         this.basePackages = Sets.newHashSet();
         this.cbs = new ConfigurationBeanScanner(beanFactory);
         this.cbds = new ClasspathBeanScanner(beanFactory);
     }
 
+    public ApplicationContext(Object... basePackage) {
+        this();
+        cbs.doScan(basePackage);
+        contextConfigurations();
+    }
+
     public Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
         return beanFactory.getAnnotatedWith(annotation);
     }
 
-    public void configurations(Class<?> configurationClass) {
+    public void initialize() {
+        basePackages.forEach(basePackage -> {
+            log.debug("now scanning basePackage : {}", basePackage);
+            cbs.doScan(basePackage);
+            cbds.doScan(basePackage);
+        });
+        beanFactory.initialize();
+    }
+
+    public void initialize(Object... basePackage) {
+        cbs.doScan(basePackage);
+        cbds.doScan(basePackage);
+        beanFactory.initialize();
+    }
+
+    public <T> T getBean(Class<T> beanClass) {
+        return beanFactory.getBean(beanClass);
+    }
+
+    private void contextConfigurations() {
+        Map<Class<?>, Method> configs = this.cbs.getBeans();
+        configs.values().forEach(config -> {
+            Class<?> configClass = config.getDeclaringClass();
+            log.debug("this is configuration class : {}", configClass);
+            configurations(configClass);
+        });
+    }
+
+    private void configurations(Class<?> configurationClass) {
         cbs.register(configurationClass);
         basePackages.addAll(getScanTargets(configurationClass));
     }
@@ -43,24 +78,5 @@ public class ApplicationContext {
         ComponentScan annotation = clazz.getAnnotation(ComponentScan.class);
         scanTargets.addAll(Collections.singleton(annotation.value()));
         return scanTargets;
-    }
-
-    public void initialize() {
-        basePackages.forEach(basePackage -> {
-            log.debug("now scanning basePackage : {}", basePackage);
-            cbs.doScan(basePackage);
-            cbds.doScan(basePackage);
-        });
-        this.beanFactory.initialize();
-    }
-
-    public void initialize(Object... basePackage) {
-        cbs.doScan(basePackage);
-        cbds.doScan(basePackage);
-        this.beanFactory.initialize();
-    }
-
-    public <T> T getBean(Class<T> beanClass) {
-        return beanFactory.getBean(beanClass);
     }
 }
