@@ -40,17 +40,19 @@ public class BeanFactory {
     }
 
     private BeanDefinition findBeanDefinition(Class<?> concreteClass) {
-        Optional<BeanDefinition> maybeBeanDefinition = this.beanDefinitions.stream()
-                .filter(beanDefinition -> beanDefinition.getBeanClass().equals(concreteClass))
-                .findAny();
-        if (maybeBeanDefinition.isPresent()) {
-            return maybeBeanDefinition.get();
-        }
-
-        if (concreteClass.isInterface()) {
+        if (concreteClass.isInterface() && notExistBeanDefinition(concreteClass)) {
             return findBeanDefinition(findConcreteClass(concreteClass));
         }
-        throw new RuntimeException();
+
+        return beanDefinitions.stream()
+                .filter(beanDefinition -> beanDefinition.sameBeanClass(concreteClass))
+                .findAny()
+                .orElseThrow(RuntimeException::new);
+    }
+
+    private boolean notExistBeanDefinition(Class<?> concreteClass) {
+        return beanDefinitions.stream()
+                .noneMatch(beanDefinition -> beanDefinition.sameBeanClass(concreteClass));
     }
 
     private Class<?> findConcreteClass(Class<?> preInstanticateBean) {

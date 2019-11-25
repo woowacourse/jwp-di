@@ -10,4 +10,8 @@ public abstract class BeanDefinition {
     public Class<?> getBeanClass() {
         return beanClass;
     }
+
+    public boolean sameBeanClass(Class<?> beanClass) {
+        return this.beanClass.equals(beanClass);
+    }
 }
