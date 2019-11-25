@@ -17,7 +17,7 @@ public class ConstructorBeanBox implements BeanBox<Constructor<?>> {
 
     @Override
     public boolean hasParams() {
-        return !Objects.isNull(constructor);
+        return Objects.nonNull(constructor);
     }
 
     @Override
