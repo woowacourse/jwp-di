@@ -23,7 +23,7 @@ public class JdbcTemplate {
     }
 
     public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pss.setParameters(pstmt);
             pstmt.executeUpdate();
@@ -37,7 +37,7 @@ public class JdbcTemplate {
     }
 
     public void delete(String sql, PreparedStatementSetter pss) throws DataAccessException {
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pss.setParameters(pstmt);
             pstmt.execute();
@@ -51,7 +51,7 @@ public class JdbcTemplate {
     }
 
     public void update(PreparedStatementCreator psc, KeyHolder holder) {
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = psc.createPreparedStatement(conn)) {
             ps.executeUpdate();
 
@@ -80,7 +80,7 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rm, PreparedStatementSetter pss) throws DataAccessException {
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pss.setParameters(pstmt);
             return mapResultSetToObject(rm, pstmt);
