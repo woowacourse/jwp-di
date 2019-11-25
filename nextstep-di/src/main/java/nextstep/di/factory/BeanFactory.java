@@ -92,6 +92,6 @@ public class BeanFactory {
         if (invoker instanceof Method) {
             return ((Method) invoker).getParameterTypes()[i];
         }
-        throw new NotSupportedInjectionTypeException();
+        throw new NotSupportedInjectionTypeException(invoker.getClass());
     }
 }
