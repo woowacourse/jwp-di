@@ -1,6 +1,7 @@
 package slipp.dao;
 
 import nextstep.jdbc.ConnectionManager;
+import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -20,7 +21,7 @@ public class UserDaoTest {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-        userDao = new UserDao();
+        userDao = new UserDao(new JdbcTemplate(ConnectionManager.getDataSource()));
     }
 
     @Test
