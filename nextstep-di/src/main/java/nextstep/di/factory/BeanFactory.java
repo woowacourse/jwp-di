@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private BeanCreateMatcher matcher;
+    private BeanCreateMatcher matcher = new BeanCreateMatcher();
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Object... basePackages) {
