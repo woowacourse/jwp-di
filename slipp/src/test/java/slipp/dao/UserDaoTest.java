@@ -35,6 +35,8 @@ public class UserDaoTest {
         userDao.update(expected);
         actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
+
+        userDao.delete(expected);
     }
 
     @Test

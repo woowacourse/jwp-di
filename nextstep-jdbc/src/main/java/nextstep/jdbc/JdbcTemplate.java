@@ -36,6 +36,20 @@ public class JdbcTemplate {
         update(sql, createPreparedStatementSetter(parameters));
     }
 
+    public void delete(String sql, PreparedStatementSetter pss) throws DataAccessException {
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pss.setParameters(pstmt);
+            pstmt.execute();
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    public void delete(String sql, Object... parameters) {
+        delete(sql, createPreparedStatementSetter(parameters));
+    }
+
     public void update(PreparedStatementCreator psc, KeyHolder holder) {
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement ps = psc.createPreparedStatement(conn)) {
