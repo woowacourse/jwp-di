@@ -2,15 +2,16 @@ package slipp.dao;
 
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
+import nextstep.stereotype.Repository;
 import slipp.domain.User;
-import slipp.repository.Repository;
+import slipp.repository.UserRepository;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-@nextstep.stereotype.Repository
-public class UserDao implements Repository<User> {
+@Repository
+public class UserDao implements UserRepository {
     private static final UserDao userDao = new UserDao();
     private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
 
@@ -25,6 +26,12 @@ public class UserDao implements Repository<User> {
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+    }
+
+    @Override
+    public Optional<User> findUserById(long id) {
+        String userId = String.valueOf(id);
+        return findById(userId);
     }
 
     @Override

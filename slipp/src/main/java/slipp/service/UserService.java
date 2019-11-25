@@ -3,7 +3,7 @@ package slipp.service;
 import nextstep.annotation.Inject;
 import nextstep.stereotype.Service;
 import slipp.domain.User;
-import slipp.repository.Repository;
+import slipp.repository.UserRepository;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,10 +11,10 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private Repository<User> userDao;
+    private UserRepository userDao;
 
     @Inject
-    public UserService(Repository<User> userRepository) {
+    public UserService(UserRepository userRepository) {
         this.userDao = userRepository;
     }
 
