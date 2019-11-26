@@ -11,8 +11,4 @@ public class QnaController {
     public QnaController(MyQnaService qnaService) {
         this.qnaService = qnaService;
     }
-
-    public MyQnaService getQnaService() {
-        return qnaService;
-    }
 }

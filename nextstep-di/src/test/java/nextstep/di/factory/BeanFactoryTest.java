@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,7 +24,7 @@ public class BeanFactoryTest {
     private BeanFactory beanFactory;
 
     @Test
-    public void di() {
+    public void di() throws NoSuchFieldException, IllegalAccessException {
         AnnotationBeanScanner annotationBeanScanner = new AnnotationBeanScanner("nextstep.di.factory.example");
         BeanCreateMatcher beanCreateMatcher = new BeanCreateMatcher();
         annotationBeanScanner.scanBean(beanCreateMatcher, Controller.class, Service.class, Repository.class);
@@ -31,17 +32,24 @@ public class BeanFactoryTest {
 
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
+        Field qnaService = qnaController.getClass().getDeclaredField("qnaService");
+        qnaService.setAccessible(true);
         assertNotNull(qnaController);
-        assertNotNull(qnaController.getQnaService());
+        assertNotNull(qnaService.get(qnaController));
 
-        MyQnaService qnaService = qnaController.getQnaService();
-        assertNotNull(qnaService.getUserRepository());
-        assertNotNull(qnaService.getQuestionRepository());
+        MyQnaService myQnaService = (MyQnaService) qnaService.get(qnaController);
+        Field userRepository = myQnaService.getClass().getDeclaredField("userRepository");
+        userRepository.setAccessible(true);
+        Field questionRepository = myQnaService.getClass().getDeclaredField("questionRepository");
+        questionRepository.setAccessible(true);
+
+        assertNotNull(userRepository.get(myQnaService));
+        assertNotNull(questionRepository.get(myQnaService));
     }
 
     @Test
     @DisplayName("싱글 인스턴스 확인")
-    void sameInstance() {
+    void sameInstance() throws NoSuchFieldException, IllegalAccessException {
         AnnotationBeanScanner annotationBeanScanner = new AnnotationBeanScanner("nextstep.di.factory.example");
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(IntegrationConfig.class);
         BeanCreateMatcher beanCreateMatcher = new BeanCreateMatcher();
@@ -53,26 +61,31 @@ public class BeanFactoryTest {
         MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
         assertThat(dataSource).isEqualTo(beanFactory.getBean(DataSource.class));
         assertThat(myJdbcTemplate).isEqualTo(beanFactory.getBean(MyJdbcTemplate.class));
-        assertThat(dataSource).isEqualTo(myJdbcTemplate.getDataSource());
+        Field expectedDataSource = myJdbcTemplate.getClass().getDeclaredField("dataSource");
+        expectedDataSource.setAccessible(true);
+
+        assertThat(dataSource).isEqualTo(expectedDataSource.get(myJdbcTemplate));
     }
 
     @Test
     @DisplayName("ComponentScan 에서 basePackage 지정한 경우 해당 경로 하위 스캔 테스트")
-    void customPath() {
+    void customPath() throws IllegalAccessException, NoSuchFieldException {
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(IntegrationConfig.class);
         BeanCreateMatcher beanCreateMatcher = new BeanCreateMatcher();
         configurationBeanScanner.scanBean(beanCreateMatcher);
         beanFactory = new BeanFactory(beanCreateMatcher);
 
         MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        Field expectedDataSource = myJdbcTemplate.getClass().getDeclaredField("dataSource");
+        expectedDataSource.setAccessible(true);
 
         assertNotNull(myJdbcTemplate);
-        assertNotNull(myJdbcTemplate.getDataSource());
+        assertNotNull(expectedDataSource.get(myJdbcTemplate));
     }
 
     @Test
     @DisplayName("ComponentScan 에서 basePackage 지정한 후 싱글인스턴스 확인")
-    void customPathSameInstance() {
+    void customPathSameInstance() throws NoSuchFieldException, IllegalAccessException {
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(IntegrationConfig.class);
         BeanCreateMatcher beanCreateMatcher = new BeanCreateMatcher();
         configurationBeanScanner.scanBean(beanCreateMatcher);
@@ -80,8 +93,11 @@ public class BeanFactoryTest {
 
         DataSource dataSource = beanFactory.getBean(DataSource.class);
         MyJdbcTemplate myJdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
+        Field expectedDataSource = myJdbcTemplate.getClass().getDeclaredField("dataSource");
+        expectedDataSource.setAccessible(true);
+
         assertThat(dataSource).isEqualTo(beanFactory.getBean(DataSource.class));
         assertThat(myJdbcTemplate).isEqualTo(beanFactory.getBean(MyJdbcTemplate.class));
-        assertThat(dataSource).isEqualTo(myJdbcTemplate.getDataSource());
+        assertThat(dataSource).isEqualTo(expectedDataSource.get(myJdbcTemplate));
     }
 }

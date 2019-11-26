@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -37,16 +38,18 @@ class MethodInstantiationTest {
     }
 
     @Test
-    void getSameInstance() throws NoSuchMethodException {
+    void getSameInstance() throws NoSuchMethodException, NoSuchFieldException, IllegalAccessException {
         Method jdbcTemplate = clazz.getMethod("jdbcTemplate", DataSource.class);
         Method dataSource = clazz.getMethod("dataSource");
         MethodInstantiation jdbcMethodInstantiation = new MethodInstantiation(jdbcTemplate, clazzInstance);
         MethodInstantiation dataSourceInstantiation = new MethodInstantiation(dataSource, clazzInstance);
         Map<Class<?>, Object> beans = Maps.newHashMap();
 
-        DataSource expected = ((MyJdbcTemplate) jdbcMethodInstantiation.getInstance(beanCreateMatcher, beans)).getDataSource();
-        DataSource target = ((DataSource) dataSourceInstantiation.getInstance(beanCreateMatcher, beans));
+        Object jdbcTemplateInstance = jdbcMethodInstantiation.getInstance(beanCreateMatcher, beans);
+        Field expected = jdbcTemplateInstance.getClass().getDeclaredField("dataSource");
+        expected.setAccessible(true);
+        Object target = dataSourceInstantiation.getInstance(beanCreateMatcher, beans);
 
-        assertEquals(expected, target);
+        assertEquals(expected.get(jdbcTemplateInstance), target);
     }
 }

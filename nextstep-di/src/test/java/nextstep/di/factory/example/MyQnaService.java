@@ -13,12 +13,4 @@ public class MyQnaService {
         this.userRepository = userRepository;
         this.questionRepository = questionRepository;
     }
-
-    public UserRepository getUserRepository() {
-        return userRepository;
-    }
-
-    public QuestionRepository getQuestionRepository() {
-        return questionRepository;
-    }
 }

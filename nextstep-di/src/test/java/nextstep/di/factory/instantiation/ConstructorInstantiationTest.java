@@ -10,8 +10,10 @@ import nextstep.di.factory.example.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -34,19 +36,27 @@ class ConstructorInstantiationTest {
     }
 
     @Test
-    void getSameInstance() {
+    void getSameInstance() throws NoSuchFieldException, IllegalAccessException {
         Map<Class<?>, Object> beans = Maps.newHashMap();
         constructorInstantiation = new ConstructorInstantiation(MyQnaService.class);
         Object instance = constructorInstantiation.getInstance(beanCreateMatcher, beans);
-        QuestionRepository questionRepository = ((MyQnaService) instance).getQuestionRepository();
-        UserRepository userRepository = ((MyQnaService) instance).getUserRepository();
 
+        // 생성된 bean 이 해당 인스턴스 타입과 일치하는지 체
+        Field userRepository = instance.getClass().getDeclaredField("userRepository");
+        userRepository.setAccessible(true);
+        assertThat(userRepository.get(instance)).isInstanceOf(UserRepository.class);
+
+        Field questionRepository = instance.getClass().getDeclaredField("questionRepository");
+        questionRepository.setAccessible(true);
+        assertThat(questionRepository.get(instance)).isInstanceOf(QuestionRepository.class);
+
+        // Check Same Instance
         constructorInstantiation = new ConstructorInstantiation(JdbcUserRepository.class);
         Object target = constructorInstantiation.getInstance(beanCreateMatcher, beans);
-        assertEquals(userRepository, target);
+        assertEquals(userRepository.get(instance), target);
 
         constructorInstantiation = new ConstructorInstantiation(JdbcQuestionRepository.class);
         target = constructorInstantiation.getInstance(beanCreateMatcher, beans);
-        assertEquals(questionRepository, target);
+        assertEquals(questionRepository.get(instance), target);
     }
 }
