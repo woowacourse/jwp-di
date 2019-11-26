@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,12 +20,32 @@ public class BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
 
     private Set<Class<?>> preInstantiateBeans;
+    private Set<Method> preInvokedMethods;
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
+    public BeanFactory() {
+        preInstantiateBeans = Sets.newHashSet();
+        preInvokedMethods = Sets.newHashSet();
+    }
+
     public BeanFactory(Set<Class<?>> preInstantiateBeans) {
         this.preInstantiateBeans = preInstantiateBeans;
-        initialize();
+        preInvokedMethods = Sets.newHashSet();
+    }
+
+    public void initialize() {
+        preInstantiateBeans.forEach(this::registerInstantiatedBean);
+        preInvokedMethods.forEach(this::invokeConfigurationMethod);
+    }
+
+    private void invokeConfigurationMethod(Method method) {
+        try {
+            Object invokedMethodObject = method.invoke(method.getDeclaringClass().newInstance());
+            beans.put(invokedMethodObject.getClass(), invokedMethodObject);
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            log.error("Method invoke Exception occurred during invoking method!", e);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -31,9 +53,6 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() {
-        preInstantiateBeans.forEach(this::registerInstantiatedBean);
-    }
 
     private Object registerInstantiatedBean(Class<?> clazz) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
@@ -89,5 +108,9 @@ public class BeanFactory {
             }
         }
         return controllers;
+    }
+
+    public void addPreInvokedMethod(Method method) {
+        preInvokedMethods.add(method);
     }
 }

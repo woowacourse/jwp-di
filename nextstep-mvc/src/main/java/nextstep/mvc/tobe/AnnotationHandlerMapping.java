@@ -30,9 +30,11 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         this.basePackage = basePackage;
     }
 
+    @Override
     public void initialize() {
         BeanScanner beanScanner = new BeanScanner(basePackage);
         BeanFactory beanFactory = new BeanFactory(beanScanner.getPreInstantiateClazz());
+        beanFactory.initialize();
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
 
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
@@ -74,6 +76,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
 
+    @Override
     public Object getHandler(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         RequestMethod rm = RequestMethod.valueOf(request.getMethod().toUpperCase());

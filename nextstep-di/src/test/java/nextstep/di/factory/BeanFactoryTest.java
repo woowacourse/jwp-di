@@ -28,6 +28,7 @@ public class BeanFactoryTest {
         preInstantiateClazz = new HashSet<>(Arrays.asList(MyQnaService.class,
                 JdbcUserRepository.class, JdbcQuestionRepository.class, QnaController.class));
         beanFactory = new BeanFactory(preInstantiateClazz);
+        beanFactory.initialize();
     }
 
     @Test
@@ -59,7 +60,8 @@ public class BeanFactoryTest {
         preInstantiateClazz.add(TestService.class);
 
         assertThrows(NotRegisteredBeanException.class, () -> {
-            new BeanFactory(preInstantiateClazz);
+            BeanFactory beanFactory = new BeanFactory(preInstantiateClazz);
+            beanFactory.initialize();
         });
     }
 
