@@ -18,7 +18,7 @@ public class BeanFactory {
         initialize(beanCreateMatcher);
     }
 
-    public void initialize(BeanCreateMatcher matcher) {
+    private void initialize(BeanCreateMatcher matcher) {
         matcher.entrySet().forEach(entry -> beans.put(entry.getKey(), entry.getValue().getInstance(matcher, beans)));
         logger.debug("Beans: {}", beans);
     }
