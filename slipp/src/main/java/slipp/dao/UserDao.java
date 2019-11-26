@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.annotation.Inject;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import nextstep.stereotype.Repository;
@@ -11,7 +12,12 @@ import java.util.List;
 
 @Repository
 public class UserDao {
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private JdbcTemplate jdbcTemplate;
+
+    @Inject
+    public UserDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
@@ -49,5 +55,10 @@ public class UserDao {
     public void update(User user) {
         String sql = "UPDATE USERS set password = ?, name = ?, email = ? WHERE userId = ?";
         jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+    }
+
+    public void delete(User user) {
+        String sql = "DELETE FROM USERS WHERE userId = ?";
+        jdbcTemplate.delete(sql, user.getUserId());
     }
 }

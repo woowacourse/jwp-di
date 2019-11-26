@@ -8,8 +8,4 @@ public class MyJdbcTemplate {
     public MyJdbcTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
     }
-
-    public DataSource getDataSource() {
-        return dataSource;
-    }
 }

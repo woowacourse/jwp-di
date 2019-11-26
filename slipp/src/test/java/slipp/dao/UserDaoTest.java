@@ -1,14 +1,16 @@
 package slipp.dao;
 
-import nextstep.jdbc.ConnectionManager;
+import nextstep.di.factory.ApplicationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import slipp.MyConfiguration;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,10 +19,13 @@ public class UserDaoTest {
     private UserDao userDao;
     @BeforeEach
     public void setup() {
+        ApplicationContext applicationContext = new ApplicationContext(MyConfiguration.class);
+        userDao = applicationContext.getBean(UserDao.class);
+        DataSource dataSource = applicationContext.getBean(DataSource.class);
+
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-        userDao = new UserDao();
+        DatabasePopulatorUtils.execute(populator, dataSource);
     }
 
     @Test
@@ -34,6 +39,8 @@ public class UserDaoTest {
         userDao.update(expected);
         actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
+
+        userDao.delete(expected);
     }
 
     @Test
