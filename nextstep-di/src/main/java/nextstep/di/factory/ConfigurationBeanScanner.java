@@ -8,24 +8,22 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ConfigurationBeanScanner {
+public class ConfigurationBeanScanner implements BeanScanner {
+    private Class<?>[] classes;
 
-    private final BeanFactory beanFactory;
-
-    public ConfigurationBeanScanner(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public ConfigurationBeanScanner(Class<?>... classes) {
+        this.classes = classes;
     }
 
-    public void register(Class<?>... classes) {
-        Set<BeanDefinition> beanDefinitions = Arrays.stream(classes)
+    @Override
+    public Set<BeanDefinition> doScan() {
+        return Arrays.stream(classes)
                 .filter(clazz -> clazz.isAnnotationPresent(Configuration.class))
                 .map(Class::getMethods)
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(Bean.class))
                 .map(this::createMethodBeanDefinition)
                 .collect(Collectors.toSet());
-
-        beanFactory.register(beanDefinitions);
     }
 
     private MethodBeanDefinition createMethodBeanDefinition(Method method) {

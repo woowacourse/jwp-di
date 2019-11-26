@@ -1,63 +1,47 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.example.*;
+import nextstep.di.factory.example.ExampleConfig;
+import nextstep.di.factory.example.IntegrationConfig;
+import nextstep.di.factory.example.MyJdbcConfig;
+import nextstep.di.factory.example.MyJdbcTemplate;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConfigurationBeanScannerTest {
+    private ConfigurationBeanScanner configurationBeanScanner;
+
     @Test
     public void register_simple() {
-        BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.register(ExampleConfig.class);
-        beanFactory.initialize();
+        configurationBeanScanner = new ConfigurationBeanScanner(ExampleConfig.class);
 
-        assertNotNull(beanFactory.getBean(DataSource.class));
+        assertTrue(configurationBeanScanner.doScan()
+                .stream()
+                .anyMatch(beanDefinition -> beanDefinition.sameBeanClass(DataSource.class))
+        );
     }
 
     @Test
     void register_simple2() {
-        BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.register(IntegrationConfig.class);
-        beanFactory.initialize();
+        configurationBeanScanner = new ConfigurationBeanScanner(IntegrationConfig.class);
 
-        assertNotNull(beanFactory.getBean(DataSource.class));
-        assertNotNull(beanFactory.getBean(MyJdbcTemplate.class));
+        assertTrue(configurationBeanScanner.doScan()
+                .stream()
+                .allMatch(beanDefinition -> beanDefinition.sameBeanClass(DataSource.class) ||
+                        beanDefinition.sameBeanClass(MyJdbcTemplate.class))
+        );
     }
 
     @Test
     void register_simple3() {
-        BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.register(MyJdbcConfig.class, ExampleConfig.class);
-        beanFactory.initialize();
+        configurationBeanScanner = new ConfigurationBeanScanner(MyJdbcConfig.class, ExampleConfig.class);
 
-        assertNotNull(beanFactory.getBean(DataSource.class));
-        assertNotNull(beanFactory.getBean(MyJdbcTemplate.class));
-    }
-
-    @Test
-    public void register_classpathBeanScanner_통합() {
-        BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.register(IntegrationConfig.class);
-
-        ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
-        cbds.doScan("nextstep.di.factory.example");
-
-        beanFactory.initialize();
-
-        assertNotNull(beanFactory.getBean(DataSource.class));
-
-        JdbcUserRepository userRepository = beanFactory.getBean(JdbcUserRepository.class);
-        assertNotNull(userRepository);
-
-        MyJdbcTemplate jdbcTemplate = beanFactory.getBean(MyJdbcTemplate.class);
-        assertNotNull(jdbcTemplate);
-        assertNotNull(jdbcTemplate.getDataSource());
+        assertTrue(configurationBeanScanner.doScan()
+                .stream()
+                .allMatch(beanDefinition -> beanDefinition.sameBeanClass(DataSource.class) ||
+                        beanDefinition.sameBeanClass(MyJdbcTemplate.class))
+        );
     }
 }

@@ -13,16 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactoryTest {
+    private static final ClasspathBeanScanner CLASSPATH_BEAN_SCANNER = new ClasspathBeanScanner("nextstep.di.factory.example");
 
     private BeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        beanFactory = new BeanFactory();
-        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
-        classpathBeanScanner.doScan("nextstep.di.factory.example");
-        beanFactory.initialize();
+        beanFactory = new BeanFactory(CLASSPATH_BEAN_SCANNER);
     }
 
     @Test

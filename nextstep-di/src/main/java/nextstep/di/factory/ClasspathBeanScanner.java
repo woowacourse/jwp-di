@@ -14,25 +14,25 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ClasspathBeanScanner {
+public class ClasspathBeanScanner implements BeanScanner {
     private static final Logger logger = LoggerFactory.getLogger(ClasspathBeanScanner.class);
     private static final List<Class<? extends Annotation>> ANNOTATIONS = Arrays.asList(Controller.class, Service.class, Repository.class);
 
-    private BeanFactory beanFactory;
+    private Object[] basePackage;
 
-    public ClasspathBeanScanner(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public ClasspathBeanScanner(Object... basePackage) {
+        this.basePackage = basePackage;
     }
 
-    public void doScan(Object... basePackage) {
+    @Override
+    public Set<BeanDefinition> doScan() {
         Reflections reflections = new Reflections(basePackage);
-        Set<BeanDefinition> beanDefinitions = ANNOTATIONS.stream()
+
+        return ANNOTATIONS.stream()
                 .map(reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)
                 .peek(bean -> logger.debug("Scan Beans Type : {}", bean))
                 .map(DefaultBeanDefinition::new)
                 .collect(Collectors.toSet());
-
-        beanFactory.register(beanDefinitions);
     }
 }

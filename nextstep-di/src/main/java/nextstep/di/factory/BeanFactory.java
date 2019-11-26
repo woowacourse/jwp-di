@@ -3,8 +3,6 @@ package nextstep.di.factory;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.stereotype.Controller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -12,17 +10,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     private Set<BeanDefinition> beanDefinitions = Sets.newHashSet();
 
-    public void register(Set<BeanDefinition> beanDefinitions) {
-        this.beanDefinitions.addAll(beanDefinitions);
-    }
+    public BeanFactory(BeanScanner... beanScanners) {
+        for (BeanScanner beanScanner : beanScanners) {
+            beanDefinitions.addAll(beanScanner.doScan());
+        }
 
-    public void initialize() {
         for (BeanDefinition beanDefinition : beanDefinitions) {
             registerBean(beanDefinition);
         }

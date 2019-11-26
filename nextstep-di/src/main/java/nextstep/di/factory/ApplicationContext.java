@@ -9,15 +9,10 @@ public class ApplicationContext {
     private BeanFactory beanFactory;
 
     public ApplicationContext(Class<?>... configurations) {
-        BeanFactory beanFactory = new BeanFactory();
-        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(configurations);
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(getBasePackages(configurations));
 
-        configurationBeanScanner.register(configurations);
-        classpathBeanScanner.doScan(getBasePackages(configurations));
-        beanFactory.initialize();
-
-        this.beanFactory = beanFactory;
+        this.beanFactory = new BeanFactory(configurationBeanScanner, classpathBeanScanner);
     }
 
     private Object[] getBasePackages(Class<?>... configurations) {
