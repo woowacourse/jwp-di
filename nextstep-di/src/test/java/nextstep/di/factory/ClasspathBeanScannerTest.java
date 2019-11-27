@@ -7,7 +7,7 @@ import nextstep.di.factory.example.QnaController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,7 +21,7 @@ class ClasspathBeanScannerTest {
 
     @Test
     void 정상적으로_스캔한다() {
-        Set<BeanDefinition> beanDefinitions = classpathBeanScanner.doScan();
+        List<BeanDefinition> beanDefinitions = classpathBeanScanner.doScan();
 
         assertTrue(beanDefinitions.stream()
                 .allMatch(beanDefinition -> beanDefinition.sameBeanClass(MyQnaService.class) ||

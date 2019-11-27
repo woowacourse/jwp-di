@@ -5,7 +5,7 @@ import nextstep.annotation.Configuration;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ConfigurationBeanScanner implements BeanScanner {
@@ -16,14 +16,14 @@ public class ConfigurationBeanScanner implements BeanScanner {
     }
 
     @Override
-    public Set<BeanDefinition> doScan() {
+    public List<BeanDefinition> doScan() {
         return Arrays.stream(classes)
                 .filter(clazz -> clazz.isAnnotationPresent(Configuration.class))
                 .map(Class::getMethods)
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(Bean.class))
                 .map(this::createMethodBeanDefinition)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     private MethodBeanDefinition createMethodBeanDefinition(Method method) {

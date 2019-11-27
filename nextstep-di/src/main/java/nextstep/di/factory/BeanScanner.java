@@ -1,7 +1,7 @@
 package nextstep.di.factory;
 
-import java.util.Set;
+import java.util.List;
 
 public interface BeanScanner {
-    Set<BeanDefinition> doScan();
+    List<BeanDefinition> doScan();
 }

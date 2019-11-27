@@ -1,10 +1,11 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import nextstep.stereotype.Controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    private Set<BeanDefinition> beanDefinitions = Sets.newHashSet();
+    private List<BeanDefinition> beanDefinitions = Lists.newArrayList();
 
     public BeanFactory(BeanScanner... beanScanners) {
         for (BeanScanner beanScanner : beanScanners) {

@@ -11,7 +11,6 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClasspathBeanScanner implements BeanScanner {
@@ -25,7 +24,7 @@ public class ClasspathBeanScanner implements BeanScanner {
     }
 
     @Override
-    public Set<BeanDefinition> doScan() {
+    public List<BeanDefinition> doScan() {
         Reflections reflections = new Reflections(basePackage);
 
         return ANNOTATIONS.stream()
@@ -33,6 +32,6 @@ public class ClasspathBeanScanner implements BeanScanner {
                 .flatMap(Collection::stream)
                 .peek(bean -> logger.debug("Scan Beans Type : {}", bean))
                 .map(DefaultBeanDefinition::new)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 }
