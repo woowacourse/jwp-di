@@ -1,12 +1,15 @@
-package nextstep.di.factory.example;
+package nextstep.di.factory.example.config;
 
 import nextstep.annotation.Bean;
+import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.example.MyJdbcTemplate;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
 
 @Configuration
+@ComponentScan(basePackages = "nextstep.di.factory.example")
 public class IntegrationConfig {
     @Bean
     public DataSource dataSource() {

@@ -1,28 +1,23 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import nextstep.di.factory.scanner.ClassPathBeanScanner;
+import nextstep.di.factory.scanner.ConfigurationBeanScanner;
 
 import java.lang.annotation.Annotation;
-import java.util.Set;
 
 public class BeanScanner {
-    private static final Logger logger = LoggerFactory.getLogger(BeanScanner.class);
-
-    private Reflections reflections;
+    private final Object[] basePackage;
 
     public BeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
+        this.basePackage = BeanScannerUtils.findBasePackage(basePackage);
     }
 
-    public Set<Class<?>> getBeans(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        logger.debug("Bean Scanner : {}", beans);
-        return beans;
+    public void scanBean(BeanCreateMatcher beanCreateMatcher, Class<? extends Annotation>... annotation) {
+        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(basePackage);
+        classPathBeanScanner.doScan(beanCreateMatcher, annotation);
+
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(basePackage);
+        configurationBeanScanner.register(beanCreateMatcher);
     }
+
 }

@@ -2,7 +2,7 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.ApplicationContext;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -30,23 +30,22 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        BeanFactory beanFactory = new BeanFactory(basePackage);
-        beanFactory.initialize();
-        Set<Method> methods = getRequestMappingMethods(beanFactory.getControllers());
+        ApplicationContext applicationContext = new ApplicationContext(basePackage);
+        Set<Method> methods = getRequestMappingMethods(applicationContext.getControllers());
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                 rm.value(), rm.method(), method);
-            addHandlerExecutions(beanFactory, method, rm);
+            addHandlerExecutions(applicationContext, method, rm);
         }
 
         logger.info("Initialized AnnotationHandlerMapping!");
     }
 
-    private void addHandlerExecutions(BeanFactory beanFactory, Method method, RequestMapping rm) {
+    private void addHandlerExecutions(ApplicationContext applicationContext, Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(beanFactory.getBean(method.getDeclaringClass()), method));
+            handlerExecutions.put(handlerKey, new HandlerExecution(applicationContext.getBean(method.getDeclaringClass()), method));
         });
     }
 
