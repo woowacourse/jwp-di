@@ -3,23 +3,29 @@ package nextstep.di.factory;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstanticateBeans;
+    private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
+
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, BeanBox> preInstanticateClazz = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstanticateBeans) {
-        this.preInstanticateBeans = preInstanticateBeans;
-        initialize();
+    public void registerBean(Map<Class<?>, Constructor> beans) {
+        Map<Class<?>, BeanBox> beanBoxes = Maps.newHashMap();
+        beans.keySet().forEach(clazz -> beanBoxes.put(clazz, new ConstructorBeanBox(clazz)));
+        preInstanticateClazz.putAll(beanBoxes);
+    }
+
+    public void registerConfigBean(Map<Class<?>, Method> configs) {
+        Map<Class<?>, BeanBox> beanBoxes = Maps.newHashMap();
+        configs.keySet().forEach(clazz -> beanBoxes.put(clazz, new MethodBeanBox(configs.get(clazz))));
+        preInstanticateClazz.putAll(beanBoxes);
     }
 
     @SuppressWarnings("unchecked")
@@ -27,45 +33,10 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    private void initialize() {
-        for (Class<?> preInstanticateBean : preInstanticateBeans) {
+    public void initialize() {
+        for (Class<?> preInstanticateBean : preInstanticateClazz.keySet()) {
             scanBean(preInstanticateBean);
         }
-    }
-
-    private Object scanBean(Class<?> preInstanticateBean) {
-        if (beans.containsKey(preInstanticateBean)) {
-            return beans.get(preInstanticateBean);
-        }
-
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
-
-        if (Objects.isNull(injectedConstructor)) {
-            Object instance = BeanUtils.instantiateClass(preInstanticateBean);
-            beans.put(preInstanticateBean, instance);
-            logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
-            return instance;
-        }
-
-        return putParameterizedObject(preInstanticateBean, injectedConstructor);
-    }
-
-    private Object putParameterizedObject(Class<?> preInstanticateBean, Constructor<?> constructor) {
-        Object[] params = getConstructorParams(constructor);
-        Object instance = BeanUtils.instantiateClass(constructor, params);
-        beans.put(preInstanticateBean, instance);
-        logger.debug("bean name : {}, instance : {}", preInstanticateBean, instance);
-        return instance;
-    }
-
-    private Object[] getConstructorParams(Constructor<?> constructor) {
-        Object[] params = new Object[constructor.getParameterCount()];
-        for (int i = 0; i < params.length; i++) {
-            Class<?> parameterType = constructor.getParameterTypes()[i];
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateBeans);
-            params[i] = scanBean(concreteClass);
-        }
-        return params;
     }
 
     public Map<Class<?>, Object> getAnnotatedWith(Class<? extends Annotation> annotation) {
@@ -77,5 +48,50 @@ public class BeanFactory {
         }
         return annotatedClass;
     }
-}
 
+    @SuppressWarnings("unchecked")
+    private Object scanBean(Class<?> preInstanticateBean) {
+        if (beans.containsKey(preInstanticateBean)) {
+            return beans.get(preInstanticateBean);
+        }
+
+        BeanBox beanBox = preInstanticateClazz.get(preInstanticateBean);
+
+        if (!beanBox.hasParams()) {
+            Object instance = beanBox.instantiate();
+            return putBean(preInstanticateBean, instance);
+        }
+
+        Object instance = beanBox.putParameterizedObject(preInstanticateBean, getParams(beanBox));
+        return putBean(preInstanticateBean, instance);
+    }
+
+    private Object putBean(Class<?> preInstanticateBean, Object instance) {
+        beans.put(preInstanticateBean, instance);
+        log.debug("preInstanticateBean : {}, instance : {}", preInstanticateBean, instance);
+        return beans.get(preInstanticateBean);
+    }
+
+    private Object[] getParams(BeanBox beanBox) {
+        Object[] params = new Object[beanBox.getParameterCount()];
+        for (int i = 0; i < params.length; i++) {
+            Class<?> parameterType = getParameterType(beanBox, i);
+            log.debug("parameterType : {}", parameterType);
+            params[i] = scanBean(parameterType);
+        }
+        return params;
+    }
+
+    private Class<?> getParameterType(BeanBox beanBox, int i) {
+        Object invoker = beanBox.getInvoker();
+        if (invoker instanceof Constructor) {
+            Class<?> parameterType = ((Constructor) invoker).getParameterTypes()[i];
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstanticateClazz);
+            return BeanFactoryUtils.findConcreteClass(concreteClass, preInstanticateClazz);
+        }
+        if (invoker instanceof Method) {
+            return ((Method) invoker).getParameterTypes()[i];
+        }
+        throw new NotSupportedInjectionTypeException(invoker.getClass());
+    }
+}

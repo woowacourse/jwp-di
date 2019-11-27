@@ -3,7 +3,7 @@ package slipp.service;
 import nextstep.annotation.Inject;
 import nextstep.stereotype.Service;
 import slipp.domain.User;
-import slipp.repository.Repository;
+import slipp.repository.UserRepository;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,10 +11,10 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private Repository userDao;
+    private UserRepository userDao;
 
     @Inject
-    public UserService(Repository userRepository) {
+    public UserService(UserRepository userRepository) {
         this.userDao = userRepository;
     }
 
@@ -23,7 +23,7 @@ public class UserService {
     }
 
     public User findByUserId(String userId) {
-        return userDao.findUserById(userId)
+        return userDao.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundUserException("유저를 찾을 수 없습니다."));
     }
 

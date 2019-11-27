@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.di.context.ApplicationContext;
 import nextstep.jdbc.ConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +16,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+
     @BeforeEach
     public void setup() {
+        ApplicationContext ac = new ApplicationContext("slipp");
+        ac.initialize();
+
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
@@ -27,13 +32,13 @@ public class UserDaoTest {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = UserDao.getInstance();
         userDao.insert(expected);
-        User actual = userDao.findUserById(expected.getUserId())
+        User actual = userDao.findByUserId(expected.getUserId())
                 .orElseThrow(NotFoundUserException::new);
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new UserUpdatedDto("password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findUserById(expected.getUserId())
+        actual = userDao.findByUserId(expected.getUserId())
                 .orElseThrow(NotFoundUserException::new);
         assertThat(actual).isEqualTo(expected);
     }

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.Map;
 import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
@@ -38,18 +39,23 @@ public class BeanFactoryUtils {
      * @param preInstanticateBeans
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
+    public static Class<?> findConcreteClass(Class<?> injectedClazz, Map<Class<?>, BeanBox> preInstanticateBeans) {
         if (!injectedClazz.isInterface()) {
             logger.debug("{} isn't interface", injectedClazz);
             return injectedClazz;
         }
 
-        for (Class<?> clazz : preInstanticateBeans) {
+        for (Class<?> clazz : preInstanticateBeans.keySet()) {
             Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
             if (interfaces.contains(injectedClazz)) {
                 logger.debug("{} is interface", injectedClazz);
                 return clazz;
             }
+        }
+
+        if (preInstanticateBeans.get(injectedClazz) instanceof MethodBeanBox) {
+            logger.debug("{} is configuration bean", injectedClazz);
+            return injectedClazz;
         }
 
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
