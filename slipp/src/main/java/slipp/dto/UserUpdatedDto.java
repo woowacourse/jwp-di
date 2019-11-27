@@ -1,5 +1,7 @@
 package slipp.dto;
 
+import slipp.domain.User;
+
 public class UserUpdatedDto {
     private String password;
     private String name;
@@ -32,5 +34,9 @@ public class UserUpdatedDto {
                 "name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}';
+    }
+
+    public User toUser() {
+        return new User();
     }
 }

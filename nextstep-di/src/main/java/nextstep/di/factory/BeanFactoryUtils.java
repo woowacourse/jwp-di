@@ -2,14 +2,22 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import nextstep.di.exception.MultipleBeanImplementationException;
+import nextstep.di.exception.NotExistBeanException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
 import static org.reflections.ReflectionUtils.withAnnotation;
 
 public class BeanFactoryUtils {
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryUtils.class);
+
     /**
      * 인자로 전달하는 클래스의 생성자 중 @Inject 애노테이션이 설정되어 있는 생성자를 반환
      *
@@ -31,21 +39,43 @@ public class BeanFactoryUtils {
      * 인터페이스인 경우 BeanFactory가 관리하는 모든 클래스 중에 인터페이스를 구현하는 클래스를 찾아 반환
      *
      * @param injectedClazz
-     * @param preInstanticateBeans
+     * @param preInstantiatedBeans
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
+    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstantiatedBeans) {
         if (!injectedClazz.isInterface()) {
             return injectedClazz;
         }
 
-        for (Class<?> clazz : preInstanticateBeans) {
-            Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
-            if (interfaces.contains(injectedClazz)) {
-                return clazz;
-            }
+        List<Class<?>> concreteclasses = preInstantiatedBeans.stream()
+                .filter(clazz -> isConcrete(clazz, injectedClazz))
+                .collect(Collectors.toList());
+
+        if (concreteclasses.isEmpty()) {
+            throw NotExistBeanException.from(injectedClazz);
+        }
+        if (2 <= concreteclasses.size()) {
+            throw MultipleBeanImplementationException.from(injectedClazz, concreteclasses);
         }
 
-        throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+        return concreteclasses.get(0);
+    }
+
+    private static boolean isConcrete(Class<?> clazz, Class<?> injectedInterface) {
+        return Sets.newHashSet(clazz.getInterfaces())
+                .contains(injectedInterface);
+    }
+
+    public static List<Class<?>> findConcreteClasses(List<Class<?>> classes, Set<Class<?>> preInstantiatedBeans) {
+        return classes.stream()
+                .map(parameter -> findConcreteClass(parameter, preInstantiatedBeans))
+                .collect(Collectors.toList());
+    }
+
+    public static Constructor<?> getBeanConstructor(Class<?> type) {
+        log.debug("type: {}", type.toString());
+
+        Constructor<?> constructor = getInjectedConstructor(type);
+        return constructor != null ? constructor : type.getConstructors()[0];
     }
 }

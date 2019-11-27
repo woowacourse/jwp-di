@@ -1,6 +1,7 @@
 package slipp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nextstep.annotation.Inject;
 import nextstep.mvc.JsonView;
 import nextstep.mvc.ModelAndView;
 import nextstep.stereotype.Controller;
@@ -18,18 +19,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
-public class ApiUserController {
-    private static final Logger logger = LoggerFactory.getLogger( ApiUserController.class );
+public class UserApiController {
+    private static final Logger log = LoggerFactory.getLogger(UserApiController.class);
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    private final UserDao userDao;
 
-    private UserDao userDao = UserDao.getInstance();
+    @Inject
+    public UserApiController(UserDao userDao) {
+        log.debug("begin");
 
+        this.userDao = userDao;
+        this.objectMapper = new ObjectMapper();
+    }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
         UserCreatedDto createdDto = objectMapper.readValue(request.getInputStream(), UserCreatedDto.class);
-        logger.debug("Created User : {}", createdDto);
+        log.debug("Created User : {}", createdDto);
 
         userDao.insert(new User(
                 createdDto.getUserId(),
@@ -46,7 +53,7 @@ public class ApiUserController {
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
     public ModelAndView show(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userId = request.getParameter("userId");
-        logger.debug("userId : {}", userId);
+        log.debug("userId : {}", userId);
 
         ModelAndView mav = new ModelAndView(new JsonView());
         mav.addObject("user", userDao.findByUserId(userId));
@@ -56,9 +63,9 @@ public class ApiUserController {
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
     public ModelAndView update(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userId = request.getParameter("userId");
-        logger.debug("userId : {}", userId);
+        log.debug("userId : {}", userId);
         UserUpdatedDto updateDto = objectMapper.readValue(request.getInputStream(), UserUpdatedDto.class);
-        logger.debug("Updated User : {}", updateDto);
+        log.debug("Updated User : {}", updateDto);
 
         User user = userDao.findByUserId(userId);
         user.update(updateDto);
