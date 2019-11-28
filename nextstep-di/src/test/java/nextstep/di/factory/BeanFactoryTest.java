@@ -1,39 +1,34 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
-import nextstep.di.factory.example.QnaController;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
-import nextstep.di.factory.example.MyQnaService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.annotation.Annotation;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import com.google.common.collect.Sets;
+import nextstep.di.factory.circularreference.CircularReferenceController;
+import nextstep.di.factory.example.*;
+import nextstep.di.factory.notbean.InjectNotBean;
+import nextstep.exception.BeanCreateFailException;
+import nextstep.exception.CircularReferenceException;
+import nextstep.exception.DefaultConstructorFindFailException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger( BeanFactoryTest.class );
-
-    private Reflections reflections;
+    private static final String BASE_PACKAGE = "nextstep.di.factory.example";
     private BeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        reflections = new Reflections("nextstep.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstanticateClazz);
-        beanFactory.initialize();
+        beanFactory = new BeanFactory();
     }
 
     @Test
-    public void di() throws Exception {
+    public void di() {
+        beanFactory.initialize(new BeanScanner(BASE_PACKAGE).scanBeans());
+
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -44,13 +39,40 @@ public class BeanFactoryTest {
         assertNotNull(qnaService.getQuestionRepository());
     }
 
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
+    @Test
+    void getControllers() {
+        beanFactory.initialize(new BeanScanner(BASE_PACKAGE).scanBeans());
+        assertThat(beanFactory.getControllers().size()).isEqualTo(1);
+    }
+
+    @Test
+    void canNotFoundDefaultConstructor() {
+        assertThrows(DefaultConstructorFindFailException.class,
+                () -> beanFactory.initialize(Sets.newHashSet(NoDefaultConstructorController.class)));
+    }
+
+    @Test
+    void confirmSingleton() {
+        Set<Class<?>> preInstantiatedBeans = new BeanScanner(BASE_PACKAGE).scanBeans();
+
+        beanFactory.initialize(preInstantiatedBeans);
+        Object originController = beanFactory.getBean(QnaController.class);
+
+        beanFactory.initialize(preInstantiatedBeans);
+        Object expectedController = beanFactory.getBean(QnaController.class);
+
+        assertSame(originController, expectedController);
+    }
+
+    @Test
+    void throwExceptionWhenCircularReference() {
+        assertThrows(CircularReferenceException.class,
+                () -> beanFactory.initialize(Sets.newHashSet(CircularReferenceController.class)));
+    }
+
+    @Test
+    void throwExceptionWhenNotBean() {
+        assertThrows(BeanCreateFailException.class,
+                () -> beanFactory.initialize(Sets.newHashSet(InjectNotBean.class)));
     }
 }
