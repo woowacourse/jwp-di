@@ -3,14 +3,20 @@ package nextstep.di.factory.example;
 import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
-import nextstep.di.factory.example.component.MyJdbcTemplate;
+import nextstep.di.factory.example.component.MyQnaService;
+import nextstep.di.factory.example.component.QnaController;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(basePackages = "nextstep.di.factory.example.component")
-public class IntegrationConfig {
+public class ComponentScanConfig {
+    @Bean
+    public QnaController qnaController(MyQnaService myQnaService) {
+        return new QnaController(myQnaService);
+    }
+
     @Bean
     public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
@@ -19,10 +25,5 @@ public class IntegrationConfig {
         ds.setUsername("sa");
         ds.setPassword("");
         return ds;
-    }
-
-    @Bean
-    public MyJdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new MyJdbcTemplate(dataSource);
     }
 }
