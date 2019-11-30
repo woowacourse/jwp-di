@@ -2,15 +2,10 @@ package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
 import nextstep.di.bean.BeanDefinition;
-import nextstep.di.bean.ConfigurationBeanDefinition;
-import nextstep.di.factory.ReflectionUtils;
 import nextstep.di.factory.example.MyJdbcTemplate;
-import nextstep.di.factory.example.scan.ComponentScanConfig;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
