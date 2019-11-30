@@ -15,14 +15,11 @@ public class BeanFactoryImpl implements BeanFactory {
     private BeanInitiatorRegistry beanInitiatorRegistry = new BeanInitiatorRegistry();
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactoryImpl() {
-    }
-
     public void addBeanInitiator(Class<?> clazz, BeanInitiator beanInitiator) {
         beanInitiatorRegistry.addBeanInitiator(clazz, beanInitiator);
     }
 
-    public void initialize() {
+    protected void initialize() {
         addBeans(createTopologySort().calculateReversedOrders(beanInitiatorRegistry.getPreInstantiatedTypes()));
     }
 

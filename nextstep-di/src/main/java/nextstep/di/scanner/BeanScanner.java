@@ -1,6 +1,7 @@
 package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
@@ -9,7 +10,7 @@ import java.util.Set;
 public abstract class BeanScanner {
     private Reflections reflections;
 
-    BeanScanner(Object... basePackage) {
+    public void setBasePackage(Object... basePackage) {
         this.reflections = new Reflections(basePackage);
     }
 
@@ -21,4 +22,6 @@ public abstract class BeanScanner {
         }
         return beans;
     }
+
+    public abstract void doScan(BeanFactory beanFactory);
 }
