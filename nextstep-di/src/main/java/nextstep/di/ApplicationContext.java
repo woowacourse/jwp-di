@@ -37,7 +37,4 @@ public class ApplicationContext extends BeanFactoryImpl {
         super.initialize();
     }
 
-    public BeanFactoryImpl getBeanFactoryImpl() {
-        return beanFactoryImpl;
-    }
 }

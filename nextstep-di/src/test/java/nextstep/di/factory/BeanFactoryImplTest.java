@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryImplTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryImplTest.class);
+    private static final String BASE_PACKAGE = "nextstep.di.factory.example";
 
     private BeanFactoryImpl beanFactoryImpl;
 
@@ -20,8 +21,14 @@ public class BeanFactoryImplTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         beanFactoryImpl = new BeanFactoryImpl();
-        new ClasspathBeanScanner(beanFactoryImpl, "nextstep.di.factory.example");
-        new ConfigurationBeanScanner(beanFactoryImpl, "nextstep.di.factory.example");
+
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner();
+        classpathBeanScanner.setBasePackage(BASE_PACKAGE);
+        classpathBeanScanner.doScan(beanFactoryImpl);
+
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner();
+        configurationBeanScanner.setBasePackage(BASE_PACKAGE);
+        configurationBeanScanner.doScan(beanFactoryImpl);
 
         beanFactoryImpl.initialize();
     }
