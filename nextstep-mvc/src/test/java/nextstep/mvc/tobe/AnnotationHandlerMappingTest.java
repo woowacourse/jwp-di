@@ -1,13 +1,16 @@
 package nextstep.mvc.tobe;
 
 import nextstep.db.DataBase;
+import nextstep.di.context.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.DefaultBeanFactory;
 import nextstep.di.scanner.BeanScanner;
 import nextstep.stereotype.Controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import samples.TestConfiguration;
 import samples.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,10 +20,8 @@ public class AnnotationHandlerMappingTest {
 
     @BeforeEach
     public void setup() {
-        BeanScanner beanScanner = new BeanScanner("samples");
-        BeanFactory beanFactory = new BeanFactory(beanScanner.scanDefaultAnnotation());
-        beanFactory.initialize();
-        handlerMapping = new AnnotationHandlerMapping(beanFactory.getBeans(Controller.class));
+        ApplicationContext applicationContext = new ApplicationContext(TestConfiguration.class);
+        handlerMapping = new AnnotationHandlerMapping(applicationContext);
         handlerMapping.initialize();
     }
 
