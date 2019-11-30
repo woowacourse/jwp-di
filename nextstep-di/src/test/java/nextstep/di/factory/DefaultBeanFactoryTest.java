@@ -16,28 +16,27 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
+public class DefaultBeanFactoryTest {
+    private static final Logger log = LoggerFactory.getLogger(DefaultBeanFactoryTest.class);
 
     private Reflections reflections;
-    private BeanFactory beanFactory;
+    private BeanFactory defaultBeanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
         reflections = new Reflections("nextstep.di.factory.example");
         Set<Class<?>> preInstantiateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstantiateClazz);
-        beanFactory.initialize();
+        defaultBeanFactory = new DefaultBeanFactory(preInstantiateClazz);
+        defaultBeanFactory.initialize();
     }
 
     @Test
     public void di() {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        QnaController qnaController = defaultBeanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
         assertNotNull(qnaController.getQnaService());
@@ -50,7 +49,7 @@ public class BeanFactoryTest {
 
     @Test
     public void di2() {
-        JdbcUserRepository repository = beanFactory.getBean(JdbcUserRepository.class);
+        JdbcUserRepository repository = defaultBeanFactory.getBean(JdbcUserRepository.class);
         assertNotNull(repository);
     }
 
@@ -64,15 +63,11 @@ public class BeanFactoryTest {
         return beans;
     }
 
-    @Test
-    public void getBeansTest() {
-        assertThat(beanFactory.getBeans(Controller.class)).containsKey(QnaController.class);
-    }
 
     @Test
     public void equals() {
-        MyQnaService qnaService = beanFactory.getBean(QnaController.class).getQnaService();
-        MyQnaService bean = beanFactory.getBean(MyQnaService.class);
+        MyQnaService qnaService = defaultBeanFactory.getBean(QnaController.class).getQnaService();
+        MyQnaService bean = defaultBeanFactory.getBean(MyQnaService.class);
         assertSame(qnaService, bean);
     }
 }

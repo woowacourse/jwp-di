@@ -32,7 +32,7 @@ public class BeanFactoryUtils {
 
     /**
      * 인자로 전달되는 클래스의 구현 클래스. 만약 인자로 전달되는 Class가 인터페이스가 아니면 전달되는 인자가 구현 클래스,
-     * 인터페이스인 경우 BeanFactory가 관리하는 모든 클래스 중에 인터페이스를 구현하는 클래스를 찾아 반환
+     * 인터페이스인 경우 BeanFactory 가 관리하는 모든 클래스 중에 인터페이스를 구현하는 클래스를 찾아 반환
      *
      * @param injectedClazz
      * @param preInstantiateBeans
@@ -49,8 +49,7 @@ public class BeanFactoryUtils {
                 return clazz;
             }
         }
-
-        throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+        return injectedClazz;
     }
 
     /**
