@@ -35,6 +35,7 @@ public class BeanCreationStrategies {
             Object instance = beanCreationStrategy.createBean(clazz, parameterInstances, beans);
             return instance;
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+            log.error(e.getMessage());
             throw new CreateBeanException(e);
         }
     }
