@@ -47,13 +47,13 @@ public class BeanFactory {
     public void initialize() {
         checkCycleReference(preConstructInstantiateBeans);
         preConstructInstantiateBeans
-                .forEach(preConstructInstiateBean -> createBean(preConstructInstiateBean));
+                .forEach(this::createBean);
         preMethodInstantiateBeans
-                .forEach(preMethodInstantiateBean -> createBean(preMethodInstantiateBean));
+                .forEach(this::createBean);
     }
 
     private void checkCycleReference(Set<Class<?>> preInstantiateBeans) {
-        log.debug("==> checking cycle reference of {}", preInstantiateBeans);
+        log.debug("checking cycle reference of {}", preInstantiateBeans);
         preInstantiateBeans.forEach(beanClass -> checkCycleReference(beanClass, new ArrayList<>()));
     }
 
@@ -61,7 +61,7 @@ public class BeanFactory {
         if (beanClass.isInterface()) {
             return;
         }
-        log.debug("==>checking cycleReference bean: {}, beanNames: {}", beanClass, beanNames);
+        log.debug("checking cycleReference bean: {}, beanNames: {}", beanClass, beanNames);
 
         Constructor<?> constructor = BeanFactoryUtils.getConstructor(beanClass, preConstructInstantiateBeans);
         if (beanNames.contains(constructor.getName())) {
