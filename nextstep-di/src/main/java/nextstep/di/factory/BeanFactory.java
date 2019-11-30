@@ -7,7 +7,6 @@ import nextstep.stereotype.Controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
@@ -15,14 +14,20 @@ public class BeanFactory {
 
     private List<BeanDefinition> beanDefinitions = Lists.newArrayList();
 
+    private List<Class<?>> beanClasses = Lists.newArrayList();
+
     public BeanFactory(BeanScanner... beanScanners) {
         for (BeanScanner beanScanner : beanScanners) {
             beanDefinitions.addAll(beanScanner.doScan());
         }
+        beanClasses.addAll(getBeanClasses());
+        beanDefinitions.forEach(this::registerBean);
+    }
 
-        for (BeanDefinition beanDefinition : beanDefinitions) {
-            registerBean(beanDefinition);
-        }
+    private List<Class<?>> getBeanClasses() {
+        return beanDefinitions.stream()
+                .map(BeanDefinition::getBeanClass)
+                .collect(Collectors.toList());
     }
 
     private void registerBean(BeanDefinition beanDefinition) {
@@ -49,36 +54,21 @@ public class BeanFactory {
     }
 
     private void registerBean(Class<?> preInstanticateBean) {
-        BeanDefinition beanDefinition = findBeanDefinition(preInstanticateBean);
+        Class<?> concreteClass = findConcreteClass(preInstanticateBean);
+        BeanDefinition beanDefinition = findBeanDefinition(concreteClass);
 
         registerBean(beanDefinition);
     }
 
-    private BeanDefinition findBeanDefinition(Class<?> concreteClass) {
-        if (concreteClass.isInterface() && notExistBeanDefinition(concreteClass)) {
-            return findBeanDefinition(findConcreteClass(concreteClass));
-        }
+    private Class<?> findConcreteClass(Class<?> preInstanticateBean) {
+        return BeanFactoryUtils.findConcreteClass(preInstanticateBean, beanClasses);
+    }
 
+    private BeanDefinition findBeanDefinition(Class<?> concreteClass) {
         return beanDefinitions.stream()
                 .filter(beanDefinition -> beanDefinition.sameBeanClass(concreteClass))
                 .findAny()
                 .orElseThrow(RuntimeException::new);
-    }
-
-    private boolean notExistBeanDefinition(Class<?> concreteClass) {
-        return beanDefinitions.stream()
-                .noneMatch(beanDefinition -> beanDefinition.sameBeanClass(concreteClass));
-    }
-
-    private Class<?> findConcreteClass(Class<?> preInstanticateBean) {
-        if (beans.containsKey(preInstanticateBean)) {
-            return preInstanticateBean;
-        }
-        Set<Class<?>> beanClazz = this.beanDefinitions.stream()
-                .map(BeanDefinition::getBeanClass)
-                .collect(Collectors.toSet());
-
-        return BeanFactoryUtils.findConcreteClass(preInstanticateBean, beanClazz);
     }
 
     public Map<Class<?>, Object> getControllers() {
