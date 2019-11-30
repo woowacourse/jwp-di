@@ -3,21 +3,21 @@ package nextstep.di.bean;
 import nextstep.di.factory.ReflectionUtils;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
-public class ConfigurationBeanDefinition<T> implements BeanDefinition<T> {
-
-    private final Class<T> returnType;
+public class ConfigurationBeanDefinition implements BeanDefinition {
+    private final Class<?> returnType;
     private final Method method;
     private final Object configClassInstance;
 
     public ConfigurationBeanDefinition(Object configClassInstance, Method method) {
-        this.returnType = (Class<T>) method.getReturnType();
+        this.returnType = method.getReturnType();
         this.method = method;
         this.configClassInstance = configClassInstance;
     }
 
     @Override
-    public Class<T> getClazz() {
+    public Class<?> getClazz() {
         return this.returnType;
     }
 
@@ -27,7 +27,7 @@ public class ConfigurationBeanDefinition<T> implements BeanDefinition<T> {
     }
 
     @Override
-    public T instantiate(Object... parameters) {
-        return (T) ReflectionUtils.invoke(method, configClassInstance, parameters);
+    public Object instantiate(Object... parameters) {
+        return ReflectionUtils.invoke(method, configClassInstance, parameters);
     }
 }

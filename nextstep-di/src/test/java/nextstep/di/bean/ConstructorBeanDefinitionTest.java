@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ConstructorBeanDefinitionTest {
 
-    private static final BeanDefinition<MyQnaService> BEAN_DEFINITION = new ConstructorBeanDefinition<>(MyQnaService.class);
+    private static final BeanDefinition BEAN_DEFINITION = new ConstructorBeanDefinition(MyQnaService.class);
 
     @Test
     void getParameterTypes() {
@@ -17,7 +17,7 @@ class ConstructorBeanDefinitionTest {
 
     @Test
     void instantiate() {
-        MyQnaService myQnaService = BEAN_DEFINITION.instantiate(new JdbcUserRepository(), new JdbcQuestionRepository());
+        MyQnaService myQnaService = (MyQnaService) BEAN_DEFINITION.instantiate(new JdbcUserRepository(), new JdbcQuestionRepository());
         assertThat(myQnaService).isNotNull();
     }
 

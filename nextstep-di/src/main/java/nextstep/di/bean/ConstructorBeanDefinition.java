@@ -5,22 +5,22 @@ import nextstep.di.factory.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
 
-public class ConstructorBeanDefinition<T> implements BeanDefinition<T> {
-    private final Class<T> clazz;
-    private final Constructor<T> constructor;
+public class ConstructorBeanDefinition implements BeanDefinition {
+    private final Class<?> clazz;
+    private final Constructor<?> constructor;
 
-    public ConstructorBeanDefinition(Class<T> clazz) {
+    public ConstructorBeanDefinition(Class<?> clazz) {
         this.clazz = clazz;
         this.constructor = initConstructor(clazz);
     }
 
-    private Constructor<T> initConstructor(Class<T> clazz) {
-        Constructor<T> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
+    private Constructor initConstructor(Class<?> clazz) {
+        Constructor injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
         return injectedConstructor == null ? ReflectionUtils.getDefaultConstructor(clazz) : injectedConstructor;
     }
 
     @Override
-    public Class<T> getClazz() {
+    public Class<?> getClazz() {
         return clazz;
     }
 
@@ -30,7 +30,7 @@ public class ConstructorBeanDefinition<T> implements BeanDefinition<T> {
     }
 
     @Override
-    public T instantiate(Object... parameters) {
+    public Object instantiate(Object... parameters) {
         return ReflectionUtils.newInstance(constructor, parameters);
     }
 }

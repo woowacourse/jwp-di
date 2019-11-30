@@ -1,9 +1,9 @@
 package nextstep.di.bean;
 
-public interface BeanDefinition<T> {
-    Class<T> getClazz();
+public interface BeanDefinition {
+    Class<?> getClazz();
 
     Class<?>[] getParameterTypes();
 
-    T instantiate(Object... parameters);
+    Object instantiate(Object... parameters);
 }

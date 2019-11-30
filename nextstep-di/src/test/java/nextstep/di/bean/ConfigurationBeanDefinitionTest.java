@@ -13,14 +13,13 @@ import java.lang.reflect.Method;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ConfigurationBeanDefinitionTest {
-    // TODO: 2019-11-21 Generic 이 정상작동 하지 않음...
-    private BeanDefinition<MyJdbcTemplate> beanDefinition;
+    private BeanDefinition beanDefinition;
 
     @BeforeEach
     void setUp() throws NoSuchMethodException {
         Method beanMethod = IntegrationConfig.class.getDeclaredMethod("jdbcTemplate", DataSource.class);
         IntegrationConfig configInstance = ReflectionUtils.newInstance(IntegrationConfig.class);
-        beanDefinition = new ConfigurationBeanDefinition<>(configInstance, beanMethod);
+        beanDefinition = new ConfigurationBeanDefinition(configInstance, beanMethod);
     }
 
     @Test
