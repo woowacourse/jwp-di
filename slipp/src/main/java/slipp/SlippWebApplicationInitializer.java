@@ -1,6 +1,8 @@
 package slipp;
 
 import nextstep.di.ApplicationContext;
+import nextstep.di.scanner.ClasspathBeanScanner;
+import nextstep.di.scanner.ConfigurationBeanScanner;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
@@ -21,8 +23,10 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
     public void onStartup(ServletContext servletContext) throws ServletException {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
         ApplicationContext ac = new ApplicationContext(MyConfiguration.class);
-        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(ac));
+        ac.addBeanScanner(new ClasspathBeanScanner());
+        ac.addBeanScanner(new ConfigurationBeanScanner());
 
+        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(ac));
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
 
