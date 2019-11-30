@@ -1,21 +1,11 @@
 package nextstep.di.factory;
 
-public abstract class BeanDefinition {
-    private Class<?> beanClass;
+public interface BeanDefinition {
+    Class<?> getBeanClass();
 
-    public BeanDefinition(Class<?> beanClass) {
-        this.beanClass = beanClass;
-    }
+    boolean sameBeanClass(Class<?> beanClass);
 
-    public Class<?> getBeanClass() {
-        return beanClass;
-    }
+    Object instantiate(Object... parameterBeans);
 
-    public boolean sameBeanClass(Class<?> beanClass) {
-        return this.beanClass.equals(beanClass);
-    }
-
-    public abstract Object instantiate(Object... parameterBeans);
-
-    public abstract Class<?>[] getParameterTypes();
+    Class<?>[] getParameterTypes();
 }

@@ -5,17 +5,28 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 
-public class DefaultBeanDefinition extends BeanDefinition {
+public class DefaultBeanDefinition implements BeanDefinition {
     private static final Logger logger = LoggerFactory.getLogger(DefaultBeanDefinition.class);
 
+    private Class<?> beanClass;
+
     public DefaultBeanDefinition(Class<?> beanClass) {
-        super(beanClass);
+        this.beanClass = beanClass;
+    }
+
+    @Override
+    public Class<?> getBeanClass() {
+        return beanClass;
+    }
+
+    @Override
+    public boolean sameBeanClass(Class<?> beanClass) {
+        return this.beanClass.equals(beanClass);
     }
 
     @Override
     public Object instantiate(Object... parameterBeans) {
         try {
-            Class<?> beanClass = super.getBeanClass();
             Constructor<?> constructor = getConstructor(beanClass);
             return constructor.newInstance(parameterBeans);
         } catch (Exception e) {
@@ -27,7 +38,7 @@ public class DefaultBeanDefinition extends BeanDefinition {
     @Override
     public Class<?>[] getParameterTypes() {
         try {
-            Constructor<?> constructor = getConstructor(getBeanClass());
+            Constructor<?> constructor = getConstructor(beanClass);
             return constructor.getParameterTypes();
         } catch (NoSuchMethodException e) {
             logger.error("파라미터를 가져올 수 없습니다. : ", e);

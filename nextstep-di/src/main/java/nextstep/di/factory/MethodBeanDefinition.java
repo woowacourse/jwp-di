@@ -5,16 +5,27 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
-public class MethodBeanDefinition extends BeanDefinition {
+public class MethodBeanDefinition implements BeanDefinition {
     private static final Logger logger = LoggerFactory.getLogger(MethodBeanDefinition.class);
 
     private Object implementation;
+    private Class<?> beanClass;
     private Method method;
 
     public MethodBeanDefinition(Object implementation, Class<?> beanClass, Method method) {
-        super(beanClass);
         this.implementation = implementation;
+        this.beanClass = beanClass;
         this.method = method;
+    }
+
+    @Override
+    public Class<?> getBeanClass() {
+        return beanClass;
+    }
+
+    @Override
+    public boolean sameBeanClass(Class<?> beanClass) {
+        return this.beanClass.equals(beanClass);
     }
 
     @Override
