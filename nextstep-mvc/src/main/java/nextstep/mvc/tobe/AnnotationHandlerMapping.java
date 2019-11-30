@@ -3,7 +3,7 @@ package nextstep.mvc.tobe;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.di.ApplicationContext;
-import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.BeanFactoryImpl;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
 import nextstep.web.annotation.RequestMapping;
@@ -34,8 +34,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     @SuppressWarnings("unchecked")
     public void initialize() {
-        BeanFactory beanFactory = ac.getBeanFactory();
-        Set<Class<?>> controllers = beanFactory.getBeanTypes(clazz -> clazz.isAnnotationPresent(Controller.class));
+        BeanFactoryImpl beanFactoryImpl = ac.getBeanFactoryImpl();
+        Set<Class<?>> controllers = beanFactoryImpl.getBeanTypes(clazz -> clazz.isAnnotationPresent(Controller.class));
         Set<Method> methods = getRequestMappingMethods(controllers);
 
         for (Method method : methods) {
@@ -51,7 +51,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     private void addHandlerExecutions(Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(ac.getBeanFactory().getBean(method.getDeclaringClass()), method));
+            handlerExecutions.put(handlerKey, new HandlerExecution(ac.getBeanFactoryImpl().getBean(method.getDeclaringClass()), method));
         });
     }
 

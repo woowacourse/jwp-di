@@ -2,14 +2,13 @@ package nextstep.di;
 
 import com.google.common.collect.Lists;
 import nextstep.annotation.ComponentScan;
-import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.BeanFactoryImpl;
 import nextstep.di.scanner.BeanScanner;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class ApplicationContext {
-    private BeanFactory beanFactory;
+public class ApplicationContext extends BeanFactoryImpl {
     private List<BeanScanner> beanScanners = Lists.newArrayList();
 
     public ApplicationContext(Class<?>... configurations) {
@@ -23,7 +22,7 @@ public class ApplicationContext {
         beanScanners.add(beanScanner);
     }
 
-    public BeanFactory getBeanFactory() {
-        return beanFactory;
+    public BeanFactoryImpl getBeanFactoryImpl() {
+        return beanFactoryImpl;
     }
 }

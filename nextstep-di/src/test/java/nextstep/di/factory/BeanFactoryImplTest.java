@@ -11,24 +11,24 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
+public class BeanFactoryImplTest {
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryImplTest.class);
 
-    private BeanFactory beanFactory;
+    private BeanFactoryImpl beanFactoryImpl;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        beanFactory = new BeanFactory();
-        new ClasspathBeanScanner(beanFactory, "nextstep.di.factory.example");
-        new ConfigurationBeanScanner(beanFactory, "nextstep.di.factory.example");
+        beanFactoryImpl = new BeanFactoryImpl();
+        new ClasspathBeanScanner(beanFactoryImpl, "nextstep.di.factory.example");
+        new ConfigurationBeanScanner(beanFactoryImpl, "nextstep.di.factory.example");
 
-        beanFactory.initialize();
+        beanFactoryImpl.initialize();
     }
 
     @Test
     public void di() throws Exception {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        QnaController qnaController = beanFactoryImpl.getBean(QnaController.class);
 
         assertNotNull(qnaController);
         assertNotNull(qnaController.getQnaService());

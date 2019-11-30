@@ -1,7 +1,7 @@
 package slipp.dao;
 
 import nextstep.di.ApplicationContext;
-import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.BeanFactoryImpl;
 import nextstep.jdbc.ConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +21,8 @@ public class UserDaoTest {
 
     public UserDaoTest() {
         ApplicationContext ac = new ApplicationContext(MyConfiguration.class);
-        BeanFactory beanFactory = ac.getBeanFactory();
-        this.userDao = beanFactory.getBean(UserDao.class);
+        BeanFactoryImpl beanFactoryImpl = ac.getBeanFactoryImpl();
+        this.userDao = beanFactoryImpl.getBean(UserDao.class);
     }
 
     @BeforeEach
