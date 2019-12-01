@@ -31,5 +31,19 @@ docker-compose up -d
 
 > https://dev.mysql.com/doc/workbench/en/wb-admin-export-import-table.html
 
+## 규칙
+### @configuration
+- class에만 쓸 수 있다.
+- configuration annotation에 bean annotation을 포함한다.
 
+### @bean
+- method, @interface, class에 붙일 수 있다.
+    - method에 붙이는 경우: method 리턴 값을 빈으로 등록한다.
+    - @interface에 붙이는 경우: @interface가 붙여진 모든 class를 빈으로 등록한다.
+    - class에 붙이는 경우, class를 빈으로 등록한다.
+    
+### @ComponentScan
+- @configuration이 있는 class에만 쓸 수 있다.
+- @configuration에 componentScan이 없는 경우: 에러를 터뜨린다.
+- 
 

@@ -1,6 +1,8 @@
 package slipp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nextstep.jdbc.ConnectionManager;
+import nextstep.jdbc.JdbcTemplate;
 import nextstep.mvc.JsonView;
 import nextstep.mvc.ModelAndView;
 import nextstep.stereotype.Controller;
@@ -23,7 +25,7 @@ public class ApiUserController {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private UserDao userDao = UserDao.getInstance();
+    private UserDao userDao = new UserDao(new JdbcTemplate(ConnectionManager.getDataSource()));
 
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
