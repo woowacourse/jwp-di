@@ -3,11 +3,10 @@ package slipp;
 import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
+import nextstep.jdbc.JdbcTemplate;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 @Configuration
 @ComponentScan("slipp")
@@ -28,11 +27,8 @@ public class JdbcConnectionConfig {
         return ds;
     }
 
-    public Connection getConnection(DataSource dataSource) {
-        try {
-            return dataSource.getConnection();
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+    @Bean
+    public JdbcTemplate getJdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 }
