@@ -28,7 +28,6 @@ public class JdbcConnectionConfig {
         return ds;
     }
 
-    @Bean
     public Connection getConnection(DataSource dataSource) {
         try {
             return dataSource.getConnection();
