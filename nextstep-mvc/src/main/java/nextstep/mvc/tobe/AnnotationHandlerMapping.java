@@ -2,9 +2,8 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.di.context.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.scanner.ClassPathBeanScanner;
-import nextstep.di.scanner.ConfigurationBeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -27,18 +26,12 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
+        beanFactory = applicationContext.initializeBeanFactory();
+    }
+
+    @Override
     public void initialize() {
-        beanFactory = new BeanFactory();
-
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
-        configurationBeanScanner.scan();
-
-        List<String> componentScanPackages = configurationBeanScanner.findPackagesInComponentScan();
-        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(beanFactory);
-        classPathBeanScanner.scan(componentScanPackages);
-
-        beanFactory.initialize();
-
         registerHandlerMethods();
         logger.info("Initialized AnnotationHandlerMapping!");
     }
@@ -82,7 +75,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         return requestMappingMethods;
     }
 
-
+    @Override
     public Object getHandler(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         RequestMethod rm = RequestMethod.valueOf(request.getMethod().toUpperCase());
