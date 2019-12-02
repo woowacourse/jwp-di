@@ -17,8 +17,9 @@ class BeanFactoryReferenceErrorTest {
     void initialize() {
         beanFactory = new BeanFactory();
 
-        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(beanFactory);
+        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner();
         classPathBeanScanner.scan("nextstep.di.factory.error.references");
+        classPathBeanScanner.registerBeans(beanFactory);
 
         assertThrows(CircularReferenceException.class, () -> beanFactory.initialize());
     }

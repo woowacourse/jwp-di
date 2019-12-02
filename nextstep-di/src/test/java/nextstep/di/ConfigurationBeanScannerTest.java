@@ -14,8 +14,9 @@ class ConfigurationBeanScannerTest {
 
     @Test
     void findPackagesInComponentScan() {
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(new BeanFactory());
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner();
         configurationBeanScanner.scan();
+        configurationBeanScanner.registerBeans(new BeanFactory());
 
         List<String> basePackages = configurationBeanScanner.findPackagesInComponentScan();
 
@@ -27,8 +28,9 @@ class ConfigurationBeanScannerTest {
 
     @Test
     void findMethodsWithAnnotation() {
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(new BeanFactory());
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner();
         configurationBeanScanner.scan();
+        configurationBeanScanner.registerBeans(new BeanFactory());
 
         List<Method> methods = configurationBeanScanner.findMethodsWithAnnotation(Bean.class);
 

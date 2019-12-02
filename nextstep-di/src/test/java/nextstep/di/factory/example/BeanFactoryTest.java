@@ -26,12 +26,14 @@ class BeanFactoryTest {
     void setup() {
         beanFactory = new BeanFactory();
 
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner();
         configurationBeanScanner.scan();
+        configurationBeanScanner.registerBeans(beanFactory);
 
         List<String> componentScanPackages = configurationBeanScanner.findPackagesInComponentScan();
-        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(beanFactory);
+        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner();
         classPathBeanScanner.scan(componentScanPackages);
+        classPathBeanScanner.registerBeans(beanFactory);
 
         beanFactory.initialize();
     }

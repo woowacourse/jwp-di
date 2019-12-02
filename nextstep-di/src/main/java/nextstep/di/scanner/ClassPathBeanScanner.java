@@ -13,12 +13,8 @@ import java.util.Set;
 public class ClassPathBeanScanner implements BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(ClassPathBeanScanner.class);
 
-    private BeanFactory beanFactory;
+    private Set<Class<?>> beans;
     private Reflections reflections;
-
-    public ClassPathBeanScanner(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -28,9 +24,8 @@ public class ClassPathBeanScanner implements BeanScanner {
         Class[] beanTypes = Arrays.stream(BeanType.values())
                 .map(BeanType::getType)
                 .toArray(Class[]::new);
-        Set<Class<?>> beans = scanBeansAnnotatedWith(beanTypes);
 
-        beanFactory.appendPreInstantiateBeans(beans);
+        beans = scanBeansAnnotatedWith(beanTypes);
     }
 
     @SuppressWarnings("unchecked")
@@ -42,5 +37,10 @@ public class ClassPathBeanScanner implements BeanScanner {
 
         log.debug("Scan Beans Type : {}", beans);
         return beans;
+    }
+
+    @Override
+    public void registerBeans(final BeanFactory beanFactory) {
+        beanFactory.appendPreInstantiateBeans(beans);
     }
 }

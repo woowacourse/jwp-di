@@ -23,12 +23,10 @@ public class ConfigurationBeanScanner implements BeanScanner {
 
     @SuppressWarnings("unchecked")
     private static final Class<? extends Annotation>[] CONFIG_ANNOTATIONS = new Class[]{Configuration.class};
-    private final BeanFactory beanFactory;
     private Reflections reflections;
     private Set<Class<?>> configClasses;
 
-    public ConfigurationBeanScanner(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public ConfigurationBeanScanner() {
         reflections = new Reflections("");
     }
 
@@ -43,8 +41,6 @@ public class ConfigurationBeanScanner implements BeanScanner {
 
         log.debug("Scan Configuration Type : {}", configurations);
         this.configClasses = configurations;
-
-        registerBeans();
     }
 
     private void updateReflectionsWith(final Object... basePackage) {
@@ -53,9 +49,10 @@ public class ConfigurationBeanScanner implements BeanScanner {
         }
     }
 
-    private void registerBeans() {
+    @Override
+    public void registerBeans(BeanFactory beanFactory) {
         List<Method> methodsWithBeanAnnotation = findMethodsWithAnnotation(Bean.class);
-        this.beanFactory.appendPreInstantiateBeanMethods(methodsWithBeanAnnotation);
+        beanFactory.appendPreInstantiateBeanMethods(methodsWithBeanAnnotation);
     }
 
     public List<Method> findMethodsWithAnnotation(Class<? extends Annotation> annotation) {
