@@ -8,30 +8,30 @@ import java.util.Set;
 
 
 public class TopologySort<T> {
-    private final Set<T> inputNodes;
     private final ToNodeGenerator<T> toNodeGenerator;
     private final CycleErrorHandler cycleErrorHandler;
 
-    private final Set<T> visited;
-    private final Set<T> finished;
+    private Set<T> visited;
+    private Set<T> finished;
 
-
-    public TopologySort(Set<T> inputNodes, ToNodeGenerator<T> toNodeGenerator, CycleErrorHandler cycleErrorHandler) {
-        this.inputNodes = inputNodes;
+    public TopologySort(ToNodeGenerator<T> toNodeGenerator, CycleErrorHandler cycleErrorHandler) {
         this.toNodeGenerator = toNodeGenerator;
         this.cycleErrorHandler = cycleErrorHandler;
-
-        visited = Sets.newHashSet();
-        finished = Sets.newHashSet();
     }
 
-    public List<T> calculateReversedOrders() {
-        List<T> orders = Lists.newArrayList();
+    public List<T> calculateReversedOrders(Set<T> inputNodes) {
+        List<T> orders = initialize();
 
         for (T root : inputNodes) {
             recursive(orders, root);
         }
         return orders;
+    }
+
+    private List<T> initialize() {
+        this.visited = Sets.newHashSet();
+        this.finished = Sets.newHashSet();
+        return Lists.newArrayList();
     }
 
     private void recursive(List<T> orders, T node) {

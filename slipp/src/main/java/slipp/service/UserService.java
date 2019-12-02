@@ -55,7 +55,7 @@ public class UserService {
 
     public User authUser(User findUser, User loginUser) {
         if (!loginUser.isSameUser(findUser)) {
-            throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
+            throw new IllegalStateException("서로 다른 사용자입니다.");
         }
         return findUser;
     }
