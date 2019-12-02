@@ -1,4 +1,4 @@
-package nextstep.di;
+package nextstep.di.scanner;
 
 import nextstep.stereotype.Component;
 import nextstep.stereotype.Controller;

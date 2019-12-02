@@ -1,4 +1,4 @@
-package nextstep.di;
+package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;

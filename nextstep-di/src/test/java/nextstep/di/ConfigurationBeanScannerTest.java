@@ -2,6 +2,7 @@ package nextstep.di;
 
 import nextstep.annotation.Bean;
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.scanner.ConfigurationBeanScanner;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;

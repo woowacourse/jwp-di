@@ -1,8 +1,8 @@
 package nextstep.di.factory.error.references;
 
-import nextstep.di.ClassPathBeanScanner;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.exception.CircularReferenceException;
+import nextstep.di.scanner.ClassPathBeanScanner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
