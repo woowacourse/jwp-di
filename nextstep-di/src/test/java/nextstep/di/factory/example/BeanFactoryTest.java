@@ -28,7 +28,6 @@ class BeanFactoryTest {
 
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
         configurationBeanScanner.scan();
-        configurationBeanScanner.registerBeans();
 
         List<String> componentScanPackages = configurationBeanScanner.findPackagesInComponentScan();
         ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(beanFactory);

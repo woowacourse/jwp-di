@@ -17,14 +17,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ConfigurationBeanScanner {
+public class ConfigurationBeanScanner implements BeanScanner {
 
     private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanScanner.class);
 
     @SuppressWarnings("unchecked")
     private static final Class<? extends Annotation>[] CONFIG_ANNOTATIONS = new Class[]{Configuration.class};
     private final BeanFactory beanFactory;
-    private final Reflections reflections;
+    private Reflections reflections;
     private Set<Class<?>> configClasses;
 
     public ConfigurationBeanScanner(BeanFactory beanFactory) {
@@ -32,7 +32,10 @@ public class ConfigurationBeanScanner {
         reflections = new Reflections("");
     }
 
-    public void scan() {
+    @Override
+    public void scan(Object... basePackage) {
+        updateReflectionsWith(basePackage);
+
         Set<Class<?>> configurations = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : CONFIG_ANNOTATIONS) {
             configurations.addAll(reflections.getTypesAnnotatedWith(annotation));
@@ -40,9 +43,17 @@ public class ConfigurationBeanScanner {
 
         log.debug("Scan Configuration Type : {}", configurations);
         this.configClasses = configurations;
+
+        registerBeans();
     }
 
-    public void registerBeans() {
+    private void updateReflectionsWith(final Object... basePackage) {
+        if (basePackage.length != 0) {
+            reflections = new Reflections(basePackage);
+        }
+    }
+
+    private void registerBeans() {
         List<Method> methodsWithBeanAnnotation = findMethodsWithAnnotation(Bean.class);
         this.beanFactory.appendPreInstantiateBeanMethods(methodsWithBeanAnnotation);
     }

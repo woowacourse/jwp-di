@@ -10,7 +10,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Set;
 
-public class ClassPathBeanScanner {
+public class ClassPathBeanScanner implements BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(ClassPathBeanScanner.class);
 
     private BeanFactory beanFactory;
@@ -20,6 +20,7 @@ public class ClassPathBeanScanner {
         this.beanFactory = beanFactory;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void scan(Object... basePackage) {
         reflections = new Reflections(basePackage);
