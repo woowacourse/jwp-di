@@ -2,10 +2,6 @@ package nextstep.mvc.tobe;
 
 import nextstep.db.DataBase;
 import nextstep.di.context.ApplicationContext;
-import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.DefaultBeanFactory;
-import nextstep.di.scanner.BeanScanner;
-import nextstep.stereotype.Controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;

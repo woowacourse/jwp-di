@@ -1,15 +1,11 @@
 package slipp;
 
 import nextstep.di.context.ApplicationContext;
-import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.DefaultBeanFactory;
-import nextstep.di.scanner.BeanScanner;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
-import nextstep.stereotype.Controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
