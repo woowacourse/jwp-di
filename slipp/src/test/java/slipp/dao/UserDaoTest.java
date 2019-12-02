@@ -25,7 +25,7 @@ public class UserDaoTest {
     @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao(new JdbcTemplate(ConnectionManager.getConnection()));
+        UserDao userDao = new UserDao(JdbcTemplate.getInstance());
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -38,7 +38,7 @@ public class UserDaoTest {
 
     @Test
     public void findAll() throws Exception {
-        UserDao userDao = new UserDao(new JdbcTemplate(ConnectionManager.getConnection()));
+        UserDao userDao = new UserDao(JdbcTemplate.getInstance());
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }

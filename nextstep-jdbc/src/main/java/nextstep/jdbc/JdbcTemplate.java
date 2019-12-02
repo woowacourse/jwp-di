@@ -1,7 +1,5 @@
 package nextstep.jdbc;
 
-import nextstep.annotation.Inject;
-import nextstep.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,19 +10,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    private Connection conn;
+    private static JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
-    @Inject
-    public JdbcTemplate(Connection connection) {
-        this.conn = connection;
+    private JdbcTemplate() {
+    }
+
+    public static JdbcTemplate getInstance() {
+        return jdbcTemplate;
     }
 
     public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pss.setParameters(pstmt);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -37,7 +37,8 @@ public class JdbcTemplate {
     }
 
     public void update(PreparedStatementCreator psc, KeyHolder holder) {
-        try (PreparedStatement ps = psc.createPreparedStatement(conn)) {
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement ps = psc.createPreparedStatement(conn)) {
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -65,7 +66,8 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rm, PreparedStatementSetter pss) throws DataAccessException {
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pss.setParameters(pstmt);
             return mapResultSetToObject(rm, pstmt);
         } catch (SQLException e) {
@@ -90,12 +92,9 @@ public class JdbcTemplate {
     }
 
     private PreparedStatementSetter createPreparedStatementSetter(Object... parameters) {
-        return new PreparedStatementSetter() {
-            @Override
-            public void setParameters(PreparedStatement pstmt) throws SQLException {
-                for (int i = 0; i < parameters.length; i++) {
-                    pstmt.setObject(i + 1, parameters[i]);
-                }
+        return pstmt -> {
+            for (int i = 0; i < parameters.length; i++) {
+                pstmt.setObject(i + 1, parameters[i]);
             }
         };
     }
