@@ -2,7 +2,7 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import nextstep.di.BeanScanner;
+import nextstep.di.context.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
@@ -22,22 +22,16 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackage;
     private BeanFactory beanFactory;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackage) {
-        this.basePackage = basePackage;
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
+        beanFactory = applicationContext.initializeBeanFactory();
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public void initialize() {
-        BeanScanner beanScanner = new BeanScanner(basePackage);
-        Set<Class<?>> beanClasses = beanScanner.scan();
-        beanFactory = new BeanFactory(beanClasses);
-        beanFactory.initialize();
-
         registerHandlerMethods();
         logger.info("Initialized AnnotationHandlerMapping!");
     }
@@ -56,7 +50,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     private void addHandlerExecutions(Map<Class<?>, Object> controllers, Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
         handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(controllers.get(method.getDeclaringClass()), method));
+            HandlerExecution execution = new HandlerExecution(controllers.get(method.getDeclaringClass()), method);
+            handlerExecutions.put(handlerKey, execution);
         });
     }
 
@@ -80,7 +75,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         return requestMappingMethods;
     }
 
-
+    @Override
     public Object getHandler(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         RequestMethod rm = RequestMethod.valueOf(request.getMethod().toUpperCase());

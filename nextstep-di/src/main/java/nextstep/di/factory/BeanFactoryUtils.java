@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
@@ -54,6 +56,10 @@ public class BeanFactoryUtils {
             }
         }
 
+        if (preInstantiateBeans.contains(injectedClazz)) {
+            return injectedClazz;
+        }
+
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
     }
 
@@ -66,12 +72,30 @@ public class BeanFactoryUtils {
         }
     }
 
+    public static Object instantiate(final Executable executableMethod, final Object... args) {
+        if (executableMethod instanceof Constructor) {
+            return instantiate((Constructor<?>) executableMethod, args);
+        }
+        Method method = (Method) executableMethod;
+        Constructor<?> defaultConstructor = getDefaultConstructor(method.getDeclaringClass());
+        return invoke(method, instantiate(defaultConstructor), args);
+    }
+
     public static Object instantiate(Constructor<?> constructor, Object... args) {
         try {
             return constructor.newInstance(args);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             log.error("Instantiation Failed : {}", constructor, e);
             throw new InstantiationFailedException("Instantiation Failed", e);
+        }
+    }
+
+    private static Object invoke(final Method method, final Object object, final Object... args) {
+        try {
+            return method.invoke(object, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Instantiation Failed Method : {}", method, e);
+            throw new InstantiationFailedException("Instantiation Failed Method", e);
         }
     }
 }

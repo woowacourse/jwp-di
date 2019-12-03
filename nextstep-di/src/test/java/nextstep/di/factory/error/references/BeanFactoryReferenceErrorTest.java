@@ -1,26 +1,26 @@
 package nextstep.di.factory.error.references;
 
-import nextstep.di.BeanScanner;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.exception.CircularReferenceException;
+import nextstep.di.scanner.ClassPathBeanScanner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class BeanFactoryReferenceErrorTest {
+class BeanFactoryReferenceErrorTest {
 
     private BeanFactory beanFactory;
 
     @Test
-    @SuppressWarnings("unchecked")
     @DisplayName("순환 참조 예외 발생")
     void initialize() {
-        BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.error.references");
-        Set<Class<?>> preInstantiateClazz = beanScanner.scan();
-        beanFactory = new BeanFactory(preInstantiateClazz);
+        beanFactory = new BeanFactory();
+
+        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner();
+        classPathBeanScanner.scan("nextstep.di.factory.error.references");
+        classPathBeanScanner.registerBeans(beanFactory);
+
         assertThrows(CircularReferenceException.class, () -> beanFactory.initialize());
     }
 }
