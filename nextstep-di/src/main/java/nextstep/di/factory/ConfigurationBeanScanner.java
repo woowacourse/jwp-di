@@ -30,8 +30,10 @@ public class ConfigurationBeanScanner {
     }
 
     public void scanConfigurationBeans() {
-        appendBasePackage();
-        scan();
+        for (Class clazz : configClasses) {
+            Set<Method> methods = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Bean.class));
+            beanFactory.appendPreInstantiatedMethodsOfBean(methods);
+        }
     }
 
     private void findConfigClasses(Class<? extends Annotation>... annotations) {
@@ -40,20 +42,12 @@ public class ConfigurationBeanScanner {
         }
     }
 
-    private Set<Method> scan() {
-        Set<Method> methods = Sets.newHashSet();
-        for (Class clazz : configClasses) {
-            methods = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Bean.class));
-            beanFactory.appendPreInstantiatedMethodsOfBean(methods);
-        }
-        return methods;
-    }
-
-    private void appendBasePackage() {
+    public List<String> appendBasePackage() {
         for (Class<?> clazz : configClasses) {
             ComponentScan componentScan = clazz.getAnnotation(ComponentScan.class);
             basePackages.addAll(Arrays.asList(componentScan.basePackages()));
             basePackages.addAll(Arrays.asList(componentScan.value()));
         }
+        return basePackages;
     }
 }
