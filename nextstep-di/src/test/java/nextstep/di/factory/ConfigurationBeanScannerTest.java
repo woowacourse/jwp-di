@@ -11,7 +11,7 @@ class ConfigurationBeanScannerTest {
     public void register_simple() {
         BeanFactory beanFactory = new BeanFactory();
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.scanConfigurationBeans("nextstep.di.factory.example");
+        cbs.scanConfigurationBeans();
         beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));
