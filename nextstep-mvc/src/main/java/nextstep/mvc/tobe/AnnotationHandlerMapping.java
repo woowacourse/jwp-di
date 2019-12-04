@@ -35,7 +35,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         Set<Class<?>> preInstantiatedBeans = beanScanner.scanBeans();
 
         BeanFactory beanFactory = new BeanFactory();
-        beanFactory.initialize(preInstantiatedBeans);
+        beanFactory.appendPreInstantiatedBeans(preInstantiatedBeans);
+        beanFactory.initialize();
 
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
@@ -75,7 +76,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         }
         return requestMappingMethods;
     }
-
 
     public Object getHandler(HttpServletRequest request) {
         String requestUri = request.getRequestURI();

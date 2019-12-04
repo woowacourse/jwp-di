@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import nextstep.exception.BeanCreateFailException;
 import nextstep.exception.CircularReferenceException;
 import nextstep.exception.DefaultConstructorFindFailException;
@@ -21,7 +23,9 @@ import org.springframework.beans.BeanUtils;
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiatedBeans;
+    private Set<Class<?>> preInstantiatedBeans = Sets.newHashSet();
+
+    private Map<Class<?>, Method> methodsOfBeans = Maps.newHashMap();
 
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
@@ -30,15 +34,20 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize(Set<Class<?>> preInstantiatedBeans) {
-        this.preInstantiatedBeans = preInstantiatedBeans;
+    public void initialize() {
         preInstantiatedBeans.forEach(this::instantiateClass);
         logger.info("Initialized BeanFactory!");
     }
 
     private Object instantiateClass(Class<?> clazz) {
+        if (methodsOfBeans.containsKey(clazz)) {
+            Object bean = BeanFactoryUtils.instantiateClass(methodsOfBeans.get(clazz));
+            beans.put(clazz, bean);
+            return bean;
+        }
+
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
-        if(isNotBean(concreteClass)) {
+        if (isNotBean(concreteClass)) {
             throw new BeanCreateFailException();
         }
 
@@ -111,5 +120,17 @@ public class BeanFactory {
                 .stream()
                 .filter(entry -> entry.getKey().isAnnotationPresent(Controller.class))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public void appendPreInstantiatedBeans(Set<Class<?>> preInstantiatedBeans) {
+        preInstantiatedBeans.stream()
+                .forEach(bean -> this.preInstantiatedBeans.add(bean));
+    }
+
+    public void appendPreInstantiatedMethodsOfBean(Set<Method> methods) {
+        methods.stream()
+                .forEach(method -> methodsOfBeans.put(method.getReturnType(), method));
+        methods.stream()
+                .forEach(method -> preInstantiatedBeans.add(method.getReturnType()));
     }
 }
