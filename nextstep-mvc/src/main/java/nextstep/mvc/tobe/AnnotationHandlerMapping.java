@@ -11,7 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanScanner;
+import nextstep.di.factory.ClasspathBeanScanner;
+import nextstep.di.factory.ConfigurationBeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -31,11 +32,13 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        BeanScanner beanScanner = new BeanScanner(basePackage);
-        Set<Class<?>> preInstantiatedBeans = beanScanner.scanBeans();
-
         BeanFactory beanFactory = new BeanFactory();
-        beanFactory.appendPreInstantiatedBeans(preInstantiatedBeans);
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scanBeans(basePackage);
+
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
+        configurationBeanScanner.scanConfigurationBeans();
+
         beanFactory.initialize();
 
         Map<Class<?>, Object> controllers = beanFactory.getControllers();

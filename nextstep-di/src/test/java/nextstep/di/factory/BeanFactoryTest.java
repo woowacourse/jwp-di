@@ -29,7 +29,8 @@ public class BeanFactoryTest {
 
     @Test
     public void di() {
-        beanFactory.appendPreInstantiatedBeans(new BeanScanner(BASE_PACKAGE).scanBeans());
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scanBeans(BASE_PACKAGE);
         beanFactory.initialize();
 
         QnaController qnaController = beanFactory.getBean(QnaController.class);
@@ -44,8 +45,10 @@ public class BeanFactoryTest {
 
     @Test
     void getControllers() {
-        beanFactory.appendPreInstantiatedBeans(new BeanScanner(BASE_PACKAGE).scanBeans());
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scanBeans(BASE_PACKAGE);
         beanFactory.initialize();
+
         assertThat(beanFactory.getControllers().size()).isEqualTo(1);
     }
 
@@ -59,10 +62,10 @@ public class BeanFactoryTest {
 
     @Test
     void confirmSingleton() {
-        Set<Class<?>> preInstantiatedBeans = new BeanScanner(BASE_PACKAGE).scanBeans();
-        beanFactory.appendPreInstantiatedBeans(preInstantiatedBeans);
-
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scanBeans(BASE_PACKAGE);
         beanFactory.initialize();
+
         Object originController = beanFactory.getBean(QnaController.class);
 
         beanFactory.initialize();

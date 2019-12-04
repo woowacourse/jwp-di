@@ -3,7 +3,7 @@ package slipp.dao;
 import java.util.List;
 
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanScanner;
+import nextstep.di.factory.ClasspathBeanScanner;
 import nextstep.jdbc.ConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ public class UserDaoTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         BeanFactory beanFactory = new BeanFactory();
-        beanFactory.appendPreInstantiatedBeans(new BeanScanner(BASE_PACKAGE).scanBeans());
+        new ClasspathBeanScanner(beanFactory).scanBeans(BASE_PACKAGE);
         beanFactory.initialize();
         userDao = beanFactory.getBean(UserDao.class);
     }

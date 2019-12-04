@@ -11,17 +11,22 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-public class BeanScanner {
-    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+public class ClasspathBeanScanner {
+    private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
 
     private Reflections reflections;
 
-    public BeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
+    private BeanFactory beanFactory;
+
+    public ClasspathBeanScanner(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
-    public Set<Class<?>> scanBeans() {
-        return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+    public Set<Class<?>> scanBeans(Object... basePackage) {
+        reflections = new Reflections(basePackage);
+        Set<Class<?>> preInstantiatedBeans = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        beanFactory.appendPreInstantiatedBeans(preInstantiatedBeans);
+        return preInstantiatedBeans;
     }
 
     @SuppressWarnings("unchecked")

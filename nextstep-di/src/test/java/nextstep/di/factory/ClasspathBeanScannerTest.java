@@ -13,14 +13,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class BeanScannerTest {
+class ClasspathBeanScannerTest {
     @Test
     void getPreInstantiateClass() {
-        BeanScanner beanScanner = new BeanScanner("nextstep.di.factory.example");
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(new BeanFactory());
 
         Set<Class<?>> expected = new HashSet<>(Arrays.asList(QnaController.class, MyQnaService.class,
                 JdbcQuestionRepository.class, JdbcUserRepository.class));
-        Set<Class<?>> actual = beanScanner.scanBeans();
+        Set<Class<?>> actual = classpathBeanScanner.scanBeans("nextstep.di.factory.example");
 
         assertThat(expected).isEqualTo(actual);
     }
