@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.ClasspathBeanScanner;
 import nextstep.di.factory.ConfigurationBeanScanner;
@@ -32,14 +33,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        BeanFactory beanFactory = new BeanFactory();
-        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
-        classpathBeanScanner.scanBeans(basePackage);
-
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
-        configurationBeanScanner.scanConfigurationBeans();
-
-        beanFactory.initialize();
+        BeanFactory beanFactory = ApplicationContext.initializeBeans();
 
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
