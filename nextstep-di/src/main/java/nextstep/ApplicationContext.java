@@ -7,7 +7,7 @@ import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.di.scanner.ConfigurationBeanScanner;
 
 public class ApplicationContext {
-    public static BeanFactory initializeBeans() {
+    public BeanFactory initializeBeans() {
         BeanFactory beanFactory = new BeanFactory();
 
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);

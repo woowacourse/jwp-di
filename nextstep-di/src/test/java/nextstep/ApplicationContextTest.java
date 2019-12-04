@@ -16,7 +16,7 @@ class ApplicationContextTest {
 
     @BeforeEach
     void setUp() {
-        beanFactory = ApplicationContext.initializeBeans();
+        beanFactory = new ApplicationContext().initializeBeans();
     }
 
     @Test
