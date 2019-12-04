@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +40,26 @@ public class BeanFactory {
         logger.info("Initialized BeanFactory!");
     }
 
+    private Object[] getParametersOfExecutable(Executable executable) {
+        Class<?>[] parameterTypes = executable.getParameterTypes();
+        List<Object> parameterObject = Lists.newArrayList();
+
+        for (Class<?> parameterType : parameterTypes) {
+            if (methodsOfBeans.containsKey(parameterType)) {
+                parameterObject.add(instantiateClass(parameterType));
+                continue;
+            }
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiatedBeans);
+            confirmCircularReference(executable, concreteClass);
+            parameterObject.add(getParameterOfConstructor(parameterType, concreteClass));
+        }
+        return parameterObject.toArray();
+    }
+
     private Object instantiateClass(Class<?> clazz) {
         if (methodsOfBeans.containsKey(clazz)) {
-            Object bean = BeanFactoryUtils.instantiateClass(methodsOfBeans.get(clazz));
+            Method method = methodsOfBeans.get(clazz);
+            Object bean = BeanFactoryUtils.instantiateClass(method, getParametersOfExecutable(method));
             beans.put(clazz, bean);
             return bean;
         }
@@ -68,32 +86,20 @@ public class BeanFactory {
 
     private Object instantiateConstructorWithInject(Constructor<?> constructor) {
         Class<?> clazz = constructor.getDeclaringClass();
-        Object bean = BeanUtils.instantiateClass(constructor, getParametersOfConstructor(constructor));
+        Object bean = BeanUtils.instantiateClass(constructor, getParametersOfExecutable(constructor));
         logger.debug("Instantiate Bean with Inject Annotation : {}", clazz.getSimpleName());
         beans.put(clazz, bean);
         return bean;
     }
 
-    private Object[] getParametersOfConstructor(Constructor<?> constructor) {
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        List<Object> parameterObject = Lists.newArrayList();
-
-        for (Class<?> parameterType : parameterTypes) {
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiatedBeans);
-            confirmCircularReference(constructor, concreteClass);
-            parameterObject.add(getParameterOfConstructor(parameterType, concreteClass));
-        }
-        return parameterObject.toArray();
-    }
-
-    private void confirmCircularReference(Constructor<?> constructor, Class<?> concreteClass) {
-        if (isSameClassType(constructor, concreteClass)) {
+    private void confirmCircularReference(Executable executable, Class<?> concreteClass) {
+        if (isSameClassType(executable, concreteClass)) {
             throw new CircularReferenceException();
         }
     }
 
-    private boolean isSameClassType(Constructor<?> constructor, Class<?> concreteClass) {
-        return constructor.getDeclaringClass().equals(concreteClass);
+    private boolean isSameClassType(Executable executable, Class<?> concreteClass) {
+        return executable.getDeclaringClass().equals(concreteClass);
     }
 
     private Object getParameterOfConstructor(Class<?> parameterType, Class<?> concreteClass) {

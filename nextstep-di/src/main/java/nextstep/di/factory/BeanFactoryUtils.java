@@ -51,10 +51,10 @@ public class BeanFactoryUtils {
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
     }
 
-    public static Object instantiateClass(Method method) {
+    public static Object instantiateClass(Method method, Object... parameters) {
         final Class<?> clazz = method.getDeclaringClass();
         try {
-            return method.invoke(clazz.newInstance());
+            return method.invoke(clazz.newInstance(), parameters);
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new IllegalArgumentException();
         }
