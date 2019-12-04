@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.scanner;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -11,10 +11,11 @@ import com.google.common.collect.Sets;
 import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.BeanFactory;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 
-public class ConfigurationBeanScanner {
+public class ConfigurationBeanScanner implements BeanScanner {
     private BeanFactory beanFactory;
 
     private Reflections reflections;
@@ -26,19 +27,29 @@ public class ConfigurationBeanScanner {
     public ConfigurationBeanScanner(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
         reflections = new Reflections(basePackages);
-        findConfigClasses(Configuration.class);
+        configClasses.addAll(getTypesAnnotatedWith(Configuration.class));
     }
 
-    public void scanConfigurationBeans() {
+    @Override
+    public void scanBeans(Object... basePackage) {
         for (Class clazz : configClasses) {
             Set<Method> methods = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Bean.class));
             beanFactory.appendPreInstantiatedMethodsOfBean(methods);
         }
     }
 
-    private void findConfigClasses(Class<? extends Annotation>... annotations) {
+    public Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
+        Set<Class<?>> beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : annotations) {
-            configClasses.addAll(reflections.getTypesAnnotatedWith(annotation));
+            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
+        }
+        return beans;
+    }
+
+    public void scanConfigurationBeans() {
+        for (Class clazz : configClasses) {
+            Set<Method> methods = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Bean.class));
+            beanFactory.appendPreInstantiatedMethodsOfBean(methods);
         }
     }
 

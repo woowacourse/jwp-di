@@ -3,7 +3,7 @@ package slipp.dao;
 import java.util.List;
 
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.ClasspathBeanScanner;
+import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.jdbc.ConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,7 @@
-package nextstep.di.factory;
+package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.BeanFactory;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-public class ClasspathBeanScanner {
+public class ClasspathBeanScanner implements BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
 
     private Reflections reflections;
@@ -22,15 +23,15 @@ public class ClasspathBeanScanner {
         this.beanFactory = beanFactory;
     }
 
-    public Set<Class<?>> scanBeans(Object... basePackage) {
+    @Override
+    public void scanBeans(Object... basePackage) {
         reflections = new Reflections(basePackage);
         Set<Class<?>> preInstantiatedBeans = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
         beanFactory.appendPreInstantiatedBeans(preInstantiatedBeans);
-        return preInstantiatedBeans;
     }
 
     @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
+    public Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : annotations) {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));

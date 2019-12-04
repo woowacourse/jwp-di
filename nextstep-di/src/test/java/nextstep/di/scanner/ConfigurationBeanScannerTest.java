@@ -1,11 +1,9 @@
-package nextstep.di.factory;
+package nextstep.di.scanner;
 
 import java.util.List;
 import javax.sql.DataSource;
 
-import nextstep.di.factory.example.JdbcUserRepository;
-import nextstep.di.factory.example.MyJdbcTemplate;
-import nextstep.di.factory.scannerdi.ExampleRepository;
+import nextstep.di.factory.BeanFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

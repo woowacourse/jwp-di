@@ -3,8 +3,8 @@ package nextstep;
 import java.util.List;
 
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.ClasspathBeanScanner;
-import nextstep.di.factory.ConfigurationBeanScanner;
+import nextstep.di.scanner.ClasspathBeanScanner;
+import nextstep.di.scanner.ConfigurationBeanScanner;
 
 public class ApplicationContext {
     public static BeanFactory initializeBeans() {
