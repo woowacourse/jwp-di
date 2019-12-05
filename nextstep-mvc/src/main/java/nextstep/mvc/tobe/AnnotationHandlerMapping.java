@@ -2,6 +2,7 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.di.context.ApplicationContext;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -19,24 +20,37 @@ import java.util.stream.Collectors;
 
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
+    private static final Class<RequestMapping> REQUEST_MAPPING_ANNOTATION = RequestMapping.class;
 
-    private Map<Class<?>, Object> beans;
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Map<Class<?>, Object> beans) {
-        this.beans = beans;
+    private ApplicationContext applicationContext;
+
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     public void initialize() {
-        Set<Method> methods = getRequestMappingMethods(beans.keySet());
+        Map<Class<?>, Object> controllers = applicationContext.getControllers();
+        Set<Method> methods = getRequestMappingMethods(controllers.keySet());
         for (Method method : methods) {
-            RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+            RequestMapping requestMapping = method.getAnnotation(REQUEST_MAPPING_ANNOTATION);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                     requestMapping.value(), requestMapping.method(), method);
-            addHandlerExecutions(beans, method, requestMapping);
+            addHandlerExecutions(controllers, method, requestMapping);
         }
 
         logger.info("Initialized AnnotationHandlerMapping!");
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Method> getRequestMappingMethods(Set<Class<?>> controllers) {
+        Set<Method> requestMappingMethods = Sets.newHashSet();
+        for (Class<?> clazz : controllers) {
+            requestMappingMethods
+                    .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(REQUEST_MAPPING_ANNOTATION)));
+        }
+        return requestMappingMethods;
     }
 
     private void addHandlerExecutions(Map<Class<?>, Object> controllers, Method method, RequestMapping rm) {
@@ -53,16 +67,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         return Arrays.stream(targetMethods)
                 .map(method -> new HandlerKey(value, method))
                 .collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Method> getRequestMappingMethods(Set<Class<?>> controlleers) {
-        Set<Method> requestMappingMethods = Sets.newHashSet();
-        for (Class<?> clazz : controlleers) {
-            requestMappingMethods
-                    .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
-        }
-        return requestMappingMethods;
     }
 
 
