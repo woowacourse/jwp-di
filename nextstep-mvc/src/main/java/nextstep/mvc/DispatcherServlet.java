@@ -1,5 +1,9 @@
 package nextstep.mvc;
 
+import nextstep.di.ApplicationContext;
+import nextstep.mvc.asis.ControllerHandlerAdapter;
+import nextstep.mvc.tobe.AnnotationHandlerMapping;
+import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +24,25 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerExecutor handlerExecutor;
 
-    public void addHandlerMpping(HandlerMapping handlerMapping) {
-        handlerMappingRegistry.addHandlerMpping(handlerMapping);
+    public DispatcherServlet(ApplicationContext applicationContext) {
+        initHandlerMapping(applicationContext);
+        initHandlerAdapter();
     }
 
-    public void addHandlerAdapter(HandlerAdapter handlerAdapter) {
+    private void initHandlerMapping(ApplicationContext applicationContext) {
+        addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
+    }
+
+    private void initHandlerAdapter() {
+        addHandlerAdapter(new HandlerExecutionHandlerAdapter());
+        addHandlerAdapter(new ControllerHandlerAdapter());
+    }
+
+    private void addHandlerMapping(HandlerMapping handlerMapping) {
+        handlerMappingRegistry.addHandlerMapping(handlerMapping);
+    }
+
+    private void addHandlerAdapter(HandlerAdapter handlerAdapter) {
         handlerAdapterRegistry.addHandlerAdapter(handlerAdapter);
     }
 

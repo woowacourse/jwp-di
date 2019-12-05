@@ -1,25 +1,29 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.factory.exception.BeanFactoryInitializeException;
+import nextstep.di.factory.exception.BeanInitializationException;
+import nextstep.di.factory.exception.CircularReferenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, BeanDefinition> beanDefinitions;
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory(Set<BeanDefinition> beanDefinitions) {
+        this.beanDefinitions = new HashMap<>();
+        beanDefinitions.stream()
+                .forEach(def -> this.beanDefinitions.put(def.getReturnType(), def));
     }
 
     @SuppressWarnings("unchecked")
@@ -28,14 +32,14 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        preInstantiateBeans
-                .forEach(this::getOrInstantiate);
+        beanDefinitions.keySet().forEach(this::getOrInstantiate);
     }
 
     private Object getOrInstantiate(Class<?> clazz) {
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
+
         Object instance = tryInstantiateBean(clazz);
         beans.put(clazz, instance);
         return instance;
@@ -44,28 +48,38 @@ public class BeanFactory {
     private Object tryInstantiateBean(Class<?> clazz) {
         try {
             return instantiateBean(clazz);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new BeanFactoryInitializeException(e);
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            logger.error("Error while instantiate bean", e);
+            throw new BeanInitializationException(e);
         }
     }
 
-    private Object instantiateBean(Class<?> clazz) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<?> ctor = getConstructor(clazz);
-        Object[] params = resolveConstructorParameters(ctor);
+    private Object instantiateBean(Class<?> clazz) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+        BeanDefinition beanDefinition = beanDefinitions.get(clazz);
+        Object[] params = resolveInstantiateParameters(beanDefinition);
 
-        return ctor.newInstance(params);
+        return beanDefinition.instantiate(params);
     }
 
-    private Constructor<?> getConstructor(Class<?> clazz) throws NoSuchMethodException {
-        Constructor<?> ctor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        return ctor == null ? clazz.getConstructor() : ctor;
+    private Object[] resolveInstantiateParameters(BeanDefinition beanDefinition) {
+        return Arrays.stream(beanDefinition.getParameterTypes())
+                .map(param -> BeanFactoryUtils.findConcreteClass(param, beanDefinitions.keySet()))
+                .peek(cls -> checkCircularReference(cls, beanDefinition))
+                .map(this::getOrInstantiate)
+                .toArray();
     }
 
-    private Object[] resolveConstructorParameters(Constructor<?> ctor) {
-        return Arrays.stream(ctor.getParameterTypes())
-                    .map(param -> BeanFactoryUtils.findConcreteClass(param, preInstantiateBeans))
-                    .map(this::getOrInstantiate)
-                    .toArray();
+    private void checkCircularReference(Class<?> clazz, BeanDefinition beanDefinition) {
+        BeanDefinition def2 = beanDefinitions.get(clazz);
+        if (def2.hasReference(beanDefinition)) {
+            throw new CircularReferenceException();
+        }
+    }
+
+    public Set<Object> getBeansWithAnnotation(Class<? extends Annotation> annotation) {
+        return beans.keySet().stream()
+                .filter(cls -> cls.isAnnotationPresent(annotation))
+                .map(beans::get)
+                .collect(Collectors.toSet());
     }
 }
