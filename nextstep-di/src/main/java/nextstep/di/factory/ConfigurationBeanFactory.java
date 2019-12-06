@@ -57,7 +57,7 @@ public class ConfigurationBeanFactory {
         Parameter[] parameters = method.getParameters();
 
         return Arrays.stream(parameters)
-            .map(parameter -> instantiateParameter( parameter, components))
+            .map(parameter -> instantiateParameter(parameter, components))
             .collect(Collectors.toList());
     }
 

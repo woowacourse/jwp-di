@@ -1,20 +1,15 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import nextstep.exception.CircularReferenceException;
 import nextstep.exception.DefaultConstructorFindFailException;
 import nextstep.exception.ParameterIsNotBeanException;
 import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class ComponentFactory {
@@ -77,7 +72,7 @@ public class ComponentFactory {
     }
 
     private void instantiateBean(final Class<?> parameterType) {
-        if(BeanFactoryUtils.getInjectedConstructor(parameterType).isEmpty()) {
+        if (BeanFactoryUtils.getInjectedConstructor(parameterType).isEmpty()) {
             createBeanDefaultConstructor(parameterType);
         }
     }

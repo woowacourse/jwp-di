@@ -45,7 +45,7 @@ public class ComponentFactoryTest {
     }
 
     @Test
-    @DisplayName("Inject가 붙은 두개의 빈이 순환참조일 경우")
+    @DisplayName("Inject가 붙은 두개 이상의 빈이 순환참조일 경우")
     void beans_is_circular_reference() {
         bindComponentFactory("nextstep.di.factory.circularreference");
         assertThrows(CircularReferenceException.class, () -> componentFactory.initialize());

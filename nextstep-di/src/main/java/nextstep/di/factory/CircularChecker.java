@@ -1,18 +1,13 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Lists;
-import nextstep.annotation.Inject;
 import nextstep.exception.CircularReferenceException;
-import nextstep.exception.InjectMethodNotFoundException;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public class CircularChecker {
     private static final int NO_PARAMETER = 0;
@@ -30,11 +25,11 @@ public class CircularChecker {
     private void checkComponentCircularReference(final Constructor<?> injectedConstructor, List<Class<?>> ownerClasses) {
         Parameter[] parameters = injectedConstructor.getParameters();
 
-        if(parameters.length == NO_PARAMETER) {
+        if (parameters.length == NO_PARAMETER) {
             return;
         }
 
-        if(ownerClasses.isEmpty()) {
+        if (ownerClasses.isEmpty()) {
             Class<?> ownerClass = injectedConstructor.getDeclaringClass();
             ownerClasses.add(ownerClass);
             checkComponentCircularReference(parameters, ownerClasses);
@@ -60,7 +55,7 @@ public class CircularChecker {
     private void checkCircularReference(final Parameter[] injectedParameters, List<Class<?>> ownerClasses) {
         for (Parameter injectedParameter : injectedParameters) {
             Class<?> type = injectedParameter.getType();
-            if(ownerClasses.contains(type)) {
+            if (ownerClasses.contains(type)) {
                 throw new CircularReferenceException();
             }
         }

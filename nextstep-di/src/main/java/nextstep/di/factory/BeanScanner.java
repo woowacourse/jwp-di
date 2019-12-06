@@ -1,7 +1,6 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.annotation.Configuration;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -22,7 +21,7 @@ public class BeanScanner {
     }
 
     public Set<Class<?>> scan() {
-        return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class, Configuration.class);
+        return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
     }
 
     @SuppressWarnings("unchecked")

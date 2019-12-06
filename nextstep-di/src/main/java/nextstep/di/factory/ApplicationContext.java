@@ -4,7 +4,6 @@ import nextstep.annotation.ComponentScan;
 import nextstep.exception.ComponentScanFindFailException;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class ApplicationContext {
@@ -31,7 +30,7 @@ public class ApplicationContext {
     }
 
     private String[] findBasePackage() {
-        if(configureClass.isAnnotationPresent(ComponentScan.class)) {
+        if (configureClass.isAnnotationPresent(ComponentScan.class)) {
             ComponentScan componentScan = configureClass.getAnnotation(ComponentScan.class);
             return componentScan.basePackages();
         }
