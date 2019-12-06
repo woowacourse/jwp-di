@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import javax.sql.DataSource;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ApplicationContextTest {
@@ -22,10 +23,10 @@ public class ApplicationContextTest {
 
     @Test
     void initialize() {
-        Set<Class<?>> preInstanticateClazz = applicationContext.initialize();
-        assertTrue(preInstanticateClazz.contains(QnaController.class));
-        assertTrue(preInstanticateClazz.contains(MyQnaService.class));
-        assertTrue(preInstanticateClazz.contains(MyJdbcTemplate.class));
-        assertTrue(preInstanticateClazz.contains(DataSource.class));
+        applicationContext.initialize();
+        assertNotNull(applicationContext.getBean(QnaController.class));
+        assertNotNull(applicationContext.getBean(MyQnaService.class));
+        assertNotNull(applicationContext.getBean(MyJdbcTemplate.class));
+        assertNotNull(applicationContext.getBean(DataSource.class));
     }
 }
