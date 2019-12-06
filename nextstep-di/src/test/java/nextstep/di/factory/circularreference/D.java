@@ -1,11 +1,11 @@
 package nextstep.di.factory.circularreference;
 
+import annotation.Service;
 import nextstep.annotation.Inject;
-import nextstep.stereotype.Service;
 
 @Service
-public class B {
+public class D {
     @Inject
-    public B(C c) {
+    public D(E e) {
     }
 }
