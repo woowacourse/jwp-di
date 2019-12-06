@@ -1,75 +1,37 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.annotation.Configuration;
 import nextstep.exception.BeanNotFoundException;
-import nextstep.exception.CircularReferenceException;
-import nextstep.exception.DefaultConstructorFindFailException;
-import nextstep.exception.ParameterIsNotBeanException;
 import nextstep.stereotype.Controller;
-import org.springframework.beans.BeanUtils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private Set<Class<?>> preInstantiateBeans;
-    private ComponentFactory componentFactory;
-    private ConfigurationBeanFactory configurationBeanFactory;
-
+    private BeanDefinition beanDefinition;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory(final Set<Class<?>> preInstantiateComponents, final Set<Class<?>> preInstantiateConfigurationBeans) {
+        this.beanDefinition = new BeanDefinition(preInstantiateComponents, preInstantiateConfigurationBeans);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getBean(Class<T> requiredType) {
+    public <T> T getBean(final Class<T> requiredType) {
         if (beans.containsKey(requiredType)) {
             return (T) beans.get(requiredType);
         }
         throw new BeanNotFoundException();
     }
 
-    public void initialize() {
-        //configurationBeanFactory = new ConfigurationBeanFactory(preInstantiateBeans);
-        componentFactory = new ComponentFactory(preInstantiateBeans);
+    public Map<Class<?>, Object> initialize(final Class<?> configureClass) {
+        ComponentFactory componentFactory = new ComponentFactory(beanDefinition);
+        beans.putAll(componentFactory.initialize());
 
-        initializeConfigurationBean();
-        initializeComponent();
+        ConfigurationBeanFactory configurationBeanFactory = new ConfigurationBeanFactory(beanDefinition, configureClass);
+        beans.putAll(configurationBeanFactory.initialize(beans));
 
-        Map<Class<?>, Object> components = this.componentFactory.getComponents();
-        //Map<Class<?>, Object> configurationBeans = this.configurationBeanFactory.getConfigurationBeans();
-
-        // addBean(components, configurationBeans);
-    }
-
-    private void initializeComponent() {
-        preInstantiateBeans.stream()
-            .filter(this::isConfiguration)
-            .forEach(this.configurationBeanFactory::initialize);
-    }
-
-    private void initializeConfigurationBean() {
-        preInstantiateBeans.stream()
-            .filter(Predicate.not(this::isConfiguration)) // isComponent
-            .forEach(this.componentFactory::instantiateComponent);
-    }
-
-    private void addBean(Map<Class<?>, Object> components, Map<Class<?>, Object> configurationBeans) {
-        beans.putAll(components);
-        beans.putAll(configurationBeans);
-    }
-
-    private boolean isConfiguration(Class<?> preInstantiateBean) {
-        return preInstantiateBean.isAnnotationPresent(Configuration.class);
+        return beans;
     }
 
     public Map<Class<?>, Object> getControllers() {
