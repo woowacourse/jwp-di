@@ -37,13 +37,6 @@ public class ApplicationContext {
         throw new ComponentScanFindFailException();
     }
 
-    private Set<Class<?>> unify(Set<Class<?>> preInstantiateBeans, Set<Class<?>> preInstantiateConfigurationBeans) {
-        Set<Class<?>> preInstantiateClazz = new HashSet<>();
-        preInstantiateClazz.addAll(preInstantiateBeans);
-        preInstantiateClazz.addAll(preInstantiateConfigurationBeans);
-        return preInstantiateClazz;
-    }
-
     public <T> T getBean(Class<T> requiredType) {
         return this.beanFactory.getBean(requiredType);
     }

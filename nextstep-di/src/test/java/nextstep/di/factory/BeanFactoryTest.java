@@ -18,9 +18,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
-
-    protected Reflections reflections;
     protected BeanFactory beanFactory;
 
     @BeforeEach
