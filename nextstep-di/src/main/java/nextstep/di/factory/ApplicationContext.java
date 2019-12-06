@@ -3,7 +3,7 @@ package nextstep.di.factory;
 import nextstep.annotation.ComponentScan;
 import nextstep.exception.ComponentScanFindFailException;
 
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ApplicationContext {
@@ -14,7 +14,7 @@ public class ApplicationContext {
         this.configureClass = configureClass;
     }
 
-    public Set<Class<?>> initialize() {
+    public Map<Class<?>, Object> initialize() {
         String[] basePackage = findBasePackage();
 
         BeanScanner beanScanner = new BeanScanner(basePackage);
@@ -25,8 +25,7 @@ public class ApplicationContext {
         Set<Class<?>> preInstantiateConfigurationBeans = configurationBeanScanner.scan(configureClass);
 
         this.beanFactory = new BeanFactory(preInstantiateComponents, preInstantiateConfigurationBeans);
-        beanFactory.initialize(configureClass);
-        return null;
+        return beanFactory.initialize(configureClass);
     }
 
     private String[] findBasePackage() {
