@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
@@ -34,8 +35,8 @@ public class BeanFactoryUtils {
      * @param preInstanticateBeans
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
-        if (!injectedClazz.isInterface()) {
+    public static Class<?> findConcreteClass(Class<?> injectedClazz, List<Class<?>> preInstanticateBeans) {
+        if (!injectedClazz.isInterface() || preInstanticateBeans.contains(injectedClazz)) {
             return injectedClazz;
         }
 

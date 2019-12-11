@@ -1,28 +1,48 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import nextstep.stereotype.Controller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
-    private Set<Class<?>> preInstanticateBeans;
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Object... basePackage) {
-        BeanScanner beanScanner = new BeanScanner(basePackage);
-        this.preInstanticateBeans = beanScanner.getTypesAnnotated();
+    private List<BeanDefinition> beanDefinitions = Lists.newArrayList();
+
+    private List<Class<?>> beanClasses = Lists.newArrayList();
+
+    public BeanFactory(BeanScanner... beanScanners) {
+        for (BeanScanner beanScanner : beanScanners) {
+            beanDefinitions.addAll(beanScanner.doScan());
+        }
+        beanClasses.addAll(getBeanClasses());
+        beanDefinitions.forEach(this::registerBean);
+    }
+
+    private List<Class<?>> getBeanClasses() {
+        return beanDefinitions.stream()
+                .map(BeanDefinition::getBeanClass)
+                .collect(Collectors.toList());
+    }
+
+    private void registerBean(BeanDefinition beanDefinition) {
+        Class<?> beanClass = beanDefinition.getBeanClass();
+
+        if (!beans.containsKey(beanClass)) {
+            Object[] parameterBeans = getParameterBeans(beanDefinition);
+            beans.put(beanClass, beanDefinition.instantiate(parameterBeans));
+        }
+    }
+
+    private Object[] getParameterBeans(BeanDefinition beanDefinition) {
+        return Arrays.stream(beanDefinition.getParameterTypes())
+                .map(this::getBean)
+                .toArray();
     }
 
     @SuppressWarnings("unchecked")
@@ -30,65 +50,25 @@ public class BeanFactory {
         if (!beans.containsKey(requiredType)) {
             registerBean(requiredType);
         }
-        return (T) beans.get(requiredType);
-    }
-
-    public void initialize() {
-        for (Class<?> preInstanticateBean : preInstanticateBeans) {
-            registerBean(preInstanticateBean);
-        }
+        return (T) beans.get(findConcreteClass(requiredType));
     }
 
     private void registerBean(Class<?> preInstanticateBean) {
-        validateClassType(preInstanticateBean);
+        Class<?> concreteClass = findConcreteClass(preInstanticateBean);
+        BeanDefinition beanDefinition = findBeanDefinition(concreteClass);
 
-        if (!beans.containsKey(preInstanticateBean)) {
-            beans.put(preInstanticateBean, createBean(preInstanticateBean));
-        }
+        registerBean(beanDefinition);
     }
 
-    private void validateClassType(Class<?> preInstanticateBean) {
-        Class<?> requiredType = preInstanticateBean;
-        if (requiredType.isInterface()) {
-            requiredType = BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans);
-        }
-
-        if (!preInstanticateBeans.contains(requiredType)) {
-            throw new IllegalArgumentException("해당 클래스를 찾을 수 없습니다.");
-        }
+    private Class<?> findConcreteClass(Class<?> preInstanticateBean) {
+        return BeanFactoryUtils.findConcreteClass(preInstanticateBean, beanClasses);
     }
 
-    private Object createBean(Class<?> preInstanticateBean) {
-        try {
-            if (preInstanticateBean.isInterface()) {
-                return createBean(BeanFactoryUtils.findConcreteClass(preInstanticateBean, preInstanticateBeans));
-            }
-            return getInstance(preInstanticateBean);
-        } catch (Exception e) {
-            logger.error("### Bean create fail : ", e);
-            throw new IllegalArgumentException("Bean create fail!");
-        }
-    }
-
-    private Object getInstance(Class<?> preInstanticateBean) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(preInstanticateBean);
-        if (injectedConstructor == null) {
-            return createDefaultConstructorInstance(preInstanticateBean);
-        }
-        return createInstance(injectedConstructor);
-    }
-
-    private Object createDefaultConstructorInstance(Class<?> preInstanticateBean) throws IllegalAccessException, InstantiationException {
-        return preInstanticateBean.newInstance();
-    }
-
-    private Object createInstance(Constructor<?> injectedConstructor) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        Class<?>[] parameterTypes = injectedConstructor.getParameterTypes();
-        List<Object> parameters = new ArrayList<>();
-        for (Class<?> parameterType : parameterTypes) {
-            parameters.add(getBean(parameterType));
-        }
-        return injectedConstructor.newInstance(parameters.toArray());
+    private BeanDefinition findBeanDefinition(Class<?> concreteClass) {
+        return beanDefinitions.stream()
+                .filter(beanDefinition -> beanDefinition.sameBeanClass(concreteClass))
+                .findAny()
+                .orElseThrow(RuntimeException::new);
     }
 
     public Map<Class<?>, Object> getControllers() {
