@@ -83,7 +83,9 @@ public enum BeanFactory {
                 continue;
             }
             param = param.isInterface() ? findImplClass(param) : param;
-            realParams.add(instantiate(param, createUpdatedHistory(history, param)));
+            Object instance = instantiate(param, createUpdatedHistory(history, param));
+            beans.put(param, instance);
+            realParams.add(instance);
         }
         return realParams;
     }
