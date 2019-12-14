@@ -1,5 +1,6 @@
 package nextstep.di.factory.scanner;
 
+import nextstep.di.factory.bean.BeanDefinition;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -12,7 +13,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-class BeanScannerTest {
+class ClassPathBeanScannerTest {
     private static final Class[] AVAILABLE_ANNOTATIONS = {Controller.class, Service.class, Repository.class};
 
     @Test

@@ -2,6 +2,8 @@ package nextstep.di.factory.scanner;
 
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.bean.BeanDefinition;
+import nextstep.di.factory.bean.ClassPathBeanDefinition;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;

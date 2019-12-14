@@ -3,6 +3,8 @@ package nextstep.di.factory.scanner;
 import com.google.common.collect.Sets;
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.bean.BeanDefinition;
+import nextstep.di.factory.bean.MethodBeanDefinition;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +41,12 @@ public class ConfigurationBeanScanner implements Scanner {
 
     private Set<BeanDefinition> createBeanDefinitions(Set<Class<?>> configurationClasses) {
         return configurationClasses.stream()
-                .map(configurationClass -> createEachClassesDefinitions(configurationClass))
+                .map(this::createEachClassDefinitions)
                 .flatMap(eachClassesDefinitions -> eachClassesDefinitions.stream())
                 .collect(Collectors.toSet());
     }
 
-    private Set<BeanDefinition> createEachClassesDefinitions(Class<?> configurationClass) {
+    private Set<BeanDefinition> createEachClassDefinitions(Class<?> configurationClass) {
         return Arrays.stream(configurationClass.getMethods())
                 .flatMap(Stream::of)
                 .filter(method -> method.isAnnotationPresent(METHOD_BEAN_TARGET_ANNOTATION))

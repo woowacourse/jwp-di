@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import nextstep.di.factory.exception.DefaultConstructorInitException;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
 import nextstep.di.factory.exception.InvalidBeanTargetException;
-import nextstep.di.factory.scanner.BeanDefinition;
+import nextstep.di.factory.bean.BeanDefinition;
 import nextstep.di.factory.scanner.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,14 +3,12 @@ package nextstep.di.factory;
 import nextstep.annotation.Inject;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
 import nextstep.di.factory.exception.InvalidBeanTargetException;
-import nextstep.di.factory.scanner.ClassPathBeanDefinition;
-import nextstep.di.factory.scanner.MethodBeanDefinition;
+import nextstep.di.factory.bean.ClassPathBeanDefinition;
 import nextstep.di.factory.scanner.Scanner;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,6 +74,7 @@ class BeanFactoryTest {
         AnnotatedClass annotatedClass = beanFactory.getBean(AnnotatedClass.class);
         assertThat(annotatedClass.getParameterClass()).isEqualTo(beanFactory.getBean(ParameterClass.class));
     }
+
 // TODO: 2019-11-13 ConfigurationScanner TDD 및 구현 후 구현을 위한 실패하는 테스트
 //    @Test
 //    void 메소드_빈_등록_성공() throws NoSuchMethodException {
