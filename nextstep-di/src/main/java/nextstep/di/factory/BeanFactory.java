@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public enum BeanFactory {
@@ -40,11 +41,15 @@ public enum BeanFactory {
         validateInitialization();
         Map<Class<?>, Object> controllers = Maps.newHashMap();
         for (Class<?> clazz : preInstantiatedBeans) {
-            if (clazz.isAnnotationPresent(Controller.class)) {
-                controllers.put(clazz, beans.get(clazz));
-            }
+            addControllerFromBeans(controllers, clazz);
         }
         return controllers;
+    }
+
+    private void addControllerFromBeans(Map<Class<?>, Object> controllers, Class<?> clazz) {
+        if (clazz.isAnnotationPresent(Controller.class)) {
+            controllers.put(clazz, beans.get(clazz));
+        }
     }
 
     private Object instantiate(Class<?> clazz, Set<Class<?>> history) {
@@ -63,7 +68,7 @@ public enum BeanFactory {
     private Object instantiateUsingInjectCtor(Constructor ctor, List<Object> realParams) {
         try {
             return ctor.newInstance(realParams.toArray());
-        } catch (Exception e) {
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             throw new ObjectInstantiationFailException(e);
         }
     }
