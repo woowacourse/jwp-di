@@ -101,7 +101,6 @@ public class BeanFactory {
         return beans.get(getConcreteClassOr(type));
     }
 
-    //TODO 뭔가,,,
     private Class<?> getConcreteClassOr(Class<?> type) {
         if (preInstanticateBeans.containsKey(type)) {
             return type;
