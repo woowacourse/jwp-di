@@ -22,14 +22,13 @@ public class BeanDefinitionMethod implements BeanDefinition {
         return classes.toArray(new Class[0]);
     }
 
-    // TODO Object를 어떻게 전달하지
     @Override
     public Object createBean(Object... objects) {
-        Object object = objects[0];
+        Object methodObject = objects[0];
         List<Object> parameters = Arrays.asList(objects).subList(1, objects.length);
 
         try {
-            return method.invoke(object, parameters.toArray());
+            return method.invoke(methodObject, parameters.toArray());
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IllegalArgumentException(e);
         }
