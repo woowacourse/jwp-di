@@ -36,9 +36,7 @@ public class BeanScanner {
         Set<Class<?>> classes = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class, Configuration.class);
 
         beanDefinitions.putAll(getAllBeanDefinitionConstructorsFrom(classes));
-        beanDefinitions.putAll(getAllBeanDefinitionMethodsFrom(classes.stream()
-                .filter(clazz -> clazz.isAnnotationPresent(Configuration.class))
-                .collect(Collectors.toSet())));
+        beanDefinitions.putAll(getAllBeanDefinitionMethodsFrom(getConfigurationClasses(classes)));
 
         return beanDefinitions;
     }
@@ -56,6 +54,12 @@ public class BeanScanner {
                 .collect(Collectors.toMap(aClass -> aClass, aClass -> new BeanDefinitionConstructor(getConstructor(aClass))));
     }
 
+    private Set<Class<?>> getConfigurationClasses(final Set<Class<?>> classes) {
+        return classes.stream()
+                .filter(clazz -> clazz.isAnnotationPresent(Configuration.class))
+                .collect(Collectors.toSet());
+    }
+
 
     private Constructor<?> getConstructor(Class<?> concreteClass) {
         Constructor<?> constructor = getInjectedConstructor(concreteClass);
@@ -63,6 +67,7 @@ public class BeanScanner {
         if (Objects.isNull(constructor)) {
             constructor = getDefaultConstructor(concreteClass);
         }
+
         return constructor;
     }
 
