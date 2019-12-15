@@ -19,17 +19,18 @@ class ClassPathBeanScannerTest {
     @Test
     void bean_스캐닝() {
         Scanner scanner = new ClassPathBeanScanner("samples");
-        Set<BeanDefinition> beanDefinitions = scanner.getBeanDefinitions();
+        Set<BeanDefinition> beanDefinitions = scanner.scan();
         for (BeanDefinition beanDefinition : beanDefinitions) {
-            Annotation[] annotations = beanDefinition.getClass().getAnnotations();
+            Annotation[] annotations = beanDefinition.getBeanClass().getAnnotations();
             assertThatCode(() -> checkBeans(annotations)).doesNotThrowAnyException();
         }
+        assertThat(beanDefinitions.size()).isEqualTo(1);
     }
 
     @Test
     void 스캔_되지_않은_클래스_확인() {
         Scanner scanner = new ClassPathBeanScanner("samples");
-        Set<BeanDefinition> beanDefinitions = scanner.getBeanDefinitions();
+        Set<BeanDefinition> beanDefinitions = scanner.scan();
         assertThat(beanDefinitions.contains((BeanDefinition) () -> NotAnnotated.class)).isFalse();
     }
 

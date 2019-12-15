@@ -1,5 +1,6 @@
 package nextstep.di.factory.scanner;
 
+import nextstep.annotation.Configuration;
 import nextstep.di.factory.bean.BeanDefinition;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -14,22 +15,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 class ConfigurationBeanScannerTest {
-    private static final Class[] AVAILABLE_ANNOTATIONS = {Controller.class, Service.class, Repository.class};
+    private static final Class[] AVAILABLE_ANNOTATIONS = {Configuration.class};
 
     @Test
     void bean_스캐닝() {
         Scanner scanner = new ConfigurationBeanScanner("samples");
-        Set<BeanDefinition> beanDefinitions = scanner.getBeanDefinitions();
+        Set<BeanDefinition> beanDefinitions = scanner.scan();
         for (BeanDefinition beanDefinition : beanDefinitions) {
-            Annotation[] annotations = beanDefinition.getClass().getAnnotations();
+            Annotation[] annotations = beanDefinition.getBeanClass().getAnnotations();
             assertThatCode(() -> checkBeans(annotations)).doesNotThrowAnyException();
         }
+        assertThat(beanDefinitions.size()).isEqualTo(1);
     }
 
     @Test
     void 스캔_되지_않은_클래스_확인() {
         Scanner scanner = new ClassPathBeanScanner("samples");
-        Set<BeanDefinition> beanDefinitions = scanner.getBeanDefinitions();
+        Set<BeanDefinition> beanDefinitions = scanner.scan();
         assertThat(beanDefinitions.contains((BeanDefinition) () -> NotAnnotated.class)).isFalse();
     }
 

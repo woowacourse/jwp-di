@@ -1,10 +1,10 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.bean.BeanDefinition;
 import nextstep.di.factory.exception.DefaultConstructorInitException;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
 import nextstep.di.factory.exception.InvalidBeanTargetException;
-import nextstep.di.factory.bean.BeanDefinition;
 import nextstep.di.factory.scanner.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,6 @@ public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
     private Map<Class<?>, BeanDefinition> targetBeanDefinitions = Maps.newHashMap();
-
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
     public BeanFactory(Scanner... scanners) {
@@ -29,7 +28,7 @@ public class BeanFactory {
 
     private void setTargetBeanDefinitions(Scanner[] scanners) {
         Arrays.stream(scanners)
-                .map(Scanner::getBeanDefinitions)
+                .map(Scanner::scan)
                 .flatMap(Collection::stream)
                 .forEach(beanDefinition -> targetBeanDefinitions.put(beanDefinition.getBeanClass(), beanDefinition));
     }

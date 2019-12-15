@@ -6,7 +6,7 @@ public class MethodBeanDefinition implements BeanDefinition {
     private Method method;
     private Class<?> beanClass;
 
-    MethodBeanDefinition(Method method) {
+    public MethodBeanDefinition(Method method) {
         this.method = method;
         beanClass = method.getDeclaringClass();
     }

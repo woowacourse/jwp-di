@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,8 +26,9 @@ public class ConfigurationBeanScanner implements Scanner {
         reflections = new Reflections(basePackage);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Set<BeanDefinition> getBeanDefinitions() {
+    public Set<BeanDefinition> scan() {
         return getTypesAnnotatedWith(AVAILABLE_ANNOTATIONS);
     }
 
@@ -42,7 +44,7 @@ public class ConfigurationBeanScanner implements Scanner {
     private Set<BeanDefinition> createBeanDefinitions(Set<Class<?>> configurationClasses) {
         return configurationClasses.stream()
                 .map(this::createEachClassDefinitions)
-                .flatMap(eachClassesDefinitions -> eachClassesDefinitions.stream())
+                .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
 

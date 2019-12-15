@@ -28,7 +28,7 @@ public class ClassPathBeanScanner implements Scanner {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Set<BeanDefinition> getBeanDefinitions() {
+    public Set<BeanDefinition> scan() {
         return getTypesAnnotatedWith(AVAILABLE_ANNOTATIONS);
     }
 
@@ -37,7 +37,7 @@ public class ClassPathBeanScanner implements Scanner {
         Set<BeanDefinition> beanDefinitions = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : annotations) {
             Set<BeanDefinition> eachAnnotationBeanDefinitions = createBeanDefinitions(annotation);
-            eachAnnotationBeanDefinitions.addAll(Collections.unmodifiableSet(eachAnnotationBeanDefinitions));
+            beanDefinitions.addAll(Collections.unmodifiableSet(eachAnnotationBeanDefinitions));
         }
         log.debug("Scan Beans Type : {}", beanDefinitions);
         return beanDefinitions;
