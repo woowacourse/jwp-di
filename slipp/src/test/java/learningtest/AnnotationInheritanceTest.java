@@ -68,8 +68,17 @@ public class AnnotationInheritanceTest {
 
         Reflections reflectionsWithAnnotations = new Reflections("learningtest.targets", "learningtest.annotations");
         assertThat(reflectionsWithAnnotations.getTypesAnnotatedWith(Parent.class)).isEqualTo(expectedTargetsIncludingParent);
+    }
 
+    @Test
+    void figureOutAnnotation() {
+        System.out.println(Child.class.getSuperclass());
+        System.out.println(Child.class.getInterfaces()[0]);
+        System.out.println(Arrays.toString(Child.class.getAnnotations()));
+        System.out.println(Arrays.toString(Child.class.getAnnotatedInterfaces()));
+        System.out.println(Child.class.getAnnotatedSuperclass());
 
+        assertThat(TargetWithChild.class.isAnnotationPresent(Parent.class)).isFalse();
     }
 
     private <T extends Annotation> T retrieveAnnotation(Class<T> annotationClass, Class<?> target) {
