@@ -33,7 +33,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     public void initialize() {
         BeanScanner beanScanner = new BeanScanner(basePackage);
-        BeanFactory beanFactory = new BeanFactory(beanScanner.getPreInstanticateBeans());
+        BeanFactory beanFactory = new BeanFactory(beanScanner.getPreInstanticateBeanClasses());
         beanFactory.initialize();
 
         Map<Class<?>, Object> controllers = beanFactory.getBeansAnnotatedWith(Controller.class);
