@@ -1,8 +1,9 @@
 package nextstep.di.factory;
 
 import nextstep.di.factory.example.core.ExampleConfig;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.Test;
+
+import javax.activation.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -14,6 +15,6 @@ class ConfigurationBeanScannerTest {
         cbs.register(ExampleConfig.class);
         beanFactory.initialize();
 
-        assertNotNull(beanFactory.getBean(BasicDataSource.class));
+        assertNotNull(beanFactory.getBean(DataSource.class));
     }
 }

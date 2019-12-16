@@ -1,6 +1,8 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.bean.BeanDefinition;
+import nextstep.di.factory.bean.DefaultBeanDefinition;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -11,12 +13,14 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-public class BeanScanner {
-    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+public class ClasspathBeanScanner {
+    private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
+
+    private final Class[] beanAnnotations = {Controller.class, Service.class, Repository.class};
 
     private final Reflections reflections;
 
-    public BeanScanner(Object... basePackage) {
+    public ClasspathBeanScanner(Object... basePackage) {
         reflections = new Reflections(basePackage);
     }
 

@@ -3,7 +3,7 @@ package nextstep.mvc.tobe;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanScanner;
+import nextstep.di.factory.ClasspathBeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -32,8 +32,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     @Override
     public void initialize() {
-        BeanScanner beanScanner = new BeanScanner(basePackage);
-        BeanFactory beanFactory = new BeanFactory(beanScanner.getPreInstantiateClazz());
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(basePackage);
+        BeanFactory beanFactory = new BeanFactory(classpathBeanScanner.getPreInstantiateClazz());
         beanFactory.initialize();
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
 
