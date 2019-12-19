@@ -6,6 +6,7 @@ import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.repository.QuestionRepository;
 import nextstep.di.factory.example.service.MyQnaService;
 import nextstep.di.factory.example.service.TestService;
+import nextstep.di.factory.exception.NotRegisteredBeanException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

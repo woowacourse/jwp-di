@@ -1,12 +1,13 @@
 package nextstep.di.factory;
 
-import nextstep.di.factory.bean.BeanDefinition;
+import nextstep.di.factory.beandefinition.BeanDefinition;
 import nextstep.di.factory.example.controller.QnaController;
 import nextstep.di.factory.example.repository.JdbcQuestionRepository;
 import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.service.MyQnaService;
 import nextstep.di.factory.example.service.NotBeanService;
 import nextstep.di.factory.example.service.TestService;
+import nextstep.di.factory.scanner.ClasspathBeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

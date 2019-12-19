@@ -3,7 +3,7 @@ package nextstep.mvc.tobe;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.ClasspathBeanScanner;
+import nextstep.di.factory.scanner.ClasspathBeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
