@@ -10,14 +10,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigurationBeanScannerTest {
-    @Test
-    public void register_simple() {
-//        BeanFactory beanFactory = new BeanFactory();
-//        cbs.register(ExampleConfig.class);
-//        beanFactory.initialize();
-//
-//        assertNotNull(beanFactory.getBean(DataSource.class));
-    }
 
     @Test
     void scanBeans() {
