@@ -56,6 +56,9 @@ public enum BeanFactory {
         if (clazz.isInterface()) {
             throw new InterfaceCannotInstantiatedException();
         }
+        if (beans.containsKey(clazz)) {
+            return beans.get(clazz);
+        }
         Optional<Constructor> injectCtor = getInjectCtor(clazz.getDeclaredConstructors());
         if (injectCtor.isEmpty()) {
             return instantiateUsingDefaultCtor(clazz);
