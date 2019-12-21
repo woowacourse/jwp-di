@@ -1,4 +1,4 @@
 package nextstep.di.factory.example.service;
 
-public class TestServiceObject {
+public class NotBeanService {
 }
