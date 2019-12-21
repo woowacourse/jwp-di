@@ -5,9 +5,9 @@ import nextstep.di.factory.example.controller.QnaController;
 import nextstep.di.factory.example.repository.JdbcQuestionRepository;
 import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.service.MyQnaService;
-import nextstep.di.factory.example.service.NotBeanService;
 import nextstep.di.factory.example.service.TestService;
 import nextstep.di.factory.scanner.ClasspathBeanScanner;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,46 +19,27 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ClasspathBeanScannerTest {
-    private ClasspathBeanScanner classpathBeanScanner;
+    private ClasspathBeanScanner cbs;
 
     @BeforeEach
     void setUp() {
-        classpathBeanScanner = new ClasspathBeanScanner("nextstep.di.factory.example.");
-    }
-
-    @Test
-    @DisplayName("주입 받은 basePackage에서 해당되는 bean을 스캔하는지 테스트")
-    void beanScanTest() {
-        Set<Class<?>> actual = classpathBeanScanner.getPreInstantiateClazz();
-        Set<Class<?>> expected = new HashSet<>(Arrays.asList(MyQnaService.class, TestService.class, JdbcUserRepository.class,
-                JdbcQuestionRepository.class, QnaController.class));
-
-        assertEquals(actual, expected);
-    }
-
-    @Test
-    @DisplayName("주입 받은 basePackage에서 해당되지 않는 bean을 스캔하지 않는지 테스트")
-    void beanScanTest2() {
-        Set<Class<?>> actual = classpathBeanScanner.getPreInstantiateClazz();
-
-        assertFalse(actual.contains(NotBeanService.class));
+        cbs = new ClasspathBeanScanner("nextstep.di.factory.example.");
     }
 
     @DisplayName("bean을 스캔하여 Set<BeanDefinition>을 생성")
     @Test
-    public void scanTest() throws Exception {
-        Set<BeanDefinition> actual = classpathBeanScanner.scan();
+    public void scanTest() {
+        Set<BeanDefinition> actual = cbs.scan();
 
         assertThat(actual).isNotNull();
     }
 
     @DisplayName("bean을 스캔하여 Set<BeanDefinition>을 생성후 getClass로 scan한 class 확인")
     @Test
-    public void scanAndGetClassTest() throws Exception {
-        Set<? extends Class<?>> actual = classpathBeanScanner.scan()
+    public void scanAndGetClassTest() {
+        Set<? extends Class<?>> actual = cbs.scan()
                 .stream()
                 .map(BeanDefinition::getBeanClass)
                 .collect(Collectors.toSet());
@@ -66,7 +47,11 @@ class ClasspathBeanScannerTest {
         Set<Class<?>> expected = new HashSet<>(Arrays.asList(MyQnaService.class, TestService.class, JdbcUserRepository.class,
                 JdbcQuestionRepository.class, QnaController.class));
 
-        assertEquals(actual, expected);
+        assertEquals(expected, actual);
     }
 
+    @AfterEach
+    void tearDown() {
+        cbs = null;
+    }
 }
