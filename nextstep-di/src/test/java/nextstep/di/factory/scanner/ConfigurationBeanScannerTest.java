@@ -32,7 +32,7 @@ class ConfigurationBeanScannerTest {
         Scanner scanner = new ConfigurationBeanScanner("samples");
         Set<BeanDefinition> beanDefinitions = scanner.scan();
         for (BeanDefinition beanDefinition : beanDefinitions) {
-            MethodBeanDefinition methodBeanDefinition =  (MethodBeanDefinition)beanDefinition;
+            MethodBeanDefinition methodBeanDefinition = (MethodBeanDefinition) beanDefinition;
             Annotation[] annotations = methodBeanDefinition.getMethodDeclaringObject().getClass().getAnnotations();
             assertThatCode(() -> checkBeans(annotations)).doesNotThrowAnyException();
         }
@@ -40,7 +40,7 @@ class ConfigurationBeanScannerTest {
     }
 
     @Test
-    void 수동_설정_등록()  {
+    void 수동_설정_등록() {
         ConfigurationBeanScanner scanner = new ConfigurationBeanScanner();
         scanner.resister(ExampleConfig.class);
         assertThat(scanner.scan().size()).isEqualTo(1);

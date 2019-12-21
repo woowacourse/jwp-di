@@ -1,8 +1,6 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Inject;
-import nextstep.di.factory.exception.InvalidBeanClassTypeException;
-import nextstep.di.factory.exception.InvalidBeanTargetException;
 import nextstep.di.factory.bean.ClassPathBeanDefinition;
 import nextstep.di.factory.scanner.Scanner;
 import org.junit.jupiter.api.Test;

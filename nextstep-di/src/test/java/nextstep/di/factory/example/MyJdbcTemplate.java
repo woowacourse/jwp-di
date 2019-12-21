@@ -6,7 +6,7 @@ import nextstep.annotation.Configuration;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan({"next","core"})
+@ComponentScan({"next", "core"})
 public class MyJdbcTemplate {
     private DataSource dataSource;
 
