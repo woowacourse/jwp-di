@@ -3,8 +3,11 @@ package nextstep.di.factory;
 import nextstep.annotation.ComponentScan;
 import nextstep.di.factory.scanner.ClassPathBeanScanner;
 import nextstep.di.factory.scanner.ConfigurationBeanScanner;
+import nextstep.stereotype.Controller;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Map;
 
 public class ApplicationContext {
     private Class<?>[] configurations;
@@ -34,4 +37,7 @@ public class ApplicationContext {
         return beanFactory.getBean(type);
     }
 
+    public Map<Class<?>, Object> getBeansWithType(Class<? extends Annotation> annotation) {
+        return beanFactory.getBeansWithType(annotation);
+    }
 }
