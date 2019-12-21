@@ -9,6 +9,7 @@ import slipp.dto.UserCreatedDto;
 import slipp.dto.UserUpdatedDto;
 import slipp.domain.User;
 import support.test.NsWebTestClient;
+import support.test.NsWebTestServer;
 
 import java.net.URI;
 
@@ -21,6 +22,8 @@ public class UserAcceptanceTest {
 
     @BeforeEach
     void setUp() {
+        NsWebTestServer nsWebTestServer = new NsWebTestServer(8080);
+        nsWebTestServer.start();
         client = NsWebTestClient.of(8080);
     }
 
