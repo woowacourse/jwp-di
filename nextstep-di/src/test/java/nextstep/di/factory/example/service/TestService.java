@@ -7,7 +7,7 @@ import nextstep.stereotype.Service;
 public class TestService {
 
     @Inject
-    public TestService(NotBeanService testObject) {
+    public TestService() {
     }
 }
 
