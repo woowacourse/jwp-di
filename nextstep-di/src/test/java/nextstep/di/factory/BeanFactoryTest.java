@@ -1,35 +1,30 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
-import nextstep.di.factory.circular.CircularDependenceA;
-import nextstep.di.factory.circular.CircularDependenceB;
-import nextstep.di.factory.constructor.notbean.AnyClass;
 import nextstep.di.factory.constructor.notdefault.AnyService;
-import nextstep.di.factory.constructor.notdefault.NoDefaultConstructor;
-import nextstep.di.factory.example.*;
+import nextstep.di.factory.example.JdbcQuestionRepository;
+import nextstep.di.factory.example.JdbcUserRepository;
+import nextstep.di.factory.example.MyQnaService;
+import nextstep.di.factory.example.QnaController;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class BeanFactoryTest {
-    private static final List<Class<?>> NEXTSTEP_DI_FACTORY_EXAMPLE = Arrays.asList(JdbcQuestionRepository.class, JdbcUserRepository.class, MyQnaService.class, QnaController.class, QuestionRepository.class, UserRepository.class);
-    private static final List<Class<?>> NEXTSTEP_DI_FACTORY_CIRCULAR = Arrays.asList(CircularDependenceA.class, CircularDependenceB.class);
-    private static final List<Class<?>> NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTDEFAULT = Arrays.asList(AnyService.class, NoDefaultConstructor.class);
-    private static final List<Class<?>> NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTBEAN = Arrays.asList(AnyClass.class, NoDefaultConstructor.class);
+class BeanFactoryTest {
+    private static final String NEXTSTEP_DI_FACTORY_EXAMPLE = "nextstep.di.factory.example";
+    private static final String NEXTSTEP_DI_FACTORY_CIRCULAR = "nextstep.di.factory.circular";
+    private static final String NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTDEFAULT = "nextstep.di.factory.constructor";
+    private static final String NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTBEAN = "nextstep.di.factory.notbean";
 
     @Test
-    public void di() {
+    void di() {
         QnaController qnaController = getBeanFactory(NEXTSTEP_DI_FACTORY_EXAMPLE).getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -69,16 +64,9 @@ public class BeanFactoryTest {
     }
 
     @Test
-    @DisplayName("생성자 파라미터에 Bean이 아닌 클래스형이 포함됐을 때 테스트")
-    void constructorNotBean() {
-        assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTBEAN));
-    }
-
-    @Test
     @DisplayName("순환참조 테스트")
     void circularReference() {
         assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CIRCULAR));
-
     }
 
     @Test
@@ -100,9 +88,23 @@ public class BeanFactoryTest {
         assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTDEFAULT));
     }
 
-    private BeanFactory getBeanFactory(List<Class<?>> prefix) {
-        Set<Class<?>> preInstanticateClazz = Sets.newHashSet(prefix);
-        BeanFactory beanFactory = new BeanFactory(preInstanticateClazz);
+    @Test
+    @DisplayName("빈이 아닌걸 Inject 주입 테스트")
+    void injectNotBean() {
+        assertThrows(IllegalStateException.class, () -> getBeanFactory(NEXTSTEP_DI_FACTORY_CONSTRUCTOR_NOTBEAN));
+    }
+
+    @Test
+    @DisplayName("다른 패키지 빈 생성 테스트")
+    void getOtherPackageBeans() {
+        BeanFactory beanFactory = getBeanFactory(NEXTSTEP_DI_FACTORY_EXAMPLE);
+        beanFactory.initialize();
+        assertThat(beanFactory.getBean(AnyService.class)).isNull();
+    }
+
+    private BeanFactory getBeanFactory(Object... basePackage) {
+        BeanScanner beanScanner = new BeanScanner(basePackage);
+        BeanFactory beanFactory = new BeanFactory(beanScanner.getPreInstanticateBeanClasses());
         beanFactory.initialize();
 
         return beanFactory;
