@@ -1,6 +1,7 @@
 package nextstep.mvc.tobe;
 
 import nextstep.db.DataBase;
+import nextstep.di.factory.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.scanner.ClassPathBeanScanner;
 import nextstep.di.factory.scanner.Scanner;
@@ -19,10 +20,8 @@ public class AnnotationHandlerMappingTest {
 
     @BeforeEach
     public void setup() {
-        Scanner scanner = new ClassPathBeanScanner("samples");
-        BeanFactory beanFactory = new BeanFactory(scanner);
-        beanFactory.initialize();
-        handlerMapping = new AnnotationHandlerMapping(beanFactory);
+        ApplicationContext applicationContext = new ApplicationContext(TestConfiguration.class);
+        handlerMapping = new AnnotationHandlerMapping(applicationContext);
         handlerMapping.initialize();
     }
 
