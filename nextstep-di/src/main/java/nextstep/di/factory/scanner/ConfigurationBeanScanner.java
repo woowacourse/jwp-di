@@ -10,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,16 +18,22 @@ public class ConfigurationBeanScanner implements Scanner {
     private static final Class<Bean> METHOD_BEAN_TARGET_ANNOTATION = Bean.class;
     private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanScanner.class);
     private static final Class[] AVAILABLE_ANNOTATIONS = {Configuration.class};
+    private Set<BeanDefinition> beanDefinitions = new HashSet<>();
     private Reflections reflections;
 
     public ConfigurationBeanScanner(Object... basePackage) {
         reflections = new Reflections(basePackage);
     }
 
+    public void resister(Class<?>... configurationClasses) {
+        beanDefinitions.addAll(Collections.unmodifiableSet(createBeanDefinitions(Set.of(configurationClasses))));
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Set<BeanDefinition> scan() {
-        return getTypesAnnotatedWith(AVAILABLE_ANNOTATIONS);
+        beanDefinitions.addAll(getTypesAnnotatedWith(AVAILABLE_ANNOTATIONS));
+        return beanDefinitions;
     }
 
     @SuppressWarnings("unchecked")

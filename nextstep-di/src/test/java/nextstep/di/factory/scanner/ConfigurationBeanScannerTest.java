@@ -4,6 +4,7 @@ import nextstep.annotation.Configuration;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.bean.BeanDefinition;
 import nextstep.di.factory.bean.MethodBeanDefinition;
+import nextstep.di.factory.example.ExampleConfig;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
@@ -36,6 +37,13 @@ class ConfigurationBeanScannerTest {
             assertThatCode(() -> checkBeans(annotations)).doesNotThrowAnyException();
         }
         assertThat(beanDefinitions.size()).isEqualTo(1);
+    }
+
+    @Test
+    void 수동_설정_등록()  {
+        ConfigurationBeanScanner scanner = new ConfigurationBeanScanner();
+        scanner.resister(ExampleConfig.class);
+        assertThat(scanner.scan().size()).isEqualTo(1);
     }
 
     @Test
