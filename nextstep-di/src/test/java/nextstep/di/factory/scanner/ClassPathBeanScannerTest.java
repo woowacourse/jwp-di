@@ -31,7 +31,8 @@ class ClassPathBeanScannerTest {
     void 스캔_되지_않은_클래스_확인() {
         Scanner scanner = new ClassPathBeanScanner("samples");
         Set<BeanDefinition> beanDefinitions = scanner.scan();
-        assertThat(beanDefinitions.contains((BeanDefinition) () -> NotAnnotated.class)).isFalse();
+        beanDefinitions
+                .forEach((beanDefinition) -> assertThat(beanDefinition.getClass()).isNotEqualTo(NotAnnotated.class));
     }
 
     private void checkBeans(Annotation[] annotations) {

@@ -1,28 +1,38 @@
 package nextstep.di.factory.scanner;
 
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.bean.BeanDefinition;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
+import nextstep.di.factory.bean.MethodBeanDefinition;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ConfigurationBeanScannerTest {
     private static final Class[] AVAILABLE_ANNOTATIONS = {Configuration.class};
 
     @Test
-    void bean_스캐닝() {
+    public void 팩토리_등록() {
+        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner("nextstep.di.factory.example");
+        BeanFactory beanFactory = new BeanFactory(cbs);
+        beanFactory.initialize();
+        assertNotNull(beanFactory.getBean(DataSource.class));
+    }
+
+    @Test
+    void bean_스캐닝() throws NoSuchMethodException {
         Scanner scanner = new ConfigurationBeanScanner("samples");
         Set<BeanDefinition> beanDefinitions = scanner.scan();
         for (BeanDefinition beanDefinition : beanDefinitions) {
-            Annotation[] annotations = beanDefinition.getBeanClass().getAnnotations();
+            MethodBeanDefinition methodBeanDefinition =  (MethodBeanDefinition)beanDefinition;
+            Annotation[] annotations = methodBeanDefinition.getMethodDeclaringObject().getClass().getAnnotations();
             assertThatCode(() -> checkBeans(annotations)).doesNotThrowAnyException();
         }
         assertThat(beanDefinitions.size()).isEqualTo(1);
@@ -32,7 +42,8 @@ class ConfigurationBeanScannerTest {
     void 스캔_되지_않은_클래스_확인() {
         Scanner scanner = new ClassPathBeanScanner("samples");
         Set<BeanDefinition> beanDefinitions = scanner.scan();
-        assertThat(beanDefinitions.contains((BeanDefinition) () -> NotAnnotated.class)).isFalse();
+        beanDefinitions
+                .forEach((beanDefinition) -> assertThat(beanDefinition.getClass()).isNotEqualTo(NotAnnotated.class));
     }
 
     private void checkBeans(Annotation[] annotations) {

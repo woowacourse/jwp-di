@@ -37,7 +37,7 @@ class BeanFactoryTest {
                         .map(ClassPathBeanDefinition::new)
                         .collect(Collectors.toSet());
         BeanFactory beanFactory = new BeanFactory(manualScanner);
-        assertThrows(InvalidBeanTargetException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             beanFactory.initialize();
         });
     }
@@ -54,16 +54,6 @@ class BeanFactoryTest {
     }
 
     @Test
-    void 애노테이션이_있는_인터페이스() {
-        Scanner manualScanner = () ->
-                Stream.of(AnnotatedInterface.class)
-                        .map(ClassPathBeanDefinition::new)
-                        .collect(Collectors.toSet());
-        BeanFactory beanFactory = new BeanFactory(manualScanner);
-        assertThrows(InvalidBeanClassTypeException.class, beanFactory::initialize);
-    }
-
-    @Test
     void 빈_싱글턴_보장_여부() {
         Scanner manualScanner = () ->
                 Stream.of(AnnotatedClass.class, ParameterClass.class)
@@ -74,19 +64,6 @@ class BeanFactoryTest {
         AnnotatedClass annotatedClass = beanFactory.getBean(AnnotatedClass.class);
         assertThat(annotatedClass.getParameterClass()).isEqualTo(beanFactory.getBean(ParameterClass.class));
     }
-
-// TODO: 2019-11-13 ConfigurationScanner TDD 및 구현 후 구현을 위한 실패하는 테스트
-//    @Test
-//    void 메소드_빈_등록_성공() throws NoSuchMethodException {
-//        Method method = AnnotatedClass.class.getDeclaredMethod("annotatedMethod");
-//        Scanner manualScanner = () -> Stream.of()
-//                .map(MethodBeanDefinition::new)
-//                .collect(Collectors.toSet());
-//        BeanFactory beanFactory = new BeanFactory(manualScanner);
-//        beanFactory.initialize();
-//        assertNotNull(beanFactory.getBean(method.getReturnType()));
-//    }
-
 
     private interface AnnotatedInterface {
     }

@@ -2,8 +2,10 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.bean.BeanDefinition;
-import nextstep.di.factory.exception.DefaultConstructorInitException;
+import nextstep.di.factory.bean.MethodBeanDefinition;
+import nextstep.di.factory.exception.BeanInvokeException;
 import nextstep.di.factory.exception.InvalidBeanClassTypeException;
+import nextstep.di.factory.exception.InvalidBeanTargetConstructorException;
 import nextstep.di.factory.exception.InvalidBeanTargetException;
 import nextstep.di.factory.scanner.Scanner;
 import org.slf4j.Logger;
@@ -12,7 +14,8 @@ import org.springframework.beans.BeanUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,34 +48,41 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> beanClass : targetBeanDefinitions.keySet()) {
-            checkIfInterface(beanClass);
-            enrollBean(beanClass);
+        for (BeanDefinition beanDefinition : targetBeanDefinitions.values()) {
+            enrollBean(beanDefinition);
         }
     }
 
-    private void checkIfInterface(Class<?> bean) {
-        if (bean.isInterface()) {
-            throw new InvalidBeanClassTypeException();
+    private Object enrollBean(BeanDefinition beanDefinition) {
+        if (isBeanExists(beanDefinition.getBeanClass())) {
+            return getBean(beanDefinition.getBeanClass());
         }
-    }
 
-    private Object enrollBean(Class<?> clazz) {
-        if (isBeanExists(clazz)) {
-            return getBean(clazz);
-        }
-        Object object = createBeanInstance(clazz);
-        beans.put(clazz, object);
+        Object object = createBeanInstance(beanDefinition);
+        beans.put(beanDefinition.getBeanClass(), object);
         return object;
     }
 
-    private Object createBeanInstance(Class<?> clazz) {
-        if (isNotBeanTarget(clazz)) {
+    private Object createBeanInstance(BeanDefinition beanDefinition) {
+        if (isNotBeanTarget(beanDefinition.getBeanClass())) {
             throw new InvalidBeanTargetException();
         }
-        Constructor<?> constructor = getConstructor(clazz);
-        List<Object> paramInstances = initParameters(constructor);
-        return BeanUtils.instantiateClass(constructor, paramInstances.toArray());
+        try {
+            List<Object> paramInstances = initParameters(beanDefinition);
+
+            if (beanDefinition instanceof MethodBeanDefinition) {
+                MethodBeanDefinition methodBeanDefinition = (MethodBeanDefinition) beanDefinition;
+                Method method = methodBeanDefinition.getMethod();
+                return method.invoke(methodBeanDefinition.getMethodDeclaringObject(), paramInstances.toArray());
+            }
+            Constructor<?> constructor = beanDefinition.getInjectedConstructor();
+
+            return BeanUtils.instantiateClass(constructor, paramInstances.toArray());
+        } catch (NoSuchMethodException e) {
+            throw new InvalidBeanTargetConstructorException(e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new BeanInvokeException(e);
+        }
     }
 
     private boolean isNotBeanTarget(Class<?> clazz) {
@@ -83,30 +93,20 @@ public class BeanFactory {
         return beans.containsKey(bean);
     }
 
-    private Constructor<?> getConstructor(Class<?> clazz) {
-        Constructor injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        if (injectedConstructor == null) {
-            return getDefaultConstructor(clazz);
-        }
-        return injectedConstructor;
+    private List<Object> initParameters(BeanDefinition beanDefinition) throws NoSuchMethodException {
+        Class[] parameterClasses = beanDefinition.getBeanParameterClasses();
+        return Arrays.stream(parameterClasses)
+                .map((Class parameterClass) -> createBean(parameterClass, beanDefinition))
+                .collect(Collectors.toList());
     }
 
-    private Constructor getDefaultConstructor(Class<?> clazz) {
-        try {
-            return clazz.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            logger.error("Error : {0}", e);
-            throw new DefaultConstructorInitException(e);
+    private Object createBean(Class<?> parameterClass, BeanDefinition beanDefinition) {
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterClass, targetBeanDefinitions.keySet());
+        Object bean = beans.get(concreteClass);
+        if (Objects.isNull(bean)) {
+            bean = enrollBean(targetBeanDefinitions.get(concreteClass));
+            beans.put(concreteClass, bean);
         }
-    }
-
-    private List<Object> initParameters(Constructor constructor) {
-        Parameter[] parameters = constructor.getParameters();
-        List<Object> paramInstances = new ArrayList<>();
-        for (Parameter parameter : parameters) {
-            Class<?> clazz = BeanFactoryUtils.findConcreteClass(parameter.getType(), targetBeanDefinitions.keySet());
-            paramInstances.add(enrollBean(clazz));
-        }
-        return paramInstances;
+        return bean;
     }
 }
