@@ -1,30 +1,53 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import nextstep.di.factory.exception.InstantiateBeansException;
-import nextstep.di.factory.exception.NotRegisteredBeanException;
-import nextstep.stereotype.Controller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
+import nextstep.di.factory.beandefinition.BeanDefinition;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiateBeans;
+    private final Map<Class<?>, BeanDefinition> beanDefinitionRegistry = Maps.newHashMap();
+    private final Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    public BeanFactory(Set<BeanDefinition> beanDefinitions) {
+        beanDefinitions.forEach(beanDefinition -> beanDefinitionRegistry.putIfAbsent(beanDefinition.getBeanClass(), beanDefinition));
+    }
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public void initialize() {
+        for (Class<?> beanDefinitionClass : beanDefinitionRegistry.keySet()) {
+            beans.putIfAbsent(beanDefinitionClass, instantiateBean(beanDefinitionClass));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T instantiateBean(Class<?> beanClass) {
+        return (T) beans.getOrDefault(beanClass, instantiate(beanClass));
+    }
+
+    private Object instantiate(Class<?> beanClass) {
+        BeanDefinition beanDefinition = beanDefinitionRegistry.get(beanClass);
+        Object[] parameters = instantiateParameters(beanDefinition);
+        return beanDefinition.instantiate(parameters);
+    }
+
+    private Object[] instantiateParameters(BeanDefinition beanDefinition) {
+        return Arrays.stream(beanDefinition.getParameterTypes())
+                .map(this::findInstantiatableBeanDefinition)
+                .map(BeanDefinition::getBeanClass)
+                .map(this::instantiateBean)
+                .toArray(Object[]::new);
+    }
+
+    private BeanDefinition findInstantiatableBeanDefinition(Class<?> type) {
+        BeanDefinition beanDefinition = beanDefinitionRegistry.get(type);
+        if (beanDefinition != null) {
+            return beanDefinition;
+        }
+        return beanDefinitionRegistry.get(BeanFactoryUtils.findConcreteClass(type, beanDefinitionRegistry.keySet()));
     }
 
     @SuppressWarnings("unchecked")
@@ -32,67 +55,9 @@ public class BeanFactory {
         return (T) beans.get(requiredType);
     }
 
-    public void initialize() {
-        preInstantiateBeans.forEach(this::registerInstantiatedBean);
-    }
-
-    private Object registerInstantiatedBean(Class<?> clazz) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
-
-        if (beans.containsKey(concreteClass)) {
-            getBean(concreteClass);
-        }
-
-        Object instance = instantiateClass(concreteClass);
-        beans.put(concreteClass, instance);
-        return instance;
-    }
-
-    private Object instantiateClass(Class<?> clazz) {
-        checkPreInstantiateBean(clazz);
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-
-        return Optional.ofNullable(constructor)
-                .map(this::instantiateConstructor)
-                .orElseGet(() -> defaultConstructorInstantiate(clazz));
-    }
-
-    private void checkPreInstantiateBean(Class<?> clazz) {
-        if (!preInstantiateBeans.contains(clazz)) {
-            throw new NotRegisteredBeanException("Cannot instantiate not registered class!");
-        }
-    }
-
-    private Object instantiateConstructor(Constructor<?> constructor) {
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        List<Object> args = Lists.newArrayList();
-
-        for (Class<?> clazz : parameterTypes) {
-            args.add(registerInstantiatedBean(clazz));
-        }
-        return BeanUtils.instantiateClass(constructor, args.toArray());
-    }
-
-    private Object defaultConstructorInstantiate(Class<?> clazz) {
-        try {
-            return clazz.getDeclaredConstructor().newInstance();
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            log.error("Fail to instantiate by default constructor : ", e);
-            throw new InstantiateBeansException(e);
-        }
-    }
-
     public Map<Class<?>, Object> getControllers() {
-        Map<Class<?>, Object> controllers = Maps.newHashMap();
-        for (Class<?> clazz : preInstantiateBeans) {
-            if (clazz.isAnnotationPresent(Controller.class)) {
-                controllers.put(clazz, getBean(clazz));
-            }
-        }
-        return controllers;
+        return beans.keySet().stream()
+                .collect(Collectors.toMap(clazz -> clazz, this::getBean));
     }
 
-    public int getBeansSize() {
-        return beans.size();
-    }
 }
