@@ -24,7 +24,7 @@ public class BeanDefinitionFactory {
         Map<Class<?>, BeanDefinition> definitions = Maps.newHashMap();
 
         for (Class<?> clazz : preInstantiateClasses) {
-            BeanDefinition definition = createBeanDefinition(clazz);
+            BeanDefinition definition = createComponentDefinition(clazz);
             definitions.put(clazz, definition);
         }
         preInstantiateClasses.stream()
@@ -33,12 +33,11 @@ public class BeanDefinitionFactory {
         return definitions;
     }
 
-    private BeanDefinition createBeanDefinition(Class<?> clazz) {
+    private BeanDefinition createComponentDefinition(Class<?> clazz) {
         Constructor<?> injectedConstructor = createInjectedConstructor(clazz);
 
-        return new BeanDefinition(
+        return new ComponentDefinition(
                 clazz,
-                null,
                 (concreteObject, parameters) -> injectedConstructor.newInstance(parameters),
                 Arrays.asList(injectedConstructor.getParameterTypes())
         );
@@ -66,7 +65,7 @@ public class BeanDefinitionFactory {
 
         for (Method beanCreator : beanCreators) {
             Class<?> beanType = beanCreator.getReturnType();
-            definitions.put(beanType, createBeanDefinition(beanCreator));
+            definitions.put(beanType, createConfigurationBeanDefinition(beanCreator));
         }
         return definitions;
     }
@@ -79,11 +78,11 @@ public class BeanDefinitionFactory {
                 .collect(Collectors.toList());
     }
 
-    private BeanDefinition createBeanDefinition(Method beanCreator) {
+    private BeanDefinition createConfigurationBeanDefinition(Method beanCreator) {
         Class<?> clazz = beanCreator.getReturnType();
         Class<?> configType = beanCreator.getDeclaringClass();
 
-        return new BeanDefinition(
+        return new ConfigurationBeanDefinition(
                 clazz,
                 configType,
                 beanCreator::invoke,

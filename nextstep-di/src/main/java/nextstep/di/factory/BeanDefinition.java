@@ -2,32 +2,13 @@ package nextstep.di.factory;
 
 import java.util.List;
 
-public class BeanDefinition {
-    private Class<?> type;
-    private Class<?> configType;
-    private BeanCreator beanCreator;
-    private List<Class<?>> parameters;
+public interface BeanDefinition {
 
-    public BeanDefinition(Class<?> type, Class<?> configType, BeanCreator beanCreator, List<Class<?>> parameters) {
-        this.type = type;
-        this.configType = configType;
-        this.beanCreator = beanCreator;
-        this.parameters = parameters;
-    }
+    Class<?> getType();
 
-    public Class<?> getType() {
-        return type;
-    }
+    Class<?> getConfigType();
 
-    public Class<?> getConfigType() {
-        return configType;
-    }
+    BeanCreator getBeanCreator();
 
-    public BeanCreator getBeanCreator() {
-        return beanCreator;
-    }
-
-    public List<Class<?>> getParameters() {
-        return parameters;
-    }
+    List<Class<?>> getParameters();
 }
