@@ -23,7 +23,7 @@ class BeanScannerTest {
     @Test
     @DisplayName("scan메서드에 패키지명을 넣어주면 해당 패키지의 @Controller, @Service, @Repository 구현 클래스를 스캔한다.")
     void scanAll() {
-        Set<Class<?>> preInstantiateClazz = BeanScanner.scan("nextstep.di.factory.example");
+        Set<Class<?>> preInstantiateClazz = BeanScanner.scanComponents("nextstep.di.factory.example");
 
         assertThat(preInstantiateClazz).contains(
                 QnaController.class,
@@ -40,7 +40,7 @@ class BeanScannerTest {
     @Test
     @DisplayName("scan 메서드에 해당하는 패키지와 하위 패키지 이외의 클래스는 스캔하지 않는다.")
     void notScanOutsideOfPackage() {
-        Set<Class<?>> preInstantiateClazz = BeanScanner.scan("nextstep.di.factory.example");
+        Set<Class<?>> preInstantiateClazz = BeanScanner.scanComponents("nextstep.di.factory.example");
 
         assertThat(preInstantiateClazz).doesNotContain(
                 OutsideController.class,
@@ -52,7 +52,7 @@ class BeanScannerTest {
     @Test
     @DisplayName("@Controller, @Service, @Repository 이외의 애노테이션이 선언된 클래스는 스캔하지 않는다.")
     void ignoreInvalidAnnotation() {
-        Set<Class<?>> preInstantiateClazz = BeanScanner.scan("nextstep.di.factory.example");
+        Set<Class<?>> preInstantiateClazz = BeanScanner.scanComponents("nextstep.di.factory.example");
 
         assertThat(preInstantiateClazz).doesNotContain(TestApplication.class);
     }
