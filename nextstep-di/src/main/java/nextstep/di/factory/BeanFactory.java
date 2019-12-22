@@ -32,6 +32,8 @@ public class BeanFactory {
         addBeans(createTopologySort().calculateReversedOrders());
     }
 
+    // 아... 파라미터에만 존재하는 경우도 결과 노드에 포함되는 구나...
+    // 그렇다면 파라미터에 자주 나오는 타입은?? 빨리 해결이 되겠지??
     private TopologySort<Class<?>> createTopologySort() {
         return new TopologySort<>(
                 preInstantiatedTypes,
@@ -47,6 +49,8 @@ public class BeanFactory {
         }
     }
 
+    // 토폴로지 소트에서... 실제로 빈으로 등록되야 할 애들 이외에도 파라미테에 존재하는 애들도 추가함
+    // 이런 경우 어디서 잡아주는게 맞는 걸까? (토폴로지 소트가 이런 경우도 잡아주어야 할까? -> 입력으로 주어진 노드 이외를 가르킬때..)
     private void addBean(Class<?> type) {
         log.debug("[addBean] type: {}", type);
         validateCanBeBean(type);
