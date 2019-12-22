@@ -1,48 +1,29 @@
 package nextstep.di.factory;
 
-import com.google.common.collect.Sets;
 import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.example.QuestionRepository;
 import nextstep.di.scanner.BeanScanner;
-import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
-import org.junit.jupiter.api.BeforeEach;
+import nextstep.di.scanner.ClasspathBeanScanner;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.annotation.Annotation;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class BeanFactoryTest {
-    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
-    private Reflections reflections;
-    private BeanFactory beanFactory;
+    private static final BeanFactory BEAN_FACTORY;
 
-    @BeforeEach
-    @SuppressWarnings("unchecked")
-    void setup() {
-        reflections = new Reflections("nextstep.di.factory.example");
-        BeanScanner beanScanner = new BeanScanner() {
-            @Override
-            public Set<Class<?>> getBeans() {
-                return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-            }
-        };
-        beanFactory = new BeanFactory(beanScanner);
+    static {
+        final BeanScanner beanScanner = new ClasspathBeanScanner("nextstep.di.factory.example");
+        BEAN_FACTORY = new BeanFactory(beanScanner.scan());
+        BEAN_FACTORY.initialize();
     }
 
     @Test
     void di() {
-        QnaController qnaController = beanFactory.getBean(QnaController.class);
+        QnaController qnaController = BEAN_FACTORY.getBean(QnaController.class);
 
         assertNotNull(qnaController);
         assertNotNull(qnaController.getQnaService());
@@ -54,19 +35,10 @@ class BeanFactoryTest {
 
     @Test
     void check_single_repository_instance() {
-        final MyQnaService service = beanFactory.getBean(MyQnaService.class);
+        final MyQnaService service = BEAN_FACTORY.getBean(MyQnaService.class);
         final QuestionRepository actual = service.getQuestionRepository();
-        final QuestionRepository expected = beanFactory.getBean(JdbcQuestionRepository.class);
+        final QuestionRepository expected = BEAN_FACTORY.getBean(JdbcQuestionRepository.class);
         assertThat(actual).isEqualTo(expected);
     }
 
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = Sets.newHashSet();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        log.debug("Scan Beans Type : {}", beans);
-        return beans;
-    }
 }

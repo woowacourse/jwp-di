@@ -1,22 +1,25 @@
 package nextstep.di.factory;
 
-import nextstep.di.scanner.BeanScanner;
-import org.springframework.beans.BeanUtils;
+import nextstep.di.definition.BeanDefinition;
 
-import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private final Set<Class<?>> preInstantiateBeans = new HashSet<>();
+
+    private final Map<Class<?>, BeanDefinition> beanDefinitionRegistry = new HashMap<>();
     private final Map<Class<?>, Object> beans = new HashMap<>();
 
-    public BeanFactory(final BeanScanner... beanScanners) {
-        for (final BeanScanner scanner : beanScanners) {
-            preInstantiateBeans.addAll(scanner.getBeans());
+    public BeanFactory(final Set<BeanDefinition> beanDefinitions) {
+        beanDefinitions.forEach(beanDefinition ->
+                beanDefinitionRegistry.putIfAbsent(beanDefinition.getBeanClass(), beanDefinition));
+    }
+
+    public void initialize() {
+        for (final Class<?> beanDefinitionClass : beanDefinitionRegistry.keySet()) {
+            beans.putIfAbsent(beanDefinitionClass, instantiateBean(beanDefinitionClass));
         }
-        preInstantiateBeans.forEach(this::instantiate);
     }
 
     @SuppressWarnings("unchecked")
@@ -25,32 +28,37 @@ public class BeanFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private Object instantiate(final Class<?> clazz) {
-        if (beans.containsKey(clazz)) {
-            return beans.get(clazz);
-        }
-        final Constructor constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        final Object bean = Objects.isNull(constructor)
-                ? BeanUtils.instantiateClass(clazz)
-                : BeanUtils.instantiateClass(constructor, getParameters(constructor));
-        beans.put(clazz, bean);
-        return bean;
+    private <T> T instantiateBean(final Class<?> beanClass) {
+        return (T) beans.getOrDefault(beanClass, instantiate(beanClass));
     }
 
-    private Object[] getParameters(final Constructor constructor) {
-        final List<Object> parameters = new ArrayList<>();
-        final Class[] parameterTypes = constructor.getParameterTypes();
-        for (final Class clazz : parameterTypes) {
-            final Class cls = BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
-            parameters.add(instantiate(cls));
+    private Object instantiate(final Class<?> beanClass) {
+        final BeanDefinition beanDefinition = beanDefinitionRegistry.get(beanClass);
+        return beanDefinition.instantiate(getParameters(beanDefinition));
+    }
+
+    private Object[] getParameters(final BeanDefinition beanDefinition) {
+        return Arrays.stream(beanDefinition.getParameterTypes())
+                .map(this::findBeanDefinition)
+                .map(BeanDefinition::getBeanClass)
+                .map(this::instantiateBean)
+                .toArray(Object[]::new);
+    }
+
+    private BeanDefinition findBeanDefinition(final Class<?> type) {
+        final BeanDefinition beanDefinition = beanDefinitionRegistry.get(type);
+        if (Objects.nonNull(beanDefinition)) {
+            return beanDefinition;
         }
-        return parameters.toArray();
+        final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(type, beanDefinitionRegistry.keySet());
+        return beanDefinitionRegistry.get(concreteClass);
     }
 
     @SuppressWarnings("unchecked")
-    public Map<Class<?>, Object> getAnnotatedClasses(final Class aClass) {
-        return preInstantiateBeans.stream()
-                .filter(clazz -> clazz.isAnnotationPresent(aClass))
-                .collect(Collectors.toUnmodifiableMap(Function.identity(), beans::get));
+    public Map<Class<?>, Object> getAnnotatedClasses(final Class clazz) {
+        return beans.keySet().stream()
+                .filter(aClass -> aClass.isAnnotationPresent(clazz))
+                .collect(Collectors.toMap(Function.identity(), this::getBean));
     }
+
 }
