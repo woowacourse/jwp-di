@@ -5,7 +5,7 @@ import nextstep.annotation.Configuration;
 import nextstep.di.scanner.package1.ComponentPackage1;
 import nextstep.di.scanner.package1.ConfigWithoutScan;
 import nextstep.di.scanner.package2.ComponentPackage2;
-import nextstep.di.scanner.package2.ConfigScanDefault;
+import nextstep.di.scanner.package1.ConfigScanDefault;
 import nextstep.di.scanner.package2.ConfigScanPackage1;
 import nextstep.di.scanner.package3.ConfigScanPackage2;
 import org.junit.jupiter.api.DisplayName;
@@ -21,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ConfigurationScannerTest {
     private static final Set<Class<?>> package1Classes = Sets.newHashSet(Arrays.asList(
             ComponentPackage1.class,
+            ConfigScanDefault.class,
             ConfigWithoutScan.class
     ));
 
     private static final Set<Class<?>> package2Classes = Sets.newHashSet(Arrays.asList(
             ComponentPackage2.class,
-            ConfigScanDefault.class,
             ConfigScanPackage1.class
     ));
 
@@ -55,7 +55,7 @@ class ConfigurationScannerTest {
 
     @Test
     void scan_withDefaultComponentScan() {
-        Set<Class<?>> expectedClasses = package2Classes;
+        Set<Class<?>> expectedClasses = package1Classes;
         ConfigurationScanner configurationScanner = ConfigurationScanner.of(ConfigScanDefault.class);
 
         assertThat(configurationScanner.scan()).isEqualTo(expectedClasses);
