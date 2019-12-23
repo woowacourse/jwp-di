@@ -1,8 +1,11 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.annotation.Bean;
+import nextstep.annotation.Configuration;
 import nextstep.di.beandefinition.BeanDefinition;
 import nextstep.di.beandefinition.BeanDefinitionRegistry;
+import nextstep.di.beandefinition.MethodBeanDefinition;
 import nextstep.di.beandefinition.TypeBeanDefinition;
 import nextstep.di.exception.BeanIncludingCycleException;
 import nextstep.di.exception.MultipleBeanImplementationException;
@@ -11,6 +14,8 @@ import nextstep.supports.TopologySort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +52,28 @@ public class BeanFactory {
         for (Class<?> type : scannedTypes) {
             registry.register(TypeBeanDefinition.of(type));
         }
+
+        Set<Class<?>> configTypes = scannedTypes.stream()
+                .filter(type -> type.isAnnotationPresent(Configuration.class))
+                .collect(Collectors.toSet());
+
+        registerFromConfigTypes(configTypes);
+    }
+
+    private void registerFromConfigTypes(Set<Class<?>> configTypes) {
+        for (Class<?> configType : configTypes) {
+            registerBeanMethods(configType);
+        }
+    }
+
+    private void registerBeanMethods(Class<?> configType) {
+        List<Method> beanMethods = Arrays.asList(configType.getDeclaredMethods()).stream()
+                .filter(method -> method.isAnnotationPresent(Bean.class))
+                .collect(Collectors.toList());
+
+        beanMethods.stream()
+                .map(method -> MethodBeanDefinition.of(method))
+                .forEach(definition -> registry.register(definition));
     }
 
     private List<BeanDefinition> calculateBeanInstantiationOrder() {

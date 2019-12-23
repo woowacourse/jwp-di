@@ -42,4 +42,12 @@ public class TypeBeanDefinition<T> implements BeanDefinition {
                 .map(type -> factory.getBean(type))
                 .toArray(Object[]::new);
     }
+
+    @Override
+    public String toString() {
+        return "TypeBeanDefinition{" +
+                "type=" + type +
+                ", constructor=" + constructor +
+                '}';
+    }
 }
