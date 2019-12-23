@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
 public class MethodBeanDefinition implements BeanDefinition {
@@ -56,5 +57,18 @@ public class MethodBeanDefinition implements BeanDefinition {
         return "MethodBeanDefinition{" +
                 "method=" + method +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MethodBeanDefinition that = (MethodBeanDefinition) o;
+        return Objects.equals(method, that.method);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(method);
     }
 }

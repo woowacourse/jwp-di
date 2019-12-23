@@ -19,7 +19,7 @@ public class IntegrationConfig {
     }
 
     @Bean
-    public MyJdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new MyJdbcTemplate(dataSource);
+    public MyJdbcTemplate myJdbcTemplate() {
+        return new MyJdbcTemplate(dataSource());
     }
 }

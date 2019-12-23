@@ -56,4 +56,11 @@ public class BeanDefinitionRegistry {
     public Set<BeanDefinition> findAll() {
         return Sets.newHashSet(definitions);
     }
+
+    public static BeanDefinitionRegistry merge(BeanDefinitionRegistry registry1, BeanDefinitionRegistry registry2) {
+        Set<BeanDefinition> newDefinitions = Sets.newHashSet(registry1.definitions);
+        newDefinitions.addAll(registry2.definitions);
+
+        return new BeanDefinitionRegistry(newDefinitions);
+    }
 }

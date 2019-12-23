@@ -15,7 +15,7 @@ public class JdbcConfiguration {
     private static final String DB_PW = "";
 
     @Bean
-    public static DataSource dataSource() {
+    public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(DB_DRIVER);
         ds.setUrl(DB_URL);
@@ -26,7 +26,7 @@ public class JdbcConfiguration {
     }
 
     @Bean
-    public static JdbcTemplate jdbcTemplate(DataSource dataSource) {
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return JdbcTemplate.of(dataSource);
 
         // [TODO] inter-bean-reference 적용하기
