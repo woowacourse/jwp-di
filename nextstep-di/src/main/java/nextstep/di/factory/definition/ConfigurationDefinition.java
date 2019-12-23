@@ -4,7 +4,6 @@ import nextstep.exception.BeanCreateException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Objects;
 
 public class ConfigurationDefinition implements BeanDefinition {
     private Method beanMethod;

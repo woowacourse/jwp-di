@@ -12,8 +12,8 @@ public class HandlerAdapterRegistry {
 
     public HandlerAdapter getHandlerAdapter(Object handler) {
         return handlerAdapters.stream()
-                .filter(ha -> ha.supports(handler))
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+            .filter(ha -> ha.supports(handler))
+            .findFirst()
+            .orElseThrow(IllegalArgumentException::new);
     }
 }

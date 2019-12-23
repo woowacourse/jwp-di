@@ -12,7 +12,7 @@ import java.util.Set;
 public class NextstepServletContainerInitializer implements ServletContainerInitializer {
     @Override
     public void onStartup(Set<Class<?>> webAppInitializerClasses, ServletContext servletContext)
-            throws ServletException {
+        throws ServletException {
         List<WebApplicationInitializer> initializers = new LinkedList<WebApplicationInitializer>();
 
         if (webAppInitializerClasses != null) {

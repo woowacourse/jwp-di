@@ -18,6 +18,6 @@ public class ComponentDefinitionTest {
 
     @Test
     void duplicate_Inject_annotation() {
-         assertThrows(InjectMethodNotFoundException.class, () ->new ComponentDefinition(NoInjectClass.class));
+        assertThrows(InjectMethodNotFoundException.class, () -> new ComponentDefinition(NoInjectClass.class));
     }
 }

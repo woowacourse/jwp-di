@@ -11,9 +11,9 @@ public class JsonUtils {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.setVisibility(objectMapper.getSerializationConfig().getDefaultVisibilityChecker()
-                    .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
-                    .withGetterVisibility(JsonAutoDetect.Visibility.ANY)
-                    .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
+                .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                .withGetterVisibility(JsonAutoDetect.Visibility.ANY)
+                .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
             return objectMapper.readValue(json, clazz);
         } catch (IOException e) {
             throw new ObjectMapperException(e);

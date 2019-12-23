@@ -6,7 +6,6 @@ import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.MyJdbcTemplate;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.notbean.NotBean;
 import nextstep.exception.BeanNotFoundException;
 import nextstep.exception.CircularReferenceException;
 import org.junit.jupiter.api.DisplayName;
