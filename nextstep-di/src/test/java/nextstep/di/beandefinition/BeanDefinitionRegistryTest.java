@@ -1,5 +1,7 @@
 package nextstep.di.beandefinition;
 
+import nextstep.di.exception.MultipleBeanImplementationException;
+import nextstep.di.exception.NotExistBeanException;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,8 +10,17 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BeanDefinitionRegistryTest {
+
+    @Test
+    @DisplayName("존재하지 않는 타입으로 찾기")
+    void findByType_notExistType() {
+        BeanDefinitionRegistry emptyRegistry = new BeanDefinitionRegistry(Sets.newHashSet());
+
+        assertThat(emptyRegistry.findByType(NotExistType.class)).isEmpty();
+    }
 
     @Test
     @DisplayName("동일한 타입으로 찾기")
@@ -64,6 +75,40 @@ class BeanDefinitionRegistryTest {
         assertThat(registry.findByType(type))
                 .hasSize(1)
                 .contains(expectedDefinition);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 타입")
+    void findExactBeanDefinition_notExistType() {
+        BeanDefinitionRegistry emptyRegistry = new BeanDefinitionRegistry(Sets.newHashSet());
+
+        assertThrows(NotExistBeanException.class, () -> emptyRegistry.findExactBeanDefinition(NotExistType.class));
+    }
+
+    @Test
+    @DisplayName("해당하는 정의가 정확히 한 개 존재")
+    void findExactBeanDefinition_OnlyOneDefinition() {
+        Class<?> type = Car.class;
+        BeanDefinition expectedDefinition = TypeBeanDefinition.of(type);
+        BeanDefinitionRegistry registry = new BeanDefinitionRegistry(Sets.newHashSet(Arrays.asList(
+                expectedDefinition
+        )));
+
+        assertThat(registry.findExactBeanDefinition(Car.class)).isEqualTo(expectedDefinition);
+    }
+
+    @Test
+    @DisplayName("해당하는 정의가 여러 존재")
+    void findExactBeanDefinition_hasSeveralDefinitions() {
+        BeanDefinitionRegistry registry = new BeanDefinitionRegistry(Sets.newHashSet(Arrays.asList(
+                TypeBeanDefinition.of(Bicycle.class),
+                TypeBeanDefinition.of(Car.class)
+        )));
+
+        assertThrows(MultipleBeanImplementationException.class, () -> registry.findExactBeanDefinition(Movable.class));
+    }
+
+    class NotExistType {
     }
 
     interface Movable {
