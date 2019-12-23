@@ -1,10 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
-import nextstep.di.factory.example.JdbcUserRepository;
-import nextstep.di.factory.example.MyQnaService;
-import nextstep.di.factory.example.QnaController;
-import nextstep.di.factory.example.UserRepository;
+import nextstep.di.factory.example.*;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -30,7 +27,9 @@ public class BeanFactoryTest {
     public void setup() {
         reflections = new Reflections("nextstep.di.factory.example");
         Set<Class<?>> preInstantiateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
-        beanFactory = new BeanFactory(preInstantiateClazz);
+        beanFactory = new BeanFactory();
+        beanFactory.initClazz(preInstantiateClazz);
+        new ConfigurationBeanScanner(beanFactory).register(IntegrationConfig.class);
         beanFactory.initialize();
     }
 

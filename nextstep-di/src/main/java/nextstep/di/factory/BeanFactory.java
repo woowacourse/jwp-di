@@ -22,10 +22,6 @@ public class BeanFactory {
 
     }
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
-    }
-
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         return (T) beans.get(requiredType);
@@ -40,15 +36,15 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        if (Objects.nonNull(preInstantiateBeans)) {
-            for (Class<?> clazz : preInstantiateBeans) {
-                instantiate(clazz);
-            }
-        }
-
         if (Objects.nonNull(preInstantiateMethodBeans)) {
             for (Map.Entry<Class<?>, Method> beanMethod : preInstantiateMethodBeans.entrySet()) {
                 instantiate(beanMethod.getKey(), beanMethod.getValue());
+            }
+        }
+
+        if (Objects.nonNull(preInstantiateBeans)) {
+            for (Class<?> clazz : preInstantiateBeans) {
+                instantiate(clazz);
             }
         }
     }
@@ -81,7 +77,7 @@ public class BeanFactory {
                 .toArray();
     }
 
-    public Object instantiate(Class<?> clazz) {
+    private Object instantiate(Class<?> clazz) {
         if (beans.containsKey(clazz)) {
             return beans.get(clazz);
         }
@@ -89,7 +85,7 @@ public class BeanFactory {
         return createSingleInstance(clazz);
     }
 
-    public void addBean(Class<?> clazz, Object instance) {
+    private void addBean(Class<?> clazz, Object instance) {
         beans.put(clazz, instance);
     }
 

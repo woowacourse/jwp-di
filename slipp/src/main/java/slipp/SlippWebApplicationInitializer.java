@@ -1,5 +1,6 @@
 package slipp;
 
+import nextstep.di.factory.ApplicationContext;
 import nextstep.di.factory.ClasspathBeanScanner;
 import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.DispatcherServlet;
@@ -21,11 +22,10 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
     public void onStartup(ServletContext servletContext) throws ServletException {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
 
-        ClasspathBeanScanner classPathBeanScanner = new ClasspathBeanScanner("slipp");
-        BeanFactory beanFactory = new BeanFactory(classPathBeanScanner.scan());
-        beanFactory.initialize();
+        ApplicationContext applicationContext = new ApplicationContext("slipp");
+        applicationContext.initialize();
 
-        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(beanFactory));
+        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());

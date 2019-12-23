@@ -5,7 +5,6 @@ import nextstep.di.factory.example.IntegrationConfig;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyJdbcTemplate;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.jdbc.JdbcTestUtils;
 
 import javax.sql.DataSource;
 
@@ -29,10 +28,11 @@ public class ConfigurationBeanScannerTest {
         BeanFactory beanFactory = new BeanFactory();
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
         cbs.register(IntegrationConfig.class);
-        beanFactory.initialize();
 
         ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
         cbds.doScan("nextstep.di.factory.example");
+
+        beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));
 

@@ -28,10 +28,9 @@ public class ClasspathBeanScanner {
         this.beanFactory = beanFactory;
     }
 
-    public void doScan(final String basePackage) {
+    public void doScan(final Object... basePackage) {
         reflections = new Reflections(basePackage);
         beanFactory.initClazz(scan());
-        beanFactory.initialize();
     }
 
     @SuppressWarnings("unchecked")

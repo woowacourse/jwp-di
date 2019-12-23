@@ -16,14 +16,15 @@ public class ConfigurationBeanScanner {
         this.beanFactory = beanFactory;
     }
 
-    public void register(final Class<?> clazz) {
-        if (clazz.isAnnotationPresent(Configuration.class)) {
-            beanFactory.initConfigMethod(scan(clazz));
-        }
+    public void register(final Class<?>... clazz) {
+        beanFactory.initConfigMethod(scan(clazz));
     }
 
-    private Map<Class<?>, Method> scan(final Class<?> configClass) {
-        return Arrays.stream(configClass.getDeclaredMethods())
+    private Map<Class<?>, Method> scan(final Class<?>... configClass) {
+        return Arrays.stream(configClass)
+                .filter(clazz -> clazz.isAnnotationPresent(Configuration.class))
+                .map(Class::getDeclaredMethods)
+                .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(Bean.class))
                 .collect(toMap(Method::getReturnType, method -> method));
     }
