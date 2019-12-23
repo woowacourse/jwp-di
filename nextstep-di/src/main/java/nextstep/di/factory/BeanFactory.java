@@ -1,17 +1,16 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.exception.BeanCreationFailException;
+import nextstep.di.beandefinition.BeanDefinition;
+import nextstep.di.beandefinition.BeanDefinitionRegistry;
+import nextstep.di.beandefinition.TypeBeanDefinition;
 import nextstep.di.exception.BeanIncludingCycleException;
+import nextstep.di.exception.MultipleBeanImplementationException;
 import nextstep.di.exception.NotExistBeanException;
 import nextstep.supports.TopologySort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.BeanCreationException;
 
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,75 +20,96 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiatedTypes;
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<BeanDefinition, Object> beans = Maps.newHashMap();
+    private BeanDefinitionRegistry registry = BeanDefinitionRegistry.create();
 
-    public BeanFactory(Set<Class<?>> preInstantiatedTypes) {
-        this.preInstantiatedTypes = preInstantiatedTypes;
+    private BeanFactory() {
     }
 
-    public void initialize() {
-        addBeans(createTopologySort().calculateReversedOrders());
+    public static BeanFactory initializeWith(Set<Class<?>> scannedTypes) {
+        log.debug("scannedTypes: {}", scannedTypes);
+
+        BeanFactory factory = new BeanFactory();
+        factory.initialize(scannedTypes);
+
+        return factory;
     }
 
-    // 아... 파라미터에만 존재하는 경우도 결과 노드에 포함되는 구나...
-    // 그렇다면 파라미터에 자주 나오는 타입은?? 빨리 해결이 되겠지??
-    private TopologySort<Class<?>> createTopologySort() {
-        return new TopologySort<>(
-                preInstantiatedTypes,
-                type -> getParameterTypes(BeanFactoryUtils.getBeanConstructor(type)),
-                (node) -> {
-                    throw new BeanIncludingCycleException(node);
-                });
+    private void initialize(Set<Class<?>> scannedTypes) {
+        initializeRegistry(scannedTypes);
+
+        List<BeanDefinition> beanInstantiationOrder = calculateBeanInstantiationOrder();
+
+        addBeansWithOrder(beanInstantiationOrder);
     }
 
-    private void addBeans(List<Class<?>> types) {
-        for (Class<?> type : types) {
-            addBean(type);
+    private void initializeRegistry(Set<Class<?>> scannedTypes) {
+        for (Class<?> type : scannedTypes) {
+            registry.register(TypeBeanDefinition.of(type));
         }
     }
 
-    // 토폴로지 소트에서... 실제로 빈으로 등록되야 할 애들 이외에도 파라미테에 존재하는 애들도 추가함
-    // 이런 경우 어디서 잡아주는게 맞는 걸까? (토폴로지 소트가 이런 경우도 잡아주어야 할까? -> 입력으로 주어진 노드 이외를 가르킬때..)
-    private void addBean(Class<?> type) {
-        log.debug("[addBean] type: {}", type);
-        validateCanBeBean(type);
+    private List<BeanDefinition> calculateBeanInstantiationOrder() {
+        TopologySort<BeanDefinition> topologySort = createTopologySort();
 
-        beans.put(type, instantiate(BeanFactoryUtils.getBeanConstructor(type)));
+        return topologySort.calculateReversedOrders();
     }
 
-    private void validateCanBeBean(Class<?> type) {
-        if (!type.isInterface() && !preInstantiatedTypes.contains(type)) {
+
+    private TopologySort<BeanDefinition> createTopologySort() {
+        return new TopologySort<>(
+                registry.findAll(),
+                definition -> collectDependantBeanDefinitions(definition),
+                definition -> {
+                    throw BeanIncludingCycleException.of(definition);
+                }
+        );
+    }
+
+    private List<BeanDefinition> collectDependantBeanDefinitions(BeanDefinition definition) {
+        return definition.getDependantTypes().stream()
+                .map(type -> findExactBeanDefinition(type))
+                .collect(Collectors.toList());
+    }
+
+    private BeanDefinition findExactBeanDefinition(Class<?> type) {
+        Set<BeanDefinition> definitions = registry.findByType(type);
+
+        if (definitions.size() == 0) {
             throw NotExistBeanException.from(type);
         }
-        BeanFactoryUtils.findConcreteClass(type, preInstantiatedTypes);
+
+        if (2 <= definitions.size()) {
+            List<Class<?>> candidateTypes = definitions.stream()
+                    .map(definition -> definition.getBeanType())
+                    .collect(Collectors.toList());
+            throw MultipleBeanImplementationException.from(type, candidateTypes);
+        }
+
+        return definitions.stream()
+                .findFirst()
+                .get();
     }
 
-    private Object instantiate(Constructor<?> constructor) {
-        return BeanUtils.instantiateClass(constructor, getBeansSatisfiedWith(getParameterTypes(constructor)));
-    }
-
-    private List<Class<?>> getParameterTypes(Constructor<?> constructor) {
-        try {
-            return BeanFactoryUtils.findConcreteClasses(Arrays.asList(constructor.getParameterTypes()), preInstantiatedTypes);
-        } catch (NotExistBeanException e) {
-            throw BeanCreationFailException.constructWithNotExistParameter(constructor, e.getType());
+    private void addBeansWithOrder(List<BeanDefinition> beanInstantiationOrder) {
+        for (BeanDefinition definition : beanInstantiationOrder) {
+            addBean(definition);
         }
     }
 
-    private Object[] getBeansSatisfiedWith(List<Class<?>> parameterTypes) {
-        return parameterTypes.stream()
-                .map(type -> getBean(type))
-                .toArray();
+    private void addBean(BeanDefinition definition) {
+        beans.put(definition, definition.create(this));
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
-        return (T) beans.get(requiredType);
+        BeanDefinition definition = findExactBeanDefinition(requiredType);
+
+        return (T) beans.get(definition);
     }
 
     public Map<Class<?>, Object> getBeansSatisfiedWith(Predicate<Class<?>> predicate) {
         return beans.keySet().stream()
+                .map(definition -> definition.getBeanType())
                 .filter(predicate)
                 .collect(Collectors.toMap(type -> type, this::getBean));
     }

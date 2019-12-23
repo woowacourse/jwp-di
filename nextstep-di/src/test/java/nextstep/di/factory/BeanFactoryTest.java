@@ -1,6 +1,5 @@
 package nextstep.di.factory;
 
-import nextstep.di.exception.BeanCreationFailException;
 import nextstep.di.exception.BeanIncludingCycleException;
 import nextstep.di.exception.MultipleBeanImplementationException;
 import nextstep.di.exception.NotExistBeanException;
@@ -52,7 +51,7 @@ public class BeanFactoryTest {
     @Test
     @DisplayName("특정 인터페이스에 대한 빈이 존재하지 않을 경우")
     public void initialize_interfaceHasNoConcreteClass() {
-        assertThrows(BeanCreationFailException.class, () -> createWithInit("nextstep.di.factory.exampleforinvalid.notexistconcreteclass"));
+        assertThrows(NotExistBeanException.class, () -> createWithInit("nextstep.di.factory.exampleforinvalid.notexistconcreteclass"));
     }
 
     @Test
@@ -63,9 +62,6 @@ public class BeanFactoryTest {
 
     private BeanFactory createWithInit(Object... params) {
         TypeScanner typeScanner = new TypeScanner(params);
-        BeanFactory beanFactory = new BeanFactory(typeScanner.scanAnnotatedWith(Controller.class, Service.class, Repository.class));
-        beanFactory.initialize();
-
-        return beanFactory;
+        return BeanFactory.initializeWith(typeScanner.scanAnnotatedWith(Controller.class, Service.class, Repository.class));
     }
 }

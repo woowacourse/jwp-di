@@ -35,8 +35,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     @SuppressWarnings("unchecked")
     public void initialize() {
-        BeanFactory beanFactory = new BeanFactory(new TypeScanner(basePackage).scanAnnotatedWith(Controller.class, Service.class, Repository.class));
-        beanFactory.initialize();
+        BeanFactory beanFactory = BeanFactory.initializeWith(new TypeScanner(basePackage).scanAnnotatedWith(Controller.class, Service.class, Repository.class));
+
         Map<Class<?>, Object> controllers = beanFactory.getBeansSatisfiedWith(clazz -> clazz.isAnnotationPresent(Controller.class));
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
 
