@@ -1,5 +1,6 @@
 package slipp;
 
+import nextstep.di.ApplicationContext;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
@@ -17,7 +18,7 @@ public class SlippWebApplicationInitializer implements WebApplicationInitializer
     @Override
     public void onStartup(ServletContext servletContext) {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("slipp"));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(new ApplicationContext(WebServerLauncher.class)));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
