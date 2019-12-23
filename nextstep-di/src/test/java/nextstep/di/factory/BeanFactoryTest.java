@@ -3,8 +3,10 @@ package nextstep.di.factory;
 import nextstep.di.exception.BeanIncludingCycleException;
 import nextstep.di.exception.MultipleBeanImplementationException;
 import nextstep.di.exception.NotExistBeanException;
+import nextstep.di.factory.example.DefaultScanConfig;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import nextstep.di.scanner.ConfigurationScanner;
 import nextstep.di.scanner.TypeScanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -14,18 +16,32 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BeanFactoryTest {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
-
     @Test
-    public void di() throws Exception {
+    @DisplayName("클래스 경로를 통한 빈 등록하기")
+    public void di_usingPackagePath() throws Exception {
         // "example." 으로 끝나야 함 (그렇지 않으면 exampleforinvalid 도 prefix 에 포함이 됨)
         BeanFactory beanFactory = createWithInit("nextstep.di.factory.example.");
 
+        test_di_atExamplePackage(beanFactory);
+    }
+
+    @Test
+    @DisplayName("ComponentScan 을 통한 빈 등록하기")
+    public void di_usingComponentScan() {
+        BeanFactory beanFactory = createWithConfig(DefaultScanConfig.class);
+
+        test_di_atExamplePackage(beanFactory);
+    }
+
+    private void test_di_atExamplePackage(BeanFactory beanFactory) {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
         assertNotNull(qnaController);
@@ -63,5 +79,10 @@ public class BeanFactoryTest {
     private BeanFactory createWithInit(Object... params) {
         TypeScanner typeScanner = new TypeScanner(params);
         return BeanFactory.initializeWith(typeScanner.scanAnnotatedWith(Controller.class, Service.class, Repository.class));
+    }
+
+    private BeanFactory createWithConfig(Class<?> configClass) {
+        Set<Class<?>> typesAnnotatedByComponent = ConfigurationScanner.of(DefaultScanConfig.class).scan();
+        return BeanFactory.initializeWith(typesAnnotatedByComponent);
     }
 }

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class ConfigurationScanner {
     private static final Logger log = LoggerFactory.getLogger(ConfigurationScanner.class);
 
+    private static final String SEPARATOR_FOR_SAME_PREFIX_PACKAGE = ".";
     private static final String[] COMPONENT_PACKAGE_PATHS = {"nextstep.annotation", "nextstep.stereotype"};
 
     private Set<Class<?>> configs;
@@ -90,9 +91,15 @@ public class ConfigurationScanner {
     }
 
     private String[] getComponentScanPackages(Set<Class<?>> configs) {
-        return configs.stream()
+        String[] packages = configs.stream()
                 .map(config -> getComponentScanPackages(config))
                 .reduce(new String[]{}, (arr1, arr2) -> ArrayUtils.addAll(arr1, arr2));
+
+        // add SEPARATOR_FOR_SAME_PREFIX_PACKAGE to end of package path
+        // "example", "exampleXXX" 같은 경우를 구분하기 위함
+        return Arrays.asList(packages).stream()
+                .map(packagePath -> packagePath + SEPARATOR_FOR_SAME_PREFIX_PACKAGE)
+                .toArray(String[]::new);
     }
 
     private String[] getComponentScanPackages(Class<?> config) {

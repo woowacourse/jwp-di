@@ -75,7 +75,7 @@ public class BeanFactory {
     private BeanDefinition findExactBeanDefinition(Class<?> type) {
         Set<BeanDefinition> definitions = registry.findByType(type);
 
-        if (definitions.size() == 0) {
+        if (definitions.isEmpty()) {
             throw NotExistBeanException.from(type);
         }
 
