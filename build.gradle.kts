@@ -32,7 +32,7 @@ subprojects {
 
 		testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
 		testImplementation("org.assertj:assertj-core:3.12.2")
-		testImplementation("org.springframework:spring-test:$springVersion")
+		testImplementation("org.springframework:spring-notbean:$springVersion")
 		testImplementation("org.springframework:spring-webflux:$springVersion")
 		testImplementation("io.projectreactor.netty:reactor-netty:0.8.10.RELEASE")
 	}
