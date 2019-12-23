@@ -3,7 +3,9 @@ package nextstep.di.factory;
 import com.google.common.collect.Maps;
 import nextstep.di.factory.definition.BeanDefinition;
 import nextstep.di.factory.scanner.BeanScanner;
+import nextstep.exception.BeanNotFoundException;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,5 +56,18 @@ public class BeanFactory {
             .map(this::generateOrGetBean)
             .peek(param -> circularChecker.remove())
             .toArray();
+    }
+
+    public Map<Class<?>, Object> getBeansWithAnnotation(Class<? extends Annotation> annotation) {
+        return beans.keySet().stream()
+            .filter(key -> key.isAnnotationPresent(annotation))
+            .collect(Collectors.toMap(key -> key, key -> beans.get(key)));
+    }
+
+    public <T> T getBean(Class<T> requiredType) {
+        if (beans.containsKey(requiredType)) {
+            return (T) beans.get(requiredType);
+        }
+        throw new BeanNotFoundException();
     }
 }
