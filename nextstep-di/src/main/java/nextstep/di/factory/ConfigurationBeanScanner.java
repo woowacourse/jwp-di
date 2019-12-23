@@ -19,7 +19,6 @@ public class ConfigurationBeanScanner {
 
     public void register(final Class<?> clazz) {
         if (clazz.isAnnotationPresent(Configuration.class)) {
-            beanFactory.instantiate(clazz);
             registerBeanMethods(clazz, clazz.getDeclaredMethods());
         }
     }
@@ -38,7 +37,7 @@ public class ConfigurationBeanScanner {
 
     private void registerBean(final Class<?> clazz, final Method method) {
         try {
-            beanFactory.addBean(method.getReturnType(), method.invoke(beanFactory.getBean(clazz)));
+            beanFactory.addBean(method.getReturnType(), method.invoke(clazz.getConstructor().newInstance()));
         } catch (Exception e) {
             logger.error(">> registerBean", e);
             throw new CannotCreateInstance(e);
