@@ -5,6 +5,7 @@ import nextstep.stereotype.Service;
 
 @Service
 public class B {
+
     @Inject
     public B(C c) {
     }
