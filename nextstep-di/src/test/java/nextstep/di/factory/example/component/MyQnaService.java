@@ -1,4 +1,4 @@
-package nextstep.di.factory.example;
+package nextstep.di.factory.example.component;
 
 import nextstep.annotation.Inject;
 import nextstep.stereotype.Service;
