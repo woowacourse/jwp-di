@@ -2,15 +2,14 @@ package nextstep.di.factory;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.Configuration;
-import nextstep.di.factory.exception.CannotCreateInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Map;
+
+import static java.util.stream.Collectors.toMap;
 
 public class ConfigurationBeanScanner {
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationBeanScanner.class);
-
     private BeanFactory beanFactory;
 
     public ConfigurationBeanScanner(final BeanFactory beanFactory) {
@@ -19,28 +18,13 @@ public class ConfigurationBeanScanner {
 
     public void register(final Class<?> clazz) {
         if (clazz.isAnnotationPresent(Configuration.class)) {
-            registerBeanMethods(clazz, clazz.getDeclaredMethods());
+            beanFactory.initConfigMethod(scan(clazz));
         }
     }
 
-    private void registerBeanMethods(final Class<?> clazz, final Method[] methods) {
-        for (Method method : methods) {
-            registerBeanMethod(clazz, method);
-        }
-    }
-
-    private void registerBeanMethod(final Class<?> clazz, final Method method) {
-        if (method.isAnnotationPresent(Bean.class)) {
-            registerBean(clazz, method);
-        }
-    }
-
-    private void registerBean(final Class<?> clazz, final Method method) {
-        try {
-            beanFactory.addBean(method.getReturnType(), method.invoke(clazz.getConstructor().newInstance()));
-        } catch (Exception e) {
-            logger.error(">> registerBean", e);
-            throw new CannotCreateInstance(e);
-        }
+    private Map<Class<?>, Method> scan(final Class<?> configClass) {
+        return Arrays.stream(configClass.getDeclaredMethods())
+                .filter(method -> method.isAnnotationPresent(Bean.class))
+                .collect(toMap(Method::getReturnType, method -> method));
     }
 }
