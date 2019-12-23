@@ -1,42 +1,47 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.ComponentScan;
-import nextstep.exception.ComponentScanFindFailException;
+import nextstep.di.factory.scanner.ComponentScanner;
+import nextstep.di.factory.scanner.ConfigurationBeanScanner;
+import nextstep.exception.BeanNotFoundException;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class ApplicationContext {
     private final Class<?> configureClass;
-    private BeanFactory beanFactory;
+    private Map<Class<?>, Object> beans;
 
     public ApplicationContext(final Class<?> configureClass) {
         this.configureClass = configureClass;
     }
 
     public Map<Class<?>, Object> initialize() {
-        String[] basePackage = findBasePackage();
-
-        BeanScanner beanScanner = new BeanScanner(basePackage);
-        Set<Class<?>> preInstantiateComponents = beanScanner.scan();
-
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner();
-
-        Set<Class<?>> preInstantiateConfigurationBeans = configurationBeanScanner.scan(configureClass);
-
-        this.beanFactory = new BeanFactory(preInstantiateComponents, preInstantiateConfigurationBeans);
-        return beanFactory.initialize(configureClass);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(configureClass);
+        return initializeBeanFactory(configurationBeanScanner);
     }
 
-    private String[] findBasePackage() {
-        if (configureClass.isAnnotationPresent(ComponentScan.class)) {
-            ComponentScan componentScan = configureClass.getAnnotation(ComponentScan.class);
-            return componentScan.basePackages();
+    private Map<Class<?>, Object> initializeBeanFactory(ConfigurationBeanScanner configurationBeanScanner) {
+        BeanFactory beanFactory = new BeanFactory();
+        ComponentScanner componentScanner = new ComponentScanner(findBasePackages(configurationBeanScanner));
+        beanFactory.addScanner(configurationBeanScanner);
+        beanFactory.addScanner(componentScanner);
+        this.beans = beanFactory.initialize();
+        return beans;
+    }
+
+    private Object[] findBasePackages(ConfigurationBeanScanner configurationBeanScanner) {
+        List<ComponentScan> componentScans = configurationBeanScanner.findComponentScans();
+
+        return componentScans.stream()
+            .map(ComponentScan::basePackages)
+            .toArray();
+    }
+
+    public <T> T getBean(final Class<T> requiredType) {
+        if (beans.containsKey(requiredType)) {
+            return (T) beans.get(requiredType);
         }
-        throw new ComponentScanFindFailException();
-    }
-
-    public <T> T getBean(Class<T> requiredType) {
-        return this.beanFactory.getBean(requiredType);
+        throw new BeanNotFoundException();
     }
 }
