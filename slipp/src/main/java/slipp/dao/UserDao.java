@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.annotation.Inject;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import nextstep.stereotype.Repository;
@@ -15,9 +16,11 @@ import java.util.List;
 public class UserDao {
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private JdbcTemplate jdbcTemplate;
 
-    public UserDao() {
+    @Inject
+    public UserDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public void insert(User user) {

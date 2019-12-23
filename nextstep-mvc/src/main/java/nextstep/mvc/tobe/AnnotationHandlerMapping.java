@@ -3,6 +3,7 @@ package nextstep.mvc.tobe;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.scanner.ConfigurationScanner;
 import nextstep.di.scanner.TypeScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
@@ -25,17 +26,30 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackage;
+    private Object[] basePackages;
+    private Class<?> configType;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackage) {
-        this.basePackage = basePackage;
+    private AnnotationHandlerMapping(Object[] basePackages) {
+        this.basePackages = basePackages;
+    }
+
+    private AnnotationHandlerMapping(Class<?> configType) {
+        this.configType = configType;
+    }
+
+    public static AnnotationHandlerMapping fromBasePackages(Object... basePackages) {
+        return new AnnotationHandlerMapping(basePackages);
+    }
+
+    public static AnnotationHandlerMapping fromConfigurationClass(Class<?> configType) {
+        return new AnnotationHandlerMapping(configType);
     }
 
     @SuppressWarnings("unchecked")
     public void initialize() {
-        BeanFactory beanFactory = BeanFactory.initializeWith(new TypeScanner(basePackage).scanAnnotatedWith(Controller.class, Service.class, Repository.class));
+        BeanFactory beanFactory = createBeanFactory();
 
         Map<Class<?>, Object> controllers = beanFactory.getBeansSatisfiedWith(clazz -> clazz.isAnnotationPresent(Controller.class));
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
@@ -48,6 +62,13 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         }
 
         logger.info("Initialized AnnotationHandlerMapping!");
+    }
+
+    private BeanFactory createBeanFactory() {
+        if (basePackages != null) {
+            return BeanFactory.initializeWith(new TypeScanner(basePackages).scanAnnotatedWith(Controller.class, Service.class, Repository.class));
+        }
+        return BeanFactory.initializeWith(ConfigurationScanner.of(configType).scan());
     }
 
     private void addHandlerExecutions(Map<Class<?>, Object> controllers, Method method, RequestMapping rm) {

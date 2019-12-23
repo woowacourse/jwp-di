@@ -33,7 +33,7 @@ class TypeScannerTest {
     @Test
     void test() {
         Set<Class<?>> expectedTypes = Sets.newHashSet(Arrays.asList(
-                ExampleConfig.class,
+                DefaultScanConfig.class,
                 IntegrationConfig.class,
                 JdbcQuestionRepository.class,
                 JdbcUserRepository.class,
