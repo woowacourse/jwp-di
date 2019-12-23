@@ -1,43 +1,58 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.exception.BeanNotFoundException;
-import nextstep.stereotype.Controller;
+import nextstep.di.factory.definition.BeanDefinition;
+import nextstep.di.factory.scanner.BeanScanner;
 
+import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private BeanDefinition beanDefinition;
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private final Map<Class<?>, BeanDefinition> beanDefinitions;
+    private final Map<Class<?>, Object> beans;
+    private final CircularChecker circularChecker;
 
-    public BeanFactory(final Set<Class<?>> preInstantiateComponents, final Set<Class<?>> preInstantiateConfigurationBeans) {
-        this.beanDefinition = new BeanDefinition(preInstantiateComponents, preInstantiateConfigurationBeans);
+    public BeanFactory() {
+        this.beans = Maps.newHashMap();
+        beanDefinitions = Maps.newHashMap();
+        circularChecker = new CircularChecker();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(final Class<T> requiredType) {
-        if (beans.containsKey(requiredType)) {
-            return (T) beans.get(requiredType);
+    public void addScanner(BeanScanner beanScanner) {
+        beanDefinitions.putAll(beanScanner.scan()
+            .stream()
+            .collect(Collectors.toMap(BeanDefinition::getType, beanDefinition -> beanDefinition)));
+    }
+
+    public Map<Class<?>, Object> initialize() {
+        for (Class<?> targetClass : beanDefinitions.keySet()) {
+            beans.put(targetClass, generateOrGetBean(targetClass));
         }
-        throw new BeanNotFoundException();
-    }
-
-    public Map<Class<?>, Object> initialize(final Class<?> configureClass) {
-        ComponentFactory componentFactory = new ComponentFactory(beanDefinition);
-        beans.putAll(componentFactory.initialize());
-
-        ConfigurationBeanFactory configurationBeanFactory = new ConfigurationBeanFactory(beanDefinition, configureClass);
-        beans.putAll(configurationBeanFactory.initialize(beans));
-
+        beanDefinitions.clear();
         return beans;
     }
 
-    public Map<Class<?>, Object> getControllers() {
-        return beans.keySet()
-            .stream()
-            .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
-            .collect(Collectors.toMap(clazz -> clazz, clazz -> beans.get(clazz)));
+    private Object generateOrGetBean(Class<?> targetClass) {
+        if (beans.containsKey(targetClass)) {
+            return beans.get(targetClass);
+        }
+
+        return generateBean(targetClass);
+    }
+
+    private Object generateBean(Class<?> targetClass) {
+        BeanDefinition beanDefinition = beanDefinitions.get(targetClass);
+        Object[] params = resolveParams(beanDefinition);
+        return beanDefinition.generateBean(params);
+    }
+
+    private Object[] resolveParams(BeanDefinition beanDefinition) {
+        return Arrays.stream(beanDefinition.getParams())
+            .peek(circularChecker::check)
+            .map(param -> BeanFactoryUtils.findConcreteClass(param, beanDefinitions.keySet()).orElse(param))
+            .map(this::generateOrGetBean)
+            .peek(param -> circularChecker.remove())
+            .toArray();
     }
 }
