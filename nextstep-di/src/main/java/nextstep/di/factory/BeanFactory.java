@@ -4,10 +4,6 @@ import com.google.common.collect.Maps;
 import nextstep.di.beandefinition.BeanDefinition;
 import nextstep.di.beandefinition.BeanDefinitionRegister;
 import nextstep.di.beandefinition.BeanDefinitionRegistry;
-import nextstep.di.exception.BeanIncludingCycleException;
-import nextstep.di.exception.MultipleBeanImplementationException;
-import nextstep.di.exception.NotExistBeanException;
-import nextstep.supports.TopologySort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,46 +44,10 @@ public class BeanFactory {
     }
 
     private List<BeanDefinition> calculateBeanInstantiationOrder() {
-        TopologySort<BeanDefinition> topologySort = createTopologySort();
-
-        return topologySort.calculateReversedOrders();
+        return BeanInstantiationOrderDecider.of(registry)
+                .decideOrder();
     }
 
-
-    private TopologySort<BeanDefinition> createTopologySort() {
-        return new TopologySort<>(
-                registry.findAll(),
-                definition -> collectDependantBeanDefinitions(definition),
-                definition -> {
-                    throw BeanIncludingCycleException.of(definition);
-                }
-        );
-    }
-
-    private List<BeanDefinition> collectDependantBeanDefinitions(BeanDefinition definition) {
-        return definition.getDependantTypes().stream()
-                .map(type -> findExactBeanDefinition(type))
-                .collect(Collectors.toList());
-    }
-
-    private BeanDefinition findExactBeanDefinition(Class<?> type) {
-        Set<BeanDefinition> definitions = registry.findByType(type);
-
-        if (definitions.isEmpty()) {
-            throw NotExistBeanException.from(type);
-        }
-
-        if (2 <= definitions.size()) {
-            List<Class<?>> candidateTypes = definitions.stream()
-                    .map(definition -> definition.getBeanType())
-                    .collect(Collectors.toList());
-            throw MultipleBeanImplementationException.from(type, candidateTypes);
-        }
-
-        return definitions.stream()
-                .findFirst()
-                .get();
-    }
 
     private void addBeansWithOrder(List<BeanDefinition> beanInstantiationOrder) {
         for (BeanDefinition definition : beanInstantiationOrder) {
@@ -100,7 +60,7 @@ public class BeanFactory {
     }
 
     public <T> T getBean(Class<T> requiredType) {
-        BeanDefinition definition = findExactBeanDefinition(requiredType);
+        BeanDefinition definition = registry.findExactBeanDefinition(requiredType);
 
         return (T) beans.get(definition);
     }
