@@ -8,7 +8,8 @@ import java.util.stream.Collectors;
 public enum BeanAnnotations {
     CONTROLLER_ANNOTATION(Controller.class),
     SERVICE_ANNOTATION(Service.class),
-    REPOSITORY_ANNOTATION(Repository.class);
+    REPOSITORY_ANNOTATION(Repository.class),
+    COMPONENT_ANNOTATION(Component.class);
 
     private Class<? extends Annotation> clazz;
 
