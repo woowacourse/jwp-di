@@ -6,8 +6,6 @@ import nextstep.di.factory.example.repository.JdbcQuestionRepository;
 import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.service.MyQnaService;
 import nextstep.di.factory.example.service.TestService;
-import nextstep.di.factory.scanner.ClasspathBeanScanner;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,12 +18,11 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ClasspathBeanScannerTest {
-    private ClasspathBeanScanner cbs;
+class ClasspathBeanScannerTestTest extends AbstractBeanScannerTest {
 
     @BeforeEach
     void setUp() {
-        cbs = new ClasspathBeanScanner("nextstep.di.factory.example.");
+        initClasspathBeanScanner();
     }
 
     @DisplayName("bean을 스캔하여 Set<BeanDefinition>을 생성")
@@ -50,8 +47,4 @@ class ClasspathBeanScannerTest {
         assertEquals(expected, actual);
     }
 
-    @AfterEach
-    void tearDown() {
-        cbs = null;
-    }
 }
