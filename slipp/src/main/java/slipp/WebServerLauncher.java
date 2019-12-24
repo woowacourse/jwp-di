@@ -1,11 +1,15 @@
 package slipp;
 
+import nextstep.annotation.ComponentScan;
+import nextstep.annotation.Configuration;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+@Configuration
+@ComponentScan
 public class WebServerLauncher {
     private static final Logger logger = LoggerFactory.getLogger(WebServerLauncher.class);
 
