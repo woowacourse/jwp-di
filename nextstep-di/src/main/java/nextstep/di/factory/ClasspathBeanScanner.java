@@ -6,13 +6,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class BeanScanner {
-    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+public class ClasspathBeanScanner {
+    private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
 
     private Reflections reflections;
     private List<Class> annotations;
 
-    public BeanScanner(List<Class> annotations, Object... basePackage) {
+    public ClasspathBeanScanner(List<Class> annotations, Object... basePackage) {
         this.annotations = annotations;
         this.reflections = new Reflections(basePackage);
     }

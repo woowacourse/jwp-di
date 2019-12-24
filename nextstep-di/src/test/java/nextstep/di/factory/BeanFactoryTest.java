@@ -23,10 +23,10 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         String path = "nextstep.di.factory.example";
-        BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), path);
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), path);
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(Arrays.asList(Configuration.class), path);
 
-        Map<Class<?>, BeanDefinition> classBeanDefinitionMap = beanScanner.scanBeans();
+        Map<Class<?>, BeanDefinition> classBeanDefinitionMap = classpathBeanScanner.scanBeans();
         classBeanDefinitionMap.putAll(configurationBeanScanner.scanBeans());
 
         beanFactory = new BeanFactory(classBeanDefinitionMap);

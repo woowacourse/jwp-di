@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ConfigurationBeanScannerTest {
+public class ConfigurationClasspathBeanScannerTest {
 
     @Test
     void scanBeans() {
