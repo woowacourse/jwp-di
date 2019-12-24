@@ -1,39 +1,28 @@
 package slipp;
 
-import nextstep.di.factory.BeanFactory;
-import nextstep.di.scanner.ClassPathBeanScanner;
-import nextstep.di.scanner.ConfigurationBeanScanner;
+import nextstep.di.context.ApplicationContext;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
 import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
-import nextstep.stereotype.BeanAnnotations;
 import nextstep.web.WebApplicationInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import slipp.support.config.WebConfig;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
 public class SlippWebApplicationInitializer implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
 
     @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
+    public void onStartup(ServletContext servletContext) {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
 
-        BeanFactory beanFactory = new BeanFactory();
+        ApplicationContext applicationContext = new ApplicationContext(WebConfig.class);
 
-        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner("slipp.controller");
-        classPathBeanScanner.register(beanFactory, BeanAnnotations.getClazz());
-
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner("slipp.support.config");
-        configurationBeanScanner.register(beanFactory);
-
-        beanFactory.initialize();
-
-        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(beanFactory));
+        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
