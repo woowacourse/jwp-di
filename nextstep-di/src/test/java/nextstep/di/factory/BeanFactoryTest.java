@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import nextstep.annotation.Configuration;
 import nextstep.di.factory.example.*;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -22,7 +24,12 @@ public class BeanFactoryTest {
     public void setup() {
         String path = "nextstep.di.factory.example";
         BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), path);
-        beanFactory = new BeanFactory(beanScanner.scanBeans());
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(Arrays.asList(Configuration.class), path);
+
+        Map<Class<?>, BeanDefinition> classBeanDefinitionMap = beanScanner.scanBeans();
+        classBeanDefinitionMap.putAll(configurationBeanScanner.scanBeans());
+
+        beanFactory = new BeanFactory(classBeanDefinitionMap);
         beanFactory.initialize();
     }
 
@@ -62,6 +69,13 @@ public class BeanFactoryTest {
 
         assertNotNull(beanByAnnotation.get(JdbcUserRepository.class));
         assertNotNull(beanByAnnotation.get(JdbcQuestionRepository.class));
+    }
+
+    @Test
+    @DisplayName("설정파일에 있는 메소드 빈 가져오기 테스트")
+    public void getConfigurationBean() {
+        assertNotNull(beanFactory.getBean(DataSource.class));
+        assertNotNull(beanFactory.getBean(MyJdbcTemplate.class));
     }
 
     @Test

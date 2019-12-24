@@ -25,17 +25,8 @@ public class BeanScanner {
         }
 
         for (Class<?> preInitiatedBean : preInitiatedBeans) {
-//            Constructor constructor = BeanFactoryUtils.getInjectedConstructor(preInitiatedBean); //생성자 찾기
             maps.put(preInitiatedBean, new ConstructorDefinition(preInitiatedBean));
         }
         return maps;
     }
-
-//    private Object createConstructorBean(Object... parameters) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-//        return constructor.newInstance(parameters);
-//    }
-
-//    private Object createNonConstructorBean(Class<?> preInstantiateBean) throws InstantiationException, IllegalAccessException {
-//        return BeanFactoryUtils.findConcreteClass(preInstantiateBean, preInstantiateBeans).newInstance();
-//    }
 }
