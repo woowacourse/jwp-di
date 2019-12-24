@@ -86,5 +86,4 @@ public class BeanFactoryTest {
         assertThat(actual).isEqualTo(expected);
     }
 
-
 }

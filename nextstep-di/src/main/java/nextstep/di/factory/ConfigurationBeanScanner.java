@@ -4,9 +4,7 @@ import nextstep.annotation.Bean;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ConfigurationBeanScanner {
@@ -18,15 +16,20 @@ public class ConfigurationBeanScanner {
         this.reflections = new Reflections(basePackage);
     }
 
-    public List<Method> scanBeans() {
+    public Map<Class<?>, BeanDefinition> scanBeans() {
+        Map<Class<?>, BeanDefinition> maps = new HashMap<>();
         List<Class> classInfo = findClassByAnnotation();
 
         List<Method> methods = new ArrayList<>();
         for (Class aClass : classInfo) {
             methods.addAll(Arrays.stream(aClass.getMethods())
-                    .filter(m -> m.isAnnotationPresent(Bean.class)).collect(Collectors.toList()));
+                    .filter(m -> m.isAnnotationPresent(Bean.class))
+                    .collect(Collectors.toList()));
         }
-        return methods;
+        for (Method method : methods) {
+            maps.put(method.getReturnType(), new MethodDefinition(method));
+        }
+        return maps;
     }
 
     private List<Class> findClassByAnnotation() {

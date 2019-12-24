@@ -4,9 +4,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
@@ -19,11 +17,25 @@ public class BeanScanner {
         this.reflections = new Reflections(basePackage);
     }
 
-    public Set<Class<?>> scanBeans() {
+    public Map<Class<?>, BeanDefinition> scanBeans() {
+        Map<Class<?>, BeanDefinition> maps = new HashMap<>();
         Set<Class<?>> preInitiatedBeans = new HashSet<>();
         for (Class clazz : annotations) {
             preInitiatedBeans.addAll(reflections.getTypesAnnotatedWith(clazz));
         }
-        return preInitiatedBeans;
+
+        for (Class<?> preInitiatedBean : preInitiatedBeans) {
+//            Constructor constructor = BeanFactoryUtils.getInjectedConstructor(preInitiatedBean); //생성자 찾기
+            maps.put(preInitiatedBean, new ConstructorDefinition(preInitiatedBean));
+        }
+        return maps;
     }
+
+//    private Object createConstructorBean(Object... parameters) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+//        return constructor.newInstance(parameters);
+//    }
+
+//    private Object createNonConstructorBean(Class<?> preInstantiateBean) throws InstantiationException, IllegalAccessException {
+//        return BeanFactoryUtils.findConcreteClass(preInstantiateBean, preInstantiateBeans).newInstance();
+//    }
 }
