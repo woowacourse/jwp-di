@@ -1,13 +1,13 @@
 package nextstep.di.scanner;
 
-import nextstep.annotation.Bean;
+import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.example.MyJdbcTemplate;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,7 +17,9 @@ public class ConfigurationBeanScannerTest {
     @Test
     public void register() {
         BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner("nextstep.di.factory.example");
+
+        Set<String> samplePackages = Sets.newHashSet("nextstep.di.factory.example");
+        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(samplePackages);
         cbs.register(beanFactory);
 
         beanFactory.initialize();
@@ -30,22 +32,12 @@ public class ConfigurationBeanScannerTest {
     @Test
     void cannotRegister() {
         BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner("nextstep.di.factory.scanner");
+
+        Set<String> samplePackages = Sets.newHashSet("nextstep.di.scanner");
+        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(samplePackages);
         cbs.register(beanFactory);
         beanFactory.initialize();
 
         assertThat(beanFactory.getBean(DataSource.class)).isNull();
-    }
-
-    private class TestClassWithoutConfiguration {
-        @Bean
-        public DataSource dataSource() {
-            BasicDataSource ds = new BasicDataSource();
-            ds.setDriverClassName("org.h2.Driver");
-            ds.setUrl("jdbc:h2:~/jwp-framework;MVCC=TRUE;DB_CLOSE_ON_EXIT=FALSE");
-            ds.setUsername("sa");
-            ds.setPassword("");
-            return ds;
-        }
     }
 }

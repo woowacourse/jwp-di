@@ -18,7 +18,7 @@ public class ClassPathBeanScanner {
 
     private Reflections reflections;
 
-    public ClassPathBeanScanner(Object... basePackage) {
+    public ClassPathBeanScanner(Set<String> basePackage) {
         reflections = new Reflections(basePackage);
     }
 

@@ -22,7 +22,7 @@ public class ConfigurationBeanScanner {
 
     private Reflections reflections;
 
-    public ConfigurationBeanScanner(Object... basePackage) {
+    public ConfigurationBeanScanner(Set<String> basePackage) {
         reflections = new Reflections(basePackage);
     }
 
