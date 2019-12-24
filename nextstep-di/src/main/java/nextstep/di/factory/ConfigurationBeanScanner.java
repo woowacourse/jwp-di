@@ -10,22 +10,12 @@ import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
 public class ConfigurationBeanScanner {
-    private BeanFactory beanFactory;
-
-    public ConfigurationBeanScanner(final BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
-
-    public void register(final Class<?>... clazz) {
-        beanFactory.initConfigMethod(scan(clazz));
-    }
-
-    private Map<Class<?>, Method> scan(final Class<?>... configClass) {
+    public Map<Class<?>, BeanDefinition> doScan(final Class<?>... configClass) {
         return Arrays.stream(configClass)
                 .filter(clazz -> clazz.isAnnotationPresent(Configuration.class))
                 .map(Class::getDeclaredMethods)
                 .flatMap(Arrays::stream)
                 .filter(method -> method.isAnnotationPresent(Bean.class))
-                .collect(toMap(Method::getReturnType, method -> method));
+                .collect(toMap(Method::getReturnType, MethodBeanDefinition::new));
     }
 }

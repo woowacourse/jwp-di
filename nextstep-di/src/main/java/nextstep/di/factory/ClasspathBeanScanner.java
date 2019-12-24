@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
@@ -7,11 +8,10 @@ import nextstep.stereotype.Service;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Set;
 
 public class ClasspathBeanScanner {
-    private BeanFactory beanFactory;
-    private Reflections reflections;
     private Set<Class<? extends Annotation>> annotations = Sets.newHashSet();
 
     {
@@ -20,21 +20,13 @@ public class ClasspathBeanScanner {
         annotations.add(Repository.class);
     }
 
-    public ClasspathBeanScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
-    }
-
-    public ClasspathBeanScanner(final BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
-
-    public void doScan(final Object... basePackage) {
-        reflections = new Reflections(basePackage);
-        beanFactory.initClazz(scan());
+    public Map<Class<?>, BeanDefinition> doScan(final Object... basePackage) {
+        return Maps.asMap(scan(basePackage), ClasspathBeanDefinition::new);
     }
 
     @SuppressWarnings("unchecked")
-    public Set<Class<?>> scan() {
+    public Set<Class<?>> scan(final Object... basePackage) {
+        Reflections reflections = new Reflections(basePackage);
         Set<Class<?>> beans = Sets.newHashSet();
 
         for (Class<? extends Annotation> annotation : annotations) {

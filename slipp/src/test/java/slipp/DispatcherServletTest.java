@@ -1,7 +1,6 @@
 package slipp;
 
-import nextstep.di.factory.ClasspathBeanScanner;
-import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.ApplicationContext;
 import nextstep.jdbc.ConnectionManager;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
@@ -16,6 +15,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
+import slipp.support.config.ConnectionConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,8 +23,6 @@ class DispatcherServletTest {
     private DispatcherServlet dispatcher;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
-    private ClasspathBeanScanner classPathBeanScanner;
-    private BeanFactory beanFactory;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -32,12 +30,11 @@ class DispatcherServletTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
-        classPathBeanScanner = new ClasspathBeanScanner("slipp");
-        beanFactory = new BeanFactory(classPathBeanScanner.scan());
-        beanFactory.initialize();
+        ApplicationContext applicationContext = new ApplicationContext(ConnectionConfig.class);
+        applicationContext.initialize();
 
         dispatcher = new DispatcherServlet();
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping(beanFactory));
+        dispatcher.addHandlerMpping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());

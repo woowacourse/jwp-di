@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -16,8 +18,8 @@ public class ConfigurationBeanScannerTest {
     @Test
     public void register_simple() {
         BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
-        configurationBeanScanner.register(ExampleConfig.class);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner();
+        beanFactory.init(configurationBeanScanner.doScan(ExampleConfig.class));
         beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));
@@ -26,12 +28,12 @@ public class ConfigurationBeanScannerTest {
     @Test
     public void register_classpathBeanScanner_통합() {
         BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.register(IntegrationConfig.class);
+        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner();
+        ClasspathBeanScanner cbds = new ClasspathBeanScanner();
 
-        ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
-        cbds.doScan("nextstep.di.factory.example");
-
+        Map<Class<?>, BeanDefinition> beanDefinitions = cbs.doScan(IntegrationConfig.class);
+        beanDefinitions.putAll(cbds.doScan("nextstep.di.factory.example"));
+        beanFactory.init(beanDefinitions);
         beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));
