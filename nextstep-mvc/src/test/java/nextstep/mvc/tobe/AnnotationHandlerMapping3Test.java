@@ -9,12 +9,12 @@ import samples.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AnnotationHandlerMappingTest {
-    private AnnotationHandlerMapping handlerMapping;
+public class AnnotationHandlerMapping3Test {
+    private AnnotationHandlerMapping3 handlerMapping;
 
     @BeforeEach
     public void setup() {
-        handlerMapping = new AnnotationHandlerMapping("samples");
+        handlerMapping = new AnnotationHandlerMapping3("samples");
         handlerMapping.initialize();
     }
 

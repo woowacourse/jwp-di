@@ -2,11 +2,15 @@ package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import nextstep.di.factory.ApplicationContext;
+import nextstep.annotation.Configuration;
 import nextstep.di.factory.BeanDefinition;
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.ClasspathBeanScanner;
+import nextstep.di.factory.ConfigurationBeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.reflections.ReflectionUtils;
@@ -21,21 +25,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AnnotationHandlerMapping implements HandlerMapping {
-    private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
+public class AnnotationHandlerMapping3 implements HandlerMapping {
+    private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping3.class);
 
     private Object[] basePackage;
-    private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
-    private ApplicationContext applicationContext;
 
-    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
+
+    public AnnotationHandlerMapping3(Object... basePackage) {
+        this.basePackage = basePackage;
     }
 
     public void initialize() {
-        Map<Class<?>, BeanDefinition> preInitiateBeans = applicationContext.scanBeans();
-
-        BeanFactory beanFactory = new BeanFactory(preInitiateBeans);
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), basePackage);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(Arrays.asList(Configuration.class), basePackage);
+        Map<Class<?>, BeanDefinition> preInstantiateBeans = classpathBeanScanner.scanBeans();
+        preInstantiateBeans.putAll(configurationBeanScanner.scanBeans());
+        BeanFactory beanFactory = new BeanFactory(preInstantiateBeans);
         beanFactory.initialize();
 
         Map<Class<?>, Object> controllers = beanFactory.getBeanByAnnotation(Controller.class);

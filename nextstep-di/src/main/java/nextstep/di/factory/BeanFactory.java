@@ -30,6 +30,9 @@ public class BeanFactory {
         BeanDefinition tempBean = preInstantiateBeans.get(preInstantiateBean);
         List<Object> parameters = createParameters(tempBean);
 
+        for (Object parameter : parameters) {
+            beans.put(parameter.getClass(), parameter);
+        }
         beans.put(preInstantiateBean, tempBean.createBean(parameters.toArray()));
     }
 

@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ConfigurationBeanScanner {
+public class ConfigurationBeanScanner implements BeanScanner{
     private Reflections reflections;
     private List<Class> annotations;
 
@@ -16,6 +16,7 @@ public class ConfigurationBeanScanner {
         this.reflections = new Reflections(basePackage);
     }
 
+    @Override
     public Map<Class<?>, BeanDefinition> scanBeans() {
         Map<Class<?>, BeanDefinition> maps = new HashMap<>();
         List<Class> classInfo = findClassByAnnotation();

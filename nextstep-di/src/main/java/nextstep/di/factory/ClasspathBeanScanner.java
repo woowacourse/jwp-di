@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class ClasspathBeanScanner {
+public class ClasspathBeanScanner implements BeanScanner{
     private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
 
     private Reflections reflections;
@@ -17,6 +17,7 @@ public class ClasspathBeanScanner {
         this.reflections = new Reflections(basePackage);
     }
 
+    @Override
     public Map<Class<?>, BeanDefinition> scanBeans() {
         Map<Class<?>, BeanDefinition> maps = new HashMap<>();
         Set<Class<?>> preInitiatedBeans = new HashSet<>();
