@@ -1,82 +1,52 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.factory.exception.CannotCreateInstance;
 import nextstep.stereotype.Controller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
-    private Set<Class<?>> preInstantiateBeans;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, BeanDefinition> beanDefinitions;
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(Class<T> requiredType) {
-        return (T) beans.get(requiredType);
+    public void init(final Map< Class<?>, BeanDefinition> beanDefinitions) {
+        this.beanDefinitions = beanDefinitions;
     }
 
     public void initialize() {
-        for (Class<?> clazz : preInstantiateBeans) {
+        for (Class<?> clazz : beanDefinitions.keySet()) {
             instantiate(clazz);
         }
     }
 
     private Object instantiate(Class<?> clazz) {
-        if (beans.containsKey(clazz)) {
-            return beans.get(clazz);
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, beanDefinitions.keySet());
+
+        if (beans.containsKey(concreteClass)) {
+            return beans.get(concreteClass);
         }
 
-        return createSingleInstance(clazz);
-    }
-
-    private Object createSingleInstance(Class<?> clazz) {
-        Object instance = createInstance(clazz);
-        addBean(clazz, instance);
+        Object instance = instantiateClass(concreteClass);
+        beans.put(concreteClass, instance);
 
         return instance;
     }
 
-    private void addBean(Class<?> clazz, Object instance) {
-        beans.put(clazz, instance);
-    }
+    private Object instantiateClass(Class<?> concreteClass) {
+        BeanDefinition beanDefinition = beanDefinitions.get(concreteClass);
 
-    private Object createInstance(Class<?> clazz) {
-        try {
-            Constructor<?> constructor = getConstructor(clazz);
-
-            return constructor.newInstance(getParameters(constructor));
-        } catch (Exception e) {
-            logger.error("createInstance >> ", e);
-            throw new CannotCreateInstance(e);
-        }
-    }
-
-    private Constructor<?> getConstructor(Class<?> clazz) throws NoSuchMethodException {
-        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-
-        if (Objects.isNull(constructor)) {
-            return BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans).getConstructor();
+        if (beanDefinition.getParameterTypes().length == 0) {
+            return beanDefinition.instantiate();
         }
 
-        return constructor;
+        return beanDefinition.instantiate(getParameters(beanDefinition));
     }
 
-    private Object[] getParameters(Constructor<?> constructor) {
-        return Arrays.stream(constructor.getParameterTypes())
-                .map(clazz -> BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans))
+    private Object[] getParameters(BeanDefinition beanDefinition) {
+        return Arrays.stream(beanDefinition.getParameterTypes())
                 .map(this::instantiate)
                 .toArray();
     }
@@ -85,5 +55,10 @@ public class BeanFactory {
         return beans.keySet().stream()
                 .filter(key -> key.isAnnotationPresent(Controller.class))
                 .collect(Collectors.toSet());
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getBean(Class<T> requiredType) {
+        return (T) beans.get(requiredType);
     }
 }
