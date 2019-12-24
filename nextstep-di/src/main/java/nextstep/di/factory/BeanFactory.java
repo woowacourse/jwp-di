@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.di.factory.beandefinition.BeanDefinition;
+import nextstep.stereotype.Controller;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class BeanFactory {
 
     public Map<Class<?>, Object> getControllers() {
         return beans.keySet().stream()
+                .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
                 .collect(Collectors.toMap(clazz -> clazz, this::getBean));
     }
 
