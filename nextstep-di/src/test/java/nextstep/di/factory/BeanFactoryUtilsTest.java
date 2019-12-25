@@ -5,6 +5,7 @@ import nextstep.di.factory.example.repository.JdbcQuestionRepository;
 import nextstep.di.factory.example.repository.JdbcUserRepository;
 import nextstep.di.factory.example.repository.UserRepository;
 import nextstep.di.factory.example.service.MyQnaService;
+import nextstep.di.factory.exception.DoesNotAllowMultipleInjectedConstructorException;
 import nextstep.di.factory.outside.MultipleInjectedService;
 import nextstep.di.factory.outside.OutsideService;
 import org.junit.jupiter.api.DisplayName;
