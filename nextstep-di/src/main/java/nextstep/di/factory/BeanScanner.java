@@ -18,29 +18,30 @@ public class BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     @SuppressWarnings("unchecked")
-    public static Set<Class<?>> scan(String basePackage) {
+    public static Set<Class<?>> scanConfiguration(String basePackage) {
         Reflections reflections = new Reflections(basePackage);
-
-        Set<Class<?>> scannedComponents = Sets.newHashSet();
         Set<Class<?>> configurations = getTypesAnnotatedWith(reflections, Configuration.class);
-
-        for (Class<?> configuration : configurations) {
-            ComponentScan componentScan = configuration.getAnnotation(ComponentScan.class);
-
-            if (componentScan != null) {
-                Stream.of(componentScan.value())
-                        .map(BeanScanner::scanAnnotation)
-                        .forEach(scannedComponents::addAll)
-                ;
-            }
-        }
+        Set<Class<?>> scannedComponents = Sets.newHashSet();
 
         scannedComponents.addAll(configurations);
+        scannedComponents.addAll(scanComponentsInBasePackagesOf(configurations));
         return scannedComponents;
     }
 
+    private static Set<Class<?>> scanComponentsInBasePackagesOf(Set<Class<?>> configurations) {
+        Set<Class<?>> components = Sets.newHashSet();
+
+        configurations.stream()
+                .filter(configuration -> configuration.isAnnotationPresent(ComponentScan.class))
+                .map(configuration -> configuration.getAnnotation(ComponentScan.class))
+                .flatMap(componentScan -> Stream.of(componentScan.value()))
+                .map(BeanScanner::scanComponents)
+                .forEach(components::addAll);
+        return components;
+    }
+
     @SuppressWarnings("unchecked")
-    private static Set<Class<?>> scanAnnotation(String basePackage) {
+    private static Set<Class<?>> scanComponents(String basePackage) {
         Reflections reflections = new Reflections(basePackage);
         return getTypesAnnotatedWith(reflections, Controller.class, Service.class, Repository.class, Configuration.class);
     }

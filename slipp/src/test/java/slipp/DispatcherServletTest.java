@@ -31,7 +31,7 @@ class DispatcherServletTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
-        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scan("slipp"));
+        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scanConfiguration("slipp"));
         BeanFactory beanFactory = new BeanFactory(beanDefinitionFactory.createBeanDefinition());
         beanFactory.initialize();
 
