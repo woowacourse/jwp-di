@@ -48,7 +48,6 @@ public class BeanDefinitionFactoryTest {
     }
 
     private Map<Class<?>, BeanDefinition> createBeanDefinitions(Set<Class<?>> preInstantiateClazz) {
-        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(preInstantiateClazz);
-        return beanDefinitionFactory.createBeanDefinition();
+        return BeanDefinitionFactory.createBeanDefinitions(preInstantiateClazz);
     }
 }

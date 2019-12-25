@@ -14,14 +14,15 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
+import java.util.Set;
 
 public class SlippWebApplicationInitializer  implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        BeanDefinitionFactory beanDefinitionFactory = new BeanDefinitionFactory(BeanScanner.scanConfiguration("slipp"));
-        BeanFactory beanFactory = new BeanFactory(beanDefinitionFactory.createBeanDefinition());
+        Set<Class<?>> preInstantiateClasses = BeanScanner.scanConfiguration("slipp");
+        BeanFactory beanFactory = new BeanFactory(BeanDefinitionFactory.createBeanDefinitions(preInstantiateClasses));
         beanFactory.initialize();
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet();

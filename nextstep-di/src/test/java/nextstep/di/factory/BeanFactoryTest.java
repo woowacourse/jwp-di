@@ -22,8 +22,7 @@ class BeanFactoryTest {
     @BeforeEach
     void setup() {
         Set<Class<?>> preInstantiateClazz = BeanScanner.scanConfiguration("nextstep.di.factory.example.config");
-        BeanDefinitionFactory definitionFactory = new BeanDefinitionFactory(preInstantiateClazz);
-        beanFactory = new BeanFactory(definitionFactory.createBeanDefinition());
+        beanFactory = new BeanFactory(BeanDefinitionFactory.createBeanDefinitions(preInstantiateClazz));
         beanFactory.initialize();
     }
 
