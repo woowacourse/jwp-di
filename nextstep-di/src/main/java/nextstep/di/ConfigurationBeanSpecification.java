@@ -9,9 +9,9 @@ public class ConfigurationBeanSpecification implements BeanSpecification {
     private final Method method;
     private final Object instance;
 
-    public ConfigurationBeanSpecification(Method method, Object instance) {
-        this.method = method;
+    public ConfigurationBeanSpecification(Object instance, Method method) {
         this.instance = instance;
+        this.method = method;
     }
 
     @Override
