@@ -21,8 +21,7 @@ public class MethodDefinition implements BeanDefinition {
             Object instance = method.getDeclaringClass().newInstance();
             return method.invoke(instance, objects);
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            e.printStackTrace();
+            throw new InvalidBeanException();
         }
-        return null;
     }
 }

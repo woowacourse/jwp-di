@@ -40,6 +40,4 @@ public class ConfigurationBeanScanner implements BeanScanner {
         }
         return classInfo;
     }
-
-
 }

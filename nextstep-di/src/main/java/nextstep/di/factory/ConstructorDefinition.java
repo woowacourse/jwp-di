@@ -32,8 +32,7 @@ public class ConstructorDefinition implements BeanDefinition {
         try {
             return constructor.newInstance(objects);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            throw new InvalidBeanException();
         }
-        return null;
     }
 }
