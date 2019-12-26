@@ -29,13 +29,14 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackage) {
+    private BeanFactory beanFactory;
+
+    public AnnotationHandlerMapping(Object[] basePackage, BeanFactory beanFactory) {
         this.basePackage = basePackage;
+        this.beanFactory = beanFactory;
     }
 
     public void initialize() {
-        BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), basePackage);
-        BeanFactory beanFactory = new BeanFactory(beanScanner.scanBeans());
         beanFactory.initialize();
 
         Map<Class<?>, Object> controllers = beanFactory.getBeanByAnnotation(Controller.class);
