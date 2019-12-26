@@ -1,11 +1,15 @@
 package nextstep.di;
 
+import nextstep.di.factory.exception.InstantiationFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Objects;
 
 public class ConfigurationBeanSpecification implements BeanSpecification {
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanSpecification.class);
     private final Method method;
     private final Object instance;
 
@@ -15,8 +19,13 @@ public class ConfigurationBeanSpecification implements BeanSpecification {
     }
 
     @Override
-    public Object instantiate(Object... parameter) throws InvocationTargetException, IllegalAccessException {
-        return method.invoke(instance, parameter);
+    public Object instantiate(Object... parameter) {
+        try {
+            return method.invoke(instance, parameter);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Instantiation failed", e);
+            throw new InstantiationFailedException("Instantiation Failed", e);
+        }
     }
 
     @Override
@@ -27,5 +36,24 @@ public class ConfigurationBeanSpecification implements BeanSpecification {
     @Override
     public Class<?>[] getParameterTypes() {
         return method.getParameterTypes();
+    }
+
+    @Override
+    public boolean canInterface() {
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConfigurationBeanSpecification that = (ConfigurationBeanSpecification) o;
+        return Objects.equals(method, that.method) &&
+                Objects.equals(instance, that.instance);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(method, instance);
     }
 }

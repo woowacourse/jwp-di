@@ -10,6 +10,7 @@ public class AnnotatedTypeBeanSpecification implements BeanSpecification {
 
     public AnnotatedTypeBeanSpecification(Class<?> clazz) {
         this.constructor = getConstructorOf(clazz);
+        this.constructor.setAccessible(true);
     }
 
     private Constructor<?> getConstructorOf(final Class<?> preInstantiateBean) {
@@ -35,5 +36,23 @@ public class AnnotatedTypeBeanSpecification implements BeanSpecification {
     @Override
     public Class<?>[] getParameterTypes() {
         return constructor.getParameterTypes();
+    }
+
+    @Override
+    public boolean canInterface() {
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AnnotatedTypeBeanSpecification that = (AnnotatedTypeBeanSpecification) o;
+        return Objects.equals(constructor, that.constructor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(constructor);
     }
 }

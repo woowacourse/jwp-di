@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import nextstep.di.BeanSpecification;
 import nextstep.di.factory.exception.InstantiationFailedException;
 import nextstep.di.factory.exception.NoSuchDefaultConstructorException;
 import org.slf4j.Logger;
@@ -42,14 +43,17 @@ public class BeanFactoryUtils {
      * @param preInstantiateBeans
      * @return
      */
-    public static Class<?> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstantiateBeans) {
+    public static BeanSpecification findConcreteClass(Class<?> injectedClazz, Set<BeanSpecification> preInstantiateBeans) {
         if (!injectedClazz.isInterface()) {
-            return injectedClazz;
+            return preInstantiateBeans.stream()
+                    .filter(bean -> bean.getType().equals(injectedClazz))
+                    .findAny()
+                    .orElseThrow();
         }
 
-        for (Class<?> clazz : preInstantiateBeans) {
-            Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
-            if (interfaces.contains(injectedClazz)) {
+        for (BeanSpecification clazz : preInstantiateBeans) {
+            Set<Class<?>> interfaces = Sets.newHashSet(clazz.getType().getInterfaces());
+            if (interfaces.contains(injectedClazz) | clazz.getType().equals(injectedClazz)) {
                 return clazz;
             }
         }
