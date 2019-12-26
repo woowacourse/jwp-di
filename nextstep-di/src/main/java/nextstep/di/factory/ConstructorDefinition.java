@@ -17,7 +17,8 @@ public class ConstructorDefinition implements BeanDefinition {
             try {
                 this.constructor = clazz.getConstructor();
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                log.error("생성자를 찾을 수 없습니다.");
+                throw new NotFoundConstructorException();
             }
         }
     }
@@ -32,6 +33,7 @@ public class ConstructorDefinition implements BeanDefinition {
         try {
             return constructor.newInstance(objects);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            log.error("생성할 수 없는 빈입니다.");
             throw new InvalidBeanException();
         }
     }

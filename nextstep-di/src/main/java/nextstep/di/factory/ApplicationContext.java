@@ -5,10 +5,14 @@ import nextstep.annotation.Configuration;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class ApplicationContext {
+    private static final Logger log = LoggerFactory.getLogger(ApplicationContext.class);
+
     private List<BeanScanner> beanScanners;
     private String[] path;
 
@@ -25,6 +29,7 @@ public class ApplicationContext {
 
     private void checkValidPath(String[] path) {
         if (path == null) {
+            log.error("compinent Scan을 찾을 수 없습니다.");
             throw new NotFoundComponentScanException();
         }
     }
