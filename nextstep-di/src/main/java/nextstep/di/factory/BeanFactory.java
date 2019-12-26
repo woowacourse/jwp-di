@@ -7,10 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
@@ -18,7 +15,7 @@ public class BeanFactory {
 
     private Set<Class<?>> preInstanticateBeans;
 
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    private Map<Class<?>, Optional<Object>> beans = Maps.newHashMap();
 
     public BeanFactory(Set<Class<?>> preInstanticateBeans) {
         this.preInstanticateBeans = preInstanticateBeans;
@@ -26,7 +23,7 @@ public class BeanFactory {
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
-        return (T) beans.get(requiredType);
+        return (T) beans.get(requiredType).orElseThrow(NotFoundBeanException::new);
     }
 
     public void initialize() {
@@ -35,39 +32,42 @@ public class BeanFactory {
         }
     }
 
-    private Object createBean(Class<?> preInstantiateBean) {
+    private Optional<Object> createBean(Class<?> preInstantiateBean) {
         if(beans.containsKey(preInstantiateBean)) {
-            return beans.get(preInstantiateBean);
+            return Optional.of(beans.get(preInstantiateBean));
         }
         Constructor constructor = BeanFactoryUtils.getInjectedConstructor(preInstantiateBean);
         Object bean;
         try {
-            bean = constructor == null ? createNonConstructorBean(preInstantiateBean) : createConstructorBean(constructor);
-            beans.put(preInstantiateBean, bean);
-            return bean;
+            bean = (constructor == null) ? createNonConstructorBean(preInstantiateBean) : createConstructorBean(constructor);
+            beans.put(preInstantiateBean, Optional.of(bean));
+            return Optional.of(bean);
         } catch (
                 InstantiationException | IllegalAccessException | InvocationTargetException e) {
             logger.error(e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
     private Object createConstructorBean(Constructor constructor) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        List<Object> parameters = createParameters(constructor);
-        return constructor.newInstance(parameters.toArray());
+        List<Optional<Object>> parameters = createParameters(constructor);
+        Object[] params = parameters.stream()
+                .map(parameter -> parameter.orElseThrow(NotFoundBeanException::new))
+                .toArray();
+        return constructor.newInstance(params);
     }
 
     private Object createNonConstructorBean(Class<?> preInstantiateBean) throws InstantiationException, IllegalAccessException {
         return BeanFactoryUtils.findConcreteClass(preInstantiateBean, preInstanticateBeans).newInstance();
     }
 
-    private List<Object> createParameters(Constructor constructor) {
+    private List<Optional<Object>> createParameters(Constructor constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
-        List<Object> parameters = new ArrayList<>();
+        List<Optional<Object>> parameters = new ArrayList<>();
 
         for (Class<?> parameterType : parameterTypes) {
             if (beans.get(parameterType) == null) {
-                Object bean = createBean(parameterType);
+                Optional<Object> bean = createBean(parameterType);
                 beans.put(parameterType, bean);
                 parameters.add(bean);
             } else {
@@ -81,6 +81,6 @@ public class BeanFactory {
         return beans.keySet()
                 .stream()
                 .filter(type -> type.isAnnotationPresent(clazz))
-                .collect(Collectors.toMap(type -> type, type -> beans.get(type)));
+                .collect(Collectors.toMap(type -> type, type -> beans.get(type).orElseThrow(NotFoundBeanException::new)));
     }
 }
