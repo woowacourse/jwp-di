@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ConfigurationBeanScanner implements BeanScanner{
+public class ConfigurationBeanScanner implements BeanScanner {
     private Reflections reflections;
     private List<Class> annotations;
 

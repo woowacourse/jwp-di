@@ -41,9 +41,9 @@ public class BeanFactory {
         List<Object> parameters = new ArrayList<>();
 
         for (Class<?> parameterType : parameterTypes) {
-            if(beans.containsKey(parameterType)) {
-               parameters.add(beans.get(parameterType));
-               continue;
+            if (beans.containsKey(parameterType)) {
+                parameters.add(beans.get(parameterType));
+                continue;
             }
             parameterType = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiateBeans.keySet()).orElse(parameterType);
 

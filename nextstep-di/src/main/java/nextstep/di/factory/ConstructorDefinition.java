@@ -13,7 +13,7 @@ public class ConstructorDefinition implements BeanDefinition {
 
     public ConstructorDefinition(Class<?> clazz) {
         this.constructor = BeanFactoryUtils.getInjectedConstructor(clazz);
-        if(this.constructor == null) {
+        if (this.constructor == null) {
             try {
                 this.constructor = clazz.getConstructor();
             } catch (NoSuchMethodException e) {

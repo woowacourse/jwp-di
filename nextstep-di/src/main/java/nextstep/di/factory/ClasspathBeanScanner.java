@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class ClasspathBeanScanner implements BeanScanner{
+public class ClasspathBeanScanner implements BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
 
     private Reflections reflections;

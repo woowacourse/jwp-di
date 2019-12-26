@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackage;
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
     private ApplicationContext applicationContext;
 

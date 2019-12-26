@@ -14,13 +14,19 @@ public class ApplicationContext {
 
     public ApplicationContext(Class<?> configurationClass) {
         ComponentScan componentScan = configurationClass.getAnnotation(ComponentScan.class);
-        this.path = componentScan.basePackages();
-        if(this.path == null) {
-            throw new NotFoundComponentScanException();
-        }
+        String[] path = componentScan.basePackages();
+        checkValidPath(path);
+        this.path = path;
+
         this.beanScanners = Arrays.asList(
                 new ClasspathBeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), this.path),
                 new ConfigurationBeanScanner(Collections.singletonList(Configuration.class), this.path));
+    }
+
+    private void checkValidPath(String[] path) {
+        if (path == null) {
+            throw new NotFoundComponentScanException();
+        }
     }
 
     public Map<Class<?>, BeanDefinition> scanBeans() {
