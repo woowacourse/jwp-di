@@ -1,5 +1,6 @@
 package slipp.controller;
 
+import nextstep.annotation.Inject;
 import slipp.dao.UserDao;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
@@ -16,6 +17,7 @@ public class UpdateUserController implements Controller {
 
     private UserDao userDao;
 
+    @Inject
     public UpdateUserController(UserDao userDao) {
         this.userDao = userDao;
     }
