@@ -1,6 +1,7 @@
 package nextstep.mvc;
 
 import nextstep.di.context.ApplicationContext;
+import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ public class DispatcherServlet extends HttpServlet {
 
     public DispatcherServlet(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+        addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
     }
 
     public void addHandlerMapping(HandlerMapping handlerMapping) {

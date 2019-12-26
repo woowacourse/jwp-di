@@ -84,7 +84,7 @@ public class BeanFactory {
         return getBeansAnnotatedWith(Controller.class);
     }
 
-    private Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
+    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
         return beans.entrySet().stream()
                 .filter(entry -> entry.getKey().isAnnotationPresent(annotation))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

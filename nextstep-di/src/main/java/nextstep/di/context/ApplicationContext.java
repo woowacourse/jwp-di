@@ -6,10 +6,8 @@ import nextstep.di.BeanSpecification;
 import nextstep.di.ConfigurationBeanScanner;
 import nextstep.di.factory.BeanFactory;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.lang.annotation.Annotation;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ApplicationContext {
@@ -32,5 +30,9 @@ public class ApplicationContext {
 
     public <T> T getBean(Class<T> requiredType) {
         return beanFactory.getBean(requiredType);
+    }
+
+    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotation) {
+        return beanFactory.getBeansAnnotatedWith(annotation);
     }
 }
