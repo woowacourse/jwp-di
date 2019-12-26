@@ -1,8 +1,8 @@
 package nextstep.di.validation;
 
 import com.google.common.collect.Maps;
-import nextstep.di.BeanSpecification;
-import nextstep.di.factory.BeanFactoryUtils;
+import nextstep.di.beans.factory.BeanFactoryUtils;
+import nextstep.di.beans.specification.BeanSpecification;
 import org.reflections.Reflections;
 
 import java.util.Map;

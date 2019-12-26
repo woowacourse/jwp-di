@@ -1,10 +1,10 @@
 package nextstep.di.context;
 
-import nextstep.di.AnnotatedTypeBeanScanner;
-import nextstep.di.BeanScanner;
-import nextstep.di.BeanSpecification;
-import nextstep.di.ConfigurationBeanScanner;
-import nextstep.di.factory.BeanFactory;
+import nextstep.di.beans.factory.BeanFactory;
+import nextstep.di.beans.scanner.AnnotatedTypeBeanScanner;
+import nextstep.di.beans.scanner.BeanScanner;
+import nextstep.di.beans.scanner.ConfigurationBeanScanner;
+import nextstep.di.beans.specification.BeanSpecification;
 
 import java.lang.annotation.Annotation;
 import java.util.*;

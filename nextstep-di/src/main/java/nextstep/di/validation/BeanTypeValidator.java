@@ -1,7 +1,7 @@
 package nextstep.di.validation;
 
-import nextstep.di.BeanSpecification;
-import nextstep.di.factory.exception.IllegalAnnotationException;
+import nextstep.di.beans.factory.exception.IllegalAnnotationException;
+import nextstep.di.beans.specification.BeanSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
