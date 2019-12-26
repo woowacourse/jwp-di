@@ -29,6 +29,7 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
         BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class));
         BeanFactory beanFactory = new BeanFactory(beanScanner.scanBeans());
         dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(new String[]{"slipp.controller"}, beanFactory));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
