@@ -15,9 +15,12 @@ public class ApplicationContext {
     public ApplicationContext(Class<?> configurationClass) {
         ComponentScan componentScan = configurationClass.getAnnotation(ComponentScan.class);
         this.path = componentScan.basePackages();
+        if(this.path == null) {
+            throw new NotFoundComponentScanException();
+        }
         this.beanScanners = Arrays.asList(
-                new ClasspathBeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), path),
-                new ConfigurationBeanScanner(Collections.singletonList(Configuration.class), path));
+                new ClasspathBeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), this.path),
+                new ConfigurationBeanScanner(Collections.singletonList(Configuration.class), this.path));
     }
 
     public Map<Class<?>, BeanDefinition> scanBeans() {

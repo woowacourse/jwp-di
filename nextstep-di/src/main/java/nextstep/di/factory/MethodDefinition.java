@@ -18,7 +18,7 @@ public class MethodDefinition implements BeanDefinition {
     @Override
     public Object createBean(Object... objects) {
         try {
-            Object instance = method.getDeclaringClass().newInstance(); //todo 캐싱
+            Object instance = method.getDeclaringClass().newInstance();
             return method.invoke(instance, objects);
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();

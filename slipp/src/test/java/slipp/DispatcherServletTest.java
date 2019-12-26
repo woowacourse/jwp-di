@@ -1,8 +1,9 @@
 package slipp;
 
+import nextstep.di.factory.ApplicationContext;
 import nextstep.mvc.DispatcherServlet;
 import nextstep.mvc.asis.ControllerHandlerAdapter;
-import nextstep.mvc.tobe.AnnotationHandlerMapping3;
+import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ class DispatcherServletTest {
 
         dispatcher = new DispatcherServlet();
         dispatcher.addHandlerMpping(new ManualHandlerMapping());
-        dispatcher.addHandlerMpping(new AnnotationHandlerMapping3("slipp"));
+        dispatcher.addHandlerMpping(new AnnotationHandlerMapping(new ApplicationContext(ExampleConfig.class)));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcher.addHandlerAdapter(new ControllerHandlerAdapter());
