@@ -4,6 +4,7 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +32,15 @@ public class NextstepServletContainerInitializer implements ServletContainerInit
         }
 
         for (WebApplicationInitializer initializer : initializers) {
-            initializer.onStartup(servletContext);
+            try {
+                initializer.onStartup(servletContext);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

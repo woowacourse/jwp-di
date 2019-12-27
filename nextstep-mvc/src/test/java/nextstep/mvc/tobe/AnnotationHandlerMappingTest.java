@@ -1,11 +1,19 @@
 package nextstep.mvc.tobe;
 
 import nextstep.db.DataBase;
+import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.BeanScanner;
+import nextstep.stereotype.Controller;
+import nextstep.stereotype.Repository;
+import nextstep.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import samples.User;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,8 +21,10 @@ public class AnnotationHandlerMappingTest {
     private AnnotationHandlerMapping handlerMapping;
 
     @BeforeEach
-    public void setup() {
-        handlerMapping = new AnnotationHandlerMapping("samples");
+    public void setup() throws IllegalAccessException, InstantiationException, InvocationTargetException {
+        BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class));
+        BeanFactory beanFactory = new BeanFactory(beanScanner.scanBeans());
+        handlerMapping = new AnnotationHandlerMapping(new String[]{"samples"}, beanFactory);
         handlerMapping.initialize();
     }
 
