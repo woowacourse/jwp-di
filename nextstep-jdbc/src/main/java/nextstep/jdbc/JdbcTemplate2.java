@@ -11,20 +11,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate {
+public class JdbcTemplate2 {
     private static final Logger logger = LoggerFactory.getLogger( JdbcTemplate.class );
+    private DataSource dataSource;
 
-    private static JdbcTemplate jdbcTemplate = new JdbcTemplate();
-
-    private JdbcTemplate() {
-    }
-
-    public static JdbcTemplate getInstance() {
-        return jdbcTemplate;
+    public JdbcTemplate2(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pss.setParameters(pstmt);
             pstmt.executeUpdate();
@@ -38,7 +34,7 @@ public class JdbcTemplate {
     }
 
     public void update(PreparedStatementCreator psc, KeyHolder holder) {
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = psc.createPreparedStatement(conn)) {
             ps.executeUpdate();
 
@@ -67,7 +63,7 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rm, PreparedStatementSetter pss) throws DataAccessException {
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pss.setParameters(pstmt);
             return mapResultSetToObject(rm, pstmt);
@@ -78,7 +74,7 @@ public class JdbcTemplate {
 
     private <T> List<T> mapResultSetToObject(RowMapper<T> rm, PreparedStatement pstmt) {
         try(ResultSet rs = pstmt.executeQuery()) {
-            List<T> list = new ArrayList<T>();
+            List<T> list = new ArrayList<>();
             while (rs.next()) {
                 list.add(rm.mapRow(rs));
             }
@@ -100,3 +96,4 @@ public class JdbcTemplate {
         };
     }
 }
+

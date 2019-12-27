@@ -1,6 +1,8 @@
-package nextstep.di.factory;
+package nextstep.di.factory.scanner;
 
 import com.google.common.collect.Sets;
+import nextstep.di.factory.definition.BeanDefinition;
+import nextstep.di.factory.definition.ComponentDefinition;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -10,18 +12,22 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class BeanScanner {
-    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+public class ComponentScanner implements BeanScanner {
+    private static final Logger log = LoggerFactory.getLogger(ComponentScanner.class);
 
     private Reflections reflections;
 
-    public BeanScanner(Object... basePackage) {
+    public ComponentScanner(Object... basePackage) {
         reflections = new Reflections(basePackage);
     }
 
-    public Set<Class<?>> getPreInstanticateClass() {
-        return getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+    public Set<BeanDefinition> scan() {
+        Set<Class<?>> preInstantiateComponents = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        return preInstantiateComponents.stream()
+            .map(ComponentDefinition::new)
+            .collect(Collectors.toSet());
     }
 
     @SuppressWarnings("unchecked")

@@ -12,8 +12,6 @@ import samples.TestUserController;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class HandlerMethodArgumentResolverTest {
     private static final Logger logger = LoggerFactory.getLogger(HandlerMethodArgumentResolverTest.class);
 
@@ -44,8 +42,8 @@ public class HandlerMethodArgumentResolverTest {
 
     private Method getMethod(String name, Method[] methods) {
         return Arrays.stream(methods)
-                .filter(method -> method.getName().equals(name))
-                .findFirst()
-                .get();
+            .filter(method -> method.getName().equals(name))
+            .findFirst()
+            .get();
     }
 }

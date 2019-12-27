@@ -1,4 +1,4 @@
-package nextstep.di.factory.test;
+package nextstep.di.factory.notbean;
 
 import nextstep.annotation.Inject;
 import nextstep.stereotype.Service;
