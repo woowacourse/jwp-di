@@ -1,14 +1,10 @@
 package nextstep.di.factory;
 
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class ClasspathBeanScanner implements BeanScanner {
-    private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
-
     private Reflections reflections;
     private List<Class> annotations;
 
@@ -20,14 +16,18 @@ public class ClasspathBeanScanner implements BeanScanner {
     @Override
     public Map<Class<?>, BeanDefinition> scanBeans() {
         Map<Class<?>, BeanDefinition> maps = new HashMap<>();
-        Set<Class<?>> preInitiatedBeans = new HashSet<>();
-        for (Class clazz : annotations) {
-            preInitiatedBeans.addAll(reflections.getTypesAnnotatedWith(clazz));
-        }
-
-        for (Class<?> preInitiatedBean : preInitiatedBeans) {
+        for (Class<?> preInitiatedBean : scanClassesByAnnotation()) {
             maps.put(preInitiatedBean, new ConstructorDefinition(preInitiatedBean));
         }
         return maps;
     }
+
+    private Set<Class<?>> scanClassesByAnnotation() {
+        Set<Class<?>> preInitiatedBeans = new HashSet<>();
+        for (Class clazz : annotations) {
+            preInitiatedBeans.addAll(reflections.getTypesAnnotatedWith(clazz));
+        }
+        return preInitiatedBeans;
+    }
+
 }
