@@ -3,6 +3,7 @@ package nextstep.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,15 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
+    private DataSource dataSource;
     private static final Logger logger = LoggerFactory.getLogger( JdbcTemplate.class );
 
-    private static JdbcTemplate jdbcTemplate = new JdbcTemplate();
-
-    private JdbcTemplate() {
-    }
-
-    public static JdbcTemplate getInstance() {
-        return jdbcTemplate;
+    public JdbcTemplate(DataSource dataSource) {
+        super();
+        this.dataSource = dataSource;
     }
 
     public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {

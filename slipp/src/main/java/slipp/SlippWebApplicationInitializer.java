@@ -24,12 +24,10 @@ public class SlippWebApplicationInitializer  implements WebApplicationInitialize
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMpping(new ManualHandlerMapping());
 
         BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class));
         BeanFactory beanFactory = new BeanFactory(beanScanner.scanBeans());
-        dispatcherServlet.addHandlerMpping(new AnnotationHandlerMapping(new String[]{"slipp.controller"}, beanFactory));
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("slipp.controller"));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(new String[]{"slipp.controller"}, beanFactory));
 
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());

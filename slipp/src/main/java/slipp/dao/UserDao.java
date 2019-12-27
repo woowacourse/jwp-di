@@ -1,22 +1,21 @@
 package slipp.dao;
 
+import nextstep.annotation.Inject;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import slipp.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
-    private static final UserDao userDao = new UserDao();
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private JdbcTemplate jdbcTemplate;
 
-    private UserDao() {
-    }
-
-    public static UserDao getInstance() {
-        return userDao;
+    @Inject
+    public UserDao(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public void insert(User user) {
