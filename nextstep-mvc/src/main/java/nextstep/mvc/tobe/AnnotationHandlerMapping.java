@@ -3,11 +3,8 @@ package nextstep.mvc.tobe;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.stereotype.Controller;
-import nextstep.stereotype.Repository;
-import nextstep.stereotype.Service;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
 import org.reflections.ReflectionUtils;
@@ -15,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +34,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         this.beanFactory = beanFactory;
     }
 
-    public void initialize() {
+    public void initialize() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         beanFactory.initialize();
 
         Map<Class<?>, Object> controllers = beanFactory.getBeanByAnnotation(Controller.class);

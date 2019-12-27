@@ -16,13 +16,14 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 public class SlippWebApplicationInitializer  implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
 
     @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
+    public void onStartup(ServletContext servletContext) throws ServletException, IllegalAccessException, InstantiationException, InvocationTargetException {
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
 
         BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class));

@@ -12,6 +12,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import samples.User;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +21,7 @@ public class AnnotationHandlerMappingTest {
     private AnnotationHandlerMapping handlerMapping;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws IllegalAccessException, InstantiationException, InvocationTargetException {
         BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class));
         BeanFactory beanFactory = new BeanFactory(beanScanner.scanBeans());
         handlerMapping = new AnnotationHandlerMapping(new String[]{"samples"}, beanFactory);
