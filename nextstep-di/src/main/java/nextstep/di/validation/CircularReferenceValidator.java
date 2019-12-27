@@ -1,6 +1,7 @@
 package nextstep.di.validation;
 
-import nextstep.di.factory.exception.CircularReferenceException;
+import nextstep.di.beans.factory.exception.CircularReferenceException;
+import nextstep.di.beans.specification.BeanSpecification;
 import nextstep.di.validation.exception.BeanRegisterHistoryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,17 +15,17 @@ public class CircularReferenceValidator implements BeanValidator {
 
     @Override
     public void validate(final Object target, final Object... validationHints) {
-        Deque<Class<?>> history = extractBeanRegisterHistory(validationHints);
-        Class<?> clazz = (Class<?>) target;
-        if (history.contains(clazz)) {
-            log.error("circular reference on {}", clazz);
+        Deque<BeanSpecification> history = extractBeanRegisterHistory(validationHints);
+        BeanSpecification beanSpecification = (BeanSpecification) target;
+        if (history.contains(beanSpecification)) {
+            log.error("circular reference on {}", beanSpecification);
             throw new CircularReferenceException("circular reference");
         }
     }
 
     @SuppressWarnings("unchecked")
-    private Deque<Class<?>> extractBeanRegisterHistory(final Object[] validationHints) {
-        return (Deque<Class<?>>) Arrays.stream(validationHints)
+    private Deque<BeanSpecification> extractBeanRegisterHistory(final Object[] validationHints) {
+        return (Deque<BeanSpecification>) Arrays.stream(validationHints)
                 .filter(hint -> Deque.class.isAssignableFrom(hint.getClass()))
                 .findFirst()
                 .orElseThrow(BeanRegisterHistoryNotFoundException::new);

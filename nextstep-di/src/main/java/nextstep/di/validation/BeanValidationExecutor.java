@@ -1,7 +1,8 @@
 package nextstep.di.validation;
 
 import com.google.common.collect.Maps;
-import nextstep.di.factory.BeanFactoryUtils;
+import nextstep.di.beans.factory.BeanFactoryUtils;
+import nextstep.di.beans.specification.BeanSpecification;
 import org.reflections.Reflections;
 
 import java.util.Map;
@@ -26,7 +27,7 @@ public class BeanValidationExecutor {
         }
     }
 
-    public void execute(final Class<?> preInstantiateBean, Object... validationHints) {
+    public void execute(final BeanSpecification preInstantiateBean, Object... validationHints) {
         beanValidators.values()
                 .forEach(beanValidator -> beanValidator.validate(preInstantiateBean, validationHints));
     }

@@ -1,5 +1,7 @@
 package nextstep.mvc;
 
+import nextstep.di.context.ApplicationContext;
+import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,13 +16,20 @@ public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
+    private ApplicationContext applicationContext;
+
     private HandlerMappingRegistry handlerMappingRegistry = new HandlerMappingRegistry();
 
     private HandlerAdapterRegistry handlerAdapterRegistry = new HandlerAdapterRegistry();
 
     private HandlerExecutor handlerExecutor;
 
-    public void addHandlerMpping(HandlerMapping handlerMapping) {
+    public DispatcherServlet(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
+    }
+
+    public void addHandlerMapping(HandlerMapping handlerMapping) {
         handlerMappingRegistry.addHandlerMpping(handlerMapping);
     }
 
