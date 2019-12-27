@@ -1,10 +1,10 @@
-package nextstep.mvc.tobe;
+package nextstep.mvc;
 
-import nextstep.mvc.JsonView;
-import nextstep.mvc.JspView;
+import nextstep.mvc.view.JsonView;
+import nextstep.mvc.view.JspView;
 import nextstep.mvc.ModelAndView;
 
-public abstract class AbstractNewController {
+public abstract class AbstractController {
     protected ModelAndView jspView(String forwardUrl) {
         return new ModelAndView(new JspView(forwardUrl));
     }
