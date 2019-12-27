@@ -2,10 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
 import nextstep.stereotype.Controller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +11,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
-
-    private Set<Class<?>> preInstantiateBeans;
-
+    private Map<Class<?>, BeanDefinition> definitions;
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public BeanFactory(Map<Class<?>, BeanDefinition> definitions) {
+        this.definitions = definitions;
     }
 
     @SuppressWarnings("unchecked")
@@ -36,67 +30,51 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> preInstantiateBean : preInstantiateBeans) {
-            initializeInjectedBean(preInstantiateBean);
+        for (BeanDefinition beanDefinition : definitions.values()) {
+            beans.put(beanDefinition.getType(), createBean(beanDefinition));
         }
     }
 
-    private void initializeInjectedBean(Class clazz) {
-        if (beans.containsKey(clazz)) {
-            return;
-        }
+    private Object createBean(BeanDefinition beanDefinition) {
+        Class<?> configType = beanDefinition.getConfigType();
+        Object configuration = createConfiguration(configType);
+        List<Object> parameters = getParameterBeans(beanDefinition);
 
-        Class concreteClass = findConcreteClass(clazz);
-        Object injectedBean = createInjectedInstance(concreteClass);
-
-        beans.put(concreteClass, injectedBean);
-    }
-
-    private Object createInjectedInstance(Class concreteClass) {
-        Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
-
-        if (injectedConstructor == null) {
-            return createInstance(getDefaultConstructor(concreteClass));
-        }
-
-        List<Object> parameters = prepareParameterBeans(injectedConstructor);
-        return createInstance(injectedConstructor, parameters.toArray());
-    }
-
-    private Object createInstance(Constructor constructor, Object... parameters) {
         try {
-            return constructor.newInstance(parameters);
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            logger.error(e.getMessage(), e);
+            BeanCreator beanCreator = beanDefinition.getBeanCreator();
+            return beanCreator.createBean(configuration, parameters.toArray());
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new BeanCreationFailException(e);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private Constructor getDefaultConstructor(Class concreteClass) {
-        try {
-            return concreteClass.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            logger.error(e.getMessage(), e);
-            throw new BeanCreationFailException(e);
+    private Object createConfiguration(Class<?> typeOfConfig) {
+        if (isNotInCreatedBeans(typeOfConfig)) {
+            BeanDefinition beanDefinition = definitions.get(typeOfConfig);
+            beans.put(beanDefinition.getType(), createBean(beanDefinition));
         }
+
+        return beans.get(typeOfConfig);
     }
 
-    private List<Object> prepareParameterBeans(Constructor<?> injectedConstructor) {
+    private boolean isNotInCreatedBeans(Class<?> configType) {
+        return (configType != null) && (beans.get(configType) == null);
+    }
+
+    private List<Object> getParameterBeans(BeanDefinition beanDefinition) {
         List<Object> parameters = new ArrayList<>();
-        for (Class<?> parameterType : injectedConstructor.getParameterTypes()) {
-            Class parameter = findConcreteClass(parameterType);
 
-            if (!beans.containsKey(parameter)) {
-                initializeInjectedBean(parameter);
-            }
-            parameters.add(beans.get(parameter));
-        }
-
+        beanDefinition.getParameters()
+                .forEach(parameter -> parameters.add(getParameterBean(parameter)));
         return parameters;
     }
 
-    private Class findConcreteClass(Class<?> clazz) {
-        return BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans);
+    private Object getParameterBean(Class<?> parameter) {
+        if (beans.containsKey(parameter)) {
+            return beans.get(parameter);
+        }
+
+        BeanDefinition beanDefinition = BeanFactoryUtils.findBeanDefinition(parameter, definitions);
+        return createBean(beanDefinition);
     }
 }

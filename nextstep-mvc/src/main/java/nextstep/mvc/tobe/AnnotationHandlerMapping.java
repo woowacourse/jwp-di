@@ -1,12 +1,10 @@
 package nextstep.mvc.tobe;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
-import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +29,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     public void initialize() {
         Set<Class<?>> controllers = beanFactory.getControllers();
-        Set<Method> methods = getRequestMappingMethods(controllers);
+        Set<Method> methods = MethodScanner.scanAnnotatedMethods(controllers, RequestMapping.class);
         for (Method method : methods) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
@@ -44,9 +42,17 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private void addHandlerExecutions(Method method, RequestMapping rm) {
         List<HandlerKey> handlerKeys = mapHandlerKeys(rm.value(), rm.method());
+
         handlerKeys.forEach(handlerKey -> {
-            handlerExecutions.put(handlerKey, new HandlerExecution(beanFactory.getBean(method.getDeclaringClass()), method));
+            handlerExecutions.put(handlerKey, createHandlerExecution(method));
         });
+    }
+
+    private HandlerExecution createHandlerExecution(Method method) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        Object declaredObject = beanFactory.getBean(declaringClass);
+
+        return new HandlerExecution(declaredObject, method);
     }
 
     private List<HandlerKey> mapHandlerKeys(final String value, final RequestMethod[] originalMethods) {
@@ -58,17 +64,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
                 .map(method -> new HandlerKey(value, method))
                 .collect(Collectors.toList());
     }
-
-    @SuppressWarnings("unchecked")
-    private Set<Method> getRequestMappingMethods(Set<Class<?>> controllers) {
-        Set<Method> requestMappingMethods = Sets.newHashSet();
-        for (Class<?> clazz : controllers) {
-            requestMappingMethods
-                    .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
-        }
-        return requestMappingMethods;
-    }
-
 
     public Object getHandler(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
