@@ -1,4 +1,4 @@
-package nextstep.di.factory.example;
+package nextstep.di.factory.duplication;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
@@ -8,8 +8,8 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan(basePackages = "nextstep.di.factory.example")
-public class IntegrationConfig {
+@ComponentScan(basePackages = "nextstep.di.factory.duplication")
+public class ExceptionConfig {
     @Bean
     public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
@@ -21,7 +21,12 @@ public class IntegrationConfig {
     }
 
     @Bean
-    public MyJdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new MyJdbcTemplate(dataSource);
+    public DataSource dataSource2() {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName("org.h2.Driver");
+        ds.setUrl("jdbc:h2:~/jwp-framework");
+        ds.setUsername("sa");
+        ds.setPassword("");
+        return ds;
     }
 }

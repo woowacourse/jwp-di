@@ -1,6 +1,10 @@
 package nextstep.di.factory;
 
+import nextstep.annotation.Configuration;
+import nextstep.di.factory.definition.BeanDefinition;
 import nextstep.di.factory.example.*;
+import nextstep.di.factory.scanner.ClasspathBeanScanner;
+import nextstep.di.factory.scanner.ConfigurationBeanScanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -8,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -21,8 +26,13 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         String path = "nextstep.di.factory.example";
-        BeanScanner beanScanner = new BeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), path);
-        beanFactory = new BeanFactory(beanScanner.scanBeans());
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(Arrays.asList(Controller.class, Service.class, Repository.class), path);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(Arrays.asList(Configuration.class), path);
+
+        Map<Class<?>, BeanDefinition> classBeanDefinitionMap = classpathBeanScanner.scanBeans();
+        classBeanDefinitionMap.putAll(configurationBeanScanner.scanBeans());
+
+        beanFactory = new BeanFactory(classBeanDefinitionMap);
         beanFactory.initialize();
     }
 
@@ -65,6 +75,13 @@ public class BeanFactoryTest {
     }
 
     @Test
+    @DisplayName("설정파일에 있는 메소드 빈 가져오기 테스트")
+    public void getConfigurationBean() {
+        assertNotNull(beanFactory.getBean(DataSource.class));
+        assertNotNull(beanFactory.getBean(MyJdbcTemplate.class));
+    }
+
+    @Test
     @DisplayName("특정 빈 가져오기 테스트")
     public void getBean() {
         Object bean1 = beanFactory.getBean(MyQnaService.class).getUserRepository();
@@ -85,6 +102,5 @@ public class BeanFactoryTest {
         final QuestionRepository expected = beanFactory.getBean(JdbcQuestionRepository.class);
         assertThat(actual).isEqualTo(expected);
     }
-
 
 }
