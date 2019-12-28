@@ -14,7 +14,7 @@ public class ConfigurationClasspathBeanScannerTest {
 
     @Test
     void scanBeans_성공() {
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(Collections.singletonList(Configuration.class), "nextstep.di.factory.conf");
+        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(Collections.singletonList(Configuration.class), "nextstep.di.factory.example");
         Map<Class<?>, BeanDefinition> classBeanDefinitionMap = cbs.scanBeans();
 
         assertThat(classBeanDefinitionMap.size()).isEqualTo(2);
