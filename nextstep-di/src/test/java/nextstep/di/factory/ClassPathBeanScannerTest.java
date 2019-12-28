@@ -12,7 +12,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ClasspathBeanScannerTest {
+class ClassPathBeanScannerTest {
     private ClasspathBeanScanner classpathBeanScanner;
 
     @Test
