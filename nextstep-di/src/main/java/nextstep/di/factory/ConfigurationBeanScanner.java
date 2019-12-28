@@ -28,6 +28,9 @@ public class ConfigurationBeanScanner implements BeanScanner {
                     .collect(Collectors.toList()));
         }
         for (Method method : methods) {
+            if (maps.containsKey(method.getReturnType())) {
+                throw new DuplicateBeanException();
+            }
             maps.put(method.getReturnType(), new MethodDefinition(method));
         }
         return maps;
