@@ -27,14 +27,23 @@ public class ClasspathBeanScanner implements BeanScanner {
         Set<Class<?>> preInitiatedBeans = new HashSet<>();
         for (Class clazz : annotations) {
             Set scannedClasses = reflections.getTypesAnnotatedWith(clazz);
-            for (Object scannedClass : scannedClasses) {
-                if(preInitiatedBeans.contains(scannedClass)) {
-                    throw new DuplicateBeanException();
-                }
-            }
+            checkDuplicateClass(preInitiatedBeans, scannedClasses);
+
             preInitiatedBeans.addAll(scannedClasses);
         }
         return preInitiatedBeans;
+    }
+
+    private void checkDuplicateClass(Set<Class<?>> preInitiatedBeans, Set scannedClasses) {
+        for (Object scannedClass : scannedClasses) {
+            checkAlreadyExistClass(preInitiatedBeans, scannedClass);
+        }
+    }
+
+    private void checkAlreadyExistClass(Set<Class<?>> preInitiatedBeans, Object scannedClass) {
+        if (preInitiatedBeans.contains(scannedClass)) {
+            throw new DuplicateBeanException();
+        }
     }
 
 }
