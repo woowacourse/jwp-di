@@ -1,5 +1,6 @@
 package nextstep.di.factory;
 
+import nextstep.di.factory.exception.DuplicateBeanException;
 import org.reflections.Reflections;
 
 import java.util.*;
@@ -25,7 +26,13 @@ public class ClasspathBeanScanner implements BeanScanner {
     private Set<Class<?>> scanClassesByAnnotation() {
         Set<Class<?>> preInitiatedBeans = new HashSet<>();
         for (Class clazz : annotations) {
-            preInitiatedBeans.addAll(reflections.getTypesAnnotatedWith(clazz));
+            Set scannedClasses = reflections.getTypesAnnotatedWith(clazz);
+            for (Object scannedClass : scannedClasses) {
+                if(preInitiatedBeans.contains(scannedClass)) {
+                    throw new DuplicateBeanException();
+                }
+            }
+            preInitiatedBeans.addAll(scannedClasses);
         }
         return preInitiatedBeans;
     }

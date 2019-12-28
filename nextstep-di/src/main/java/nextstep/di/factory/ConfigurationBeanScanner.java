@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Bean;
+import nextstep.di.factory.exception.DuplicateBeanException;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
