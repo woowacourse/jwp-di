@@ -34,8 +34,8 @@ public class ConfigurationBeanScanner implements BeanScanner {
         for (Class aClass : classInfo) {
             methods.addAll(
                     Arrays.stream(aClass.getMethods())
-                    .filter(m -> m.isAnnotationPresent(Bean.class))
-                    .collect(Collectors.toList()));
+                            .filter(m -> m.isAnnotationPresent(Bean.class))
+                            .collect(Collectors.toList()));
         }
         return methods;
     }
