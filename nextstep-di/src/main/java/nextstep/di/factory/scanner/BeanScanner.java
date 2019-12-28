@@ -1,4 +1,6 @@
-package nextstep.di.factory;
+package nextstep.di.factory.scanner;
+
+import nextstep.di.factory.definition.BeanDefinition;
 
 import java.util.Map;
 

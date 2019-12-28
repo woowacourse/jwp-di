@@ -1,6 +1,8 @@
-package nextstep.di.factory;
+package nextstep.di.factory.scanner;
 
 import nextstep.annotation.Bean;
+import nextstep.di.factory.definition.BeanDefinition;
+import nextstep.di.factory.definition.MethodDefinition;
 import nextstep.di.factory.exception.DuplicateBeanException;
 import org.reflections.Reflections;
 

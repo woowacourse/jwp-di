@@ -1,7 +1,10 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.definition.BeanDefinition;
 import nextstep.di.factory.example.*;
+import nextstep.di.factory.scanner.ClasspathBeanScanner;
+import nextstep.di.factory.scanner.ConfigurationBeanScanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;

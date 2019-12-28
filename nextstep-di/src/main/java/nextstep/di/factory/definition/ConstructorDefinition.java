@@ -1,5 +1,6 @@
-package nextstep.di.factory;
+package nextstep.di.factory.definition;
 
+import nextstep.di.factory.BeanFactoryUtils;
 import nextstep.di.factory.exception.InvalidBeanException;
 import nextstep.di.factory.exception.NotFoundConstructorException;
 import org.slf4j.Logger;

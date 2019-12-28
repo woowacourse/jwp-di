@@ -1,7 +1,9 @@
 package nextstep.di.factory;
 
 import nextstep.annotation.Configuration;
+import nextstep.di.factory.definition.BeanDefinition;
 import nextstep.di.factory.exception.DuplicateBeanException;
+import nextstep.di.factory.scanner.ConfigurationBeanScanner;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;

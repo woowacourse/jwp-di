@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import nextstep.di.factory.exception.DuplicateBeanException;
+import nextstep.di.factory.scanner.ClasspathBeanScanner;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;

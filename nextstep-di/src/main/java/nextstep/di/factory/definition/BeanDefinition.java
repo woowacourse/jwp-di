@@ -1,4 +1,4 @@
-package nextstep.di.factory;
+package nextstep.di.factory.definition;
 
 public interface BeanDefinition {
     Class<?>[] getParameterTypes();

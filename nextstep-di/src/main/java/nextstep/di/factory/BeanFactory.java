@@ -1,6 +1,7 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.factory.definition.BeanDefinition;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
