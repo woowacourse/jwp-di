@@ -20,28 +20,37 @@ public class ConfigurationBeanScanner implements BeanScanner {
     @Override
     public Map<Class<?>, BeanDefinition> scanBeans() {
         Map<Class<?>, BeanDefinition> maps = new HashMap<>();
-        List<Class> classInfo = findClassByAnnotation();
+        List<Method> methods = findBeanMethod(findClassesByAnnotation());
 
-        List<Method> methods = new ArrayList<>();
-        for (Class aClass : classInfo) {
-            methods.addAll(Arrays.stream(aClass.getMethods())
-                    .filter(m -> m.isAnnotationPresent(Bean.class))
-                    .collect(Collectors.toList()));
-        }
         for (Method method : methods) {
-            if (maps.containsKey(method.getReturnType())) {
-                throw new DuplicateBeanException();
-            }
+            checkDuplicateReturnTypeMethod(maps, method);
             maps.put(method.getReturnType(), new MethodDefinition(method));
         }
         return maps;
     }
 
-    private List<Class> findClassByAnnotation() {
+    private List<Method> findBeanMethod(List<Class> classInfo) {
+        List<Method> methods = new ArrayList<>();
+        for (Class aClass : classInfo) {
+            methods.addAll(
+                    Arrays.stream(aClass.getMethods())
+                    .filter(m -> m.isAnnotationPresent(Bean.class))
+                    .collect(Collectors.toList()));
+        }
+        return methods;
+    }
+
+    private List<Class> findClassesByAnnotation() {
         List<Class> classInfo = new ArrayList<>();
         for (Class annotation : annotations) {
             classInfo.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
         return classInfo;
+    }
+
+    private void checkDuplicateReturnTypeMethod(Map<Class<?>, BeanDefinition> maps, Method method) {
+        if (maps.containsKey(method.getReturnType())) {
+            throw new DuplicateBeanException();
+        }
     }
 }
