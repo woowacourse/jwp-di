@@ -3,9 +3,9 @@ package nextstep.di.scanner;
 import com.google.common.collect.Sets;
 import nextstep.annotation.Configuration;
 import nextstep.di.scanner.package1.ComponentPackage1;
+import nextstep.di.scanner.package1.ConfigScanDefault;
 import nextstep.di.scanner.package1.ConfigWithoutScan;
 import nextstep.di.scanner.package2.ComponentPackage2;
-import nextstep.di.scanner.package1.ConfigScanDefault;
 import nextstep.di.scanner.package2.ConfigScanPackage1;
 import nextstep.di.scanner.package3.ConfigScanPackage2;
 import org.junit.jupiter.api.DisplayName;
@@ -20,21 +20,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ConfigurationScannerTest {
     private static final Set<Class<?>> package1Classes = Sets.newHashSet(Arrays.asList(
-            ComponentPackage1.class,
-            ConfigScanDefault.class,
-            ConfigWithoutScan.class
+        ComponentPackage1.class,
+        ConfigScanDefault.class,
+        ConfigWithoutScan.class
     ));
 
     private static final Set<Class<?>> package2Classes = Sets.newHashSet(Arrays.asList(
-            ComponentPackage2.class,
-            ConfigScanPackage1.class
+        ComponentPackage2.class,
+        ConfigScanPackage1.class
     ));
 
     @Test
     @DisplayName("@Configuration 이 달리지 않은 클래스로 초기화")
     void constructor_notConfigurationClass() {
         assertThrows(IllegalStateException.class,
-                () -> ConfigurationScanner.from(Sets.newHashSet(ClassWithoutConfiguration.class)));
+            () -> ConfigurationScanner.from(Sets.newHashSet(ClassWithoutConfiguration.class)));
     }
 
     @Test
@@ -46,7 +46,7 @@ class ConfigurationScannerTest {
     @Test
     void scan_withoutComponentScan() {
         Set<Class<?>> expectedClasses = Sets.newHashSet(Arrays.asList(
-                ConfigWithoutScan.class
+            ConfigWithoutScan.class
         ));
         ConfigurationScanner configurationScanner = ConfigurationScanner.of(ConfigWithoutScan.class);
 

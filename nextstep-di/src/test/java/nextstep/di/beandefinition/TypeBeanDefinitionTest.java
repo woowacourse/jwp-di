@@ -12,7 +12,7 @@ class TypeBeanDefinitionTest {
     @DisplayName("생성자가 존재하지 않는 타입")
     void of() {
         assertThrows(BeanWithoutConstructorException.class,
-                () -> TypeBeanDefinition.of(WithoutConstructor.class));
+            () -> TypeBeanDefinition.of(WithoutConstructor.class));
     }
 
     // 생성자 여러개 존재하는 경우

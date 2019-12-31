@@ -25,20 +25,20 @@ class TypeScannerTest {
         Set<Class<?>> types = typeScanner.scanAnnotatedWith(Controller.class);
 
         assertThat(types)
-                .hasSize(1)
-                .containsExactlyInAnyOrderElementsOf(expectedTypes);
+            .hasSize(1)
+            .containsExactlyInAnyOrderElementsOf(expectedTypes);
     }
 
     @DisplayName("컴포넌트 어노테이션을 포함한 타입 스캔")
     @Test
     void test() {
         Set<Class<?>> expectedTypes = Sets.newHashSet(Arrays.asList(
-                DefaultScanConfig.class,
-                IntegrationConfig.class,
-                JdbcQuestionRepository.class,
-                JdbcUserRepository.class,
-                MyQnaService.class,
-                QnaController.class
+            DefaultScanConfig.class,
+            IntegrationConfig.class,
+            JdbcQuestionRepository.class,
+            JdbcUserRepository.class,
+            MyQnaService.class,
+            QnaController.class
         ));
 
         TypeScanner typeScanner = new TypeScanner(EXAMPLE_PACKAGE);

@@ -17,17 +17,17 @@ class BeanFactoryUtilsTest {
     @DisplayName("생성자가 존재하지 않는 타입")
     void getBeanConstructor() {
         assertThrows(BeanWithoutConstructorException.class,
-                () -> BeanFactoryUtils.getBeanConstructor(WithoutConstructor.class));
-    }
-
-    class WithoutConstructor {
+            () -> BeanFactoryUtils.getBeanConstructor(WithoutConstructor.class));
     }
 
     @Test
     @DisplayName("@Inject 가 달린 생성자가 존재하는 경우")
-    void getBeanConstructor_hasInjectedConstructor () {
+    void getBeanConstructor_hasInjectedConstructor() {
         Constructor<?> constructor = BeanFactoryUtils.getBeanConstructor(QnaController.class);
 
         assertThat(constructor.isAnnotationPresent(Inject.class)).isTrue();
+    }
+
+    class WithoutConstructor {
     }
 }

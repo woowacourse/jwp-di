@@ -28,12 +28,12 @@ class BeanDefinitionRegistryTest {
         Class<?> type = Car.class;
         BeanDefinition expectedDefinition = TypeBeanDefinition.of(type);
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry(Sets.newHashSet(Arrays.asList(
-                expectedDefinition
+            expectedDefinition
         )));
 
         assertThat(registry.findByType(type))
-                .hasSize(1)
-                .contains(expectedDefinition);
+            .hasSize(1)
+            .contains(expectedDefinition);
     }
 
     @Test
@@ -42,12 +42,12 @@ class BeanDefinitionRegistryTest {
         Class<?> type = Movable.class;
         BeanDefinition expectedDefinition = TypeBeanDefinition.of(Car.class);
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry(Sets.newHashSet(Arrays.asList(
-                expectedDefinition
+            expectedDefinition
         )));
 
         assertThat(registry.findByType(type))
-                .hasSize(1)
-                .contains(expectedDefinition);
+            .hasSize(1)
+            .contains(expectedDefinition);
     }
 
     @Test
@@ -55,8 +55,8 @@ class BeanDefinitionRegistryTest {
     void findByType_fromInterface_findSeveral() {
         Class<?> type = Movable.class;
         Set<BeanDefinition> expectedDefinitions = Sets.newHashSet(Arrays.asList(
-                TypeBeanDefinition.of(Car.class),
-                TypeBeanDefinition.of(Bicycle.class)
+            TypeBeanDefinition.of(Car.class),
+            TypeBeanDefinition.of(Bicycle.class)
         ));
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry(expectedDefinitions);
 
@@ -69,12 +69,12 @@ class BeanDefinitionRegistryTest {
         Class<?> type = Car.class;
         BeanDefinition expectedDefinition = TypeBeanDefinition.of(Bus.class);
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry(Sets.newHashSet(Arrays.asList(
-                expectedDefinition
+            expectedDefinition
         )));
 
         assertThat(registry.findByType(type))
-                .hasSize(1)
-                .contains(expectedDefinition);
+            .hasSize(1)
+            .contains(expectedDefinition);
     }
 
     @Test
@@ -91,7 +91,7 @@ class BeanDefinitionRegistryTest {
         Class<?> type = Car.class;
         BeanDefinition expectedDefinition = TypeBeanDefinition.of(type);
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry(Sets.newHashSet(Arrays.asList(
-                expectedDefinition
+            expectedDefinition
         )));
 
         assertThat(registry.findExactBeanDefinition(Car.class)).isEqualTo(expectedDefinition);
@@ -101,17 +101,17 @@ class BeanDefinitionRegistryTest {
     @DisplayName("해당하는 정의가 여러 존재")
     void findExactBeanDefinition_hasSeveralDefinitions() {
         BeanDefinitionRegistry registry = new BeanDefinitionRegistry(Sets.newHashSet(Arrays.asList(
-                TypeBeanDefinition.of(Bicycle.class),
-                TypeBeanDefinition.of(Car.class)
+            TypeBeanDefinition.of(Bicycle.class),
+            TypeBeanDefinition.of(Car.class)
         )));
 
         assertThrows(MultipleBeanImplementationException.class, () -> registry.findExactBeanDefinition(Movable.class));
     }
 
-    class NotExistType {
+    interface Movable {
     }
 
-    interface Movable {
+    class NotExistType {
     }
 
     class Car implements Movable {
