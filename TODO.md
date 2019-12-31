@@ -42,7 +42,16 @@
     - 일단 Map<BeanDefinition, Object> 의 형태로 관리를 하면 어떨까?
 
 ### todo
-- [ ] 피드백 확인하기
+- [x] 피드백 확인하기
+- [ ] @Component Register 관련 수정
+    - [ ] 프레임워크와 사용자쪽에서 각자 알아야하는 부분 분리하기
+    - [ ] type 은 모호하다... @Component 개념 적용하기
+        - [ ] 피드백에 적기 (어떤 의도로 이렇게 구성했는지)
+- [ ] bean 생성관련
+    - [ ] beanFactory 와 beanDefinition 의 양방향 의존 제거
+        - 생성에 필요한 정보를 제공하기 (예를 들어 원하는 순서 + 타입정보를 제공하므로써)
+        - 그에 맞게 beanFactory 에서 빈을 제공해준다면... 굳이 beanFactory 에서 각 beanDefinition 을 구분할 필요가 없응께
+
 
 ### 생각나는 시나리오??
 
