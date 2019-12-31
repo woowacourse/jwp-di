@@ -1,4 +1,4 @@
-package nextstep.di.factory.example.config;
+package slipp.support.config;
 
 import nextstep.annotation.Bean;
 import nextstep.annotation.ComponentScan;
@@ -8,8 +8,9 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan("nextstep.di.factory.example")
-public class ExampleConfig {
+@ComponentScan({ "next", "core" })
+public class MyConfiguration {
+
     @Bean
     public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();

@@ -2,14 +2,32 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import nextstep.di.factory.exception.DoesNotAllowMultipleInjectedConstructorException;
 
 import java.lang.reflect.Constructor;
+import java.util.Map;
 import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllConstructors;
 import static org.reflections.ReflectionUtils.withAnnotation;
 
 public class BeanFactoryUtils {
+
+    /**
+     * 인자로 전달하는 클래스의 생성자 중 @Inject 애노테이션이 설정되어 있는 생성자를 반환
+     *
+     * @param clazz
+     * @return
+     * @Inject 애노테이션이 설정되어 있는 생성자는 클래스당 하나로 가정한다.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static Set<Constructor> getInjectedConstructors(Class<?> clazz) {
+        Set<Constructor> injectedConstructors = getAllConstructors(clazz, withAnnotation(Inject.class));
+        validateMultipleInjectedConstructor(injectedConstructors);
+
+        return injectedConstructors;
+    }
+
     /**
      * 인자로 전달하는 클래스의 생성자 중 @Inject 애노테이션이 설정되어 있는 생성자를 반환
      *
@@ -52,5 +70,22 @@ public class BeanFactoryUtils {
         }
 
         throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+    }
+
+    public static BeanDefinition findBeanDefinition(Class<?> clazz, Map<Class<?>, BeanDefinition> beanDefinitions) {
+        if (beanDefinitions.containsKey(clazz)) {
+            return beanDefinitions.get(clazz);
+        }
+
+        if (clazz.isInterface()) {
+            for (Class<?> beanDefinitionKey : beanDefinitions.keySet()) {
+                Set<Class<?>> interfaces = Sets.newHashSet(beanDefinitionKey.getInterfaces());
+                if (interfaces.contains(clazz)) {
+                    return beanDefinitions.get(beanDefinitionKey);
+                }
+            }
+        }
+
+        throw new IllegalStateException(clazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
     }
 }

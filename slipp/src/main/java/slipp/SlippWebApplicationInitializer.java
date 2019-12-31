@@ -1,5 +1,6 @@
 package slipp;
 
+import nextstep.di.factory.BeanDefinitionFactory;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.BeanScanner;
 import nextstep.mvc.DispatcherServlet;
@@ -13,13 +14,15 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
+import java.util.Set;
 
 public class SlippWebApplicationInitializer  implements WebApplicationInitializer {
     private static final Logger log = LoggerFactory.getLogger(SlippWebApplicationInitializer.class);
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        BeanFactory beanFactory = new BeanFactory(BeanScanner.scan("slipp"));
+        Set<Class<?>> preInstantiateClasses = BeanScanner.scanConfiguration("slipp");
+        BeanFactory beanFactory = new BeanFactory(BeanDefinitionFactory.createBeanDefinitions(preInstantiateClasses));
         beanFactory.initialize();
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
