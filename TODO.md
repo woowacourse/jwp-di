@@ -9,9 +9,7 @@
     - 경로 설정 가능
     - 스캔 중 새로운 @ComponentScan 이 발견되면 추가로 탐색
         - 해당 범위내에 존재하는 모든 @ComponentScan 이 적용될 때 까지 반복
-
-### todo
-- [ ] BeanDefinition 을 통한 등록
+- [x] BeanDefinition 을 통한 등록
     - 빈을 생성하는 데 필요한 정보들(생성방식 포함)을 모아놓음(추상화해놓음)
     - 빈을 등록하는데 여러가지 방법이 존재하는데 이를 추상화했다고 생각하면 좋을 것 같다
         - 클래스를 통한 등록
@@ -30,19 +28,21 @@
             - 현재는 타입으로 검색
             - 타입으로 특정 BeanDefinition 을 쉽게 찾을 수 있어야 할 듯
 
-- [ ] BeanDefinitionRegister
+- [x] BeanDefinitionRegister
     - 여러 매체를 통해서 그에 알맞는 BeanDefinition 을 생성하고 등록함
         - 결과로 BeanDefinitionRegistry 를 생성, 리턴
         
-- [ ] BeanDefinitionRegistry
+- [x] BeanDefinitionRegistry
     - BeanDefinition 을 등록하고 조회하도록
     - 조회
         - 타입을 통한 조회
         - 위상정렬에서 사용된다면??
             - 의존하는 타입 정보들로 해당 BeanDefinition 을 찾아내야 함
-- [ ] BeanFactory
+- [x] BeanFactory
     - 일단 Map<BeanDefinition, Object> 의 형태로 관리를 하면 어떨까?
 
+### todo
+- [ ] 피드백 확인하기
 
 ### 생각나는 시나리오??
 
