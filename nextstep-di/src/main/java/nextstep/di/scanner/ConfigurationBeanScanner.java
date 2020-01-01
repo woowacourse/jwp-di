@@ -29,14 +29,14 @@ public class ConfigurationBeanScanner {
     public void register(BeanFactory beanFactory) {
         Set<Class<?>> classesWithConfigAnnotation = reflections.getTypesAnnotatedWith(Configuration.class);
         Set<BeanDefinition> beanDefinitions = classesWithConfigAnnotation.stream()
-                .map(this::InstantiateBeanDefinition)
+                .map(this::instantiateBeanDefinition)
                 .flatMap(Collection::stream)
                 .collect(toSet());
 
         beanFactory.register(beanDefinitions);
     }
 
-    private Set<BeanDefinition> InstantiateBeanDefinition(Class<?> clazz) {
+    private Set<BeanDefinition> instantiateBeanDefinition(Class<?> clazz) {
         Object declareClass;
         try {
             declareClass = clazz.newInstance();
