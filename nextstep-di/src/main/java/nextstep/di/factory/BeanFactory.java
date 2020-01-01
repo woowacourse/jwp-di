@@ -55,13 +55,10 @@ public class BeanFactory {
 
     private Object createInstance(BeanDefinition beanDefinition) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         Class<?>[] parameterTypes = beanDefinition.getParameterTypes();
-        if (Objects.isNull(parameterTypes)) {
-            return beanDefinition.instantiate();
-        }
-        return beanDefinition.instantiate(instantiate(parameterTypes));
+        return beanDefinition.instantiate(instantiateParameters(parameterTypes));
     }
 
-    private Object[] instantiate(Class<?>[] parameterTypes) {
+    private Object[] instantiateParameters(Class<?>[] parameterTypes) {
         if (Objects.isNull(parameterTypes)) {
             return null;
         }
