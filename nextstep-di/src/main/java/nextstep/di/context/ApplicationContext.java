@@ -1,10 +1,10 @@
 package nextstep.di.context;
 
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.scanner.BeanScanner;
 import nextstep.di.scanner.ClassPathBeanScanner;
 import nextstep.di.scanner.ClassPathScanner;
 import nextstep.di.scanner.ConfigurationBeanScanner;
-import nextstep.stereotype.BeanAnnotations;
 
 import java.util.Set;
 
@@ -14,23 +14,24 @@ public class ApplicationContext {
     public ApplicationContext(Class... configClass) {
         this.beanFactory = new BeanFactory();
 
-        ClassPathScanner classPathScanner = new ClassPathScanner(configClass);
-        Set<String> packages = classPathScanner.getPackages();
-
-        registerClassPathBeanDefinition(packages);
-        registerConfigurationBeanDefinition(packages);
+        Set<String> packages = scanPackages(configClass);
+        registerBeanDefinition(packages);
 
         beanFactory.initialize();
     }
 
-    private void registerClassPathBeanDefinition(Set<String> packages) {
-        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(packages);
-        classPathBeanScanner.register(beanFactory, BeanAnnotations.getClazz());
+    private Set<String> scanPackages(Class[] configClass) {
+        ClassPathScanner classPathScanner = new ClassPathScanner(configClass);
+        return classPathScanner.getPackages();
     }
 
-    private void registerConfigurationBeanDefinition(Set<String> packages) {
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(packages);
-        configurationBeanScanner.register(beanFactory);
+    private void registerBeanDefinition(Set<String> packages) {
+        registerBeanFactoryToBeanScanner(new ClassPathBeanScanner(packages));
+        registerBeanFactoryToBeanScanner(new ConfigurationBeanScanner(packages));
+    }
+
+    private void registerBeanFactoryToBeanScanner(BeanScanner beanScanner) {
+        beanScanner.register(beanFactory);
     }
 
     public Set<Class<?>> getController() {

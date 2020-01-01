@@ -17,7 +17,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class ConfigurationBeanScanner {
+public class ConfigurationBeanScanner implements BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanScanner.class);
 
     private Reflections reflections;
@@ -26,6 +26,7 @@ public class ConfigurationBeanScanner {
         reflections = new Reflections(basePackage);
     }
 
+    @Override
     public void register(BeanFactory beanFactory) {
         Set<Class<?>> classesWithConfigAnnotation = reflections.getTypesAnnotatedWith(Configuration.class);
         Set<BeanDefinition> beanDefinitions = classesWithConfigAnnotation.stream()

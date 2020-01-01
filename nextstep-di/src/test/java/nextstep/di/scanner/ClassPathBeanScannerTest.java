@@ -6,7 +6,6 @@ import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
-import nextstep.stereotype.BeanAnnotations;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +21,7 @@ public class ClassPathBeanScannerTest {
 
         BeanFactory beanFactory = new BeanFactory();
         ClassPathBeanScanner cps = new ClassPathBeanScanner(samplePackages);
-        cps.register(beanFactory, BeanAnnotations.getClazz());
+        cps.register(beanFactory);
 
         beanFactory.initialize();
 
