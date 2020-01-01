@@ -1,5 +1,6 @@
 package slipp.dao;
 
+import nextstep.annotation.Inject;
 import nextstep.jdbc.JdbcTemplate;
 import nextstep.jdbc.RowMapper;
 import nextstep.stereotype.Repository;
@@ -16,7 +17,12 @@ public class UserDao implements UserRepository {
             resultSet.getString("name"),
             resultSet.getString("email"));
 
-    private final JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private final JdbcTemplate jdbcTemplate;
+
+    @Inject
+    public UserDao(final JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public void insert(final User user) {
         final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
