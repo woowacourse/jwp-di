@@ -1,28 +1,27 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
+import nextstep.di.definition.BeanDefinition;
 import nextstep.exception.BeanInstantiationException;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+
+import static java.util.stream.Collectors.toSet;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiateBeans;
-
+    private Map<Class<?>, BeanDefinition> beanDefinitions = Maps.newHashMap();
     private Map<Class<?>, Object> beans = Maps.newHashMap();
 
-    public BeanFactory(Set<Class<?>> preInstantiateBeans) {
-        this.preInstantiateBeans = preInstantiateBeans;
+    public void register(Set<BeanDefinition> beanDefinitions) {
+        for (BeanDefinition beanDefinition : beanDefinitions) {
+            this.beanDefinitions.put(beanDefinition.getClassType(), beanDefinition);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -31,9 +30,14 @@ public class BeanFactory {
     }
 
     public void initialize() {
-        for (Class<?> clazz : preInstantiateBeans) {
-            beans.put(clazz, instantiate(clazz));
+        for (Class<?> clazz : beanDefinitions.keySet()) {
+            putBean(clazz);
         }
+    }
+
+    private Object putBean(Class<?> clazz) {
+        beans.put(clazz, instantiate(clazz));
+        return beans.get(clazz);
     }
 
     private Object instantiate(Class<?> clazz) {
@@ -42,30 +46,33 @@ public class BeanFactory {
         }
 
         try {
-            return createInstance(clazz, BeanFactoryUtils.getInjectedConstructor(clazz));
+            return createInstance(beanDefinitions.get(BeanFactoryUtils.findConcreteClass(clazz, beanDefinitions.keySet())));
         } catch (Exception e) {
             logger.debug("Fail to instantiate bean {}", e.getMessage());
             throw new BeanInstantiationException();
         }
     }
 
-    private Object createInstance(Class<?> clazz, Constructor<?> constructor) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        if (Objects.isNull(constructor)) {
-            return clazz.newInstance();
-        }
-        return constructor.newInstance(getParameters(constructor));
+    private Object createInstance(BeanDefinition beanDefinition) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+        Class<?>[] parameterTypes = beanDefinition.getParameterTypes();
+        return beanDefinition.instantiate(instantiateParameters(parameterTypes));
     }
 
-    private Object[] getParameters(Constructor<?> constructor) {
-        return Arrays.stream(constructor.getParameterTypes())
-                .map(clazz -> BeanFactoryUtils.findConcreteClass(clazz, preInstantiateBeans))
-                .map(this::instantiate)
-                .toArray();
+    private Object[] instantiateParameters(Class<?>[] parameterTypes) {
+        if (Objects.isNull(parameterTypes)) {
+            return null;
+        }
+
+        List<Object> parameters = new ArrayList<>();
+        for (Class<?> parameterType : parameterTypes) {
+            parameters.add(putBean(parameterType));
+        }
+        return parameters.toArray();
     }
 
     public Set<Class<?>> getController() {
         return beans.keySet().stream()
                 .filter(key -> key.isAnnotationPresent(Controller.class))
-                .collect(Collectors.toSet());
+                .collect(toSet());
     }
 }

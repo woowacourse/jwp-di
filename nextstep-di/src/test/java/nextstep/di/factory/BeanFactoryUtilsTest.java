@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class BeanFactoryUtilsTest {
     @DisplayName("@Inject 애노테이션이 붙어있는 생성자 반환")
@@ -41,12 +40,12 @@ public class BeanFactoryUtilsTest {
         assertThat(BeanFactoryUtils.findConcreteClass(TestInterface.class, preInstantiateBeans)).isEqualTo(TestClass.class);
     }
 
-    @DisplayName("인터페이스의 구현 클래스가 없을 경우 에러")
+    @DisplayName("인터페이스의 구현 클래스가 없을 경우 인터페이스 반환")
     @Test
     void findConcreteClass3() {
         Set<Class<?>> preInstantiateBeans = new HashSet<>(Arrays.asList(TestClassWithoutInject.class));
-        assertThatExceptionOfType(IllegalStateException.class)
-                .isThrownBy(() -> BeanFactoryUtils.findConcreteClass(TestInterface.class, preInstantiateBeans));
+        assertThat(BeanFactoryUtils.findConcreteClass(TestInterface.class, preInstantiateBeans))
+                .isEqualTo(TestInterface.class);
     }
 
     @Controller
