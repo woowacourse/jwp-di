@@ -8,7 +8,7 @@ import nextstep.annotation.Configuration;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 @Configuration
-@ComponentScan({"nextstep.di.scanner.scannerdi"})
+@ComponentScan({"nextstep.di.scanner.di"})
 public class Config {
     @Bean
     public DataSource dataSource() {
