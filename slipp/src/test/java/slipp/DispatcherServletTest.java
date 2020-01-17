@@ -8,6 +8,7 @@ import nextstep.mvc.tobe.AnnotationHandlerMapping;
 import nextstep.mvc.tobe.HandlerExecutionHandlerAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import slipp.support.config.WebConfig;
 import slipp.controller.UserSessionUtils;
 import slipp.domain.User;
 
@@ -31,8 +32,7 @@ class DispatcherServletTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         dispatcher = new DispatcherServlet();
-
-        ApplicationContext applicationContext = new ApplicationContext();
+        ApplicationContext applicationContext = new ApplicationContext(WebConfig.class);
         dispatcher.addHandlerMpping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcher.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
