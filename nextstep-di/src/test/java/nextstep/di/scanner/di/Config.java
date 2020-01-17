@@ -1,4 +1,4 @@
-package nextstep.di.factory.scannerdi;
+package nextstep.di.scanner.di;
 
 import javax.sql.DataSource;
 
@@ -8,7 +8,7 @@ import nextstep.annotation.Configuration;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 @Configuration
-@ComponentScan({"nextstep.di.factory.scannerdi"})
+@ComponentScan({"nextstep.di.scanner.scannerdi"})
 public class Config {
     @Bean
     public DataSource dataSource() {
