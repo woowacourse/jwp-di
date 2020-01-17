@@ -16,7 +16,6 @@ public class ClasspathBeanScanner implements BeanScanner {
     private static final Logger log = LoggerFactory.getLogger(ClasspathBeanScanner.class);
 
     private Reflections reflections;
-
     private BeanFactory beanFactory;
 
     public ClasspathBeanScanner(BeanFactory beanFactory) {
@@ -25,9 +24,12 @@ public class ClasspathBeanScanner implements BeanScanner {
 
     @Override
     public void scanBeans(Object... basePackage) {
+        checkEmptyBasePackage(basePackage);
+
         reflections = new Reflections(basePackage);
         Set<Class<?>> preInstantiatedBeans = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
         beanFactory.appendPreInstantiatedBeans(preInstantiatedBeans);
+        log.info("Scan Beans : {}", this.getClass().getName());
     }
 
     @SuppressWarnings("unchecked")
