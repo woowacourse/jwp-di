@@ -1,17 +1,17 @@
 package nextstep.di.factory;
 
 import com.google.common.collect.Maps;
-import nextstep.di.exception.BeanCreationFailException;
-import nextstep.di.exception.BeanIncludingCycleException;
-import nextstep.di.exception.NotExistBeanException;
-import nextstep.supports.TopologySort;
+import nextstep.di.beandefinition.BaseBeanDefinitionRegister;
+import nextstep.di.beandefinition.BeanDefinition;
+import nextstep.di.beandefinition.BeanDefinitionRegistry;
+import nextstep.di.beandefinition.MethodBeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.cglib.proxy.Callback;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,72 +21,91 @@ import java.util.stream.Collectors;
 public class BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
 
-    private Set<Class<?>> preInstantiatedTypes;
-    private Map<Class<?>, Object> beans = Maps.newHashMap();
+    // BeanFactory 는 하나만 존재해야하는 걸까?
+    private Map<BeanDefinition, Object> beans = Maps.newHashMap();
+    private BeanDefinitionRegistry registry = BeanDefinitionRegistry.create();
 
-    public BeanFactory(Set<Class<?>> preInstantiatedTypes) {
-        this.preInstantiatedTypes = preInstantiatedTypes;
+    private BeanFactory() {
     }
 
-    public void initialize() {
-        addBeans(createTopologySort().calculateReversedOrders());
+    public static BeanFactory initializeWith(Set<Class<?>> scannedTypes) {
+        log.debug("scannedTypes: {}", scannedTypes);
+
+        BeanFactory factory = new BeanFactory();
+        factory.initialize(scannedTypes);
+
+        return factory;
     }
 
-    private TopologySort<Class<?>> createTopologySort() {
-        return new TopologySort<>(
-                preInstantiatedTypes,
-                type -> getParameterTypes(BeanFactoryUtils.getBeanConstructor(type)),
-                (node) -> {
-                    throw new BeanIncludingCycleException(node);
-                });
+    private void initialize(Set<Class<?>> scannedTypes) {
+        initializeRegistry(scannedTypes);
+
+        List<BeanDefinition> beanInstantiationOrder = calculateBeanInstantiationOrder();
+
+        addBeansWithOrder(beanInstantiationOrder);
     }
 
-    private void addBeans(List<Class<?>> types) {
-        for (Class<?> type : types) {
-            addBean(type);
+    private void initializeRegistry(Set<Class<?>> scannedTypes) {
+        registry = BaseBeanDefinitionRegister.from(BeanDefinitionRegistry.create(), this)
+                .register(scannedTypes);
+    }
+
+
+    private List<BeanDefinition> calculateBeanInstantiationOrder() {
+        return BeanInstantiationOrderDecider.of(registry)
+                .decideOrder();
+    }
+
+    private void addBeansWithOrder(List<BeanDefinition> beanInstantiationOrder) {
+        for (BeanDefinition definition : beanInstantiationOrder) {
+            addBean(definition);
         }
     }
 
-    private void addBean(Class<?> type) {
-        log.debug("[addBean] type: {}", type);
-        validateCanBeBean(type);
-
-        beans.put(type, instantiate(BeanFactoryUtils.getBeanConstructor(type)));
-    }
-
-    private void validateCanBeBean(Class<?> type) {
-        if (!type.isInterface() && !preInstantiatedTypes.contains(type)) {
-            throw NotExistBeanException.from(type);
+    private void addBean(BeanDefinition definition) {
+        if (beans.containsKey(definition)) {
+            return;
         }
-        BeanFactoryUtils.findConcreteClass(type, preInstantiatedTypes);
+        beans.put(definition, definition.create(this));
     }
 
-    private Object instantiate(Constructor<?> constructor) {
-        return BeanUtils.instantiateClass(constructor, getBeansSatisfiedWith(getParameterTypes(constructor)));
-    }
-
-    private List<Class<?>> getParameterTypes(Constructor<?> constructor) {
-        try {
-            return BeanFactoryUtils.findConcreteClasses(Arrays.asList(constructor.getParameterTypes()), preInstantiatedTypes);
-        } catch (NotExistBeanException e) {
-            throw BeanCreationFailException.constructWithNotExistParameter(constructor, e.getType());
-        }
-    }
-
-    private Object[] getBeansSatisfiedWith(List<Class<?>> parameterTypes) {
-        return parameterTypes.stream()
-                .map(type -> getBean(type))
-                .toArray();
-    }
-
-    @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
-        return (T) beans.get(requiredType);
+        BeanDefinition definition = registry.findExactBeanDefinition(requiredType);
+
+        return (T) beans.get(definition);
     }
 
     public Map<Class<?>, Object> getBeansSatisfiedWith(Predicate<Class<?>> predicate) {
         return beans.keySet().stream()
+                .map(definition -> definition.getBeanType())
                 .filter(predicate)
                 .collect(Collectors.toMap(type -> type, this::getBean));
+    }
+
+    public Callback[] callbacks = new Callback[]{
+            new BeanMethodInterceptor()
+    };
+
+    public class BeanMethodInterceptor implements MethodInterceptor {
+
+        @Override
+        public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+            log.debug("method: {} begin", method);
+
+            // 만약에 리턴값으로 등록되어 있으면 해당 빈을 리턴하기
+            BeanDefinition definition = MethodBeanDefinition.of(method);
+            if (beans.containsKey(definition)) {
+                return beans.get(definition);
+            }
+
+            log.debug("first time");
+
+            Object ret = methodProxy.invokeSuper(obj, args);
+
+            beans.put(definition, ret);
+
+            log.debug("method: {} end", method);
+            return ret;
+        }
     }
 }

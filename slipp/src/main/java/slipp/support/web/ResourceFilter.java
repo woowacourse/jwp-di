@@ -27,6 +27,8 @@ public class ResourceFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        logger.debug("filter init");
+
         this.defaultRequestDispatcher = filterConfig.getServletContext().getNamedDispatcher("default");
     }
 

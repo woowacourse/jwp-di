@@ -1,6 +1,8 @@
 package slipp.dao;
 
-import nextstep.jdbc.ConnectionManager;
+import nextstep.di.factory.BeanFactory;
+import nextstep.di.scanner.ConfigurationScanner;
+import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -9,23 +11,27 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+    private BeanFactory beanFactory = BeanFactory.initializeWith(ConfigurationScanner.of(JdbcConfiguration.class).scan());
+    private JdbcTemplate jdbcTemplate = beanFactory.getBean(JdbcTemplate.class);
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        DatabasePopulatorUtils.execute(populator, beanFactory.getBean(DataSource.class));
     }
 
     @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        // [TODO] di 프레임워크를 통한 주입
-        UserDao userDao = new UserDao();
+
+        UserDao userDao = new UserDao(jdbcTemplate);
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -38,8 +44,7 @@ public class UserDaoTest {
 
     @Test
     public void findAll() throws Exception {
-        // [TODO] di 프레임워크를 통한 주입
-        UserDao userDao = new UserDao();
+        UserDao userDao = new UserDao(jdbcTemplate);
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }

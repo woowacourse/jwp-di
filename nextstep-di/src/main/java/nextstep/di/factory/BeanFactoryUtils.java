@@ -2,6 +2,7 @@ package nextstep.di.factory;
 
 import com.google.common.collect.Sets;
 import nextstep.annotation.Inject;
+import nextstep.di.exception.BeanWithoutConstructorException;
 import nextstep.di.exception.MultipleBeanImplementationException;
 import nextstep.di.exception.NotExistBeanException;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class BeanFactoryUtils {
      * @Inject 애노테이션이 설정되어 있는 생성자는 클래스당 하나로 가정한다.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static Constructor<?> getInjectedConstructor(Class<?> clazz) {
+    public static <T> Constructor<T> getInjectedConstructor(Class<T> clazz) {
         Set<Constructor> injectedConstructors = getAllConstructors(clazz, withAnnotation(Inject.class));
         if (injectedConstructors.isEmpty()) {
             return null;
@@ -72,10 +73,19 @@ public class BeanFactoryUtils {
                 .collect(Collectors.toList());
     }
 
-    public static Constructor<?> getBeanConstructor(Class<?> type) {
+    public static <T> Constructor<T> getBeanConstructor(Class<T> type) {
         log.debug("type: {}", type.toString());
 
-        Constructor<?> constructor = getInjectedConstructor(type);
-        return constructor != null ? constructor : type.getConstructors()[0];
+        Constructor<T> constructor = getInjectedConstructor(type);
+
+        if (constructor != null) {
+            return constructor;
+        }
+
+        Constructor<T>[] candidatesConstructor = (Constructor<T>[]) type.getConstructors();
+        if (candidatesConstructor.length == 0) {
+            throw BeanWithoutConstructorException.from(type);
+        }
+        return candidatesConstructor[0];
     }
 }

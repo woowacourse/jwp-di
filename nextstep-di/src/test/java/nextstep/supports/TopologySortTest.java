@@ -17,8 +17,8 @@ class TopologySortTest {
     @Test
     void calculateReversedOrders() {
         final Node[] nodes = {
-                new Node(0, new int[]{1}),
-                new Node(1, new int[]{0}),
+            new Node(0, new int[]{1}),
+            new Node(1, new int[]{0}),
         };
 
         assertThrows(RuntimeException.class, () -> createTopologySort(nodes));
@@ -28,9 +28,9 @@ class TopologySortTest {
     @Test
     void calculateReversedOrders_() {
         final Node[] nodes = {
-                new Node(0, new int[]{1}),
-                new Node(1, new int[]{2}),
-                new Node(2, new int[]{0}),
+            new Node(0, new int[]{1}),
+            new Node(1, new int[]{2}),
+            new Node(2, new int[]{0}),
         };
 
         assertThrows(RuntimeException.class, () -> createTopologySort(nodes));
@@ -41,9 +41,9 @@ class TopologySortTest {
     void calculateReversedOrders_hasParents() {
         // Arrange
         final Node[] nodes = {
-                new Node(0, new int[]{2}),
-                new Node(1, new int[]{2}),
-                new Node(2, new int[]{}),
+            new Node(0, new int[]{2}),
+            new Node(1, new int[]{2}),
+            new Node(2, new int[]{}),
         };
         TopologySort<Node> topologySort = createTopologySort(nodes);
 
@@ -58,9 +58,9 @@ class TopologySortTest {
     void calculateReversedOrders_hasChildren() {
         // Arrange
         final Node[] nodes = {
-                new Node(0, new int[]{1, 2}),
-                new Node(1, new int[]{}),
-                new Node(2, new int[]{})
+            new Node(0, new int[]{1, 2}),
+            new Node(1, new int[]{}),
+            new Node(2, new int[]{})
         };
         TopologySort<Node> topologySort = createTopologySort(nodes);
 
@@ -75,14 +75,14 @@ class TopologySortTest {
     void calculateReversedOrders_separatedGroups() {
         // Arrange
         final Node[] nodes = {
-                // group1
-                new Node(0, new int[]{2}),
-                new Node(1, new int[]{2}),
-                new Node(2, new int[]{}),
-                // group2
-                new Node(3, new int[]{4, 5}),
-                new Node(4, new int[]{}),
-                new Node(5, new int[]{})
+            // group1
+            new Node(0, new int[]{2}),
+            new Node(1, new int[]{2}),
+            new Node(2, new int[]{}),
+            // group2
+            new Node(3, new int[]{4, 5}),
+            new Node(4, new int[]{}),
+            new Node(5, new int[]{})
 
         };
         TopologySort<Node> topologySort = createTopologySort(nodes);
@@ -108,9 +108,9 @@ class TopologySortTest {
 
     private TopologySort<Node> createTopologySort(Node[] nodes) {
         return new TopologySort<>(
-                Sets.newHashSet(Arrays.asList(nodes)),
-                getNodeToNodeGenerator(nodes),
-                getErrorHandler()
+            Sets.newHashSet(Arrays.asList(nodes)),
+            getNodeToNodeGenerator(nodes),
+            getErrorHandler()
         );
     }
 
@@ -124,9 +124,9 @@ class TopologySortTest {
         return (node) -> {
             // idx -> node
             return Arrays.stream(node.toIdxs)
-                    .boxed()
-                    .map(toIdx -> nodes[toIdx])
-                    .collect(Collectors.toList());
+                .boxed()
+                .map(toIdx -> nodes[toIdx])
+                .collect(Collectors.toList());
         };
     }
 
@@ -145,7 +145,7 @@ class TopologySortTest {
             if (o == null || getClass() != o.getClass()) return false;
             Node node = (Node) o;
             return idx == node.idx &&
-                    Arrays.equals(toIdxs, node.toIdxs);
+                Arrays.equals(toIdxs, node.toIdxs);
         }
 
         @Override

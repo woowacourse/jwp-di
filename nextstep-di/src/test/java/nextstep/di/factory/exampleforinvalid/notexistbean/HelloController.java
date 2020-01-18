@@ -1,9 +1,9 @@
 package nextstep.di.factory.exampleforinvalid.notexistbean;
 
 import nextstep.annotation.Inject;
-import nextstep.stereotype.Service;
+import nextstep.stereotype.Controller;
 
-@Service
+@Controller
 public class HelloController {
     private final HelloService helloService;
 
