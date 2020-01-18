@@ -42,6 +42,7 @@ class TypeScannerTest {
         ));
 
         TypeScanner typeScanner = new TypeScanner(EXAMPLE_PACKAGE);
+        // 문제는 ... 찾으려는 어노테이션을 찾으려면... 해당 어노테이션 정보도 reflections 에 반영이 되어야 한다는 것
         Set<Class<?>> typesIncludingComponent = typeScanner.scanAnnotatedWith(Component.class);
 
         assertThat(typesIncludingComponent).isEqualTo(expectedTypes);

@@ -27,8 +27,7 @@ public class ConfigurationScanner {
     }
 
     private ConfigurationScanner(Set<Class<?>> configs) {
-        configs.stream()
-                .forEach(config -> validate(config));
+        configs.forEach(this::validate);
 
         this.configs = configs;
     }
