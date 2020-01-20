@@ -1,14 +1,5 @@
 package nextstep.di.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -18,8 +9,16 @@ import nextstep.exception.DefaultConstructorFindFailException;
 import nextstep.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.BeanUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BeanFactory {
     private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
@@ -36,32 +35,21 @@ public class BeanFactory {
     }
 
     public void initialize() {
+        methodsOfBeans.keySet().forEach(this::instantiateClassWithMethodsOfBeans);
         preInstantiatedBeans.forEach(this::instantiateClass);
         logger.info("Initialized BeanFactory!");
     }
 
-    private Object[] getParametersOfExecutable(Executable executable) {
-        Class<?>[] parameterTypes = executable.getParameterTypes();
-        List<Object> parameterObject = Lists.newArrayList();
-
-        for (Class<?> parameterType : parameterTypes) {
-            if (methodsOfBeans.containsKey(parameterType)) {
-                parameterObject.add(instantiateClass(parameterType));
-                continue;
-            }
-            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiatedBeans);
-            confirmCircularReference(executable, concreteClass);
-            parameterObject.add(getParameterOfConstructor(parameterType, concreteClass));
-        }
-        return parameterObject.toArray();
+    public Object instantiateClassWithMethodsOfBeans(Class<?> clazz) {
+        Method method = methodsOfBeans.get(clazz);
+        Object bean = BeanFactoryUtils.instantiateClass(method, getParametersOfExecutable(method));
+        beans.put(clazz, bean);
+        return bean;
     }
 
     private Object instantiateClass(Class<?> clazz) {
         if (methodsOfBeans.containsKey(clazz)) {
-            Method method = methodsOfBeans.get(clazz);
-            Object bean = BeanFactoryUtils.instantiateClass(method, getParametersOfExecutable(method));
-            beans.put(clazz, bean);
-            return bean;
+            return instantiateClassWithMethodsOfBeans(clazz);
         }
 
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
@@ -78,6 +66,22 @@ public class BeanFactory {
             return instantiateConstructorWithInject(constructor);
         }
         return instantiateDefaultConstructor(concreteClass);
+    }
+
+    private Object[] getParametersOfExecutable(Executable executable) {
+        Class<?>[] parameterTypes = executable.getParameterTypes();
+        List<Object> parameterObject = Lists.newArrayList();
+
+        for (Class<?> parameterType : parameterTypes) {
+            if (methodsOfBeans.containsKey(parameterType)) {
+                parameterObject.add(instantiateClass(parameterType));
+                continue;
+            }
+            Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(parameterType, preInstantiatedBeans);
+            confirmCircularReference(executable, concreteClass);
+            parameterObject.add(getParameterOfConstructor(parameterType, concreteClass));
+        }
+        return parameterObject.toArray();
     }
 
     private boolean isNotBean(Class<?> clazz) {
@@ -136,7 +140,5 @@ public class BeanFactory {
     public void appendPreInstantiatedMethodsOfBean(Set<Method> methods) {
         methods.stream()
                 .forEach(method -> methodsOfBeans.put(method.getReturnType(), method));
-        methods.stream()
-                .forEach(method -> preInstantiatedBeans.add(method.getReturnType()));
     }
 }
