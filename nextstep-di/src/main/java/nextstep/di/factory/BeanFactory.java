@@ -48,7 +48,7 @@ public class BeanFactory {
     }
 
     private Object instantiateClass(Class<?> clazz) {
-        if (methodsOfBeans.containsKey(clazz)) {
+        if (containsMethodOfBeans(clazz)) {
             return instantiateClassWithMethodsOfBeans(clazz);
         }
 
@@ -68,12 +68,16 @@ public class BeanFactory {
         return instantiateDefaultConstructor(concreteClass);
     }
 
+    private boolean containsMethodOfBeans(Class<?> clazz) {
+        return methodsOfBeans.containsKey(clazz);
+    }
+
     private Object[] getParametersOfExecutable(Executable executable) {
         Class<?>[] parameterTypes = executable.getParameterTypes();
         List<Object> parameterObject = Lists.newArrayList();
 
         for (Class<?> parameterType : parameterTypes) {
-            if (methodsOfBeans.containsKey(parameterType)) {
+            if (containsMethodOfBeans(parameterType)) {
                 parameterObject.add(instantiateClass(parameterType));
                 continue;
             }
@@ -133,8 +137,7 @@ public class BeanFactory {
     }
 
     public void appendPreInstantiatedBeans(Set<Class<?>> preInstantiatedBeans) {
-        preInstantiatedBeans.stream()
-                .forEach(bean -> this.preInstantiatedBeans.add(bean));
+        this.preInstantiatedBeans.addAll(preInstantiatedBeans);
     }
 
     public void appendMethodsOfPreInstantiatedBeans(List<Method> methods) {
