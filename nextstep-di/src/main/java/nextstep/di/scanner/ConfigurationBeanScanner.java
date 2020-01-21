@@ -44,6 +44,7 @@ public class ConfigurationBeanScanner implements BeanScanner {
         List<Method> methodsWithAnnotation = Lists.newArrayList();
         configClasses.forEach(clazz ->
                 methodsWithAnnotation.addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(annotation))));
+        log.info("Find all method with annotation : {}", annotation.getName());
         return methodsWithAnnotation;
     }
 
@@ -53,6 +54,7 @@ public class ConfigurationBeanScanner implements BeanScanner {
         for (Method method : methods) {
             Class<?> clazz = method.getReturnType();
             if (returnTypeOfMethod.contains(clazz)) {
+                log.debug("Duplicated Beans : {}", clazz.getName());
                 throw new DuplicatedBeansException(clazz.getName());
             }
             returnTypeOfMethod.add(clazz);

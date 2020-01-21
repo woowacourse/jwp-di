@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BeanFactory {
-    private static final Logger logger = LoggerFactory.getLogger(BeanFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
 
     private Set<Class<?>> preInstantiatedBeans = Sets.newHashSet();
 
@@ -37,7 +37,7 @@ public class BeanFactory {
     public void initialize() {
         methodsOfBeans.keySet().forEach(this::instantiateClassWithMethodsOfBeans);
         preInstantiatedBeans.forEach(this::instantiateClass);
-        logger.info("Initialized BeanFactory!");
+        log.info("Initialized BeanFactory!");
     }
 
     public Object instantiateClassWithMethodsOfBeans(Class<?> clazz) {
@@ -54,6 +54,7 @@ public class BeanFactory {
 
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, preInstantiatedBeans);
         if (isNotBean(concreteClass)) {
+            log.debug("Not Bean : {}", concreteClass.getName());
             throw new BeanCreateFailException();
         }
 
@@ -65,6 +66,8 @@ public class BeanFactory {
         if (Objects.nonNull(constructor)) {
             return instantiateConstructorWithInject(constructor);
         }
+
+        log.info("Instantiate class! : {}", clazz.getName());
         return instantiateDefaultConstructor(concreteClass);
     }
 
@@ -85,6 +88,8 @@ public class BeanFactory {
             confirmCircularReference(executable, concreteClass);
             parameterObject.add(getParameterOfConstructor(parameterType, concreteClass));
         }
+
+        log.info("Get parameters : {}", executable.getName());
         return parameterObject.toArray();
     }
 
@@ -95,13 +100,14 @@ public class BeanFactory {
     private Object instantiateConstructorWithInject(Constructor<?> constructor) {
         Class<?> clazz = constructor.getDeclaringClass();
         Object bean = BeanUtils.instantiateClass(constructor, getParametersOfExecutable(constructor));
-        logger.debug("Instantiate Bean with Inject Annotation : {}", clazz.getSimpleName());
+        log.debug("Instantiate Bean with Inject Annotation : {}", clazz.getSimpleName());
         beans.put(clazz, bean);
         return bean;
     }
 
     private void confirmCircularReference(Executable executable, Class<?> concreteClass) {
         if (isSameClassType(executable, concreteClass)) {
+            log.debug("Circular Reference : {}, {}", executable.getName(), concreteClass.getName());
             throw new CircularReferenceException();
         }
     }
@@ -122,7 +128,7 @@ public class BeanFactory {
             Constructor<?> constructor = clazz.getDeclaredConstructor();
             Object bean = BeanUtils.instantiateClass(constructor);
             beans.put(clazz, bean);
-            logger.debug("Instantiate Bean with Default Constructor: {}", clazz.getSimpleName());
+            log.debug("Instantiate Bean with Default Constructor: {}", clazz.getSimpleName());
             return bean;
         } catch (NoSuchMethodException e) {
             throw new DefaultConstructorFindFailException();

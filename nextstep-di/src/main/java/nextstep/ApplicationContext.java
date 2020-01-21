@@ -37,13 +37,13 @@ public class ApplicationContext {
 
         beanFactory.initialize();
 
-        log.info("Initialized Beans : {}", this.getClass().getName());
+        log.info("Initialized Beans!");
         return beanFactory;
     }
 
     private void checkEmptyBasePackage() {
         if (basePackages.size() == 0) {
-            log.debug("Empty Base Package : {} ", this.getClass().getName());
+            log.debug("Empty Base Package");
             throw new EmptyBasePackagesException();
         }
     }
@@ -53,6 +53,8 @@ public class ApplicationContext {
 
         Arrays.stream(configClasses)
                 .forEach(configClazz -> basePackages.addAll(findBasePackage(configClazz)));
+
+        log.info("Find Base Package");
         return basePackages;
     }
 

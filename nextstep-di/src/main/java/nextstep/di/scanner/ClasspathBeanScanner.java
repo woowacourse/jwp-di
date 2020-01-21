@@ -51,6 +51,7 @@ public class ClasspathBeanScanner implements BeanScanner {
                 .filter(beans::contains)
                 .findAny()
                 .ifPresent(bean -> {
+                    log.debug("Duplicated Beans : {}", bean.getName());
                     throw new DuplicatedBeansException(bean.getName());
                 });
     }
