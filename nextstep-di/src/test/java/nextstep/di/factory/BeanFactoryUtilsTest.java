@@ -7,6 +7,7 @@ import nextstep.di.factory.example.ExampleConfig;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.UserRepository;
+import nextstep.exception.NotFoundConcreteClazzException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +48,7 @@ class BeanFactoryUtilsTest {
     @Test
     @DisplayName("인터페이스를 구현한 클래스가 존재하지 않을 때 예외 반환")
     void findConcreteClassWhenNotFoundConcreteClass() {
-        assertThrows(IllegalStateException.class, () ->
+        assertThrows(NotFoundConcreteClazzException.class, () ->
                 BeanFactoryUtils.findConcreteClass(UserRepository.class, Sets.newHashSet()));
     }
 
