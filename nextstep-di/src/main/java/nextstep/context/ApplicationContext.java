@@ -30,12 +30,10 @@ public class ApplicationContext {
 
         BeanFactory beanFactory = new BeanFactory();
 
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
-        configurationBeanScanner.scanBeans(basePackages);
+        IntegrationBeanScanner integrationBeanScanner = new IntegrationBeanScanner(
+                new ConfigurationBeanScanner(beanFactory), new ClasspathBeanScanner(beanFactory));
 
-        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
-        classpathBeanScanner.scanBeans(basePackages);
-
+        integrationBeanScanner.scanBeans(basePackages);
         beanFactory.initialize();
 
         log.info("Initialized beans!");
