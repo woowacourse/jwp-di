@@ -6,6 +6,7 @@ import nextstep.di.factory.example.JdbcQuestionRepository;
 import nextstep.di.factory.example.JdbcUserRepository;
 import nextstep.di.factory.example.MyQnaService;
 import nextstep.di.factory.example.QnaController;
+import nextstep.exception.DuplicatedBeansException;
 import nextstep.exception.EmptyBasePackagesException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,5 +42,11 @@ class ClasspathBeanScannerTest {
     @Test
     void scanBeansWithEmptyBasePackages() {
         assertThrows(EmptyBasePackagesException.class, beanScanner::scanBeans);
+    }
+
+    @Test
+    void duplicateBeans() {
+        assertThrows(DuplicatedBeansException.class,
+                () -> beanScanner.scanBeans("nextstep.di.scanner.duplicatedBeans"));
     }
 }

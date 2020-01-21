@@ -2,6 +2,7 @@ package nextstep.di.scanner;
 
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.example.MyJdbcTemplate;
+import nextstep.exception.DuplicatedBeansException;
 import nextstep.exception.EmptyBasePackagesException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,5 +34,12 @@ class ConfigurationBeanScannerTest {
     @Test
     void scanBeansWithEmptyBasePackages() {
         assertThrows(EmptyBasePackagesException.class, beanScanner::scanBeans);
+    }
+
+    @Test
+    void throwExceptionWhenDuplicatedBeans() {
+        ConfigurationBeanScanner beanScanner = new ConfigurationBeanScanner(beanFactory);
+        assertThrows(DuplicatedBeansException.class,
+                () -> beanScanner.scanBeans("nextstep.di.scanner.duplicatedBeans"));
     }
 }

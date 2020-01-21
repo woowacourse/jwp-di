@@ -2,6 +2,7 @@ package nextstep.di.scanner;
 
 import com.google.common.collect.Sets;
 import nextstep.di.factory.BeanFactory;
+import nextstep.exception.DuplicatedBeansException;
 import nextstep.stereotype.Controller;
 import nextstep.stereotype.Repository;
 import nextstep.stereotype.Service;
@@ -36,9 +37,21 @@ public class ClasspathBeanScanner implements BeanScanner {
     public Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
         Set<Class<?>> beans = Sets.newHashSet();
         for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
+            Set<Class<?>> classesWithAnnotation = reflections.getTypesAnnotatedWith(annotation);
+
+            checkDuplicatedBeans(beans, classesWithAnnotation);
+            beans.addAll(classesWithAnnotation);
         }
         log.debug("Scan Beans Type : {}", beans);
         return beans;
+    }
+
+    private void checkDuplicatedBeans(Set<Class<?>> beans, Set<Class<?>> classesWithAnnotation) {
+        classesWithAnnotation.stream()
+                .filter(beans::contains)
+                .findAny()
+                .ifPresent(bean -> {
+                    throw new DuplicatedBeansException(bean.getName());
+                });
     }
 }

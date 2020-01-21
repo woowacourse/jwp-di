@@ -137,8 +137,7 @@ public class BeanFactory {
                 .forEach(bean -> this.preInstantiatedBeans.add(bean));
     }
 
-    public void appendPreInstantiatedMethodsOfBean(Set<Method> methods) {
-        methods.stream()
-                .forEach(method -> methodsOfBeans.put(method.getReturnType(), method));
+    public void appendMethodsOfPreInstantiatedBeans(List<Method> methods) {
+        methods.forEach(method -> methodsOfBeans.put(method.getReturnType(), method));
     }
 }
