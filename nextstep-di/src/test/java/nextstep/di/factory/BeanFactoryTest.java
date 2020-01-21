@@ -55,7 +55,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    void canNotFoundDefaultConstructor() {
+    void throwExceptionNotFoundDefaultConstructor() {
         beanFactory.appendPreInstantiatedBeans(Sets.newHashSet(NoDefaultConstructorController.class));
 
         assertThrows(DefaultConstructorFindFailException.class,

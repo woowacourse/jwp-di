@@ -47,7 +47,7 @@ class BeanFactoryUtilsTest {
 
     @Test
     @DisplayName("인터페이스를 구현한 클래스가 존재하지 않을 때 예외 반환")
-    void findConcreteClassWhenNotFoundConcreteClass() {
+    void throwExceptionWhenNotFoundConcreteClass() {
         assertThrows(NotFoundConcreteClazzException.class, () ->
                 BeanFactoryUtils.findConcreteClass(UserRepository.class, Sets.newHashSet()));
     }

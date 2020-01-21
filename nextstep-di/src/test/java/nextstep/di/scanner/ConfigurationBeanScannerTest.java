@@ -32,7 +32,7 @@ class ConfigurationBeanScannerTest {
     }
 
     @Test
-    void scanBeansWithEmptyBasePackages() {
+    void throwExceptionWhenEmptyBasePackages() {
         assertThrows(EmptyBasePackagesException.class, beanScanner::scanBeans);
     }
 

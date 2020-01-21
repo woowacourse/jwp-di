@@ -26,7 +26,7 @@ class ApplicationContextTest {
     }
 
     @Test
-    void emptyBasePackages() {
+    void throwExceptionEmptyBasePackages() {
         applicationContext = new ApplicationContext();
         assertThrows(EmptyBasePackagesException.class, () -> applicationContext.initializeBeans());
     }

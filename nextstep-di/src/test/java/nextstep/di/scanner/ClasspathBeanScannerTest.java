@@ -40,12 +40,12 @@ class ClasspathBeanScannerTest {
     }
 
     @Test
-    void scanBeansWithEmptyBasePackages() {
+    void throwExceptionWhenEmptyBasePackages() {
         assertThrows(EmptyBasePackagesException.class, beanScanner::scanBeans);
     }
 
     @Test
-    void duplicateBeans() {
+    void throwExceptionDuplicateBeans() {
         assertThrows(DuplicatedBeansException.class,
                 () -> beanScanner.scanBeans("nextstep.di.scanner.duplicatedBeans"));
     }
