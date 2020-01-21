@@ -7,6 +7,7 @@ import nextstep.di.factory.example.NoDefaultConstructorController;
 import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.notbean.InjectNotBean;
 import nextstep.di.scanner.ClasspathBeanScanner;
+import nextstep.di.scanner.ConfigurationBeanScanner;
 import nextstep.exception.BeanCreateFailException;
 import nextstep.exception.CircularReferenceException;
 import nextstep.exception.DefaultConstructorFindFailException;
@@ -24,6 +25,8 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         beanFactory = new BeanFactory();
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
+        configurationBeanScanner.scanBeans(BASE_PACKAGE);
     }
 
     @Test
@@ -85,7 +88,6 @@ public class BeanFactoryTest {
     void throwExceptionWhenNotBean() {
         beanFactory.appendPreInstantiatedBeans(Sets.newHashSet(InjectNotBean.class));
 
-        assertThrows(BeanCreateFailException.class,
-                () -> beanFactory.initialize());
+        assertThrows(BeanCreateFailException.class, () -> beanFactory.initialize());
     }
 }

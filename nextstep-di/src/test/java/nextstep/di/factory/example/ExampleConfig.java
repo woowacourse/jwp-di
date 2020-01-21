@@ -8,15 +8,20 @@ import nextstep.annotation.Configuration;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 @Configuration
-@ComponentScan({"nextstep.di.factory.example"})
+@ComponentScan({"nextstep.di.factory.example", "nextstep.di.context"})
 public class ExampleConfig {
     @Bean
     public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName("org.h2.Driver");
-        ds.setUrl("jdbc:h2:~/jwp-framework;MVCC=TRUE;DB_CLOSE_ON_EXIT=FALSE");
+        ds.setUrl("\"jdbc:h2:~/jwp-framework;MVCC=TRUE;DB_CLOSE_ON_EXIT=FALSE\"");
         ds.setUsername("sa");
         ds.setPassword("");
         return ds;
+    }
+
+    @Bean
+    public MyJdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new MyJdbcTemplate(dataSource);
     }
 }

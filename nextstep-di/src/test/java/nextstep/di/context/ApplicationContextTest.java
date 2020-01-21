@@ -1,10 +1,8 @@
-package nextstep;
+package nextstep.di.context;
 
+import nextstep.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.example.ExampleConfig;
-import nextstep.di.factory.example.IntegrationConfig;
-import nextstep.di.scanner.di.Config;
-import nextstep.di.scanner.di.ExampleRepository;
 import nextstep.exception.EmptyBasePackagesException;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +17,7 @@ class ApplicationContextTest {
 
     @Test
     void initializeBeans() {
-        applicationContext = new ApplicationContext(Config.class, ExampleConfig.class,
-                IntegrationConfig.class);
+        applicationContext = new ApplicationContext(ExampleConfig.class);
         beanFactory = applicationContext.initializeBeans();
 
         assertNotNull(beanFactory.getBean(ExampleRepository.class));
