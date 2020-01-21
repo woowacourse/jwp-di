@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import nextstep.ApplicationContext;
+import nextstep.context.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;

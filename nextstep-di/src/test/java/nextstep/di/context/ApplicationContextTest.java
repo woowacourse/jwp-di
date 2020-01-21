@@ -1,6 +1,6 @@
 package nextstep.di.context;
 
-import nextstep.ApplicationContext;
+import nextstep.context.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.factory.example.ExampleConfig;
 import nextstep.exception.EmptyBasePackagesException;

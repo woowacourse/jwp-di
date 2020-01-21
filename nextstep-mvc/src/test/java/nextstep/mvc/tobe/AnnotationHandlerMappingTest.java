@@ -1,6 +1,6 @@
 package nextstep.mvc.tobe;
 
-import nextstep.ApplicationContext;
+import nextstep.context.ApplicationContext;
 import nextstep.db.DataBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

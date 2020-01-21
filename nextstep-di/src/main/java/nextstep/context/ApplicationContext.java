@@ -1,9 +1,10 @@
-package nextstep;
+package nextstep.context;
 
 import nextstep.annotation.ComponentScan;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.di.scanner.ConfigurationBeanScanner;
+import nextstep.di.scanner.IntegrationBeanScanner;
 import nextstep.exception.EmptyBasePackagesException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +38,13 @@ public class ApplicationContext {
 
         beanFactory.initialize();
 
-        log.info("Initialized Beans!");
+        log.info("Initialized beans!");
         return beanFactory;
     }
 
     private void checkEmptyBasePackage() {
         if (basePackages.size() == 0) {
-            log.debug("Empty Base Package");
+            log.debug("Empty base package");
             throw new EmptyBasePackagesException();
         }
     }
@@ -54,7 +55,7 @@ public class ApplicationContext {
         Arrays.stream(configClasses)
                 .forEach(configClazz -> basePackages.addAll(findBasePackage(configClazz)));
 
-        log.info("Find Base Package");
+        log.info("Find base package");
         return basePackages;
     }
 
