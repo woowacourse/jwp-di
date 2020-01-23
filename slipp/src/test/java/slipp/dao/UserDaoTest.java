@@ -5,6 +5,7 @@ import java.util.List;
 import nextstep.di.factory.BeanFactory;
 import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.jdbc.ConnectionManager;
+import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import slipp.domain.User;
@@ -28,8 +29,7 @@ public class UserDaoTest {
 
         BeanFactory beanFactory = new BeanFactory();
         new ClasspathBeanScanner(beanFactory).scanBeans(BASE_PACKAGE);
-        beanFactory.initialize();
-        userDao = beanFactory.getBean(UserDao.class);
+        userDao = new UserDao(new JdbcTemplate(ConnectionManager.getDataSource()));
     }
 
     @Test

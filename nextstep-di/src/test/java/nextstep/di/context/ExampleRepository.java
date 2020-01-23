@@ -1,4 +1,4 @@
-package nextstep.di.factory.scannerdi;
+package nextstep.di.context;
 
 import javax.sql.DataSource;
 

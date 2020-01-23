@@ -1,32 +1,45 @@
 package nextstep.di.scanner;
 
-import java.util.List;
-import javax.sql.DataSource;
-
 import nextstep.di.factory.BeanFactory;
+import nextstep.di.factory.example.MyJdbcTemplate;
+import nextstep.exception.DuplicatedBeansException;
+import nextstep.exception.EmptyBasePackagesException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ConfigurationBeanScannerTest {
-    @Test
-    public void register_simple() {
-        BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.scanConfigurationBeans();
-        beanFactory.initialize();
+    private BeanFactory beanFactory;
+    private ConfigurationBeanScanner beanScanner;
 
-        assertNotNull(beanFactory.getBean(DataSource.class));
+    @BeforeEach
+    void setUp() {
+        beanFactory = new BeanFactory();
+        beanScanner = new ConfigurationBeanScanner(beanFactory);
     }
 
     @Test
-    void appendBasePackages() {
-        BeanFactory beanFactory = new BeanFactory();
-        ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        List<String> basePackages = cbs.appendBasePackage();
+    void scanBeans() {
+        beanScanner.scanBeans("nextstep.di.factory.example");
+        beanFactory.initialize();
 
-        assertTrue(basePackages.contains("nextstep.di.factory.example"));
-        assertTrue(basePackages.contains("nextstep.di.factory.scannerdi"));
+        assertNotNull(beanFactory.getBean(DataSource.class));
+        assertNotNull(beanFactory.getBean(MyJdbcTemplate.class));
+    }
+
+    @Test
+    void throwExceptionWhenEmptyBasePackages() {
+        assertThrows(EmptyBasePackagesException.class, beanScanner::scanBeans);
+    }
+
+    @Test
+    void throwExceptionWhenDuplicatedBeans() {
+        ConfigurationBeanScanner beanScanner = new ConfigurationBeanScanner(beanFactory);
+        assertThrows(DuplicatedBeansException.class,
+                () -> beanScanner.scanBeans("nextstep.di.scanner.duplicatedBeans"));
     }
 }
