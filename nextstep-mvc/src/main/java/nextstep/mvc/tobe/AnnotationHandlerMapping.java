@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import nextstep.context.ApplicationContext;
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanScanner;
 import nextstep.mvc.HandlerMapping;
 import nextstep.web.annotation.RequestMapping;
 import nextstep.web.annotation.RequestMethod;
@@ -22,20 +22,16 @@ import org.slf4j.LoggerFactory;
 public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private Object[] basePackage;
+    private ApplicationContext applicationContext;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    public AnnotationHandlerMapping(Object... basePackage) {
-        this.basePackage = basePackage;
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     public void initialize() {
-        BeanScanner beanScanner = new BeanScanner(basePackage);
-        Set<Class<?>> preInstantiatedBeans = beanScanner.scanBeans();
-
-        BeanFactory beanFactory = new BeanFactory();
-        beanFactory.initialize(preInstantiatedBeans);
+        BeanFactory beanFactory = applicationContext.initializeBeans();
 
         Map<Class<?>, Object> controllers = beanFactory.getControllers();
         Set<Method> methods = getRequestMappingMethods(controllers.keySet());
@@ -75,7 +71,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         }
         return requestMappingMethods;
     }
-
 
     public Object getHandler(HttpServletRequest request) {
         String requestUri = request.getRequestURI();

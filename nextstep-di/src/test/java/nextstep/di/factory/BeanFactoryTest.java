@@ -1,11 +1,13 @@
 package nextstep.di.factory;
 
-import java.util.Set;
-
 import com.google.common.collect.Sets;
 import nextstep.di.factory.circularreference.CircularReferenceController;
-import nextstep.di.factory.example.*;
+import nextstep.di.factory.example.MyQnaService;
+import nextstep.di.factory.example.NoDefaultConstructorController;
+import nextstep.di.factory.example.QnaController;
 import nextstep.di.factory.notbean.InjectNotBean;
+import nextstep.di.scanner.ClasspathBeanScanner;
+import nextstep.di.scanner.ConfigurationBeanScanner;
 import nextstep.exception.BeanCreateFailException;
 import nextstep.exception.CircularReferenceException;
 import nextstep.exception.DefaultConstructorFindFailException;
@@ -23,11 +25,15 @@ public class BeanFactoryTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         beanFactory = new BeanFactory();
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
+        configurationBeanScanner.scanBeans(BASE_PACKAGE);
     }
 
     @Test
     public void di() {
-        beanFactory.initialize(new BeanScanner(BASE_PACKAGE).scanBeans());
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scanBeans(BASE_PACKAGE);
+        beanFactory.initialize();
 
         QnaController qnaController = beanFactory.getBean(QnaController.class);
 
@@ -41,24 +47,30 @@ public class BeanFactoryTest {
 
     @Test
     void getControllers() {
-        beanFactory.initialize(new BeanScanner(BASE_PACKAGE).scanBeans());
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scanBeans(BASE_PACKAGE);
+        beanFactory.initialize();
+
         assertThat(beanFactory.getControllers().size()).isEqualTo(1);
     }
 
     @Test
-    void canNotFoundDefaultConstructor() {
+    void throwExceptionNotFoundDefaultConstructor() {
+        beanFactory.appendPreInstantiatedBeans(Sets.newHashSet(NoDefaultConstructorController.class));
+
         assertThrows(DefaultConstructorFindFailException.class,
-                () -> beanFactory.initialize(Sets.newHashSet(NoDefaultConstructorController.class)));
+                () -> beanFactory.initialize());
     }
 
     @Test
     void confirmSingleton() {
-        Set<Class<?>> preInstantiatedBeans = new BeanScanner(BASE_PACKAGE).scanBeans();
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scanBeans(BASE_PACKAGE);
+        beanFactory.initialize();
 
-        beanFactory.initialize(preInstantiatedBeans);
         Object originController = beanFactory.getBean(QnaController.class);
 
-        beanFactory.initialize(preInstantiatedBeans);
+        beanFactory.initialize();
         Object expectedController = beanFactory.getBean(QnaController.class);
 
         assertSame(originController, expectedController);
@@ -66,13 +78,16 @@ public class BeanFactoryTest {
 
     @Test
     void throwExceptionWhenCircularReference() {
+        beanFactory.appendPreInstantiatedBeans(Sets.newHashSet(CircularReferenceController.class));
+
         assertThrows(CircularReferenceException.class,
-                () -> beanFactory.initialize(Sets.newHashSet(CircularReferenceController.class)));
+                () -> beanFactory.initialize());
     }
 
     @Test
     void throwExceptionWhenNotBean() {
-        assertThrows(BeanCreateFailException.class,
-                () -> beanFactory.initialize(Sets.newHashSet(InjectNotBean.class)));
+        beanFactory.appendPreInstantiatedBeans(Sets.newHashSet(InjectNotBean.class));
+
+        assertThrows(BeanCreateFailException.class, () -> beanFactory.initialize());
     }
 }

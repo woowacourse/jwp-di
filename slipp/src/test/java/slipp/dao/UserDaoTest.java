@@ -1,17 +1,19 @@
 package slipp.dao;
 
+import java.util.List;
+
 import nextstep.di.factory.BeanFactory;
-import nextstep.di.factory.BeanScanner;
+import nextstep.di.scanner.ClasspathBeanScanner;
 import nextstep.jdbc.ConnectionManager;
+import nextstep.jdbc.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import slipp.domain.User;
 import slipp.dto.UserUpdatedDto;
 
-import java.util.List;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,12 +28,12 @@ public class UserDaoTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         BeanFactory beanFactory = new BeanFactory();
-        beanFactory.initialize(new BeanScanner(BASE_PACKAGE).scanBeans());
-        userDao = beanFactory.getBean(UserDao.class);
+        new ClasspathBeanScanner(beanFactory).scanBeans(BASE_PACKAGE);
+        userDao = new UserDao(new JdbcTemplate(ConnectionManager.getDataSource()));
     }
 
     @Test
-    public void crud() throws Exception {
+    public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
